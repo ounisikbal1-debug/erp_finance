@@ -1,0 +1,1 @@
+export const MAX_PAYROLL_AMOUNT = Number.MAX_SAFE_INTEGER / 12 / 1000;

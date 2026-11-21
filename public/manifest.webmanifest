@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "SAFE ERP",
+  "short_name": "SAFE",
+  "description": "Système d'analyse financière des entreprises",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0B0F19",
+  "theme_color": "#0B0F19",
+  "icons": [
+    {
+      "src": "/safe-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

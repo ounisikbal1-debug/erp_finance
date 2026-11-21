@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Production builds
+/dist/
+/server-dist/
+
+# Database temporary backups
+*.db.backup*
+*.db.pre-*
+*.db.before-*
+*.db.first-*
+scratch/
+
+# Logs & temp
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS & Editor files
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/

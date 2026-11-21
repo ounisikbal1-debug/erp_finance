@@ -1,0 +1,5 @@
+# Chaîne SHA-256 des écritures comptabilisées
+
+Chaque écriture passant par les workflows de comptabilisation SAFE ERP est enregistrée dans `JournalEntryAuditRecord` après son passage au statut `POSTED`. L’empreinte SHA-256 couvre l’entête comptable et les lignes normalisées; chaque empreinte incorpore le hash précédent et un numéro séquentiel propre à l’entité. La mise à jour de la tête est transactionnelle et verrouille l’enregistrement de tête de chaîne avant d’allouer la séquence. Les paires intercompagnies acquièrent les têtes dans l’ordre des identifiants d’entité.
+
+Les enregistrements d’audit sont append-only au niveau SQLite et PostgreSQL. `GET /api/finance/audit-chain/verify` vérifie les séquences, liens, empreintes, têtes et écritures comptabilisées manquantes depuis l’activation de la chaîne. Les écritures historiques ne sont pas rétroactivement hashées. Toute divergence est signalée; l’empreinte ne prouve pas l’exactitude comptable et ne revendique pas à elle seule une conformité FEC ou réglementaire.

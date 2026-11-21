@@ -1,0 +1,2 @@
+-- No schema changes are required: migration 20261110184600_native_intercompany_transactions
+-- already creates the IntercompanyTransaction model, its foreign keys, and all current indexes.

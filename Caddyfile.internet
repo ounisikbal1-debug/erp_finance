@@ -1,0 +1,14 @@
+{
+	admin off
+}
+
+# À utiliser uniquement derrière le serveur de production documenté dans docs/DEPLOIEMENT_WEB.md.
+# Le serveur applicatif reste lié à 127.0.0.1 et doit utiliser PostgreSQL en mode production.
+{$SAFE_ERP_PUBLIC_DOMAIN} {
+	encode gzip
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+	reverse_proxy 127.0.0.1:3000
+}

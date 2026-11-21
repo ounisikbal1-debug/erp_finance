@@ -1,0 +1,31 @@
+# Architecture de Safe
+
+Safe suit une architecture à **trois niveaux**, inspirée du modèle SAP :
+
+| Niveau | Rôle | Technologies | Description |
+|--------|------|---------------|-------------|
+| **Présentation** | Interface utilisateur (Web) | React, Vite, TypeScript, HTML/CSS | Le dossier `src/presentation` contient `index.html`, `main.tsx` et le composant `App.tsx` qui consomme les API via `fetch`. |
+| **Application** | Logique métier et API REST | Express, ts-node, TypeScript, CORS | Le serveur se trouve dans `src/application/server.ts`. Il importe les routeurs de chaque module et les monte sous `/api/<module>`. |
+| **Données** | Persistance SQLite via Prisma | Prisma 5, SQLite, schema.prisma | Le schéma Prisma (`src/data/prisma/schema.prisma`) définit les tables : `Invoice`, `Material`, `SalesOrder`, `Employee`. Le client Prisma est généré dans `node_modules/@prisma/client`. |
+
+---
+
+# Table des Modules
+
+| Module | Route API | Service (logique métier) | Description | Fichiers principaux |
+|--------|-----------|---------------------------|-------------|---------------------|
+| **Finance (FI)** | `/api/finance` | `src/modules/finance/service.ts` | Gestion des factures : création, liste, mise à jour. | `src/modules/finance/api.ts`, `src/modules/finance/service.ts` |
+| **Materials (MM)** | `/api/materials` | `src/modules/materials/service.ts` | Gestion des stocks : création de matériaux, consultation du catalogue. | `src/modules/materials/api.ts`, `src/modules/materials/service.ts` |
+| **Sales (SD)** | `/api/sales` | `src/modules/sales/service.ts` | Gestion des commandes : création, récupération, totalisation. | `src/modules/sales/api.ts`, `src/modules/sales/service.ts` |
+| **Human Resources (HR)** | `/api/hr` | `src/modules/hr/service.ts` | Gestion des employés : ajout, liste, informations de base. | `src/modules/hr/api.ts`, `src/modules/hr/service.ts` |
+| **Controlling (CO)** *(placeholder)* | `/api/controlling` | `src/modules/controlling/service.ts` | Gestion des centres de coûts – à implémenter. | `src/modules/controlling/api.ts`, `src/modules/controlling/service.ts` |
+| **Production (PP)** *(placeholder)* | `/api/production` | `src/modules/production/service.ts` | Gestion de la production – à implémenter. | `src/modules/production/api.ts`, `src/modules/production/service.ts` |
+
+---
+
+## Résumé du flux
+1. Le client React appelle les points d’accès REST du serveur Express (`/api/<module>/<resource>`).  
+2. Chaque route délègue la logique métier au **service** correspondant qui utilise le **client Prisma** pour accéder à la base SQLite.  
+3. Les réponses JSON sont renvoyées au frontend, affichées dans les listes de l’UI.
+
+Cette architecture modulaire permet d’ajouter facilement de nouveaux modules SAP (CO, PP, etc.) en créant un nouveau dossier sous `src/modules`, son routeur et son service, puis en l’ajoutant dans `src/application/server.ts`.

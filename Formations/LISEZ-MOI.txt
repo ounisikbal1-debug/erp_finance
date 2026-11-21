@@ -1,0 +1,16 @@
+SAFE FINANCE - DOSSIER FORMATIONS
+=======================================
+
+Ce dossier contient le MODELE DE FORMATION COMPLET (port 5200).
+Il est totalement separe de la base de production (mode equipe, port 5300) :
+les donnees de formation sont fictives et stockees dans le navigateur de chaque poste.
+
+1. Lancer      : double-clic sur "Lancer Formation.cmd"
+                 (formation en salle : "Lancer Formation (reseau).cmd")
+2. Se connecter: admin / admin (administrateur), cfo / cfo, controller / controller, auditor / auditor
+3. Suivre      : GUIDE_FORMATION.md (parcours en 12 etapes avec exercices et corriges)
+4. Recommencer : bouton "Remettre les donnees de formation a zero" dans le bandeau bleu
+5. Exercice d'import : exemples\ecritures_formation.csv
+
+Un bandeau bleu "MODE FORMATION" est toujours visible : si vous ne le voyez pas,
+vous n'etes PAS dans l'environnement de formation.

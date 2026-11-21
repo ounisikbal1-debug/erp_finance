@@ -1,0 +1,47 @@
+## Lancer Safe – version Web
+
+### 1️⃣ Ouvrir un terminal
+Naviguez jusqu’au répertoire du projet :
+```
+c:\Users\USER\AppData\Roaming\safe
+```
+
+### 2️⃣ Démarrer Safe en une seule commande
+Exécutez :
+```
+npm start
+```
+- **prestart** : génère le client Prisma (`npm run prisma generate`) et applique les migrations (`npm run migrate`).
+- **start** : grâce à `concurrently`, lance simultanément :
+  - **Backend** : `npm run dev` → serveur Express disponible sur **http://localhost:4000**.
+  - **Frontend** : `npm run frontend` → serveur Vite (React) disponible sur **http://localhost:5173**.
+
+### 3️⃣ Accéder à l’interface Web
+Ouvrez votre navigateur et rendez‑vous à : **http://localhost:5173**
+Vous verrez l’interface de Safe avec les sections :
+- Finance : factures
+- Materials : stocks
+- Sales : commandes
+- HR : employés
+
+Cliquez sur les boutons *« Charger les factures »*, *« Charger les matériaux »*, *« Charger les commandes »* et *« Charger les employés »* pour récupérer les données depuis l’API.
+
+### 4️⃣ Arrêter Safe
+Fermez simplement le terminal où vous avez lancé `npm start`. Les deux processus (backend et frontend) seront terminés.
+
+---
+**Rappel** : le fichier `package.json` contient déjà les scripts nécessaires :
+```json
+{
+  "scripts": {
+    "prestart": "npm run prisma generate && npm run migrate",
+    "start": "concurrently \"npm run dev\" \"npm run frontend\"",
+    "dev": "node -r ts-node/register src/application/server.ts",
+    "frontend": "vite",
+    "prisma": "prisma",
+    "migrate": "prisma migrate dev --name init"
+  }
+}
+```
+
+Vous n’avez plus aucune manipulation à faire : `npm start` démarre tout automatiquement.

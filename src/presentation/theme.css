@@ -1,0 +1,886 @@
+/* ==============================================================================
+   SAFE SUITE & ERP — CHARTE VISUELLE HARMONISÉE & TYPOGRAPHIE HAUTE LISIBILITÉ
+   Palette Sobre & Élégante | Conforme WCAG AAA Contrastes | Bilingue FR / AR
+   ============================================================================== */
+
+:root {
+  --safe-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --primary-bg: #F8FAFC;
+  --secondary-bg: #F1F5F9;
+  --surface-card: #FFFFFF;
+  --line-border: #E2E8F0;
+  --line-border-strong: #CBD5E1;
+  
+  /* Textes Haute Lisibilité (Contraste > 7:1 sur fond blanc/gris) */
+  --text-primary: #0F172A;      /* Titres, totaux et libellés majeurs */
+  --text-body: #1E293B;         /* Corps de texte, cellules de tableaux */
+  --text-secondary: #334155;    /* En-têtes secondaires, étiquettes de formulaires */
+  --text-muted: #475569;        /* Métadonnées, descriptions, horodatages */
+  
+  /* Couleurs Harmonisées par Domaine Métier */
+  --color-pilotage: #2563EB;     /* Bleu Roi Saphir — Tableaux de bord & Cash Flow */
+  --color-comptabilite: #1E3A8A; /* Bleu Marine SCE — Grand Livre, Balances & Fiscalité */
+  --color-operations: #0D9488;   /* Vert Sarcelle & Émeraude — Stocks & Logistique */
+  --color-commercial: #BE123C;   /* Rouge Carmin — Ventes & Facturation TTN */
+  --color-rh: #4F46E5;           /* Indigo — Ressources Humaines & Talents */
+  --color-paie: #059669;         /* Vert Forêt — Paie & Déclarations Sociales */
+  --color-production: #D97706;   /* Ambre Cuivré — GPAO & Maintenance */
+  --color-parametres: #475569;   /* Acier Sobre — Gouvernance & Administration */
+
+  /* Badges de Statut (Fond adouci + Texte très contrasté) */
+  --badge-success-bg: #ECFDF5;
+  --badge-success-text: #065F46;
+  --badge-success-border: #A7F3D0;
+
+  --badge-warning-bg: #FFFBEB;
+  --badge-warning-text: #92400E;
+  --badge-warning-border: #FDE68A;
+
+  --badge-danger-bg: #FEF2F2;
+  --badge-danger-text: #991B1B;
+  --badge-danger-border: #FECACA;
+
+  --badge-info-bg: #EFF6FF;
+  --badge-info-text: #1E40AF;
+  --badge-info-border: #BFDBFE;
+}
+
+html {
+  font-size: 13.5px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--primary-bg);
+  color: var(--text-body);
+  font-family: var(--safe-font-sans);
+  font-size: 0.85rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.011em;
+}
+
+.safe-app-shell,
+.safe-app-body,
+.safe-module-content {
+  min-width: 0;
+}
+
+/* Fil d'Ariane épuré et lisible */
+.safe-page-breadcrumb {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin: 0 0 12px;
+}
+
+.safe-page-breadcrumb strong {
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+/* Focus accessible et propre */
+.safe-module-navigation button:focus-visible,
+.safe-app-controls select:focus-visible,
+.safe-module-content button:focus-visible,
+.safe-module-content input:focus-visible,
+.safe-module-content select:focus-visible {
+  outline: 2px solid var(--color-pilotage);
+  outline-offset: 2px;
+}
+
+/* ==============================================================================
+   TYPOGRAPHIE CLAIRE & UNIFORME DANS TOUS LES MODULES
+   ============================================================================== */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  font-weight: 800;
+  letter-spacing: -0.022em;
+  margin-top: 0;
+}
+
+p {
+  color: var(--text-body);
+  line-height: 1.5;
+}
+
+label {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+/* Formulaires & Champs de saisie */
+input, select, textarea {
+  font-family: inherit;
+  color: var(--text-primary);
+  background-color: #FFFFFF;
+  border: 1px solid var(--line-border-strong);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-pilotage) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+  outline: none;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* ==============================================================================
+   TABLEAUX COMPTABLES & FINANCIERS HAUTE LISIBILITÉ
+   ============================================================================== */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+table th {
+  font-weight: 700 !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  color: var(--text-secondary) !important;
+  background-color: var(--secondary-bg) !important;
+  border-bottom: 2px solid var(--line-border-strong) !important;
+  padding: 8px 10px !important;
+  text-align: start;
+}
+
+table td {
+  border-bottom: 1px solid var(--line-border) !important;
+  color: var(--text-primary) !important;
+  font-size: 0.76rem !important;
+  font-weight: 500;
+  padding: 7px 10px !important;
+}
+
+table tr:nth-child(even) td {
+  background-color: #FAFCFE;
+}
+
+table tr:hover td {
+  background-color: #F1F5F9 !important;
+}
+
+/* ==============================================================================
+   EN-TÊTE PRINCIPAL (SAFE HEADER)
+   ============================================================================== */
+.safe-app-header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--line-border) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+.safe-app-header .safe-app-controls label {
+  color: var(--text-secondary) !important;
+  font-weight: 700;
+  font-size: 0.74rem;
+}
+
+.safe-app-header .safe-app-controls select {
+  background: #FFFFFF !important;
+  border: 1px solid var(--line-border-strong) !important;
+  color: var(--text-primary) !important;
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+
+/* ==============================================================================
+   BARRE LATÉRALE DE NAVIGATION (SAFE SIDEBAR)
+   ============================================================================== */
+.safe-module-sidebar {
+  background: #FFFFFF !important;
+  border-inline-end: 1px solid var(--line-border) !important;
+}
+
+.safe-module-sidebar .safe-module-navigation button {
+  color: var(--text-secondary) !important;
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.safe-module-sidebar .safe-module-navigation button:hover {
+  background: #F1F5F9 !important;
+  color: var(--text-primary) !important;
+}
+
+.safe-module-sidebar .safe-module-navigation button[aria-current="page"] {
+  background: #EFF6FF !important;
+  color: #1D4ED8 !important;
+  font-weight: 800 !important;
+}
+
+.safe-workspace-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: calc(100% - 16px);
+  margin: 10px 8px 4px;
+  padding: 10px 11px;
+  border: 1px solid var(--line-border);
+  border-radius: 7px;
+  background: #F8FAFC;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: start;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.safe-workspace-link:hover {
+  background: #EFF6FF;
+  border-color: #BFDBFE;
+  color: #1D4ED8;
+}
+
+.safe-workspace-link span {
+  color: var(--color-pilotage);
+  font-size: 1.1rem;
+}
+
+/* ==============================================================================
+   PORTAIL D'ACCUEIL DES MODULES (SAFE MODULE HOME)
+   ============================================================================== */
+.safe-module-home {
+  min-height: 100vh;
+  overflow: auto;
+  background: #F1F5F9;
+  color: var(--text-primary);
+}
+
+.safe-home-header {
+  min-height: 62px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px clamp(18px, 4vw, 52px);
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--line-border);
+}
+
+.safe-home-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.safe-home-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--color-pilotage);
+  color: #FFFFFF;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.safe-home-brand strong {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.safe-home-brand small {
+  display: block;
+  margin-top: 1px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.safe-home-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.safe-home-role {
+  padding: 5px 10px;
+  border: 1px solid var(--line-border-strong);
+  border-radius: 20px;
+  background: #F8FAFC;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.safe-home-logout {
+  padding: 6px 12px;
+  border: 1px solid #FECACA;
+  border-radius: 6px;
+  background: #FEF2F2;
+  color: #B91C1C;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.safe-home-logout:hover {
+  background: #FEE2E2;
+}
+
+.safe-home-content {
+  width: min(1160px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 36px 0 32px;
+}
+
+.safe-home-intro {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.safe-home-eyebrow {
+  margin: 0 0 6px;
+  color: var(--color-pilotage);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.safe-home-intro h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+}
+
+.safe-home-intro p:not(.safe-home-eyebrow) {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.safe-home-date {
+  padding-bottom: 4px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.safe-home-access-note {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 18px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.safe-home-access-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+.safe-home-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--line-border-strong);
+  border-radius: 8px;
+  color: var(--text-muted);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.safe-home-search:focus-within {
+  border-color: var(--color-pilotage);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.safe-home-search > span {
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+.safe-home-search input {
+  min-width: 0;
+  flex: 1;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: none !important;
+}
+
+.safe-home-search button {
+  border: 0;
+  background: transparent;
+  color: var(--color-pilotage);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.safe-home-category {
+  margin-top: 30px;
+}
+
+.safe-home-category-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.safe-home-category-heading h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.safe-home-category-heading span {
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 11px;
+  background: #E2E8F0;
+  color: var(--text-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.safe-home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 265px), 1fr));
+  gap: 13px;
+}
+
+.safe-home-module {
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 15px;
+  text-align: start;
+  background: #FFFFFF;
+  border: 1px solid var(--line-border);
+  border-radius: 9px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.safe-home-module:hover {
+  border-color: var(--color-pilotage);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08);
+  transform: translateY(-2px);
+}
+
+.safe-home-module:focus-visible,
+.safe-workspace-link:focus-visible {
+  outline: 2px solid var(--color-pilotage);
+  outline-offset: 2px;
+}
+
+.safe-home-module-mark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 8px;
+  background: #EFF6FF;
+  color: var(--color-pilotage);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.safe-home-module-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.safe-home-module-copy strong {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.safe-home-module-copy small {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.safe-home-module-arrow {
+  color: var(--line-border-strong);
+  font-size: 1.4rem;
+  line-height: 1;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.safe-home-module:hover .safe-home-module-arrow {
+  color: var(--color-pilotage);
+  transform: translateX(2px);
+}
+
+.safe-home-empty {
+  margin-top: 18px;
+  padding: 24px;
+  border: 1px solid var(--line-border);
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.safe-home-footer {
+  margin-top: 36px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-border);
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 500;
+}
+
+/* ==============================================================================
+   FICHE DE PAIE & BULLETIN OFFICIEL (RÈGLES D'IMPRESSION SUR UNE SEULE PAGE)
+   ============================================================================== */
+.safe-payslip-sheet {
+  background: #FFFFFF;
+  border: 1px solid var(--line-border-strong);
+  border-radius: 10px;
+  color: var(--text-primary);
+  margin-top: 16px;
+  padding: 22px;
+}
+
+.safe-payslip-table {
+  border-collapse: collapse;
+  margin-top: 14px;
+  width: 100%;
+}
+
+.safe-payslip-table th,
+.safe-payslip-table td {
+  border-bottom: 1px solid var(--line-border);
+  padding: 9px 10px;
+  text-align: start;
+}
+
+.safe-payslip-table th:last-child,
+.safe-payslip-table td:last-child {
+  text-align: end;
+}
+
+.safe-payslip-total {
+  background: var(--secondary-bg);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  html, body {
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  body.safe-payslip-printing * {
+    visibility: hidden !important;
+  }
+
+  body.safe-payslip-printing .safe-payslip-print-target,
+  body.safe-payslip-printing .safe-payslip-print-target * {
+    visibility: visible !important;
+  }
+
+  body.safe-payslip-printing .safe-payslip-print-target {
+    background: #FFFFFF !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    display: block !important;
+    left: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: absolute !important;
+    top: 0;
+    width: 100% !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  body.safe-payslip-printing .safe-payslip-print-target button {
+    display: none !important;
+  }
+
+  .safe-payslip-sheet {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    font-size: 0.74rem !important;
+  }
+
+  .safe-payslip-sheet table {
+    font-size: 0.72rem !important;
+  }
+
+  .safe-payslip-sheet table th,
+  .safe-payslip-sheet table td,
+  .safe-payslip-table th,
+  .safe-payslip-table td {
+    padding: 3px 5px !important;
+    font-size: 0.72rem !important;
+    border-color: #CBD5E1 !important;
+  }
+}
+
+/* ==============================================================================
+   THÈME SOMBRE HAUTE CLARTÉ : FOND BLEU NUIT (SAFE NAVY NIGHT)
+   Harmonisation intégrale pour éliminer tout texte sombre sur fond sombre
+   ============================================================================== */
+body.theme-night-blue,
+[data-theme="night-blue"] body,
+[data-theme="night-blue"] {
+  --primary-bg: #0A1128 !important;
+  --secondary-bg: #101B3B !important;
+  --surface-card: #111C3A !important;
+  --line-border: #1E2D54 !important;
+  --line-border-strong: #2A3C6E !important;
+  --text-primary: #F8FAFC !important;
+  --text-body: #F1F5F9 !important;
+  --text-secondary: #CBD5E1 !important;
+  --text-muted: #94A3B8 !important;
+  background-color: #0A1128 !important;
+  color: #F8FAFC !important;
+}
+
+body.theme-night-blue .safe-app-shell,
+[data-theme="night-blue"] .safe-app-shell,
+body.theme-night-blue .safe-module-home,
+[data-theme="night-blue"] .safe-module-home {
+  background-color: #0A1128 !important;
+  color: #F8FAFC !important;
+}
+
+body.theme-night-blue header,
+[data-theme="night-blue"] header,
+body.theme-night-blue .safe-app-header,
+[data-theme="night-blue"] .safe-app-header,
+body.theme-night-blue .safe-home-header,
+[data-theme="night-blue"] .safe-home-header {
+  background: #0D1630 !important;
+  border-bottom: 1px solid #1E2D54 !important;
+  box-shadow: none !important;
+}
+
+body.theme-night-blue aside,
+[data-theme="night-blue"] aside,
+body.theme-night-blue .safe-module-sidebar,
+[data-theme="night-blue"] .safe-module-sidebar {
+  background: #0B132B !important;
+  border-inline-end: 1px solid #1E2D54 !important;
+}
+
+body.theme-night-blue .safe-module-sidebar .safe-module-navigation button,
+[data-theme="night-blue"] .safe-module-sidebar .safe-module-navigation button {
+  color: #CBD5E1 !important;
+}
+
+body.theme-night-blue .safe-module-sidebar .safe-module-navigation button:hover,
+[data-theme="night-blue"] .safe-module-sidebar .safe-module-navigation button:hover {
+  background: #162746 !important;
+  color: #F8FAFC !important;
+}
+
+body.theme-night-blue .safe-module-sidebar .safe-module-navigation button[aria-current="page"],
+[data-theme="night-blue"] .safe-module-sidebar .safe-module-navigation button[aria-current="page"] {
+  background: #162746 !important;
+  color: #38BDF8 !important;
+}
+
+body.theme-night-blue .safe-workspace-link,
+[data-theme="night-blue"] .safe-workspace-link {
+  background: #101B3B !important;
+  border-color: #1E2D54 !important;
+  color: #F8FAFC !important;
+}
+
+body.theme-night-blue .safe-workspace-link:hover,
+[data-theme="night-blue"] .safe-workspace-link:hover {
+  background: #162746 !important;
+  border-color: #38BDF8 !important;
+  color: #38BDF8 !important;
+}
+
+body.theme-night-blue main,
+[data-theme="night-blue"] main,
+body.theme-night-blue .safe-module-content,
+[data-theme="night-blue"] .safe-module-content {
+  background-color: #0A1128 !important;
+  color: #F8FAFC !important;
+}
+
+/* Cartes et sections dans le thème sombre */
+body.theme-night-blue article,
+body.theme-night-blue section,
+body.theme-night-blue div[style*="background: #FFFFFF"],
+body.theme-night-blue div[style*="background: rgb(255, 255, 255)"],
+body.theme-night-blue div[style*="backgroundColor: #FFFFFF"],
+body.theme-night-blue section[style*="background: #FFFFFF"],
+[data-theme="night-blue"] div[style*="background: #FFFFFF"],
+[data-theme="night-blue"] section[style*="background: #FFFFFF"],
+body.theme-night-blue .safe-home-module,
+[data-theme="night-blue"] .safe-home-module,
+body.theme-night-blue .safe-home-search,
+[data-theme="night-blue"] .safe-home-search {
+  background: #111C3A !important;
+  border-color: #1E2D54 !important;
+  color: #F8FAFC !important;
+}
+
+body.theme-night-blue h1,
+body.theme-night-blue h2,
+body.theme-night-blue h3,
+body.theme-night-blue h4,
+[data-theme="night-blue"] h1,
+[data-theme="night-blue"] h2,
+[data-theme="night-blue"] h3,
+[data-theme="night-blue"] h4 {
+  color: #F8FAFC !important;
+}
+
+body.theme-night-blue p,
+body.theme-night-blue span,
+body.theme-night-blue label,
+[data-theme="night-blue"] p,
+[data-theme="night-blue"] span,
+[data-theme="night-blue"] label {
+  color: inherit;
+}
+
+body.theme-night-blue table th,
+[data-theme="night-blue"] table th {
+  background-color: #162447 !important;
+  color: #E2E8F0 !important;
+  border-bottom: 2px solid #1E2D54 !important;
+}
+
+body.theme-night-blue table td,
+[data-theme="night-blue"] table td {
+  border-bottom: 1px solid #1E2D54 !important;
+  color: #F1F5F9 !important;
+}
+
+body.theme-night-blue table tr:nth-child(even) td,
+[data-theme="night-blue"] table tr:nth-child(even) td {
+  background-color: #101B3B !important;
+}
+
+body.theme-night-blue table tr:hover td,
+[data-theme="night-blue"] table tr:hover td {
+  background-color: #162746 !important;
+}
+
+body.theme-night-blue select,
+body.theme-night-blue input[type="text"],
+body.theme-night-blue input[type="search"],
+body.theme-night-blue input[type="number"],
+body.theme-night-blue input[type="date"],
+body.theme-night-blue textarea,
+[data-theme="night-blue"] select,
+[data-theme="night-blue"] input[type="text"],
+[data-theme="night-blue"] input[type="search"],
+[data-theme="night-blue"] input[type="number"],
+[data-theme="night-blue"] input[type="date"],
+[data-theme="night-blue"] textarea {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+  border-color: #24345C !important;
+}
+
+body.theme-night-blue select option,
+[data-theme="night-blue"] select option {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+}
+
+body.theme-night-blue .safe-home-module-mark,
+[data-theme="night-blue"] .safe-home-module-mark {
+  background: #162544 !important;
+  color: #38BDF8 !important;
+}
+
+body.theme-night-blue .safe-home-module-copy strong,
+[data-theme="night-blue"] .safe-home-module-copy strong {
+  color: #F8FAFC !important;
+}
+
+body.theme-night-blue .safe-home-module-copy small,
+[data-theme="night-blue"] .safe-home-module-copy small {
+  color: #94A3B8 !important;
+}
+
+body.theme-night-blue .safe-home-role,
+[data-theme="night-blue"] .safe-home-role {
+  background: #162447 !important;
+  border-color: #1E2D54 !important;
+  color: #CBD5E1 !important;
+}
+
+body.theme-night-blue .safe-home-category-heading span,
+[data-theme="night-blue"] .safe-home-category-heading span {
+  background: #162447 !important;
+  color: #38BDF8 !important;
+}

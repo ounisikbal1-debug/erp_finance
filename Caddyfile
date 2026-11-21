@@ -1,0 +1,15 @@
+{
+	admin off
+	auto_https disable_redirects
+}
+
+https://{$SAFE_ERP_LAN_ADDRESS}:8443, https://safe-erp.home.arpa:8443 {
+	bind 0.0.0.0
+	tls internal
+	encode gzip
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+	reverse_proxy 127.0.0.1:3001
+}

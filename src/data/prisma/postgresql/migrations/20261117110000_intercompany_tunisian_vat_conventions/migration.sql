@@ -1,0 +1,10 @@
+ALTER TABLE "IntercompanyTransaction" ADD COLUMN "transactionNature" TEXT NOT NULL DEFAULT 'OTHER';
+ALTER TABLE "IntercompanyTransaction" ADD COLUMN "agreementReference" TEXT;
+ALTER TABLE "IntercompanyTransaction" ADD COLUMN "supportingDocumentReference" TEXT;
+ALTER TABLE "IntercompanyTransaction" ADD COLUMN "taxRateCode" TEXT;
+ALTER TABLE "IntercompanyTransaction" ADD COLUMN "taxRate" DOUBLE PRECISION;
+ALTER TABLE "IntercompanyTransaction" ADD COLUMN "sellerVatAmount" DOUBLE PRECISION NOT NULL DEFAULT 0;
+ALTER TABLE "IntercompanyTransaction" ADD COLUMN "buyerVatAmount" DOUBLE PRECISION NOT NULL DEFAULT 0;
+ALTER TABLE "IntercompanyTransaction" ADD COLUMN "buyerVatRecoverable" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "IntercompanyTransaction" ADD COLUMN "sellerVatAccountCode" TEXT;
+ALTER TABLE "IntercompanyTransaction" ADD COLUMN "buyerVatAccountCode" TEXT;
