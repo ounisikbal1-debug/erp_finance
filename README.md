@@ -337,6 +337,48 @@ Aucune adresse de support ou entité de production n’est configurée dans ce b
 
 ---
 
+---
+
+## 🏛️ Architecture de la Suite & Logiciels Satellites Inclus
+
+Le présent dépôt regroupe le noyau ERP ainsi que **l'ensemble des logiciels satellites sans exception** :
+
+### A. Prologiciels Métiers Autonomes (`satellites_metiers/`)
+1. **SAFE Facturation** : Gestion commerciale, achats, ventes, devis, commandes et e-facture TTN.
+2. **SAFE Gestion des Stocks** : PUMP, multi-dépôts, inventaires et régimes douaniers suspensifs (AT/ACT).
+3. **SAFE Paie & Rémunérations** : Barème IRPP 8 tranches (Loi 2024-48), CNSS 9.68%, CSS 0.5%, virements bancaires.
+4. **SAFE Gestion des Ressources Humaines** : Collaborateurs, contrats ANETI CIVP/CDI, congés payés légaux.
+5. **SAFE Comptabilité & Fiscalité** : Grand Livre SCE, balance 8 colonnes, liasse fiscale G50 mensuelle.
+6. **SAFE Production & GPAO** : Nomenclatures BOM multi-niveaux, ordres de fabrication (OF), coûts de revient.
+7. **SAFE Immobilisations** : Registre des actifs, tableaux d'amortissement DGI et écritures de dotation 681/28.
+* **`MENU_PROLOGICIELS_SAFE.cmd`** : Lanceur interactif Windows 1-clic pour choisir le prologiciel à exécuter.
+
+### B. Progiciels Sectoriels Verticaux (`satellites_sectoriels/`)
+1. **00_SAFE_CRM_Editeur_Licences** : Générateur cryptographique de licences HMAC-SHA256 par Hardware ID.
+2. **01_SAFE_Negoce_Distribution** : Grossistes, magasins de pièces détachées, marges et multi-dépôts (Port 8001).
+3. **02_SAFE_Services_Cabinets** : Bureaux d'études, experts, cabinets de conseil et BTP (Port 8002).
+4. **03_SAFE_Industrie_Production** : Ateliers manufacturiers et transformation de matières premières (Port 8003).
+5. **04_SAFE_Restauration_POS** : Caisse tactile pour restaurants, salons de thé, gestion de salle (Port 8004).
+6. **05_SAFE_Transport_Logistique** : Flotte de transport, fret lourd et messagerie colis (Port 8005).
+* **`unified_suite_server.py` & `LANCER_SUITE_SAFE_ERP.bat`** : Serveur unifié multi-sectoriel.
+
+---
+
+## 📚 Référentiel des Cahiers des Charges (.md)
+
+L'ensemble des cahiers des charges détaillés est disponible au format Markdown sous [`docs/cahiers_de_charges/`](./docs/cahiers_de_charges/) :
+* [Cahier des Charges SAFE ERP Global](./docs/cahiers_de_charges/CAHIER_DES_CHARGES_SAFE_ERP_GLOBAL.md)
+* [Cahier des Charges SAFE Facturation](./docs/cahiers_de_charges/CAHIER_DES_CHARGES_SAFE_FACTURATION.md)
+* [Cahier des Charges SAFE Gestion des Stocks](./docs/cahiers_de_charges/CAHIER_DES_CHARGES_SAFE_GESTION_DES_STOCKS.md)
+* [Cahier des Charges SAFE Paie Tunisienne](./docs/cahiers_de_charges/CAHIER_DES_CHARGES_SAFE_PAIE_TUNISIENNE.md)
+* [Cahier des Charges SAFE Gestion RH](./docs/cahiers_de_charges/CAHIER_DES_CHARGES_SAFE_GESTION_RH.md)
+* [Cahier des Charges SAFE Comptabilité & Fiscalité](./docs/cahiers_de_charges/CAHIER_DES_CHARGES_SAFE_COMPTABILITE_FISCALITE.md)
+* [Cahier des Charges SAFE Production & GPAO](./docs/cahiers_de_charges/CAHIER_DES_CHARGES_SAFE_PRODUCTION_GPAO.md)
+* [Cahier des Charges SAFE Immobilisations](./docs/cahiers_de_charges/CAHIER_DES_CHARGES_SAFE_IMMOBILISATIONS.md)
+* [Dossier Technique ERP Global](./docs/cahiers_de_charges/DOSSIER_TECHNIQUE_ERP_GLOBAL.md)
+* [Architecture Technique Système](./docs/cahiers_de_charges/ARCHITECTURE_TECHNIQUE_SYSTEME.md)
+* [Benchmark Concurrentiel face à SAP, Oracle & Sage](./docs/cahiers_de_charges/BENCHMARK_CONCURRENTIEL_SAP_ORACLE_SAGE.md)
+
 ## 8. Contributeurs & Remerciements
 
 * **[ounisikbal1-debug](https://github.com/ounisikbal1-debug)** : Conception, architecture globale et intégration de la suite SAFE ERP.

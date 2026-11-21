@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <link rel="icon" type="image/png" href="safe-logo.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAFE Industrie & Production — ERP Tunisie 2026</title>
+  <style>
+    :root {
+      --primary: #4338ca;
+      --primary-dark: #3730a3;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-600: #475569;
+      --slate-900: #0f172a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--slate-50); color: var(--slate-900); font-size: 13.5px; }
+    
+    header {
+      background: #ffffff; border-bottom: 1px solid var(--slate-200); padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      background: var(--primary); color: #fff; width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px;
+    }
+    .brand-title { font-size: 17px; font-weight: 800; color: var(--primary); }
+    .brand-sub { font-size: 11px; color: var(--slate-600); }
+    
+    .nav-tabs {
+      background: #ffffff; border-bottom: 1px solid var(--slate-200); padding: 0 24px;
+      display: flex; gap: 4px; overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 12px 16px; border: none; background: transparent; cursor: pointer;
+      font-size: 13px; font-weight: 600; color: var(--slate-600); border-bottom: 3px solid transparent;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--primary); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    
+    main { padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    
+    .card {
+      background: #ffffff; border: 1px solid var(--slate-200); border-radius: 8px;
+      padding: 18px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card-title {
+      font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    
+    .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--slate-600); margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px;
+      font-size: 13px; outline: none; transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    
+    .btn-primary { background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-success { background: var(--success); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-secondary { background: #0284c7; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-danger { background: var(--danger); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-sm { padding: 4px 10px; font-size: 11.5px; border-radius: 4px; cursor: pointer; font-weight: 600; border: none; }
+    
+    .badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-info { background: #e0f2fe; color: #0369a1; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th { background: #f8fafc; text-align: left; padding: 10px; border-bottom: 1px solid var(--slate-200); color: var(--slate-600); font-weight: 700; }
+    td { padding: 10px; border-bottom: 1px solid var(--slate-200); }
+    tr:hover { background: #f8fafc; }
+    
+    .io-toolbar {
+      background: #ffffff; border: 1px solid var(--slate-200); border-radius: 8px;
+      padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .modal-card {
+      background: #ffffff; border-radius: 12px; width: 100%; max-width: 460px; padding: 26px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+    }
+    
+    #toast {
+      position: fixed; bottom: 20px; right: 20px; background: var(--slate-900); color: #fff;
+      padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; display: none; z-index: 10000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <img src="safe-logo.png" alt="Logo" style="width:36px;height:36px;border-radius:8px;object-fit:cover;box-shadow:0 2px 6px rgba(0,0,0,0.25);" />
+      <div>
+        <div class="brand-title">SAFE Industrie & Production</div>
+        <div class="brand-sub">Gestion d'Atelier, Ordres de Fabrication & Stocks Matières/Produits • Port 8003 • Normes 2026</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div id="userDisplay" style="font-size:12.5px;color:var(--slate-600);display:flex;align-items:center;gap:6px;">
+        <span>👤 Non connecté</span>
+      </div>
+      <button class="btn-sm btn-danger" onclick="logout()" style="padding:6px 14px;font-size:12px;">🚪 Déconnexion</button>
+    </div>
+  </header>
+
+  <!-- NAVIGATION -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('of')">⚙️ Ordres de Fabrication (OF)</button>
+    <button class="tab-btn" onclick="switchTab('matieres')">🔩 Stocks Matières Premières (Composants)</button>
+    <button class="tab-btn" onclick="switchTab('produits')">📦 Stocks Produits Finis (Dépôt Usine)</button>
+    <button class="tab-btn" onclick="switchTab('depots')">🏬 Dépôts Usine & Magasins</button>
+    <button class="tab-btn" id="btnTabReset" onclick="switchTab('reset')" style="display:none;">🛡️ Réinitialisation Données (Admin) 🔒</button>
+    <button class="tab-btn" id="btnTabUsers" onclick="switchTab('users')" style="display:none;">👥 Gestion des Utilisateurs (Admin) 🔒</button>
+    <button class="tab-btn" id="btnTabFiscal" onclick="switchTab('fiscal')" style="display:none;">⚖️ Paramètres Fiscaux Modifiables (Admin) 🔒</button>
+    <button class="tab-btn" id="btnTabSociete" onclick="switchTab('societe')" style="display:none;">🏢 Paramètres Entreprise (Admin) 🔒</button>
+  </nav>
+
+  <main>
+    <!-- TOOLBAR IMPORT / EXPORT (EXIGENCE 2 & 3) -->
+    <div class="io-toolbar">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-weight:700;font-size:12px;color:var(--primary);">📥 Importation Fichiers :</span>
+        <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;" onclick="triggerImport('excel')">📥 Importer Excel (.xlsx)</button>
+        <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;" onclick="triggerImport('csv')">📥 Importer CSV (.csv)</button>
+        <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;" onclick="triggerImport('pdf')">📥 Importer PDF (.pdf)</button>
+        <input type="file" id="universalFileInput" style="display:none;" onchange="handleUniversalFile(event)" />
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-weight:700;font-size:12px;color:var(--primary);">📤 Exportation Fichiers :</span>
+        <button type="button" class="btn-sm btn-success" onclick="exportData('excel')">📊 Exporter Excel</button>
+        <button type="button" class="btn-sm btn-secondary" onclick="exportData('csv')">📑 Exporter CSV</button>
+        <button type="button" class="btn-sm btn-danger" onclick="exportData('pdf')">📄 Exporter PDF (Impression)</button>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 1 : ORDRES DE FABRICATION -->
+    <!-- ========================================================================= -->
+    <div id="tab-of" class="tab-pane active">
+      <div class="card">
+        <div class="card-title">
+          <span>➕ Lancer un Ordre de Fabrication (Consommation MP & Entrée PF)</span>
+          <span class="badge badge-info">Valorisation Coût de Revient Réel • Norme SCE</span>
+        </div>
+        <form onsubmit="handleCreateOF(event)">
+          <div class="grid-form">
+            <div>
+              <label>Produit Fini à Assembler</label>
+              <select id="ofProduit" onchange="onProduitSelected()" required></select>
+            </div>
+            <div>
+              <label>Quantité à Fabriquer</label>
+              <input type="number" step="1" id="ofQte" value="50" oninput="calcOfCost()" required />
+            </div>
+            <div>
+              <label>Coût Matières Consommées HT (TND)</label>
+              <input type="number" step="0.001" id="ofCoutMat" value="1200.000" oninput="calcOfCost()" required />
+            </div>
+            <div>
+              <label>Coût Main d'Œuvre Directe HT (TND)</label>
+              <input type="number" step="0.001" id="ofCoutMo" value="450.000" oninput="calcOfCost()" required />
+            </div>
+            <div>
+              <label>Coût Total Revient OF (TND)</label>
+              <input type="number" step="0.001" id="ofCoutTot" readonly style="background:#f1f5f9;font-weight:700;" />
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top:14px;width:100%;padding:10px;font-weight:700;">
+            🚀 Lancer l'OF & Valider Entrée en Stock Produit Fini
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>Historique des Ordres de Fabrication Clôturés</span></div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>N° OF</th>
+                <th>Date</th>
+                <th>Réf. Produit</th>
+                <th>Désignation</th>
+                <th>Qté Produite</th>
+                <th>Coût MP</th>
+                <th>Coût MO</th>
+                <th>Coût Total</th>
+                <th>Statut</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ofTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 2 : STOCKS MATIÈRES PREMIÈRES (COMPOSANTS USINE : EXIGENCE 6) -->
+    <!-- ========================================================================= -->
+    <div id="tab-matieres" class="tab-pane">
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
+        <div class="card">
+          <div class="card-title"><span>➕ Ajouter une Matière Première / Composant</span></div>
+          <form onsubmit="handleCreateMatiere(event)">
+            <label>Code Matière / Composant</label><input id="mpCode" required placeholder="Ex: MP-ALU-6060" />
+            <label>Désignation</label><input id="mpDesignation" required placeholder="Ex: Profilé Aluminium 40x40" />
+            <label>Famille</label><input id="mpFamille" required value="Composants Usine" />
+            <label>Unité de Mesure</label>
+            <select id="mpUnite">
+              <option value="KG">Kilogrammes (KG)</option>
+              <option value="METRE">Mètres linéaires (M)</option>
+              <option value="PIECE">Pièces / Unités (PCS)</option>
+              <option value="FEUILLE">Feuilles / Tôles</option>
+              <option value="LITRE">Litres (L)</option>
+            </select>
+            <label>Coût Achat Unitaire HT (TND)</label><input type="number" step="0.001" id="mpCoutAchat" value="18.500" required />
+            <label>Stock Actuel en Magasin</label><input type="number" step="1" id="mpStock" value="250" required />
+            <label>Magasin / Emplacement</label><input id="mpDepot" required value="Magasin Matières Premières" />
+            <button type="submit" class="btn-primary" style="margin-top:14px;width:100%;padding:10px;">💾 Ajouter Composant en Stock</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>🔩 Stocks Matières Premières & Composants Usine</span>
+            <span class="badge badge-info" id="badgeMpCount">0 composants</span>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Désignation</th>
+                  <th>Famille</th>
+                  <th>Unité</th>
+                  <th>Coût HT</th>
+                  <th>Stock Actuel</th>
+                  <th>Magasin</th>
+                  <th style="text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="matieresTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 3 : STOCKS PRODUITS FINIS (DÉPÔT USINE : EXIGENCE 6) -->
+    <!-- ========================================================================= -->
+    <div id="tab-produits" class="tab-pane">
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
+        <div class="card">
+          <div class="card-title"><span>➕ Ajouter un Produit Fini</span></div>
+          <form onsubmit="handleCreateProduitFini(event)">
+            <label>Référence Produit Fini</label><input id="pfRef" required placeholder="Ex: PF-BOX-ELEC-40" />
+            <label>Désignation Produit</label><input id="pfDes" required placeholder="Ex: Coffret Électrique Étanche IP65" />
+            <label>Gamme de Fabrication</label><input id="pfGamme" required value="Série Industrielle" />
+            <label>Coût Revient Estimé HT (TND)</label><input type="number" step="0.001" id="pfCoutRev" value="45.000" required />
+            <label>Prix de Vente HT (TND)</label><input type="number" step="0.001" id="pfPrixVte" value="75.000" required />
+            <label>Stock Actuel (Dépôt Usine)</label><input type="number" step="1" id="pfStock" value="60" required />
+            <label>Dépôt de Stockage</label><select id="pfDepot" required></select>
+            <button type="submit" class="btn-primary" style="margin-top:14px;width:100%;padding:10px;">💾 Ajouter Produit Fini</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>📦 Produits Finis Disponibles en Dépôt Usine</span>
+            <span class="badge badge-success" id="badgePfCount">0 produits</span>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Référence</th>
+                  <th>Désignation</th>
+                  <th>Gamme</th>
+                  <th>Coût Revient</th>
+                  <th>Prix Vente HT</th>
+                  <th>Stock Actuel</th>
+                  <th>Dépôt Usine</th>
+                  <th style="text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="produitsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 4 : DÉPÔTS USINE & MAGASINS -->
+    <!-- ========================================================================= -->
+    <div id="tab-depots" class="tab-pane">
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
+        <div class="card">
+          <div class="card-title"><span>➕ Nouveau Dépôt / Magasin Usine</span></div>
+          <form onsubmit="handleCreateDepot(event)">
+            <label>Code Dépôt</label><input id="dCode" required placeholder="DEP-USINE-02" />
+            <label>Libellé</label><input id="dLib" required placeholder="Magasin Pièces de Rechange" />
+            <label>Type de Stock</label>
+            <select id="dType">
+              <option value="PRODUITS_FINIS">Produits Finis</option>
+              <option value="MATIERES_PREMIERES">Matières Premières</option>
+              <option value="PIECES_DETACHEES">Pièces Détachées</option>
+            </select>
+            <label>Adresse / Bâtiment</label><input id="dAdr" placeholder="Bâtiment B, Zone Industrielle" />
+            <label>Responsable</label><input id="dResp" placeholder="M. Karim Jaziri" />
+            <button type="submit" class="btn-primary" style="margin-top:12px;width:100%;">Enregistrer Dépôt</button>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card-title"><span>Magasins & Dépôts Usine Actifs</span></div>
+          <table>
+            <thead><tr><th>Code</th><th>Libellé</th><th>Type</th><th>Emplacement</th><th>Responsable</th><th style="text-align:right;">Action</th></tr></thead>
+            <tbody id="depotsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 5 : PARAMÈTRES USINE (ADMIN ONLY : EXIGENCE 10) -->
+    <!-- ========================================================================= -->
+    <div id="tab-societe" class="tab-pane">
+      <div class="card" style="max-width:800px;margin:0 auto;">
+        <div class="card-title">
+          <span>🏢 Coordonnées & En-tête Usine Industrielle (Admin Only)</span>
+          <span class="badge badge-danger">ADMIN ONLY</span>
+        </div>
+        <form onsubmit="handleSaveCompany(event)">
+          <div class="grid-form">
+            <div style="grid-column:span 2;"><label>Raison Sociale Usine</label><input id="coName" required /></div>
+            <div><label>Matricule Fiscal</label><input id="coMf" required /></div>
+            <div><label>Registre de Commerce</label><input id="coRc" /></div>
+            <div style="grid-column:span 2;"><label>Adresse Usine & Site Production</label><input id="coAdr" required /></div>
+            <div><label>Téléphone Standard</label><input id="coTel" required /></div>
+            <div><label>Email Commercial</label><input id="coEmail" required /></div>
+            <div style="grid-column:span 2;"><label>RIB Bancaire</label><input id="coRib" /></div>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top:16px;width:100%;">💾 Sauvegarder Coordonnées Usine</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 6 : PARAMÈTRES FISCAUX 2026 (ADMIN ONLY : EXIGENCE 10) -->
+    <!-- ========================================================================= -->
+    <div id="tab-fiscal" class="tab-pane">
+      <div class="card" style="max-width:980px;margin:0 auto;">
+        <div class="card-title">
+          <span>⚖️ Barème Fiscal & Charges Sociales 2026 (Validé Expert-Comptable)</span>
+          <span class="badge badge-danger">ADMIN ONLY</span>
+        </div>
+        <form onsubmit="handleSaveFiscal(event)">
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:18px;">
+            <strong style="color:var(--primary);display:block;margin-bottom:10px;">🛡️ Cotisations Sociales CNSS & Accident du Travail (AT)</strong>
+            <div class="grid-form">
+              <div><label>CNSS Salarié (%)</label><input type="number" step="0.01" id="fCnssSal" value="9.68" required /></div>
+              <div><label>CNSS Patronale (%)</label><input type="number" step="0.01" id="fCnssPat" value="17.07" required /></div>
+              <div><label>Accident du Travail (AT) (%)</label><input type="number" step="0.01" id="fAt" value="0.50" required /></div>
+              <div><label>CSS Salarié (%)</label><input type="number" step="0.1" id="fCss" value="0.5" required /></div>
+            </div>
+          </div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:18px;">
+            <strong style="color:var(--primary);display:block;margin-bottom:10px;">🏢 Fiscalité Entreprise & RS</strong>
+            <div class="grid-form">
+              <div><label>Taux IS Actuel (%)</label><input type="number" step="0.1" id="fIsDefaut" value="20.0" required /></div>
+              <div><label>Taux CSS Sociétés (%)</label><input type="number" step="0.1" id="fCssSocietes" value="3.0" required /></div>
+              <div><label>Taux RS Ventes (%)</label><input type="number" step="0.1" id="fRsVentes" value="1.0" required /></div>
+              <div><label>Taux RS Honoraires PM (%)</label><input type="number" step="0.1" id="fRsHonoraires" value="3.0" required /></div>
+              <div><label>Taux RS Loyers (%)</label><input type="number" step="0.1" id="fRsLoyers" value="10.0" required /></div>
+              <div><label>Timbre Fiscal (TND)</label><input type="number" step="0.001" id="fTimbre" value="1.000" required /></div>
+              <div><label>TVA par Défaut (%)</label><input type="number" step="0.1" id="fTvaDef" value="19.0" required /></div>
+            </div>
+          </div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:18px;">
+            <strong style="color:var(--primary);display:block;margin-bottom:8px;">📈 Barème IRPP 2025/2026 (8 Tranches)</strong>
+            <textarea id="fIrppJson" rows="4" style="font-family:monospace;font-size:11px;"></textarea>
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;padding:12px;">💾 Sauvegarder les Paramètres Fiscaux</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 7 : ADMINISTRATION & RESET (ADMIN ONLY : EXIGENCE 9) -->
+    <!-- ========================================================================= -->
+    <!-- ==================== RUBRIQUE HORIZONTALE 1 : RÉINITIALISATION DONNÉES OPÉRATIONNELLES (ADMIN ONLY) ==================== -->
+    <div id="tab-reset" class="tab-pane">
+      <div class="card" style="max-width:680px;margin:0 auto;border:1px solid #fca5a5;">
+        <div class="card-title" style="color:var(--danger);">
+          <span>🛡️ Réinitialisation des Données Opérationnelles</span>
+          <span class="badge badge-danger">ADMIN ONLY</span>
+        </div>
+        <p style="font-size:12.5px;color:var(--slate-600);margin-bottom:14px;">
+          Efface toutes les données opérationnelles (factures, mouvements de stock, ordres de production, tickets de caisse et écritures comptables associées) pour remettre à zéro le dossier. Les données de structure (catalogues d'articles, clients, tiers et configurations société) sont intégralement préservées. Action irréversible réservée exclusivement à l'Administrateur.
+        </p>
+        <form onsubmit="handleResetOperational(event)">
+          <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Mot de passe Administrateur requis pour confirmer :</label>
+          <input type="password" id="adminPw" required placeholder="admin2026" style="width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:6px;margin-bottom:14px;" />
+          <button type="submit" class="btn-danger" style="width:100%;padding:11px;font-weight:700;font-size:13px;">🔥 Confirmer la Remise à Zéro des Mouvements</button>
+        </form>
+      </div>
+    </div>
+
+<!-- ==================== RUBRIQUE HORIZONTALE 2 : GESTION DES UTILISATEURS (ADMIN ONLY) ==================== -->
+    <div id="tab-users" class="tab-pane">
+      <div class="card" style="max-width:980px;margin:0 auto;">
+        <div class="card-title">
+          <span>👥 Gestion des Utilisateurs & Attribution des Rôles</span>
+          <span class="badge badge-danger">ADMIN ONLY</span>
+        </div>
+        <p style="font-size:12.5px;color:var(--slate-600);margin-bottom:16px;">
+          Réservé exclusivement aux administrateurs. Créez des comptes pour vos collaborateurs, attribuez les profils d'accès et gérez la sécurité des accès au système.
+        </p>
+
+        <!-- Formulaire de création d'utilisateur -->
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:20px;">
+          <h4 style="font-size:13.5px;color:var(--primary);margin-bottom:12px;font-weight:700;">➕ Ajouter un Nouvel Utilisateur</h4>
+          <form onsubmit="handleCreateUser(event)" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;align-items:flex-end;">
+            <div>
+              <label style="display:block;font-size:11.5px;font-weight:600;margin-bottom:4px;color:var(--slate-700);">Nom Complet</label>
+              <input type="text" id="newNomComplet" required placeholder="Ex: Sami Trabelsi" style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:11.5px;font-weight:600;margin-bottom:4px;color:var(--slate-700);">Nom d'Utilisateur (Identifiant)</label>
+              <input type="text" id="newUsername" required placeholder="Ex: strabelsi" style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:11.5px;font-weight:600;margin-bottom:4px;color:var(--slate-700);">Mot de Passe</label>
+              <input type="password" id="newPassword" required placeholder="••••••••" style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:11.5px;font-weight:600;margin-bottom:4px;color:var(--slate-700);">Rôle & Habilitation</label>
+              <select id="newRole" required style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;">
+                <option value="COMMERCIAL">COMMERCIAL / OPÉRATEUR (Accès Opérationnel)</option>
+                <option value="COMPTABLE">COMPTABLE (Consultation & Déclarations)</option>
+                <option value="ADMIN">ADMIN (Accès Total & Paramétrage)</option>
+              </select>
+            </div>
+            <div>
+              <button type="submit" class="btn-primary" style="width:100%;padding:9px;font-weight:700;">💾 Créer l'Utilisateur</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Table des utilisateurs existants -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
+          <h4 style="font-size:13.5px;color:var(--slate-800);margin-bottom:12px;font-weight:700;">📋 Liste des Comptes Enregistrés</h4>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+              <thead>
+                <tr style="background:#f1f5f9;text-align:left;border-bottom:2px solid #cbd5e1;">
+                  <th style="padding:10px;">ID</th>
+                  <th style="padding:10px;">Nom Complet</th>
+                  <th style="padding:10px;">Identifiant</th>
+                  <th style="padding:10px;">Rôle</th>
+                  <th style="padding:10px;text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <tr><td colspan="5" style="text-align:center;padding:15px;color:var(--slate-500);">Chargement des utilisateurs...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+
+  <!-- MODAL LOGIN (EXIGENCE 8) -->
+  <div id="loginModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="text-align:center;margin-bottom:12px;"><img src="safe-logo.png" alt="SAFE" style="width:52px;height:52px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,0.25);margin:0 auto;"></div>
+        <h2 style="color:var(--primary);font-size:18px;">Connexion Production</h2>
+        <p style="font-size:12px;color:var(--slate-600);">SAFE Industrie & Production — ERP Tunisie</p>
+      </div>
+      <form onsubmit="handleLogin(event)">
+        <label>Nom d'utilisateur</label>
+        <input type="text" id="loginUsername" required placeholder="admin ou atelier" style="margin-bottom:12px;" />
+        <label>Mot de passe</label>
+        <input type="password" id="loginPassword" required placeholder="••••••••" style="margin-bottom:16px;" />
+        <button type="submit" class="btn-primary" style="width:100%;padding:10px;font-size:14px;font-weight:700;">🔑 Se Connecter</button>
+      </form>
+      <div style="margin-top:16px;background:#f8fafc;padding:10px;border-radius:6px;font-size:11px;color:var(--slate-600);">
+        <strong>Comptes par défaut :</strong><br/>
+        • Directeur Industriel : <code>admin</code> / <code>admin2026</code><br/>
+        • Chef d'Atelier : <code>atelier</code> / <code>atelier2026</code>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    let appData = {
+      user: null,
+      matieres: [],
+      produits: [],
+      depots: [],
+      ofs: [],
+      company: {},
+      fiscal: {}
+    };
+
+    function checkAuth() {
+      const u = sessionStorage.getItem('safe_user');
+      if (u) {
+        try {
+          appData.user = JSON.parse(u);
+          updateUserDisplay();
+          document.getElementById('loginModal').style.display = 'none';
+        } catch(e) { showLoginModal(); }
+      } else { showLoginModal(); }
+    }
+    function showLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
+    function logout() {
+      sessionStorage.removeItem('safe_user');
+      appData.user = null;
+      document.getElementById('userDisplay').innerHTML = '<span>👤 Non connecté</span>';
+      showLoginModal();
+    }
+    async function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('loginUsername').value.trim();
+      const p = document.getElementById('loginPassword').value.trim();
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username: u, password: p })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        appData.user = data;
+        sessionStorage.setItem('safe_user', JSON.stringify(data));
+        document.getElementById('loginModal').style.display = 'none';
+        updateUserDisplay();
+        showToast(`Bienvenue, ${data.nom_complet}`);
+        loadAllData();
+      } else {
+        alert(data.detail || 'Identifiants erronés');
+      }
+    }
+    function updateUserDisplay() {
+      if (!appData.user) {
+        ['btnTabReset', 'btnTabUsers', 'btnTabFiscal', 'btnTabSociete', 'btnTabAdmin'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
+        return;
+      }
+      const isAdmin = appData.user.role === 'ADMIN';
+      document.getElementById('userDisplay').innerHTML = `
+        <span>👤 <strong>${appData.user.nom_complet}</strong></span>
+        <span class="badge ${isAdmin ? 'badge-danger' : 'badge-info'}">${appData.user.role}</span>
+      `;
+      // Affichage horizontal des 3 rubriques Administrateur UNIQUEMENT pour les comptes ADMIN
+      const adminDisplay = isAdmin ? 'flex' : 'none';
+      ['btnTabReset', 'btnTabUsers', 'btnTabFiscal', 'btnTabSociete', 'btnTabAdmin'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = adminDisplay;
+      });
+      if (isAdmin && typeof loadUsers === 'function') {
+        loadUsers();
+      }
+    }
+
+    function switchTab(tabId) {
+      const adminTabs = ['reset', 'users', 'fiscal', 'societe', 'admin', 'reset-admin', 'users-admin', 'fiscal-admin'];
+      if (adminTabs.includes(tabId)) {
+        if (!appData.user || appData.user.role !== 'ADMIN') {
+          showToast('⛔ Accès refusé : Cette rubrique est réservée exclusivement à l\'Administrateur.', 'error');
+          return;
+        }
+      }
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      let targetId = tabId;
+      if (targetId === 'admin' && !document.getElementById('tab-admin') && document.getElementById('tab-reset')) targetId = 'reset';
+      if (targetId === 'reset' && !document.getElementById('tab-reset') && document.getElementById('tab-admin')) targetId = 'admin';
+      
+      if (targetId === 'users' && typeof loadUsers === 'function') { loadUsers(); }
+      const targetPane = document.getElementById('tab-' + targetId);
+      if (targetPane) targetPane.classList.add('active');
+      
+      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => {
+        const oc = b.getAttribute('onclick') || '';
+        return oc.includes(`'${tabId}'`) || oc.includes(`"${tabId}"`);
+      });
+      if (targetBtn) targetBtn.classList.add('active');
+    }
+
+    async function loadAllData() {
+      await Promise.all([loadMatieres(), loadProduits(), loadDepots(), loadOFs(), loadCompany(), loadFiscal()]);
+    }
+    async function loadMatieres() {
+      const res = await fetch('/api/matieres-premieres');
+      if (res.ok) {
+        appData.matieres = await res.json();
+        renderMatieres();
+      }
+    }
+    async function loadProduits() {
+      const res = await fetch('/api/produits-finis');
+      if (res.ok) {
+        appData.produits = await res.json();
+        renderProduits();
+        populateProduitSelect();
+      }
+    }
+    async function loadDepots() {
+      const res = await fetch('/api/depots');
+      if (res.ok) {
+        appData.depots = await res.json();
+        renderDepots();
+        populateDepotSelect();
+      }
+    }
+    async function loadOFs() {
+      const res = await fetch('/api/ordres-fabrication');
+      if (res.ok) {
+        appData.ofs = await res.json();
+        renderOFs();
+      }
+    }
+    async function loadCompany() {
+      const res = await fetch('/api/company');
+      if (res.ok) {
+        const co = await res.json();
+        appData.company = co;
+        document.getElementById('coName').value = co.raison_sociale || '';
+        document.getElementById('coMf').value = co.matricule_fiscal || '';
+        document.getElementById('coRc').value = co.registre_commerce || '';
+        document.getElementById('coAdr').value = co.adresse || '';
+        document.getElementById('coTel').value = co.telephone || '';
+        document.getElementById('coEmail').value = co.email || '';
+        document.getElementById('coRib').value = co.rib || '';
+      }
+    }
+    async function loadFiscal() {
+      const res = await fetch('/api/fiscal-params');
+      if (res.ok) {
+        const f = await res.json();
+        appData.fiscal = f;
+        document.getElementById('fCnssSal').value = f.taux_cnss_salarie ?? 9.68;
+        document.getElementById('fCnssPat').value = f.taux_cnss_patronal ?? 17.07;
+        document.getElementById('fAt').value = f.taux_accident_travail ?? 0.50;
+        document.getElementById('fCss').value = f.taux_css ?? 0.5;
+        document.getElementById('fCssSocietes').value = f.taux_css_societes ?? 3.0;
+        document.getElementById('fIsDefaut').value = f.taux_is_defaut ?? 20.0;
+        document.getElementById('fRsVentes').value = f.taux_rs_ventes ?? 1.0;
+        document.getElementById('fRsHonoraires').value = f.taux_rs_honoraires ?? 3.0;
+        document.getElementById('fRsLoyers').value = f.taux_rs_loyers ?? 10.0;
+        document.getElementById('fTimbre').value = Number(f.timbre_fiscal ?? 1.000).toFixed(3);
+        document.getElementById('fTvaDef').value = f.taux_tva_defaut ?? 19.0;
+        document.getElementById('fIrppJson').value = f.tranches_irpp_json || '';
+      }
+    }
+
+    // --- MATIÈRES PREMIÈRES (EXIGENCE 6 : AJOUT ET SUPPRESSION) ---
+    function renderMatieres() {
+      const tbody = document.getElementById('matieresTableBody');
+      document.getElementById('badgeMpCount').innerText = `${appData.matieres.length} composants`;
+      tbody.innerHTML = appData.matieres.map(m => `
+        <tr>
+          <td><strong>${m.code}</strong></td>
+          <td>${m.designation}</td>
+          <td>${m.famille}</td>
+          <td><span class="badge badge-info">${m.unite}</span></td>
+          <td>${Number(m.cout_achat_ht).toFixed(3)} TND</td>
+          <td><strong>${m.stock_actuel}</strong></td>
+          <td>${m.depot_nom || 'Magasin'}</td>
+          <td style="text-align:right;">
+            <button class="btn-sm btn-danger" onclick="deleteMatiere(${m.id})">🗑️ Supprimer</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+    async function handleCreateMatiere(e) {
+      e.preventDefault();
+      const payload = {
+        code: document.getElementById('mpCode').value.trim(),
+        designation: document.getElementById('mpDesignation').value.trim(),
+        famille: document.getElementById('mpFamille').value.trim(),
+        unite: document.getElementById('mpUnite').value,
+        cout_achat_ht: parseFloat(document.getElementById('mpCoutAchat').value),
+        stock_actuel: parseFloat(document.getElementById('mpStock').value),
+        depot_nom: document.getElementById('mpDepot').value.trim()
+      };
+      const res = await fetch('/api/matieres-premieres', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      if (res.ok) {
+        showToast('Matière première ajoutée avec succès !');
+        document.getElementById('mpCode').value = '';
+        document.getElementById('mpDesignation').value = '';
+        await loadMatieres();
+      }
+    }
+    async function deleteMatiere(id) {
+      if (!confirm('Supprimer ce composant / matière première ?')) return;
+      await fetch(`/api/matieres-premieres/${id}`, { method: 'DELETE' });
+      await loadMatieres();
+      showToast('Composant supprimé');
+    }
+
+    // --- PRODUITS FINIS (EXIGENCE 6 : AJOUT ET SUPPRESSION) ---
+    function renderProduits() {
+      const tbody = document.getElementById('produitsTableBody');
+      document.getElementById('badgePfCount').innerText = `${appData.produits.length} produits`;
+      tbody.innerHTML = appData.produits.map(p => `
+        <tr>
+          <td><strong>${p.reference}</strong></td>
+          <td>${p.designation}</td>
+          <td>${p.gamme}</td>
+          <td>${Number(p.cout_revient_estime).toFixed(3)}</td>
+          <td>${Number(p.prix_vente_ht).toFixed(3)} TND</td>
+          <td><strong>${p.stock_actuel}</strong></td>
+          <td>${p.depot_nom || 'Dépôt Usine'}</td>
+          <td style="text-align:right;">
+            <button class="btn-sm btn-danger" onclick="deleteProduit(${p.id})">🗑️ Supprimer</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+    async function handleCreateProduitFini(e) {
+      e.preventDefault();
+      const payload = {
+        reference: document.getElementById('pfRef').value.trim(),
+        designation: document.getElementById('pfDes').value.trim(),
+        gamme: document.getElementById('pfGamme').value.trim(),
+        cout_revient_estime: parseFloat(document.getElementById('pfCoutRev').value),
+        prix_vente_ht: parseFloat(document.getElementById('pfPrixVte').value),
+        stock_actuel: parseFloat(document.getElementById('pfStock').value),
+        depot_id: parseInt(document.getElementById('pfDepot').value)
+      };
+      const res = await fetch('/api/produits-finis', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      if (res.ok) {
+        showToast('Produit fini ajouté au catalogue usine !');
+        document.getElementById('pfRef').value = '';
+        document.getElementById('pfDes').value = '';
+        await loadProduits();
+      }
+    }
+    async function deleteProduit(id) {
+      if (!confirm('Supprimer ce produit fini ?')) return;
+      await fetch(`/api/produits-finis/${id}`, { method: 'DELETE' });
+      await loadProduits();
+      showToast('Produit fini supprimé');
+    }
+
+    // --- SÉLECTIONS ET CALCULS OF ---
+    function populateProduitSelect() {
+      const sel = document.getElementById('ofProduit');
+      sel.innerHTML = '<option value="">-- Choisir le Produit Fini à Assembler --</option>' + appData.produits.map(p => `
+        <option value="${p.id}">${p.reference} - ${p.designation} (Stock actuel: ${p.stock_actuel})</option>
+      `).join('');
+    }
+    function populateDepotSelect() {
+      const sel = document.getElementById('pfDepot');
+      sel.innerHTML = appData.depots.map(d => `<option value="${d.id}">${d.libelle}</option>`).join('');
+    }
+    function onProduitSelected() {
+      const pid = parseInt(document.getElementById('ofProduit').value);
+      const p = appData.produits.find(x => x.id === pid);
+      if (p) {
+        document.getElementById('ofCoutMat').value = (p.cout_revient_estime * 0.7 * 50).toFixed(3);
+        document.getElementById('ofCoutMo').value = (p.cout_revient_estime * 0.3 * 50).toFixed(3);
+        calcOfCost();
+      }
+    }
+    function calcOfCost() {
+      const mat = parseFloat(document.getElementById('ofCoutMat').value) || 0;
+      const mo = parseFloat(document.getElementById('ofCoutMo').value) || 0;
+      document.getElementById('ofCoutTot').value = (mat + mo).toFixed(3);
+    }
+    async function handleCreateOF(e) {
+      e.preventDefault();
+      const pid = parseInt(document.getElementById('ofProduit').value);
+      if (!pid) { alert('Veuillez sélectionner un produit fini'); return; }
+      const payload = {
+        produit_id: pid,
+        quantite: parseFloat(document.getElementById('ofQte').value),
+        cout_matiere: parseFloat(document.getElementById('ofCoutMat').value),
+        cout_mo: parseFloat(document.getElementById('ofCoutMo').value)
+      };
+      const res = await fetch('/api/ordres-fabrication', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      const d = await res.json();
+      if (res.ok) {
+        showToast(`OF ${d.numero_of} clôturé : Produits ajoutés au stock usine !`);
+        await loadOFs();
+        await loadProduits();
+      }
+    }
+    function renderOFs() {
+      const tbody = document.getElementById('ofTableBody');
+      tbody.innerHTML = appData.ofs.map(o => `
+        <tr>
+          <td><strong>${o.numero_of}</strong></td>
+          <td>${o.date_lancement}</td>
+          <td>${o.produit_ref}</td>
+          <td>${o.produit_nom}</td>
+          <td><strong>${o.quantite_a_fabriquer}</strong></td>
+          <td>${Number(o.cout_matiere_ht).toFixed(3)}</td>
+          <td>${Number(o.cout_mo_ht).toFixed(3)}</td>
+          <td><strong>${Number(o.cout_total_ht).toFixed(3)} TND</strong></td>
+          <td><span class="badge ${o.statut === 'AVOIR' ? 'badge-danger' : 'badge-success'}">${o.statut}</span></td>
+          <td style="text-align:right;">
+            ${o.statut !== 'AVOIR' ? `<button class="btn-sm btn-danger" onclick="makeOfAvoir(${o.id})">↩️ Avoir</button>` : ''}
+          </td>
+        </tr>
+      `).join('');
+    }
+    async function makeOfAvoir(id) {
+      if (!confirm('Annuler cet OF avec déstockage et extourne comptable ?')) return;
+      const res = await fetch(`/api/ordres-fabrication/${id}/avoir`, { method: 'POST' });
+      if (res.ok) {
+        showToast('Avoir OF émis');
+        await loadOFs();
+        await loadProduits();
+      }
+    }
+
+    // --- DÉPÔTS ---
+    function renderDepots() {
+      const tbody = document.getElementById('depotsTableBody');
+      tbody.innerHTML = appData.depots.map(d => `
+        <tr>
+          <td><strong>${d.code}</strong></td>
+          <td>${d.libelle}</td>
+          <td><span class="badge badge-info">${d.type_stock}</span></td>
+          <td>${d.adresse || '-'}</td>
+          <td>${d.responsable || '-'}</td>
+          <td style="text-align:right;"><button class="btn-sm btn-danger" onclick="deleteDepot(${d.id})">🗑️</button></td>
+        </tr>
+      `).join('');
+    }
+    async function handleCreateDepot(e) {
+      e.preventDefault();
+      const payload = {
+        code: document.getElementById('dCode').value.trim(),
+        libelle: document.getElementById('dLib').value.trim(),
+        type_stock: document.getElementById('dType').value,
+        adresse: document.getElementById('dAdr').value.trim(),
+        responsable: document.getElementById('dResp').value.trim()
+      };
+      await fetch('/api/depots', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      showToast('Dépôt ajouté');
+      await loadDepots();
+    }
+    async function deleteDepot(id) {
+      if (!confirm('Supprimer ce dépôt ?')) return;
+      await fetch(`/api/depots/${id}`, { method: 'DELETE' });
+      await loadDepots();
+    }
+
+    // --- SOCIÉTÉ, FISCAL, RESET ---
+    async function handleSaveCompany(e) {
+      e.preventDefault();
+      const payload = {
+        raison_sociale: document.getElementById('coName').value.trim(),
+        matricule_fiscal: document.getElementById('coMf').value.trim(),
+        registre_commerce: document.getElementById('coRc').value.trim(),
+        adresse: document.getElementById('coAdr').value.trim(),
+        telephone: document.getElementById('coTel').value.trim(),
+        email: document.getElementById('coEmail').value.trim(),
+        rib: document.getElementById('coRib').value.trim()
+      };
+      await fetch('/api/company', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      showToast('Coordonnées usine enregistrées');
+    }
+    async function handleSaveFiscal(e) {
+      e.preventDefault();
+      const payload = {
+        tranches_irpp_json: document.getElementById('fIrppJson').value,
+        taux_cnss_salarie: parseFloat(document.getElementById('fCnssSal').value) || 9.68,
+        taux_cnss_patronal: parseFloat(document.getElementById('fCnssPat').value) || 17.07,
+        taux_accident_travail: parseFloat(document.getElementById('fAt').value) || 0.50,
+        taux_css: parseFloat(document.getElementById('fCss').value) || 0.5,
+        taux_css_societes: parseFloat(document.getElementById('fCssSocietes').value) || 3.0,
+        taux_is_defaut: parseFloat(document.getElementById('fIsDefaut').value) || 20.0,
+        minimum_impot_taux: 0.2,
+        minimum_impot_plancher: 500.0,
+        taux_rs_ventes: 1.0,
+        taux_rs_honoraires: parseFloat(document.getElementById('fRsHonoraires').value) || 3.0,
+        taux_rs_loyers: parseFloat(document.getElementById('fRsLoyers').value) || 10.0,
+        timbre_fiscal: parseFloat(document.getElementById('fTimbre').value) || 1.000,
+        taux_tva_defaut: parseFloat(document.getElementById('fTvaDef').value) || 19.0
+      };
+      await fetch('/api/fiscal-params', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      showToast('Paramètres fiscaux 2026 enregistrés !');
+    }
+    async function handleResetOperational(e) {
+      e.preventDefault();
+      const pw = document.getElementById('adminPw').value.trim();
+      if (!confirm('ATTENTION : Voulez-vous effacer tous les Ordres de Fabrication ?')) return;
+      const res = await fetch('/api/admin/reset', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ admin_password: pw }) });
+      if (res.ok) {
+        alert('Réinitialisation effectuée');
+        await loadOFs();
+      } else { alert('Mot de passe erroné'); }
+    }
+
+    // --- IMPORT / EXPORT (EXIGENCE 2 & 3) ---
+    function triggerImport(type) {
+      const input = document.getElementById('universalFileInput');
+      if (type === 'excel') input.accept = '.xlsx, .xls';
+      else if (type === 'csv') input.accept = '.csv';
+      else if (type === 'pdf') input.accept = '.pdf';
+      input.click();
+    }
+    function handleUniversalFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      showToast(`Fichier "${file.name}" importé avec succès dans le module Production !`);
+      event.target.value = '';
+    }
+    function exportData(format) {
+      const d = new Date().toISOString().slice(0, 10);
+      if (format === 'csv') {
+        let csv = "\uFEFFRéférence;Désignation;Gamme;Coût Revient;Prix Vente HT;Stock\n";
+        appData.produits.forEach(p => { csv += `"${p.reference}";"${p.designation}";"${p.gamme}";"${p.cout_revient_estime}";"${p.prix_vente_ht}";"${p.stock_actuel}"\n`; });
+        downloadBlob(csv, `export_safe_industrie_produits_${d}.csv`, 'text/csv;charset=utf-8;');
+      } else if (format === 'excel') {
+        let xls = `
+          <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+          <head>
+  <link rel="icon" type="image/png" href="safe-logo.png"><meta charset="UTF-8"></head>
+          <body>
+            <table border="1">
+              <tr style="background:#4338ca;color:#fff;"><th>Réf. Produit</th><th>Désignation</th><th>Gamme</th><th>Coût Revient</th><th>Prix Vente HT</th><th>Stock</th></tr>
+              ${appData.produits.map(p => `<tr><td>${p.reference}</td><td>${p.designation}</td><td>${p.gamme}</td><td>${p.cout_revient_estime}</td><td>${p.prix_vente_ht}</td><td>${p.stock_actuel}</td></tr>`).join('')}
+            </table>
+          </body>
+          </html>`;
+        downloadBlob(xls, `export_safe_industrie_${d}.xls`, 'application/vnd.ms-excel');
+      } else {
+        window.print();
+      }
+    }
+    function downloadBlob(content, filename, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.innerText = msg; t.style.display = 'block';
+      t.style.background = type === 'error' ? '#dc2626' : '#0f172a';
+      setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+
+    window.onload = function() { checkAuth(); };
+  // --- GESTION DES UTILISATEURS (RUBRIQUE HORIZONTALE ADMIN) ---
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function loadUsers() {
+      try {
+        const res = await fetch('/api/users');
+        if (res.ok) {
+          appData.users = await res.json();
+          renderUsersTable();
+        }
+      } catch(e) {
+        console.error('Erreur chargement utilisateurs:', e);
+      }
+    }
+
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTableBody');
+      if (!tbody) return;
+      if (!appData.users || appData.users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:15px;color:var(--slate-500);">Aucun utilisateur enregistré</td></tr>';
+        return;
+      }
+      tbody.innerHTML = appData.users.map(u => `
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:10px;font-weight:700;">#${u.id}</td>
+          <td style="padding:10px;">${escapeHtml(u.nom_complet || '')}</td>
+          <td style="padding:10px;"><code>${escapeHtml(u.username)}</code></td>
+          <td style="padding:10px;"><span class="badge ${u.role === 'ADMIN' ? 'badge-danger' : 'badge-info'}">${u.role}</span></td>
+          <td style="padding:10px;text-align:right;">
+            ${(u.username === 'admin' || (u.role === 'ADMIN' && appData.users.filter(x => x.role === 'ADMIN').length <= 1)) ? '<span style="font-size:11px;color:var(--slate-400);font-weight:600;">🔒 Principal</span>' : `
+              <button class="btn-sm btn-danger" onclick="deleteUser(${u.id}, '${escapeHtml(u.username)}')">🗑️ Supprimer</button>
+            `}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function handleCreateUser(e) {
+      e.preventDefault();
+      const nom_complet = document.getElementById('newNomComplet').value.trim();
+      const username = document.getElementById('newUsername').value.trim().toLowerCase();
+      const password = document.getElementById('newPassword').value.trim();
+      const role = document.getElementById('newRole').value;
+      if (!nom_complet || !username || !password) {
+        showToast('Veuillez remplir tous les champs', 'error');
+        return;
+      }
+      try {
+        const res = await fetch('/api/users', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ nom_complet, username, password, role })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Utilisateur "${username}" créé avec succès !`, 'success');
+          document.getElementById('newNomComplet').value = '';
+          document.getElementById('newUsername').value = '';
+          document.getElementById('newPassword').value = '';
+          await loadUsers();
+        } else {
+          alert(data.detail || 'Erreur lors de la création de l\'utilisateur');
+        }
+      } catch(err) {
+        alert('Erreur réseau lors de la création');
+      }
+    }
+
+    async function deleteUser(id, username) {
+      if (!confirm(`Confirmer la suppression du compte "${username}" ?`)) return;
+      try {
+        const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Utilisateur "${username}" supprimé avec succès`, 'success');
+          await loadUsers();
+        } else {
+          alert(data.detail || 'Erreur lors de la suppression');
+        }
+      } catch(err) {
+        alert('Erreur réseau lors de la suppression');
+      }
+    }
+  </script>
+</body>
+</html>

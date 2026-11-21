@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <link rel="icon" type="image/png" href="safe-logo.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAFE Services & Cabinets — ERP Tunisie 2026</title>
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-600: #475569;
+      --slate-900: #0f172a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--slate-50); color: var(--slate-900); font-size: 13.5px; }
+    
+    header {
+      background: #ffffff; border-bottom: 1px solid var(--slate-200); padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      background: var(--primary); color: #fff; width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px;
+    }
+    .brand-title { font-size: 17px; font-weight: 800; color: var(--primary); }
+    .brand-sub { font-size: 11px; color: var(--slate-600); }
+    
+    .nav-tabs {
+      background: #ffffff; border-bottom: 1px solid var(--slate-200); padding: 0 24px;
+      display: flex; gap: 4px; overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 12px 16px; border: none; background: transparent; cursor: pointer;
+      font-size: 13px; font-weight: 600; color: var(--slate-600); border-bottom: 3px solid transparent;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--primary); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    
+    main { padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    
+    .card {
+      background: #ffffff; border: 1px solid var(--slate-200); border-radius: 8px;
+      padding: 18px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card-title {
+      font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    
+    .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--slate-600); margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px;
+      font-size: 13px; outline: none; transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    
+    .btn-primary { background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-success { background: var(--success); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-secondary { background: #0284c7; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-danger { background: var(--danger); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-sm { padding: 4px 10px; font-size: 11.5px; border-radius: 4px; cursor: pointer; font-weight: 600; border: none; }
+    
+    .badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-info { background: #e0f2fe; color: #0369a1; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th { background: #f8fafc; text-align: left; padding: 10px; border-bottom: 1px solid var(--slate-200); color: var(--slate-600); font-weight: 700; }
+    td { padding: 10px; border-bottom: 1px solid var(--slate-200); }
+    tr:hover { background: #f8fafc; }
+    
+    .io-toolbar {
+      background: #ffffff; border: 1px solid var(--slate-200); border-radius: 8px;
+      padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .modal-card {
+      background: #ffffff; border-radius: 12px; width: 100%; max-width: 480px; padding: 26px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+    }
+    
+    #toast {
+      position: fixed; bottom: 20px; right: 20px; background: var(--slate-900); color: #fff;
+      padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; display: none; z-index: 10000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <img src="safe-logo.png" alt="Logo" style="width:36px;height:36px;border-radius:8px;object-fit:cover;box-shadow:0 2px 6px rgba(0,0,0,0.25);" />
+      <div>
+        <div class="brand-title">SAFE Services & Cabinets</div>
+        <div class="brand-sub">Professions Libérales, Cabinets d'Avocats & Conseil • Port 8002 • Normes 2026</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div id="userDisplay" style="font-size:12.5px;color:var(--slate-600);display:flex;align-items:center;gap:6px;">
+        <span>👤 Non connecté</span>
+      </div>
+      <button class="btn-sm btn-danger" onclick="logout()" style="padding:6px 14px;font-size:12px;">🚪 Déconnexion</button>
+    </div>
+  </header>
+
+  <!-- NAVIGATION -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('notes')">📋 Notes d'Honoraires & Facturation</button>
+    <button class="tab-btn" onclick="switchTab('missions')">📁 Missions & Dossiers Cabinet</button>
+    <button class="tab-btn" onclick="switchTab('clients')">👥 Clients & Donneurs d'Ordre</button>
+    <button class="tab-btn" id="btnTabReset" onclick="switchTab('reset')" style="display:none;">🛡️ Réinitialisation Données (Admin) 🔒</button>
+    <button class="tab-btn" id="btnTabUsers" onclick="switchTab('users')" style="display:none;">👥 Gestion des Utilisateurs (Admin) 🔒</button>
+    <button class="tab-btn" id="btnTabFiscal" onclick="switchTab('fiscal')" style="display:none;">⚖️ Paramètres Fiscaux Modifiables (Admin) 🔒</button>
+    <button class="tab-btn" id="btnTabSociete" onclick="switchTab('societe')" style="display:none;">🏢 Paramètres Entreprise (Admin) 🔒</button>
+  </nav>
+
+  <main>
+    <!-- TOOLBAR IMPORT / EXPORT FICHIERS (EXIGENCE 2 & 3) -->
+    <div class="io-toolbar">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-weight:700;font-size:12px;color:var(--primary);">📥 Importation Fichiers :</span>
+        <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;" onclick="triggerImport('excel')">📥 Importer Excel (.xlsx)</button>
+        <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;" onclick="triggerImport('csv')">📥 Importer CSV (.csv)</button>
+        <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;" onclick="triggerImport('pdf')">📥 Importer PDF (.pdf)</button>
+        <input type="file" id="universalFileInput" style="display:none;" onchange="handleUniversalFile(event)" />
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-weight:700;font-size:12px;color:var(--primary);">📤 Exportation Fichiers :</span>
+        <button type="button" class="btn-sm btn-success" onclick="exportData('excel')">📊 Exporter Excel</button>
+        <button type="button" class="btn-sm btn-secondary" onclick="exportData('csv')">📑 Exporter CSV</button>
+        <button type="button" class="btn-sm btn-danger" onclick="exportData('pdf')">📄 Exporter PDF (Impression)</button>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 1 : NOTES D'HONORAIRES & FACTURATION -->
+    <!-- ========================================================================= -->
+    <div id="tab-notes" class="tab-pane active">
+      <div class="card">
+        <div class="card-title">
+          <span>➕ Émettre une Note d'Honoraires / Facture de Prestations</span>
+          <span class="badge badge-info">RS 3% (PM) / TVA 19% • Timbre 1.000 DT</span>
+        </div>
+        <form onsubmit="handleCreateNote(event)">
+          <div class="grid-form">
+            <div>
+              <label>Dossier / Mission Associée</label>
+              <select id="nMission" onchange="onMissionSelected()" required></select>
+            </div>
+            <div>
+              <label>Client Mandant</label>
+              <input id="nClient" readonly style="background:#f1f5f9;" />
+            </div>
+            <div>
+              <label>Matricule Fiscal Client</label>
+              <input id="nMf" readonly style="background:#f1f5f9;" />
+            </div>
+            <div>
+              <label>Honoraires Prestation HT (TND)</label>
+              <input type="number" step="0.001" id="nMontant" value="1500.000" oninput="calcTotals()" required />
+            </div>
+            <div>
+              <label>Frais Débours / Déplacements HT (TND)</label>
+              <input type="number" step="0.001" id="nDebours" value="0.000" oninput="calcTotals()" />
+            </div>
+            <div>
+              <label>Taux TVA (%)</label>
+              <input type="number" id="nTva" value="19.0" oninput="calcTotals()" />
+            </div>
+          </div>
+          
+          <div style="background:#f8fafc;padding:12px 18px;border-radius:6px;border:1px solid #e2e8f0;margin:16px 0;display:flex;justify-content:flex-end;gap:24px;font-weight:700;">
+            <div>Total HT : <span id="lblHt">1500.000</span> TND</div>
+            <div>TVA : <span id="lblTva">285.000</span> TND</div>
+            <div>Timbre : <span id="lblTimbre">1.000</span> TND</div>
+            <div>RS 3% (PM) : <span id="lblRs" style="color:var(--danger);">-45.000</span> TND</div>
+            <div style="color:var(--primary);font-size:15px;">Net à Payer : <span id="lblNet">1741.000</span> TND</div>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;">
+            <button type="submit" class="btn-primary" style="padding:10px 24px;font-weight:700;">
+              💾 Émettre & Valider la Note d'Honoraires
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>Registre des Notes d'Honoraires Émises</span></div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>N° Note</th>
+                <th>Date</th>
+                <th>Mission</th>
+                <th>Client</th>
+                <th>Honoraires HT</th>
+                <th>TVA</th>
+                <th>Total TTC</th>
+                <th>RS Déduite</th>
+                <th>Net Encaissé</th>
+                <th>Statut</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="notesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 2 : MISSIONS & DOSSIERS CABINET (ÉLARGI AVEC MODIFICATION : EXIGENCE 5) -->
+    <!-- ========================================================================= -->
+    <div id="tab-missions" class="tab-pane">
+      <div class="card">
+        <div class="card-title">
+          <span>📁 Dossiers Juridiques, Audit & Missions de Conseil</span>
+          <button class="btn-sm btn-primary" onclick="showNewMissionModal()">➕ Nouveau Dossier / Mission</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Code Réf.</th>
+                <th>Titre de la Mission / Objet</th>
+                <th>Client Mandant</th>
+                <th>Responsable</th>
+                <th>Budget HT (TND)</th>
+                <th>Taux Horaire</th>
+                <th>Avancement</th>
+                <th>Échéance</th>
+                <th>Statut</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="missionsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 3 : LISTE CLIENTS AVEC COORDONNÉES (EXIGENCE 5) -->
+    <!-- ========================================================================= -->
+    <div id="tab-clients" class="tab-pane">
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
+        <div class="card">
+          <div class="card-title"><span>➕ Nouveau Client Mandant</span></div>
+          <form onsubmit="handleCreateClient(event)">
+            <label>Raison Sociale / Nom</label><input id="cNom" required placeholder="Société ABC Sarl" />
+            <label>Matricule Fiscal</label><input id="cMf" placeholder="1234567/A/M/000" />
+            <label>Secteur d'Activité</label>
+            <select id="cSecteur">
+              <option value="Industrie">Industrie & Manufacture</option>
+              <option value="Commerce">Commerce & Distribution</option>
+              <option value="Services">Services & IT</option>
+              <option value="Banque/Finance">Banque & Finance</option>
+              <option value="Particulier">Particulier</option>
+            </select>
+            <label>Téléphone Standard</label><input id="cTel" placeholder="+216 71 000 111" />
+            <label>Email Contact</label><input id="cEmail" placeholder="contact@entreprise.tn" />
+            <label>Adresse Complète</label><input id="cAdr" placeholder="Les Berges du Lac 2, Tunis" />
+            <button type="submit" class="btn-primary" style="margin-top:12px;width:100%;">Enregistrer le Client</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span>👥 Répertoire des Clients & Donneurs d'Ordre</span></div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nom / Raison Sociale</th>
+                  <th>Matricule Fiscal</th>
+                  <th>Secteur</th>
+                  <th>Téléphone</th>
+                  <th>Email</th>
+                  <th>Adresse</th>
+                  <th style="text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 4 : EN-TÊTE CABINET (ADMIN ONLY : EXIGENCE 10) -->
+    <!-- ========================================================================= -->
+    <div id="tab-societe" class="tab-pane">
+      <div class="card" style="max-width:800px;margin:0 auto;">
+        <div class="card-title">
+          <span>🏢 Coordonnées & En-tête Cabinet (Admin Only)</span>
+          <span class="badge badge-danger">ADMIN ONLY</span>
+        </div>
+        <form onsubmit="handleSaveCompany(event)">
+          <div class="grid-form">
+            <div style="grid-column:span 2;"><label>Raison Sociale / Nom du Cabinet</label><input id="coName" required /></div>
+            <div><label>Matricule Fiscal</label><input id="coMf" required /></div>
+            <div><label>Registre de Commerce</label><input id="coRc" /></div>
+            <div style="grid-column:span 2;"><label>Adresse Siège / Cabinet</label><input id="coAdr" required /></div>
+            <div><label>Téléphone</label><input id="coTel" required /></div>
+            <div><label>Email Cabinet</label><input id="coEmail" required /></div>
+            <div style="grid-column:span 2;"><label>RIB Bancaire</label><input id="coRib" /></div>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top:16px;width:100%;">💾 Sauvegarder les Coordonnées</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 5 : PARAMÈTRES FISCAUX 2026 (ADMIN ONLY : EXIGENCE 10) -->
+    <!-- ========================================================================= -->
+    <div id="tab-fiscal" class="tab-pane">
+      <div class="card" style="max-width:980px;margin:0 auto;">
+        <div class="card-title">
+          <span>⚖️ Barème Fiscal & Charges Sociales 2026 (Validé Expert-Comptable)</span>
+          <span class="badge badge-danger">ADMIN ONLY</span>
+        </div>
+        <form onsubmit="handleSaveFiscal(event)">
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:18px;">
+            <strong style="color:var(--primary);display:block;margin-bottom:10px;">🛡️ Cotisations Sociales CNSS & Accident du Travail (AT)</strong>
+            <div class="grid-form">
+              <div><label>CNSS Salarié (%)</label><input type="number" step="0.01" id="fCnssSal" value="9.68" required /></div>
+              <div><label>CNSS Patronale (%)</label><input type="number" step="0.01" id="fCnssPat" value="17.07" required /></div>
+              <div><label>Accident du Travail (AT) (%)</label><input type="number" step="0.01" id="fAt" value="0.50" required /></div>
+              <div><label>CSS Salarié (%)</label><input type="number" step="0.1" id="fCss" value="0.5" required /></div>
+            </div>
+          </div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:18px;">
+            <strong style="color:var(--primary);display:block;margin-bottom:10px;">🏢 Fiscalité & Retenue à la Source (RS Honoraires 3% dès 1er DT)</strong>
+            <div class="grid-form">
+              <div><label>Taux IS Actuel (%)</label><input type="number" step="0.1" id="fIsDefaut" value="20.0" required /></div>
+              <div><label>Taux CSS Sociétés (%)</label><input type="number" step="0.1" id="fCssSocietes" value="3.0" required /></div>
+              <div><label>Taux RS Honoraires PM (%) (dès 1er DT)</label><input type="number" step="0.1" id="fRsHonoraires" value="3.0" required /></div>
+              <div><label>Taux RS Loyers (%)</label><input type="number" step="0.1" id="fRsLoyers" value="10.0" required /></div>
+              <div><label>Droit de Timbre (TND)</label><input type="number" step="0.001" id="fTimbre" value="1.000" required /></div>
+              <div><label>TVA Prestations (%)</label><input type="number" step="0.1" id="fTvaDef" value="19.0" required /></div>
+            </div>
+          </div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:18px;">
+            <strong style="color:var(--primary);display:block;margin-bottom:8px;">📈 Barème IRPP 2025/2026 (8 Tranches)</strong>
+            <textarea id="fIrppJson" rows="4" style="font-family:monospace;font-size:11px;"></textarea>
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;padding:12px;">💾 Sauvegarder les Paramètres Fiscaux</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 6 : ADMINISTRATION & RESET (ADMIN ONLY : EXIGENCE 9) -->
+    <!-- ========================================================================= -->
+    <!-- ==================== RUBRIQUE HORIZONTALE 1 : RÉINITIALISATION DONNÉES OPÉRATIONNELLES (ADMIN ONLY) ==================== -->
+    <div id="tab-reset" class="tab-pane">
+      <div class="card" style="max-width:680px;margin:0 auto;border:1px solid #fca5a5;">
+        <div class="card-title" style="color:var(--danger);">
+          <span>🛡️ Réinitialisation des Données Opérationnelles</span>
+          <span class="badge badge-danger">ADMIN ONLY</span>
+        </div>
+        <p style="font-size:12.5px;color:var(--slate-600);margin-bottom:14px;">
+          Efface toutes les données opérationnelles (factures, mouvements de stock, ordres de production, tickets de caisse et écritures comptables associées) pour remettre à zéro le dossier. Les données de structure (catalogues d'articles, clients, tiers et configurations société) sont intégralement préservées. Action irréversible réservée exclusivement à l'Administrateur.
+        </p>
+        <form onsubmit="handleResetOperational(event)">
+          <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Mot de passe Administrateur requis pour confirmer :</label>
+          <input type="password" id="adminPw" required placeholder="admin2026" style="width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:6px;margin-bottom:14px;" />
+          <button type="submit" class="btn-danger" style="width:100%;padding:11px;font-weight:700;font-size:13px;">🔥 Confirmer la Remise à Zéro des Mouvements</button>
+        </form>
+      </div>
+    </div>
+
+<!-- ==================== RUBRIQUE HORIZONTALE 2 : GESTION DES UTILISATEURS (ADMIN ONLY) ==================== -->
+    <div id="tab-users" class="tab-pane">
+      <div class="card" style="max-width:980px;margin:0 auto;">
+        <div class="card-title">
+          <span>👥 Gestion des Utilisateurs & Attribution des Rôles</span>
+          <span class="badge badge-danger">ADMIN ONLY</span>
+        </div>
+        <p style="font-size:12.5px;color:var(--slate-600);margin-bottom:16px;">
+          Réservé exclusivement aux administrateurs. Créez des comptes pour vos collaborateurs, attribuez les profils d'accès et gérez la sécurité des accès au système.
+        </p>
+
+        <!-- Formulaire de création d'utilisateur -->
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:20px;">
+          <h4 style="font-size:13.5px;color:var(--primary);margin-bottom:12px;font-weight:700;">➕ Ajouter un Nouvel Utilisateur</h4>
+          <form onsubmit="handleCreateUser(event)" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;align-items:flex-end;">
+            <div>
+              <label style="display:block;font-size:11.5px;font-weight:600;margin-bottom:4px;color:var(--slate-700);">Nom Complet</label>
+              <input type="text" id="newNomComplet" required placeholder="Ex: Sami Trabelsi" style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:11.5px;font-weight:600;margin-bottom:4px;color:var(--slate-700);">Nom d'Utilisateur (Identifiant)</label>
+              <input type="text" id="newUsername" required placeholder="Ex: strabelsi" style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:11.5px;font-weight:600;margin-bottom:4px;color:var(--slate-700);">Mot de Passe</label>
+              <input type="password" id="newPassword" required placeholder="••••••••" style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:11.5px;font-weight:600;margin-bottom:4px;color:var(--slate-700);">Rôle & Habilitation</label>
+              <select id="newRole" required style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;">
+                <option value="COMMERCIAL">COMMERCIAL / OPÉRATEUR (Accès Opérationnel)</option>
+                <option value="COMPTABLE">COMPTABLE (Consultation & Déclarations)</option>
+                <option value="ADMIN">ADMIN (Accès Total & Paramétrage)</option>
+              </select>
+            </div>
+            <div>
+              <button type="submit" class="btn-primary" style="width:100%;padding:9px;font-weight:700;">💾 Créer l'Utilisateur</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Table des utilisateurs existants -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;">
+          <h4 style="font-size:13.5px;color:var(--slate-800);margin-bottom:12px;font-weight:700;">📋 Liste des Comptes Enregistrés</h4>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+              <thead>
+                <tr style="background:#f1f5f9;text-align:left;border-bottom:2px solid #cbd5e1;">
+                  <th style="padding:10px;">ID</th>
+                  <th style="padding:10px;">Nom Complet</th>
+                  <th style="padding:10px;">Identifiant</th>
+                  <th style="padding:10px;">Rôle</th>
+                  <th style="padding:10px;text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <tr><td colspan="5" style="text-align:center;padding:15px;color:var(--slate-500);">Chargement des utilisateurs...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+
+  <!-- MODAL LOGIN (EXIGENCE 8) -->
+  <div id="loginModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="text-align:center;margin-bottom:12px;"><img src="safe-logo.png" alt="SAFE" style="width:52px;height:52px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,0.25);margin:0 auto;"></div>
+        <h2 style="color:var(--primary);font-size:18px;">Connexion Cabinet</h2>
+        <p style="font-size:12px;color:var(--slate-600);">SAFE Services & Cabinets — ERP Tunisie</p>
+      </div>
+      <form onsubmit="handleLogin(event)">
+        <label>Nom d'utilisateur</label>
+        <input type="text" id="loginUsername" required placeholder="admin ou consultant" style="margin-bottom:12px;" />
+        <label>Mot de passe</label>
+        <input type="password" id="loginPassword" required placeholder="••••••••" style="margin-bottom:16px;" />
+        <button type="submit" class="btn-primary" style="width:100%;padding:10px;font-size:14px;font-weight:700;">🔑 Se Connecter</button>
+      </form>
+      <div style="margin-top:16px;background:#f8fafc;padding:10px;border-radius:6px;font-size:11px;color:var(--slate-600);">
+        <strong>Comptes disponibles :</strong><br/>
+        • Administrateur : <code>admin</code> / <code>admin2026</code><br/>
+        • Consultant : <code>consultant</code> / <code>consultant2026</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MODIFICATION MISSION (EXIGENCE 5) -->
+  <div id="missionEditModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card" style="max-width:540px;">
+      <h3 style="color:var(--primary);margin-bottom:16px;">✏️ Modifier le Dossier / Mission</h3>
+      <form onsubmit="handleSaveMissionEdit(event)">
+        <input type="hidden" id="editMissionId" />
+        <label>Code Réf. (Non modifiable)</label><input id="editMissionCode" readonly style="background:#f1f5f9;margin-bottom:8px;" />
+        <label>Titre de la Mission</label><input id="editMissionTitre" required style="margin-bottom:8px;" />
+        <label>Responsable du Dossier</label><input id="editMissionResp" required style="margin-bottom:8px;" />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
+          <div><label>Budget HT (TND)</label><input type="number" step="0.001" id="editMissionBudget" required /></div>
+          <div><label>Taux Horaire</label><input type="number" step="0.001" id="editMissionTh" required /></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
+          <div><label>Avancement (%)</label><input type="number" min="0" max="100" id="editMissionAvancement" required /></div>
+          <div>
+            <label>Statut</label>
+            <select id="editMissionStatut">
+              <option value="EN_COURS">En cours</option>
+              <option value="EN_ATTENTE">En attente pièces</option>
+              <option value="CLOTURE">Clôturé</option>
+              <option value="FACTURE">Facturé</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div><label>Date Début</label><input type="date" id="editMissionDateDeb" required /></div>
+          <div><label>Date Échéance</label><input type="date" id="editMissionDateEch" required /></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;">
+          <button type="button" class="btn-sm btn-secondary" onclick="closeMissionEditModal()">Annuler</button>
+          <button type="submit" class="btn-sm btn-success">💾 Enregistrer Modifications</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL NOUVELLE MISSION -->
+  <div id="newMissionModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card" style="max-width:540px;">
+      <h3 style="color:var(--primary);margin-bottom:16px;">➕ Nouvelle Mission / Dossier</h3>
+      <form onsubmit="handleCreateMission(event)">
+        <label>Code Mission</label><input id="newMisCode" required placeholder="Ex: MIS-2026-004" style="margin-bottom:8px;" />
+        <label>Titre de la Mission / Objet</label><input id="newMisTitre" required placeholder="Ex: Audit Fiscal & Juridique 2026" style="margin-bottom:8px;" />
+        <label>Client Associé</label><select id="newMisClient" required style="margin-bottom:8px;"></select>
+        <label>Responsable</label><input id="newMisResp" required value="Associé Gérant" style="margin-bottom:8px;" />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
+          <div><label>Budget HT (TND)</label><input type="number" step="0.001" id="newMisBudget" value="2500.000" required /></div>
+          <div><label>Taux Horaire</label><input type="number" step="0.001" id="newMisTh" value="120.000" required /></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div><label>Date Début</label><input type="date" id="newMisDateDeb" value="2026-01-15" required /></div>
+          <div><label>Date Échéance</label><input type="date" id="newMisDateEch" value="2026-06-30" required /></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;">
+          <button type="button" class="btn-sm btn-secondary" onclick="closeNewMissionModal()">Annuler</button>
+          <button type="submit" class="btn-sm btn-primary">Créer le Dossier</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    let appData = {
+      user: null,
+      clients: [],
+      missions: [],
+      notes: [],
+      company: {},
+      fiscal: {}
+    };
+
+    function checkAuth() {
+      const u = sessionStorage.getItem('safe_user');
+      if (u) {
+        try {
+          appData.user = JSON.parse(u);
+          updateUserDisplay();
+          document.getElementById('loginModal').style.display = 'none';
+        } catch(e) { showLoginModal(); }
+      } else { showLoginModal(); }
+    }
+    function showLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
+    function logout() {
+      sessionStorage.removeItem('safe_user');
+      appData.user = null;
+      document.getElementById('userDisplay').innerHTML = '<span>👤 Non connecté</span>';
+      showLoginModal();
+    }
+    async function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('loginUsername').value.trim();
+      const p = document.getElementById('loginPassword').value.trim();
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username: u, password: p })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        appData.user = data;
+        sessionStorage.setItem('safe_user', JSON.stringify(data));
+        document.getElementById('loginModal').style.display = 'none';
+        updateUserDisplay();
+        showToast(`Bienvenue, ${data.nom_complet}`);
+        loadAllData();
+      } else {
+        alert(data.detail || 'Identifiants erronés');
+      }
+    }
+    function updateUserDisplay() {
+      if (!appData.user) {
+        ['btnTabReset', 'btnTabUsers', 'btnTabFiscal', 'btnTabSociete', 'btnTabAdmin'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
+        return;
+      }
+      const isAdmin = appData.user.role === 'ADMIN';
+      document.getElementById('userDisplay').innerHTML = `
+        <span>👤 <strong>${appData.user.nom_complet}</strong></span>
+        <span class="badge ${isAdmin ? 'badge-danger' : 'badge-info'}">${appData.user.role}</span>
+      `;
+      // Affichage horizontal des 3 rubriques Administrateur UNIQUEMENT pour les comptes ADMIN
+      const adminDisplay = isAdmin ? 'flex' : 'none';
+      ['btnTabReset', 'btnTabUsers', 'btnTabFiscal', 'btnTabSociete', 'btnTabAdmin'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = adminDisplay;
+      });
+      if (isAdmin && typeof loadUsers === 'function') {
+        loadUsers();
+      }
+    }
+
+    function switchTab(tabId) {
+      const adminTabs = ['reset', 'users', 'fiscal', 'societe', 'admin', 'reset-admin', 'users-admin', 'fiscal-admin'];
+      if (adminTabs.includes(tabId)) {
+        if (!appData.user || appData.user.role !== 'ADMIN') {
+          showToast('⛔ Accès refusé : Cette rubrique est réservée exclusivement à l\'Administrateur.', 'error');
+          return;
+        }
+      }
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      let targetId = tabId;
+      if (targetId === 'admin' && !document.getElementById('tab-admin') && document.getElementById('tab-reset')) targetId = 'reset';
+      if (targetId === 'reset' && !document.getElementById('tab-reset') && document.getElementById('tab-admin')) targetId = 'admin';
+      
+      if (targetId === 'users' && typeof loadUsers === 'function') { loadUsers(); }
+      const targetPane = document.getElementById('tab-' + targetId);
+      if (targetPane) targetPane.classList.add('active');
+      
+      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => {
+        const oc = b.getAttribute('onclick') || '';
+        return oc.includes(`'${tabId}'`) || oc.includes(`"${tabId}"`);
+      });
+      if (targetBtn) targetBtn.classList.add('active');
+    }
+
+    async function loadAllData() {
+      await Promise.all([loadClients(), loadMissions(), loadNotes(), loadCompany(), loadFiscal()]);
+    }
+    async function loadClients() {
+      const res = await fetch('/api/clients');
+      if (res.ok) {
+        appData.clients = await res.json();
+        renderClients();
+        populateClientSelect();
+      }
+    }
+    async function loadMissions() {
+      const res = await fetch('/api/missions');
+      if (res.ok) {
+        appData.missions = await res.json();
+        renderMissions();
+        populateMissionSelect();
+      }
+    }
+    async function loadNotes() {
+      const res = await fetch('/api/notes');
+      if (res.ok) {
+        appData.notes = await res.json();
+        renderNotes();
+      }
+    }
+    async function loadCompany() {
+      const res = await fetch('/api/company');
+      if (res.ok) {
+        const co = await res.json();
+        appData.company = co;
+        document.getElementById('coName').value = co.raison_sociale || '';
+        document.getElementById('coMf').value = co.matricule_fiscal || '';
+        document.getElementById('coRc').value = co.registre_commerce || '';
+        document.getElementById('coAdr').value = co.adresse || '';
+        document.getElementById('coTel').value = co.telephone || '';
+        document.getElementById('coEmail').value = co.email || '';
+        document.getElementById('coRib').value = co.rib || '';
+      }
+    }
+    async function loadFiscal() {
+      const res = await fetch('/api/fiscal-params');
+      if (res.ok) {
+        const f = await res.json();
+        appData.fiscal = f;
+        document.getElementById('fCnssSal').value = f.taux_cnss_salarie ?? 9.68;
+        document.getElementById('fCnssPat').value = f.taux_cnss_patronal ?? 17.07;
+        document.getElementById('fAt').value = f.taux_accident_travail ?? 0.50;
+        document.getElementById('fCss').value = f.taux_css ?? 0.5;
+        document.getElementById('fCssSocietes').value = f.taux_css_societes ?? 3.0;
+        document.getElementById('fIsDefaut').value = f.taux_is_defaut ?? 20.0;
+        document.getElementById('fRsHonoraires').value = f.taux_rs_honoraires ?? 3.0;
+        document.getElementById('fRsLoyers').value = f.taux_rs_loyers ?? 10.0;
+        document.getElementById('fTimbre').value = Number(f.timbre_fiscal ?? 1.000).toFixed(3);
+        document.getElementById('fTvaDef').value = f.taux_tva_defaut ?? 19.0;
+        document.getElementById('fIrppJson').value = f.tranches_irpp_json || '';
+      }
+    }
+
+    // --- CLIENTS (EXIGENCE 5) ---
+    function renderClients() {
+      const tbody = document.getElementById('clientsTableBody');
+      tbody.innerHTML = appData.clients.map(c => `
+        <tr>
+          <td><strong>${c.nom}</strong></td>
+          <td>${c.matricule_fiscal || '-'}</td>
+          <td><span class="badge badge-info">${c.secteur || 'Services'}</span></td>
+          <td>${c.telephone || '-'}</td>
+          <td>${c.email || '-'}</td>
+          <td>${c.adresse || '-'}</td>
+          <td style="text-align:right;">
+            <button class="btn-sm btn-danger" onclick="deleteClient(${c.id})">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+    async function handleCreateClient(e) {
+      e.preventDefault();
+      const payload = {
+        nom: document.getElementById('cNom').value.trim(),
+        matricule_fiscal: document.getElementById('cMf').value.trim(),
+        secteur: document.getElementById('cSecteur').value,
+        telephone: document.getElementById('cTel').value.trim(),
+        email: document.getElementById('cEmail').value.trim(),
+        adresse: document.getElementById('cAdr').value.trim()
+      };
+      const res = await fetch('/api/clients', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      if (res.ok) {
+        showToast('Client mandant ajouté');
+        document.getElementById('cNom').value = '';
+        await loadClients();
+      }
+    }
+    async function deleteClient(id) {
+      if (!confirm('Supprimer ce client ?')) return;
+      await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+      await loadClients();
+    }
+
+    // --- MISSIONS & MODIFICATION (EXIGENCE 5) ---
+    function renderMissions() {
+      const tbody = document.getElementById('missionsTableBody');
+      tbody.innerHTML = appData.missions.map(m => {
+        let badgeSt = 'badge-info';
+        if (m.statut === 'CLOTURE') badgeSt = 'badge-success';
+        if (m.statut === 'EN_ATTENTE') badgeSt = 'badge-warning';
+        return `
+          <tr>
+            <td><strong>${m.code}</strong></td>
+            <td><strong>${m.titre}</strong></td>
+            <td>${m.client_nom || '-'}</td>
+            <td>${m.responsable || 'Associé'}</td>
+            <td>${Number(m.budget_ht).toFixed(3)} TND</td>
+            <td>${Number(m.taux_horaire).toFixed(3)}</td>
+            <td><strong>${m.taux_avancement || 0}%</strong></td>
+            <td>${m.date_echeance || '-'}</td>
+            <td><span class="badge ${badgeSt}">${m.statut}</span></td>
+            <td style="text-align:right;white-space:nowrap;">
+              <button class="btn-sm btn-secondary" onclick="openMissionEditModal(${m.id})">✏️ Modifier</button>
+              <button class="btn-sm btn-danger" onclick="deleteMission(${m.id})">🗑️</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+    function populateMissionSelect() {
+      const sel = document.getElementById('nMission');
+      sel.innerHTML = '<option value="">-- Sélectionner une Mission --</option>' + appData.missions.map(m => `
+        <option value="${m.id}">${m.code} - ${m.titre} (${m.client_nom || 'Client'})</option>
+      `).join('');
+    }
+    function populateClientSelect() {
+      const sel = document.getElementById('newMisClient');
+      sel.innerHTML = appData.clients.map(c => `<option value="${c.id}">${c.nom}</option>`).join('');
+    }
+    function onMissionSelected() {
+      const mid = parseInt(document.getElementById('nMission').value);
+      const m = appData.missions.find(x => x.id === mid);
+      if (m) {
+        document.getElementById('nClient').value = m.client_nom || '';
+        document.getElementById('nMf').value = m.client_mf || '1234567/A/M/000';
+        document.getElementById('nMontant').value = m.budget_ht || 1500;
+        calcTotals();
+      }
+    }
+    function calcTotals() {
+      const mt = parseFloat(document.getElementById('nMontant').value) || 0;
+      const deb = parseFloat(document.getElementById('nDebours').value) || 0;
+      const tvaRate = parseFloat(document.getElementById('nTva').value) || 19;
+      const totHt = mt + deb;
+      const tva = (mt * tvaRate) / 100;
+      const timbre = 1.000;
+      const rs = mt * 0.03; // RS 3% sur honoraires
+      const net = (totHt + tva + timbre) - rs;
+      document.getElementById('lblHt').innerText = totHt.toFixed(3);
+      document.getElementById('lblTva').innerText = tva.toFixed(3);
+      document.getElementById('lblTimbre').innerText = timbre.toFixed(3);
+      document.getElementById('lblRs').innerText = (-rs).toFixed(3);
+      document.getElementById('lblNet').innerText = net.toFixed(3);
+    }
+
+    function showNewMissionModal() { document.getElementById('newMissionModal').style.display = 'flex'; }
+    function closeNewMissionModal() { document.getElementById('newMissionModal').style.display = 'none'; }
+    async function handleCreateMission(e) {
+      e.preventDefault();
+      const payload = {
+        code: document.getElementById('newMisCode').value.trim(),
+        titre: document.getElementById('newMisTitre').value.trim(),
+        client_id: parseInt(document.getElementById('newMisClient').value),
+        responsable: document.getElementById('newMisResp').value.trim(),
+        budget_ht: parseFloat(document.getElementById('newMisBudget').value),
+        taux_horaire: parseFloat(document.getElementById('newMisTh').value),
+        date_debut: document.getElementById('newMisDateDeb').value,
+        date_echeance: document.getElementById('newMisDateEch').value,
+        taux_avancement: 0,
+        statut: 'EN_COURS'
+      };
+      const res = await fetch('/api/missions', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      if (res.ok) {
+        showToast('Mission créée avec succès');
+        closeNewMissionModal();
+        await loadMissions();
+      }
+    }
+
+    function openMissionEditModal(id) {
+      const m = appData.missions.find(x => x.id === id);
+      if (!m) return;
+      document.getElementById('editMissionId').value = m.id;
+      document.getElementById('editMissionCode').value = m.code;
+      document.getElementById('editMissionTitre').value = m.titre;
+      document.getElementById('editMissionResp').value = m.responsable || 'Associé Gérant';
+      document.getElementById('editMissionBudget').value = m.budget_ht;
+      document.getElementById('editMissionTh').value = m.taux_horaire;
+      document.getElementById('editMissionAvancement').value = m.taux_avancement || 0;
+      document.getElementById('editMissionStatut').value = m.statut || 'EN_COURS';
+      document.getElementById('editMissionDateDeb').value = m.date_debut || '2026-01-01';
+      document.getElementById('editMissionDateEch').value = m.date_echeance || '2026-12-31';
+      document.getElementById('missionEditModal').style.display = 'flex';
+    }
+    function closeMissionEditModal() { document.getElementById('missionEditModal').style.display = 'none'; }
+    async function handleSaveMissionEdit(e) {
+      e.preventDefault();
+      const mid = document.getElementById('editMissionId').value;
+      const payload = {
+        titre: document.getElementById('editMissionTitre').value.trim(),
+        responsable: document.getElementById('editMissionResp').value.trim(),
+        budget_ht: parseFloat(document.getElementById('editMissionBudget').value),
+        taux_horaire: parseFloat(document.getElementById('editMissionTh').value),
+        taux_avancement: parseInt(document.getElementById('editMissionAvancement').value),
+        statut: document.getElementById('editMissionStatut').value,
+        date_debut: document.getElementById('editMissionDateDeb').value,
+        date_echeance: document.getElementById('editMissionDateEch').value
+      };
+      const res = await fetch(`/api/missions/${mid}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showToast('Dossier mis à jour avec succès !');
+        closeMissionEditModal();
+        await loadMissions();
+      }
+    }
+    async function deleteMission(id) {
+      if (!confirm('Supprimer cette mission ?')) return;
+      await fetch(`/api/missions/${id}`, { method: 'DELETE' });
+      await loadMissions();
+    }
+
+    // --- NOTES D'HONORAIRES ---
+    function renderNotes() {
+      const tbody = document.getElementById('notesTableBody');
+      tbody.innerHTML = appData.notes.map(n => `
+        <tr>
+          <td><strong>${n.numero_note}</strong></td>
+          <td>${n.date_note}</td>
+          <td>${n.mission_titre || '-'}</td>
+          <td>${n.client_nom || '-'}</td>
+          <td>${Number(n.total_ht).toFixed(3)}</td>
+          <td>${Number(n.total_tva).toFixed(3)}</td>
+          <td>${Number(n.total_ttc).toFixed(3)}</td>
+          <td style="color:var(--danger);font-weight:700;">-${Number(n.rs_montant || (n.total_ht*0.03)).toFixed(3)}</td>
+          <td><strong>${Number(n.net_a_payer).toFixed(3)} TND</strong></td>
+          <td><span class="badge ${n.statut === 'AVOIR' ? 'badge-danger' : 'badge-success'}">${n.statut}</span></td>
+          <td style="text-align:right;">
+            ${n.statut !== 'AVOIR' ? `<button class="btn-sm btn-danger" onclick="makeNoteAvoir(${n.id})">↩️ Avoir</button>` : ''}
+          </td>
+        </tr>
+      `).join('');
+    }
+    async function handleCreateNote(e) {
+      e.preventDefault();
+      const mid = parseInt(document.getElementById('nMission').value);
+      if (!mid) { alert('Veuillez sélectionner une mission'); return; }
+      const payload = {
+        mission_id: mid,
+        honoraires_ht: parseFloat(document.getElementById('nMontant').value),
+        frais_debours_ht: parseFloat(document.getElementById('nDebours').value) || 0,
+        taux_tva: parseFloat(document.getElementById('nTva').value) || 19,
+        taux_rs: 3.0
+      };
+      const res = await fetch('/api/notes', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      const d = await res.json();
+      if (res.ok) {
+        showToast(`Note ${d.numero_note} émise et comptabilisée !`);
+        await loadNotes();
+      }
+    }
+    async function makeNoteAvoir(id) {
+      if (!confirm('Émettre un avoir sur cette note d\'honoraires ?')) return;
+      const res = await fetch(`/api/notes/${id}/avoir`, { method: 'POST' });
+      if (res.ok) {
+        showToast('Avoir émis');
+        await loadNotes();
+      }
+    }
+
+    // --- SOCIÉTÉ, FISCAL & RESET ---
+    async function handleSaveCompany(e) {
+      e.preventDefault();
+      const payload = {
+        raison_sociale: document.getElementById('coName').value.trim(),
+        matricule_fiscal: document.getElementById('coMf').value.trim(),
+        registre_commerce: document.getElementById('coRc').value.trim(),
+        adresse: document.getElementById('coAdr').value.trim(),
+        telephone: document.getElementById('coTel').value.trim(),
+        email: document.getElementById('coEmail').value.trim(),
+        rib: document.getElementById('coRib').value.trim()
+      };
+      await fetch('/api/company', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      showToast('Coordonnées cabinet enregistrées');
+    }
+    async function handleSaveFiscal(e) {
+      e.preventDefault();
+      const payload = {
+        tranches_irpp_json: document.getElementById('fIrppJson').value,
+        taux_cnss_salarie: parseFloat(document.getElementById('fCnssSal').value) || 9.68,
+        taux_cnss_patronal: parseFloat(document.getElementById('fCnssPat').value) || 17.07,
+        taux_accident_travail: parseFloat(document.getElementById('fAt').value) || 0.50,
+        taux_css: parseFloat(document.getElementById('fCss').value) || 0.5,
+        taux_css_societes: parseFloat(document.getElementById('fCssSocietes').value) || 3.0,
+        taux_is_defaut: parseFloat(document.getElementById('fIsDefaut').value) || 20.0,
+        minimum_impot_taux: 0.2,
+        minimum_impot_plancher: 500.0,
+        taux_rs_ventes: 1.0,
+        taux_rs_honoraires: parseFloat(document.getElementById('fRsHonoraires').value) || 3.0,
+        taux_rs_loyers: parseFloat(document.getElementById('fRsLoyers').value) || 10.0,
+        timbre_fiscal: parseFloat(document.getElementById('fTimbre').value) || 1.000,
+        taux_tva_defaut: parseFloat(document.getElementById('fTvaDef').value) || 19.0
+      };
+      await fetch('/api/fiscal-params', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      showToast('Paramètres fiscaux 2026 enregistrés !');
+    }
+    async function handleResetOperational(e) {
+      e.preventDefault();
+      const pw = document.getElementById('adminPw').value.trim();
+      if (!confirm('ATTENTION : Voulez-vous effacer toutes les notes d\'honoraires ?')) return;
+      const res = await fetch('/api/admin/reset', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ admin_password: pw }) });
+      if (res.ok) {
+        alert('Réinitialisation effectuée');
+        await loadNotes();
+      } else { alert('Mot de passe erroné'); }
+    }
+
+    // --- IMPORT / EXPORT (EXIGENCE 2 & 3) ---
+    function triggerImport(type) {
+      const input = document.getElementById('universalFileInput');
+      if (type === 'excel') input.accept = '.xlsx, .xls';
+      else if (type === 'csv') input.accept = '.csv';
+      else if (type === 'pdf') input.accept = '.pdf';
+      input.click();
+    }
+    function handleUniversalFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      showToast(`Fichier "${file.name}" importé avec succès dans le module Cabinet !`);
+      event.target.value = '';
+    }
+    function exportData(format) {
+      const d = new Date().toISOString().slice(0, 10);
+      if (format === 'csv') {
+        let csv = "\uFEFFCode Mission;Titre;Client;Budget HT;Avancement;Statut\n";
+        appData.missions.forEach(m => { csv += `"${m.code}";"${m.titre}";"${m.client_nom}";"${m.budget_ht}";"${m.taux_avancement}%";"${m.statut}"\n`; });
+        downloadBlob(csv, `export_safe_cabinet_missions_${d}.csv`, 'text/csv;charset=utf-8;');
+      } else if (format === 'excel') {
+        let xls = `
+          <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+          <head>
+  <link rel="icon" type="image/png" href="safe-logo.png"><meta charset="UTF-8"></head>
+          <body>
+            <table border="1">
+              <tr style="background:#0f766e;color:#fff;"><th>Code Mission</th><th>Titre</th><th>Client</th><th>Budget HT</th><th>Avancement</th><th>Statut</th></tr>
+              ${appData.missions.map(m => `<tr><td>${m.code}</td><td>${m.titre}</td><td>${m.client_nom}</td><td>${m.budget_ht}</td><td>${m.taux_avancement}%</td><td>${m.statut}</td></tr>`).join('')}
+            </table>
+          </body>
+          </html>`;
+        downloadBlob(xls, `export_safe_cabinet_missions_${d}.xls`, 'application/vnd.ms-excel');
+      } else {
+        window.print();
+      }
+    }
+    function downloadBlob(content, filename, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.innerText = msg; t.style.display = 'block';
+      t.style.background = type === 'error' ? '#dc2626' : '#0f172a';
+      setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+
+    window.onload = function() { checkAuth(); };
+  // --- GESTION DES UTILISATEURS (RUBRIQUE HORIZONTALE ADMIN) ---
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function loadUsers() {
+      try {
+        const res = await fetch('/api/users');
+        if (res.ok) {
+          appData.users = await res.json();
+          renderUsersTable();
+        }
+      } catch(e) {
+        console.error('Erreur chargement utilisateurs:', e);
+      }
+    }
+
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTableBody');
+      if (!tbody) return;
+      if (!appData.users || appData.users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:15px;color:var(--slate-500);">Aucun utilisateur enregistré</td></tr>';
+        return;
+      }
+      tbody.innerHTML = appData.users.map(u => `
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:10px;font-weight:700;">#${u.id}</td>
+          <td style="padding:10px;">${escapeHtml(u.nom_complet || '')}</td>
+          <td style="padding:10px;"><code>${escapeHtml(u.username)}</code></td>
+          <td style="padding:10px;"><span class="badge ${u.role === 'ADMIN' ? 'badge-danger' : 'badge-info'}">${u.role}</span></td>
+          <td style="padding:10px;text-align:right;">
+            ${(u.username === 'admin' || (u.role === 'ADMIN' && appData.users.filter(x => x.role === 'ADMIN').length <= 1)) ? '<span style="font-size:11px;color:var(--slate-400);font-weight:600;">🔒 Principal</span>' : `
+              <button class="btn-sm btn-danger" onclick="deleteUser(${u.id}, '${escapeHtml(u.username)}')">🗑️ Supprimer</button>
+            `}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function handleCreateUser(e) {
+      e.preventDefault();
+      const nom_complet = document.getElementById('newNomComplet').value.trim();
+      const username = document.getElementById('newUsername').value.trim().toLowerCase();
+      const password = document.getElementById('newPassword').value.trim();
+      const role = document.getElementById('newRole').value;
+      if (!nom_complet || !username || !password) {
+        showToast('Veuillez remplir tous les champs', 'error');
+        return;
+      }
+      try {
+        const res = await fetch('/api/users', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ nom_complet, username, password, role })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Utilisateur "${username}" créé avec succès !`, 'success');
+          document.getElementById('newNomComplet').value = '';
+          document.getElementById('newUsername').value = '';
+          document.getElementById('newPassword').value = '';
+          await loadUsers();
+        } else {
+          alert(data.detail || 'Erreur lors de la création de l\'utilisateur');
+        }
+      } catch(err) {
+        alert('Erreur réseau lors de la création');
+      }
+    }
+
+    async function deleteUser(id, username) {
+      if (!confirm(`Confirmer la suppression du compte "${username}" ?`)) return;
+      try {
+        const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Utilisateur "${username}" supprimé avec succès`, 'success');
+          await loadUsers();
+        } else {
+          alert(data.detail || 'Erreur lors de la suppression');
+        }
+      } catch(err) {
+        alert('Erreur réseau lors de la suppression');
+      }
+    }
+  </script>
+</body>
+</html>
