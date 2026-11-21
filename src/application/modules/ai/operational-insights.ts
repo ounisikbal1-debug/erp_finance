@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { toStockQuantityMilliUnits } from '../materials/quantity';
 
 const DISCRETE_STOCK_UNITS = new Set(['EA', 'BOX', 'PACK']);

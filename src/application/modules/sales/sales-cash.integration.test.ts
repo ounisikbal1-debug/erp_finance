@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, it } from 'node:test';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import CashflowBankingService from '../cashflow/banking-service';
 import { CashflowRequestError } from '../cashflow/errors';
 import { SalesRequestError } from './errors';

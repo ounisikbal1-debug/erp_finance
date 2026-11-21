@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { after, describe, it } from 'node:test';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import QualityService from './service';
 
 const databaseTest = process.env.NODE_ENV === 'test' && Boolean(process.env.SAFE_ERP_TEST_DATABASE_URL)

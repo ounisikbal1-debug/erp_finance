@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { MaterialsRequestError } from './errors';
 import MaterialsService from './service';
 import { ProductionService } from '../production/service';

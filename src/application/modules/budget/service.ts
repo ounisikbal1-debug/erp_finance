@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { BudgetRequestError } from './errors';
 import { buildBudgetReport } from './report';
 import { buildBudgetForecastReport } from './forecast';

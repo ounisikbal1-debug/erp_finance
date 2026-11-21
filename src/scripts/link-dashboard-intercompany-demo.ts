@@ -1,4 +1,4 @@
-import prisma from '../data/prisma/client';
+import prisma from '../core/models/prisma';
 import IntercompanyService from '../application/modules/intercompany/service';
 
 const DEMO_DATABASE_URLS = new Set([

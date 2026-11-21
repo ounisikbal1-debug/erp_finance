@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { FinanceRequestError } from '../finance/errors';
 import { FinanceService } from '../finance/service';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import {
   assertLocalAiReady,
   generateLocalAiText,

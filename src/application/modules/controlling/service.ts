@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { buildCostCenterFilter, buildCostCenterJournalFilter } from './filters';
 import { calculateCostCenterAnalytics } from './analytics';
 import { ControllingRequestError } from './errors';

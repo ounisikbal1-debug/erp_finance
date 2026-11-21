@@ -611,7 +611,7 @@ async function main(): Promise<void> {
       throw new Error(`L’historique PostgreSQL n’est pas à jour : ${status.trim()}`);
     }
 
-    client = (require('../data/prisma/client') as { default: PrismaClient }).default;
+    client = (require('../core/models/prisma') as { default: PrismaClient }).default;
     await client.$connect();
     const target = await targetMetadata(client);
     validateTargetIsEmpty(target.tables);

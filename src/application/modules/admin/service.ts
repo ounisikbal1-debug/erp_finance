@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { isFinancialAccountCategory } from '../advanced-finance/financial-categories';
 import {
   CountryConfigurationValidationError,

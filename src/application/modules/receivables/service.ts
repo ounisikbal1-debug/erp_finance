@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { FinanceRequestError } from '../finance/errors';
 import { calculateReceivablesAging, parseReceivablesAsOf } from './aging';
 

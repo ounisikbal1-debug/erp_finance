@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { getModuleRoles, type AuthenticatedUser } from '../../auth';
 import {
   parseWithholdingCertificateInput,

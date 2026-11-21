@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { detectAnomalies } from './detection';
 import { buildAnomalyFilters } from './filters';
 

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { Response } from 'express';
 import type { AuthenticatedUser } from '../../auth';
 import { EntityScopeError, resolveEntityScope } from '../finance/entity-scope';
-import { CustomsRegimeService } from './regime-service';
+import { CustomsRegimeService } from '../../../core/services/customs/regime-service';
 import { CustomsRegimeError } from './regimes';
 
 export interface CustomsRegimeApiService {

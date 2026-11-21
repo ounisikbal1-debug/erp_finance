@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { calculatePurchaseInvoiceAmounts, validatePurchaseInvoiceInput } from './invoice';
 import { isPurchaseUniqueConstraintViolation, PurchaseRequestError } from './errors';
 import { convertInvoiceComponents, normalizeInvoiceFxSnapshot } from '../fx/conversion';

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import prisma from '../../../../data/prisma/client';
+import prisma from '../../../../core/models/prisma';
 import { HrRequestError } from '../errors';
 import HrLeaveRequestService from './service';
 

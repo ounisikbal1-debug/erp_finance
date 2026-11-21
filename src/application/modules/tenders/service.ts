@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import type { PrismaClient } from '@prisma/client';
 import {
   TenderRequestError,

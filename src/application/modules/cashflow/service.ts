@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { CashflowRequestError } from './errors';
 import { buildCashflowReport } from './report';
 import { parseCashflowPeriod, validateCashAccountCodes } from './validation';

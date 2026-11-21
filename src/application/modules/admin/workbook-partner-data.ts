@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import ReceivablesService from '../receivables/service';
 import PurchaseService from '../purchases/service';
 import { WorkbookFeatureConfigurationError } from './workbook-feature-errors';

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { calculateProgressiveTax } from './progressive-tax';
 import HrService from './service';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 
 const tunisianBrackets = [
   { order: 1, minAmount: 0, maxAmount: 5000, rate: 0 },

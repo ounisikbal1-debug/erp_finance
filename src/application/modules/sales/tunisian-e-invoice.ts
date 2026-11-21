@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 
 export type EInvoiceStatus = 'GENERATED' | 'SIGNED' | 'SUBMITTED_TTN' | 'ACCEPTED_TTN' | 'REJECTED_TTN';
 

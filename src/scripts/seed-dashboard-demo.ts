@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import prisma from '../data/prisma/client';
+import prisma from '../core/models/prisma';
 import { FINANCIAL_ACCOUNT_CATEGORIES, type FinancialAccountCategory } from '../application/modules/advanced-finance/financial-categories';
 
 const demoDatabaseUrl = 'file:../dashboard-demo-synthetic.db';

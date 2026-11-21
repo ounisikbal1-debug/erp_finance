@@ -1,6 +1,6 @@
 import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
-import prisma from '../data/prisma/client';
+import prisma from '../core/models/prisma';
 import { SESSION_IDLE_TIMEOUT_SECONDS } from '../shared/session';
 import { verifyPassword } from './security/passwords';
 

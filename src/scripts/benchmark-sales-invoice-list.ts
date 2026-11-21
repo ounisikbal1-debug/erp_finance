@@ -30,7 +30,7 @@ function restoreEnvironment(name: string, value: string | undefined) {
 }
 
 async function main() {
-  let prisma: typeof import('../data/prisma/client').default | undefined;
+  let prisma: typeof import('../core/models/prisma').default | undefined;
   try {
     const sourceSchema = readFileSync(join(projectRoot, 'src', 'data', 'prisma', 'schema.prisma'), 'utf8');
     const isolatedSchema = sourceSchema.replace(
@@ -56,7 +56,7 @@ async function main() {
 
     process.env.NODE_ENV = 'test';
     process.env.SAFE_ERP_TEST_DATABASE_URL = databaseUrl;
-    prisma = require('../data/prisma/client').default;
+    prisma = require('../core/models/prisma').default;
     const { SalesService } = require('../application/modules/sales/service') as typeof import('../application/modules/sales/service');
     const entityId = 'synthetic-entity';
     const customerId = 'synthetic-customer';

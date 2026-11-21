@@ -3,7 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { HrRequestError } from './errors';
 import HrWorkflowService from './workflow-service';
 

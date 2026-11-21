@@ -62,7 +62,7 @@ function summarize(measurements: Measurement[]) {
 }
 
 async function main() {
-  let prisma: typeof import('../data/prisma/client').default | undefined;
+  let prisma: typeof import('../core/models/prisma').default | undefined;
   let server: Server | undefined;
   let integrityFailure = false;
   let maximumTested = 0;
@@ -112,7 +112,7 @@ async function main() {
       stdio: 'inherit',
     });
 
-    prisma = require('../data/prisma/client').default;
+    prisma = require('../core/models/prisma').default;
     const {
       authorize,
       createAccessToken,

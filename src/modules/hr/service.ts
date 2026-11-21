@@ -1,4 +1,4 @@
-import prisma from '../../data/prisma/client';
+import prisma from '../../core/models/prisma';
 
 class HRService {
   static async listEmployees() {

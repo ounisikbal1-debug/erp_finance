@@ -1,7 +1,7 @@
 import type { UserRole } from '../../auth';
 import { revokeUserSessions, USER_ROLES, usesPersistentSessions } from '../../auth';
 import { Prisma } from '@prisma/client';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { hashPassword } from '../../security/passwords';
 
 export class AdminUserError extends Error {

@@ -12,7 +12,7 @@ import {
   verifyAccessToken,
 } from '../../auth';
 import { verifyPassword } from '../../security/passwords';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import authRouter from '../auth/api';
 import adminRouter from './api';
 

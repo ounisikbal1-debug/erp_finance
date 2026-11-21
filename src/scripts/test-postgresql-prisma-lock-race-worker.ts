@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { access, rename, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import prisma from '../data/prisma/client';
+import prisma from '../core/models/prisma';
 
 async function writeSignal(directory: string, name: string, value: Record<string, unknown> = {}): Promise<void> {
   const path = join(directory, name);

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { Prisma } from '@prisma/client';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { FinanceService } from './service';
 
 function installReversalPosting(

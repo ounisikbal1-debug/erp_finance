@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import sqlite3 from 'sqlite3';
-import prisma from '../data/prisma/client';
+import prisma from '../core/models/prisma';
 import CashflowBankingService from '../application/modules/cashflow/banking-service';
 import FinanceService from '../application/modules/finance/service';
 import MaterialsService from '../application/modules/materials/service';

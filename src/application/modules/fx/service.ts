@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { validateCurrencyCode } from './conversion';
 import {
   BCT_INTERBANK_RATES_URL,

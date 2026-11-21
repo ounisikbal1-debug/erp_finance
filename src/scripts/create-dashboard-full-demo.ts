@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, rename, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import ExcelJS from 'exceljs';
-import prisma from '../data/prisma/client';
+import prisma from '../core/models/prisma';
 import { calculateAdvancedFinancialAnalysis } from '../application/modules/advanced-finance/analysis';
 import { calculateDashboardSummary } from '../application/modules/advanced-finance/dashboard';
 import { calculateFinancialPeriodSummary } from '../application/modules/finance/financial-report';

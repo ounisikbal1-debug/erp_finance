@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { Prisma, IntercompanyTransaction } from '@prisma/client';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { assertAccountingPeriodOpen } from '../finance/posting-period';
 import { IntercompanyRequestError } from './errors';
 import { appendJournalEntryAuditRecord } from '../finance/audit-chain';

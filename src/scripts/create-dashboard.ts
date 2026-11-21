@@ -5,7 +5,7 @@ import { homedir } from 'node:os';
 import path from 'node:path';
 import { createFinancialDashboardWorkbook } from './financial-dashboard-workbook';
 import AdvancedFinanceService from '../application/modules/advanced-finance/service';
-import prisma from '../data/prisma/client';
+import prisma from '../core/models/prisma';
 import { renderFinancialDashboardPage, type FinancialDashboardSnapshot } from './financial-dashboard-page';
 
 function getOutputPath(): string {

@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import type { Prisma } from '@prisma/client';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { CashflowRequestError } from './errors';
 import { buildBankLineDeduplicationKey, parseBankStatementCsv, toMillimes } from './banking';
 import { validateJournalEntry } from '../finance/journal-validation';

@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { randomUUID } from 'node:crypto';
 import { validateJournalEntry } from '../finance/journal-validation';
 import { applyAnalyticalAllocationRules, AnalyticalAllocationError } from '../controlling/allocation-rules';

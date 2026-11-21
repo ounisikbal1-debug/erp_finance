@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { Prisma } from '@prisma/client';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import {
   BCT_INTERBANK_RATES_URL,
   BCT_INTERBANK_SOURCE_NAME,

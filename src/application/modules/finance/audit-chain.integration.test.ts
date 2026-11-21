@@ -145,7 +145,7 @@ describe('journal entry SHA-256 chain (isolated SQLite database)', () => {
 
     try {
       process.env.SAFE_ERP_DATABASE_URL = testDatabaseUrl;
-      const sharedClientModule = await import('../../../data/prisma/client');
+      const sharedClientModule = await import('../../../core/models/prisma');
       sharedDatabase = sharedClientModule.default;
       const financeModule = await import('./service');
       const entry = await financeModule.default.createJournalEntry({

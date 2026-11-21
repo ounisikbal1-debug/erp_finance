@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import sqlite3 from 'sqlite3';
-import prisma from '../data/prisma/client';
+import prisma from '../core/models/prisma';
 
 const draftDirectoryName = 'SAFE_ERP-DRAFT 1';
 const entityCode = 'TN01';

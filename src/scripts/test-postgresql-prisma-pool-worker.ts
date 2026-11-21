@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { performance } from 'node:perf_hooks';
 import { resolveDatabaseConfiguration } from '../data/prisma/database-config';
-import prisma from '../data/prisma/client';
+import prisma from '../core/models/prisma';
 
 interface ObserverClient {
   connect(): Promise<void>;

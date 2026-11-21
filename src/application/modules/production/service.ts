@@ -1,4 +1,4 @@
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import type { Prisma } from '@prisma/client';
 import {
   buildStockJournalEntryData,

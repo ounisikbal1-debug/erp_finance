@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import prisma from '../../../data/prisma/client';
+import prisma from '../../../core/models/prisma';
 import { JournalEntryInput, validateJournalEntry, validateJournalReversalDate } from './journal-validation';
 import { aggregateBalance, buildBalanceLineFilter } from './balance';
 import { assertAccountCodesExist, assertPostingAccountCodesAllowed } from './account-validation';
