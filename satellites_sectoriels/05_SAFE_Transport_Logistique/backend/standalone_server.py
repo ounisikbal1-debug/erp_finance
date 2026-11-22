@@ -330,19 +330,7 @@ init_db()
 # ==============================================================================
 # 3. APPLICATION FASTAPI & ENDPOINTS COMPLETS
 # ==============================================================================
-from fastapi.staticfiles import StaticFiles
-
-# --- FICHIERS STATIQUES (LOGOS & ICONS) ---
-web_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'web_dist'))
-if os.path.exists(web_dist_dir):
-    app.mount('/static', StaticFiles(directory=web_dist_dir), name='static')
-
 app = FastAPI(title=MODULE_TITLE, version="2.5.0")
-from fastapi.staticfiles import StaticFiles
-web_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'web_dist'))
-if os.path.exists(web_dist_dir):
-    app.mount('/static', StaticFiles(directory=web_dist_dir), name='static')
-
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 # --- AUTHENTIFICATION UNIFIÉE SAFE ---
@@ -771,6 +759,14 @@ def get_grand_livre():
     return [dict(r) for r in rows]
 
 # --- AFFICHAGE DE L'INTERFACE WEB ---
+@app.get("/safe-logo.png")
+def serve_logo():
+    base_p = getattr(sys, '_MEIPASS', os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    logo_file = os.path.join(base_p, "web_dist", "safe-logo.png")
+    if not os.path.exists(logo_file):
+        logo_file = os.path.join(os.path.dirname(__file__), "safe-logo.png")
+    return FileResponse(logo_file, media_type="image/png")
+
 @app.get("/", response_class=HTMLResponse)
 def serve_ui():
     base_p = getattr(sys, '_MEIPASS', os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))

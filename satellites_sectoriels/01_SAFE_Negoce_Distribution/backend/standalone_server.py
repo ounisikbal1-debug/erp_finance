@@ -236,11 +236,6 @@ init_db()
 
 # --- APPLICATION FASTAPI ---
 app = FastAPI(title=MODULE_TITLE, version="2026.1")
-from fastapi.staticfiles import StaticFiles
-web_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'web_dist'))
-if os.path.exists(web_dist_dir):
-    app.mount('/static', StaticFiles(directory=web_dist_dir), name='static')
-
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 # --- MODÈLES PYDANTIC ---
@@ -634,6 +629,14 @@ def delete_user(user_id: int):
     conn.commit()
     conn.close()
     return {"success": True}
+
+@app.get("/safe-logo.png")
+def serve_logo():
+    base_p = getattr(sys, '_MEIPASS', os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    logo_file = os.path.join(base_p, "web_dist", "safe-logo.png")
+    if not os.path.exists(logo_file):
+        logo_file = os.path.join(os.path.dirname(__file__), "safe-logo.png")
+    return FileResponse(logo_file, media_type="image/png")
 
 @app.get("/", response_class=HTMLResponse)
 def serve_ui():

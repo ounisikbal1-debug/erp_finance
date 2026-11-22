@@ -162,6 +162,11 @@ def revoke_license(lic_id: int):
     conn.close()
     return {"message": "Licence révoquée dans le CRM"}
 
+@app.get("/safe-logo.png")
+def serve_logo():
+    logo_file = os.path.join(os.path.dirname(__file__), "safe-logo.png")
+    return FileResponse(logo_file, media_type="image/png")
+
 @app.get("/", response_class=HTMLResponse)
 def dashboard_ui():
     return """<!DOCTYPE html>
