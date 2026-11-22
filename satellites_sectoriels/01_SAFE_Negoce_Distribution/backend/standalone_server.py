@@ -236,6 +236,11 @@ init_db()
 
 # --- APPLICATION FASTAPI ---
 app = FastAPI(title=MODULE_TITLE, version="2026.1")
+from fastapi.staticfiles import StaticFiles
+web_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'web_dist'))
+if os.path.exists(web_dist_dir):
+    app.mount('/static', StaticFiles(directory=web_dist_dir), name='static')
+
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 # --- MODÈLES PYDANTIC ---

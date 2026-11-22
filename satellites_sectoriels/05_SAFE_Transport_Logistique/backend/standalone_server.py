@@ -330,7 +330,19 @@ init_db()
 # ==============================================================================
 # 3. APPLICATION FASTAPI & ENDPOINTS COMPLETS
 # ==============================================================================
+from fastapi.staticfiles import StaticFiles
+
+# --- FICHIERS STATIQUES (LOGOS & ICONS) ---
+web_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'web_dist'))
+if os.path.exists(web_dist_dir):
+    app.mount('/static', StaticFiles(directory=web_dist_dir), name='static')
+
 app = FastAPI(title=MODULE_TITLE, version="2.5.0")
+from fastapi.staticfiles import StaticFiles
+web_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'web_dist'))
+if os.path.exists(web_dist_dir):
+    app.mount('/static', StaticFiles(directory=web_dist_dir), name='static')
+
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 # --- AUTHENTIFICATION UNIFIÉE SAFE ---
