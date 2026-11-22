@@ -1,65 +1,49 @@
-# SAFE Suite — décision d'architecture et feuille de route
+# SAFE Suite — Architecture Multi-Modules, Prologiciels Métiers & Satellites Sectoriels
 
-## Décision : une suite unique, pas des applications séparées
+## 1. Vision d'Architecture Globale
 
-Créer quatre applications distinctes (finance, comptabilité, stocks/achats, ventes, RH) multiplierait les coûts et casserait l'expérience : quatre connexions, quatre bases, quatre exports, aucune vue consolidée. La bonne architecture est **une seule suite**, avec des modules partageant la même base synchronisée.
+La suite **SAFE ERP** propose une architecture hybride puissante alliant un **ERP Central Intégré** (28 modules sur base synchronisée) et des **Prologiciels Métiers & Satellites Sectoriels Dédiés** conçus pour des déploiements autonomes ou combinés.
 
-Déjà présents :
+L'ensemble de la suite repose sur le patron **Modèle - Vue - Contrôleur (MVC)** renforcé par des **Services Métiers Découplés** (Domain Services).
 
-- Finance & pilotage (tableau de bord, cash-flow, budget, trésorerie, fiscalité, consolidation)
-- Comptabilité & grand livre
-- Paie & effectifs
+---
 
-## Ordre de construction choisi
+## 2. Cartographie de la Suite
 
-### 1. Ventes & Facturation — priorité immédiate
+### 2.1 Cœur de l'ERP Central (src/core/)
+- **Modèles (src/core/models/)** : Abstraction de persistance via Prisma ORM 6.x (prisma.ts), compatible SQLite et PostgreSQL.
+- **Contrôleurs (src/core/controllers/)** : 27 contrôleurs REST modulaires validant les entrées et sécurisant les contextes multi-entités.
+- **Services Métiers (src/core/services/)** : Logique métier pure isolée de tout protocole de transport :
+  - FiscalService : TVA 19/13/7%, Retenue à la Source (RS), liquidation du timbre 1.000 DT, déclarations G50 et IS.
+  - AuditTrailService : Piste d'audit cryptographique et chaînage SHA-256 (JournalEntryAuditChainHead).
+  - PayrollService : Moteur de paie tunisienne, barème IRPP progressif 8 tranches, cotisations CNSS 9.68% et CSS 1%.
+  - StockService : Suivi multi-dépôts, valorisation PUMP et FIFO, seuils d'alerte.
+  - BankingService : Rapprochement bancaire automatisé et réévaluation des devises BCT.
+  - ConsolidationService : Élimination des opérations intercompagnies et conversion multi-devises.
 
-**Pourquoi en premier :** c'est le module le plus rapide à livrer avec un haut niveau de valeur, car les données existent déjà (clients, factures, chiffre d'affaires, encours, DSO). Il réutilise les sélecteurs et les exports sans nouveau socle.
+### 2.2 Prologiciels Satellites Métiers (satellites_metiers/)
+Chaque prologiciel métier dispose de son propre lanceur Windows (.cmd / .ps1) et de sa structure MVC dédiée :
+1. **SAFE Facturation** : Achats, Ventes, Facturation électronique TTN (El Fatoora) et Retenues à la Source.
+2. **SAFE Gestion des Stocks** : Multi-dépôts, valorisation PUMP, régimes douaniers sous douane et admission temporaire (AT).
+3. **SAFE Paie** : Moteur IRPP 8 tranches, cotisations sociales CNSS et CSS, édition des fiches de paie conformes 2026.
+4. **SAFE Gestion RH** : Contrats CDI/CDD/CIVP, congés légaux, médecine du travail et GPEC.
+5. **SAFE Comptabilité & Fiscalité** : SCE, Grand Livre, Balance 8 colonnes, Déclarations G50 et liasse IS.
+6. **SAFE Production GPAO** : Nomenclatures BOM, Ordres de fabrication (OF), gammes et planification MRP.
+7. **SAFE Immobilisations** : Amortissements linéaires et dégressifs DGI, gestion des cessions et écritures 681/28x.
 
-Périmètre :
-- clients et contacts ;
-- devis, commandes, factures, avoirs ;
-- statuts (brouillon, validé, facturé, payé, en retard) ;
-- encaissements et relances ;
-- marge par client / produit ;
-- export Excel dédié et intégration au pack groupe.
+### 2.3 Progiciels Satellites Sectoriels (satellites_sectoriels/ & SAFE_ERP_TUNISIE)
+Applications autonomes FastAPI avec interface web locale et verrouillage matériel Hardware ID (HMAC-SHA256) :
+- **Port 8001** : SAFE Négoce & Distribution Commerciale
+- **Port 8002** : SAFE Services, Conseils & Cabinets Libéraux
+- **Port 8003** : SAFE Industrie & Production PME
+- **Port 8004** : SAFE Restauration & Point de Vente (POS)
+- **Port 8005** : SAFE Transport Routier & Colis Express
+- **Port 8090** : SAFE CRM Éditeur & Superviseur de Licences Matérielles
 
-### 2. Achats & Stocks — deuxième
+---
 
-**Pourquoi ensuite :** plus lourd (articles, unités, dépôts, mouvements, valorisation, seuils de réapprovisionnement, commandes fournisseurs), mais fort différentiel pour une PME.
-
-Périmètre :
-- articles, familles, unités, codes-barres ;
-- stock par dépôt, mouvements (entrée, sortie, transfert, inventaire) ;
-- commandes fournisseurs et réceptions ;
-- valorisation (CUMP ou FIFO) et alertes de seuil ;
-- rapprochement achats / factures fournisseurs.
-
-### 3. RH — troisième
-
-La paie existe déjà. Les parcours administratifs suivants sont disponibles : salariés, demandes et compteurs de congés configurables (avec source/référence de politique et date d’effet auditées), métadonnées et stockage privé de documents, postes et candidatures avec anonymisation, entretiens planifiés et notes de frais soumises à approbation/rejet. Les soldes utilisent des droits configurés par salarié/type/année et les absences enregistrées; ils ne calculent pas l'acquisition légale, les reports, les proratas, les jours fériés ou les règles conventionnelles. L’approbation des frais ne génère ni paiement ni écriture comptable.
-
-Restent à réaliser ou valider : calcul légal des congés (pays, convention, ancienneté, temps partiel, reports et calendrier officiel); formation/GPEC (processus, rôles, référentiels compétences et obligations); paiement/comptabilisation des frais (méthodes de paiement, comptes et journaux approuvés, intégration bancaire et contrôles); paie opérationnelle hors Tunisie (le moteur refuse les autres pays). Les fiches nouvellement générées conservent désormais un instantané des paramètres, tranches, entrées et résultats; le registre mensuel CNSS/IRPP réconcilie les fiches enregistrées mais reste une préparation interne non déposable et ne certifie pas l’effectif, notamment faute de dates de sortie des salariés. Le propriétaire du projet confirme que les taux et règles tunisiens, notamment CNSS, IRPP et IS, sont documentés et validés par un expert-comptable; préserver ces valeurs et vérifier séparément que chaque parcours logiciel les applique correctement. Pour les autres pays, obtenir les paramètres réglementaires par juridiction et période d’effet ainsi que la confirmation explicite du client avant activation. La retraite complémentaire conserve ses paramètres actuels, mais le taux par défaut de 4 % et le plafond annuel partagé de 10 000 ne font pas partie de cette confirmation et restent à valider. La validation des règles ne certifie pas à elle seule les calculs, les déclarations, ni la conformité opérationnelle du logiciel.
-
-## Pourquoi cet ordre
-
-| Module | Réutilisation | Complexité | Valeur |
-|---|---|---|---|
-| Ventes | Très forte (factures, clients, CA) | Moyenne | Très forte |
-| Achats & Stocks | Moyenne (fournisseurs, charges) | Élevée | Forte |
-| RH | Faible (paie existante) | Moyenne | Moyenne |
-
-Ventes permet de livrer vite un module complet et vendable, puis de capitaliser sur le même socle pour Achats & Stocks.
-
-## Règles d'architecture pour chaque module
-
-1. Même coquille, même design system, même navigation.
-2. Même base `db` synchronisée : toute écriture est immédiatement visible par les autres utilisateurs.
-3. Mêmes rôles et permissions.
-4. Même moteur d'export Excel (couverture, onglets, styles).
-5. Mêmes traductions FR / EN / AR.
-6. Aucune application séparée, aucun second backend.
-
-## Prochaine étape
-
-Construire **Ventes & Facturation** : modèle de données commandes/devis, écran de gestion, création de facture, encaissements, indicateurs et export. Les autres modules suivront dans l'ordre ci-dessus.
+## 3. Règles d'Architecture Transversales
+1. **Design System Unifié** : Cohérence ergonomique sur l'ensemble des modules (thème sombre/clair bleu nuit, police Segoe UI/Calibri, support bilingue et RTL arabe).
+2. **Étanchéité Métier** : La logique métier réside exclusivement dans les services, garantissant une testabilité unitaire à 100%.
+3. **Intégrité Cryptographique** : Signature SHA-256 des écritures comptables, des flux XML TTN et des sessions utilisateurs.
+4. **Conformité Réglementaire 2026** : Respect strict du Système Comptable des Entreprises (SCE) et du corpus fiscal et social tunisien.

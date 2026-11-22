@@ -47,7 +47,66 @@ Le dossier documentaire RH fournit une synthèse par état de validité, une rec
 
 ---
 
-## 2. Démarrage
+## 2. Architecture Système : MVC & Services Métiers Découplés
+
+Le socle technique de SAFE ERP et de l'ensemble de ses prologiciels et satellites sectoriels est structuré selon le patron **Modèle - Vue - Contrôleur (MVC)** renforcé par des **Services Métiers Découplés** (Domain Services) :
+
+`mermaid
+graph TD
+    subgraph Presentation_Layer [Vues / Presentation Layer]
+        UI[React 19 / Vite / Tailwind UI]
+        WebDist[Web Dist HTML5 Standalone]
+    end
+
+    subgraph Controller_Layer [Contrôleurs / Controller Layer]
+        API_Ctrl[src/core/controllers/DomainController]
+        Sat_Ctrl[satellites_*/controllers/]
+        RouterExpress[Router Express / FastAPI]
+    end
+
+    subgraph Service_Layer [Services Métiers Découplés / Core Services]
+        FiscalService[FiscalService : TVA 19/13/7%, RS, Timbre, G50]
+        AuditService[AuditTrailService : Chaine SHA-256 Immuable]
+        PayrollService[PayrollEngineService : IRPP 8 tranches, CNSS 9.68%, CSS]
+        StockService[StockValuationService : PUMP, FIFO, Multi-depots]
+        BankingService[BankingService : Rapprochement bancaire, Devises BCT]
+        ConsolidationService[ConsolidationService : Eliminations interco]
+    end
+
+    subgraph Model_Layer [Modèles / Model & Persistence Layer]
+        PrismaModel[src/core/models/prisma.ts]
+        PrismaClient[(PostgreSQL Production / SQLite Autonome)]
+    end
+
+    UI --> RouterExpress
+    WebDist --> Sat_Ctrl
+    RouterExpress --> API_Ctrl
+    API_Ctrl --> FiscalService
+    API_Ctrl --> AuditService
+    API_Ctrl --> PayrollService
+    API_Ctrl --> StockService
+    API_Ctrl --> BankingService
+    API_Ctrl --> ConsolidationService
+    Sat_Ctrl --> FiscalService
+    FiscalService --> PrismaModel
+    AuditService --> PrismaModel
+    PayrollService --> PrismaModel
+    StockService --> PrismaModel
+    BankingService --> PrismaModel
+    ConsolidationService --> PrismaModel
+    PrismaModel --> PrismaClient
+`
+
+### Organisation des Composants
+1. **Modèles (src/core/models/)** : Abstraction de persistance Prisma ORM 6.x garantissant la compatibilité multi-base (PostgreSQL pour la production multisites, SQLite pour les déploiements autonomes monoposte) et l'intégrité transactionnelle ACID.
+2. **Contrôleurs (src/core/controllers/)** : 27 contrôleurs dédiés à la validation des requêtes, à la matrice d'habilitations RBAC, au contrôle de séparation des tâches (SoD) et au cloisonnement strict par entité légale (esolveEntityScope).
+3. **Services Métiers (src/core/services/)** : Logique métier 100% pure et étanche, indépendante de toute couche Web (testable unitairement sans mock HTTP).
+4. **Prologiciels Satellites Métiers (satellites_metiers/)** : 7 modules verticaux autonomes découpés en models/, controllers/, services/ (Facturation, Stocks, Paie, RH, Comptabilité, GPAO, Immobilisations).
+5. **Satellites Sectoriels Dédiés (satellites_sectoriels/ & SAFE_ERP_TUNISIE)** : 6 applications verticales autonomes sous FastAPI (ports 8001 à 8005 et CRM 8090) avec logo embarqué Base64 et verrouillage matériel Hardware ID.
+
+---
+
+## 3. Démarrage
 
 Si le mot de passe d’un compte existant est refusé, ne relancez pas le seed : il peut remplacer les paramètres fiscaux et sociaux. Réinitialisez uniquement le mot de passe administrateur depuis un terminal interactif :
 

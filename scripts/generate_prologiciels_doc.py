@@ -228,6 +228,10 @@ def generate_prologiciels_doc():
     path_desktop = os.path.join(DESKTOP_DIR, "SUITE_PROLOGICIELS_METIERS_SAFE_TUNISIE.docx")
     doc.save(path_d4)
     doc.save(path_desktop)
+    
+    doc_desktop_folder = r"C:\Users\USER\OneDrive\Desktop\SAFE_Doccumentation"
+    os.makedirs(doc_desktop_folder, exist_ok=True)
+    doc.save(os.path.join(doc_desktop_folder, "SUITE_PROLOGICIELS_METIERS_SAFE_TUNISIE.docx"))
     print(f"✔ Document generated: {path_d4}")
     print(f"✔ Document generated: {path_desktop}")
 

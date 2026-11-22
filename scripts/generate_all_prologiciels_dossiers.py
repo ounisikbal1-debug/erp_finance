@@ -418,6 +418,17 @@ def generate_dossier_doc(dossier):
         "Les données sensibles (salaires, données personnelles, coordonnées bancaires) sont cloisonnées au niveau applicatif."
     )
 
+    add_header_styled(doc, "1.2 Découpage Architectural MVC & Services Métiers Découplés", 2)
+    doc.add_paragraph(
+        f"Le module {dossier['title']} applique rigoureusement le patron d'architecture Modèle - Vue - Contrôleur (MVC) "
+        "appuyé par des Services Métiers Distincts (Domain Services) :\n"
+        "• Couche Modèle (Models) : Définition des schémas de persistance et accès base relationnelle (Prisma ORM / SQLite local).\n"
+        "• Couche Contrôleur (Controllers) : Routage HTTP REST, validation des entrées et isolation du périmètre multi-sociétés.\n"
+        "• Couche Services Métiers (Services) : Logique métier 100% autonome et découplée de toute interface ou protocole de transport, "
+        "assurant des calculs arithmétiques et fiscaux certifiés, conformes aux exigences du Système Comptable des Entreprises (SCE).\n"
+        "• Couche Vue (Views) : Interface utilisateur réactive React 19 / HTML5 sans logique métier résidente."
+    )
+
     # PARTIE II : CAHIER DES CHARGES FONCTIONNEL
     add_header_styled(doc, "Partie II : Cahier des Charges Fonctionnel & Législation Tunisienne", 1)
     doc.add_paragraph(
@@ -448,6 +459,11 @@ def generate_dossier_doc(dossier):
 
     path_desktop = os.path.join(DESKTOP_DIR, dossier["file_name"])
     doc.save(path_desktop)
+    
+    doc_desktop_folder = r"C:\Users\USER\OneDrive\Desktop\SAFE_Doccumentation"
+    os.makedirs(doc_desktop_folder, exist_ok=True)
+    path_safe_doc = os.path.join(doc_desktop_folder, dossier["file_name"])
+    doc.save(path_safe_doc)
     print(f"✔ Génération sobre & élégante réussie : {dossier['file_name']}")
 
 def run_all():
