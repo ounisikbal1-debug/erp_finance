@@ -3032,39 +3032,41 @@ export const App: React.FC = () => {
             {theme === 'night-blue' ? '🌙 Bleu Nuit' : '☀️ Mode Sobre'}
           </button>
 
-          {/* Badge Verrou Matériel & Licence HMAC-SHA256 */}
-          <button
-            type="button"
-            onClick={() => { setIsLicenseModalOpen(true); setLicenseActionMsg(''); }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: theme === 'night-blue' ? '#0F2744' : '#EFF6FF',
-              color: theme === 'night-blue' ? '#38BDF8' : '#1D4ED8',
-              border: `1px solid ${theme === 'night-blue' ? '#2563EB' : '#93C5FD'}`,
-              padding: '4px 10px',
-              borderRadius: '6px',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-            title="Verrou matériel Hardware ID & Cryptographie HMAC-SHA256 (Cliquer pour gérer)"
-          >
-            <span style={{ fontSize: '0.85rem' }}>🔐</span>
-            <span>{systemHwId}</span>
-            <span style={{
-              background: '#059669',
-              color: '#FFFFFF',
-              fontSize: '0.62rem',
-              padding: '1px 5px',
-              borderRadius: '4px',
-              fontWeight: 800,
-            }}>
-              ACTIVÉ
-            </span>
-          </button>
+          {/* Badge Verrou Matériel & Licence HMAC-SHA256 (Réservé ADMIN / FINANCIAL_MANAGER) */}
+          {(currentUserRole === 'ADMIN' || currentUserRole === 'FINANCIAL_MANAGER') && (
+            <button
+              type="button"
+              onClick={() => { setIsLicenseModalOpen(true); setLicenseActionMsg(''); }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: theme === 'night-blue' ? '#0F2744' : '#EFF6FF',
+                color: theme === 'night-blue' ? '#38BDF8' : '#1D4ED8',
+                border: `1px solid ${theme === 'night-blue' ? '#2563EB' : '#93C5FD'}`,
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              title="Sécurité Verrou matériel Hardware ID & Cryptographie HMAC-SHA256 (Espace Éditeur / Admin)"
+            >
+              <img src="/icons/licences.png" alt="Licence" style={{ width: '14px', height: '14px', objectFit: 'contain' }} />
+              <span>{systemHwId}</span>
+              <span style={{
+                background: '#059669',
+                color: '#FFFFFF',
+                fontSize: '0.62rem',
+                padding: '1px 5px',
+                borderRadius: '4px',
+                fontWeight: 800,
+              }}>
+                ACTIVÉ
+              </span>
+            </button>
+          )}
 
           {/* Badge Normes Fiscales Tunisiennes */}
           <div
