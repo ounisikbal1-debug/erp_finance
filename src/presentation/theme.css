@@ -283,10 +283,17 @@ table tr:hover td {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: var(--color-pilotage);
-  color: #FFFFFF;
+  background: transparent;
+  overflow: hidden;
   font-size: 1.15rem;
   font-weight: 900;
+}
+
+.safe-home-brand-mark img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 .safe-home-brand strong {
