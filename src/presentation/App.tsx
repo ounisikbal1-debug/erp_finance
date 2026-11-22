@@ -443,9 +443,9 @@ export const SYSTEM_USERS: UserProfile[] = [
 // Remarque : "approfondie" retiré du module RH, libellé exact : "Ressources Humaines & Talents"
 export const ALL_MODULES_CONFIG: Array<{ id: NavModule; label: string; icon: string; category: string }> = [
   // PILOTAGE & FINANCES
-  { id: 'dashboard', label: 'Tableaux de bord', icon: '📊', category: 'PILOTAGE' },
+  { id: 'dashboard', label: 'Tableaux de bord', icon: '/icons/dashboard.png', category: 'PILOTAGE' },
   { id: 'budget', label: 'Budget & Forecast', icon: '🎯', category: 'PILOTAGE' },
-  { id: 'cashflow', label: 'Cash-Flow & Trésorerie', icon: '💵', category: 'PILOTAGE' },
+  { id: 'cashflow', label: 'Cash-Flow & Trésorerie', icon: '/icons/cashflow.png', category: 'PILOTAGE' },
   { id: 'decisionSupport', label: 'Aide à la Décision', icon: '🧭', category: 'PILOTAGE' },
   { id: 'profitCenters', label: 'Centres de Profit (Contrôle analytique SAFE)', icon: '📈', category: 'PILOTAGE' },
   { id: 'fxRevaluation', label: 'Réévaluation des devises', icon: '💱', category: 'PILOTAGE' },
@@ -453,41 +453,41 @@ export const ALL_MODULES_CONFIG: Array<{ id: NavModule; label: string; icon: str
   { id: 'consolidation', label: 'Consolidation Groupe', icon: '🌐', category: 'PILOTAGE' },
   { id: 'intercompany', label: 'Transactions intercompagnies', icon: '🔁', category: 'PILOTAGE' },
   { id: 'monthlyClose', label: 'Clôture mensuelle', icon: '🗓️', category: 'PILOTAGE' },
-  { id: 'controlling', label: 'Contrôle de gestion', icon: '📊', category: 'PILOTAGE' },
+  { id: 'controlling', label: 'Contrôle de gestion', icon: '/icons/dashboard.png', category: 'PILOTAGE' },
 
   // COMPTABILITÉ & ÉCRITURES
-  { id: 'generalBalance', label: 'Balance Générale des Comptes', icon: '⚖️', category: 'COMPTABILITÉ' },
+  { id: 'generalBalance', label: 'Balance Générale des Comptes', icon: '/icons/comptabilite.png', category: 'COMPTABILITÉ' },
   { id: 'generalLedger', label: 'Grand Livre Général (GL)', icon: '📖', category: 'COMPTABILITÉ' },
-  { id: 'assetsManagement', label: 'Immobilisations (Immobilisations SAFE)', icon: '🏢', category: 'COMPTABILITÉ' },
+  { id: 'assetsManagement', label: 'Immobilisations (Immobilisations SAFE)', icon: '/icons/immobilisations.png', category: 'COMPTABILITÉ' },
   { id: 'accountingEntry', label: 'Saisie Comptable Horizontale', icon: '✍️', category: 'COMPTABILITÉ' },
   { id: 'agedReceivables', label: 'Balance Âgée Clients', icon: '👥', category: 'COMPTABILITÉ' },
-  { id: 'agedPayables', label: 'Balance Âgée Fournisseurs', icon: '📦', category: 'COMPTABILITÉ' },
-  { id: 'taxation', label: 'Déclarations Fiscales (G50)', icon: '🏛️', category: 'COMPTABILITÉ' },
+  { id: 'agedPayables', label: 'Balance Âgée Fournisseurs', icon: '/icons/stocks.png', category: 'COMPTABILITÉ' },
+  { id: 'taxation', label: 'Déclarations Fiscales (G50)', icon: '/icons/comptabilite.png', category: 'COMPTABILITÉ' },
   { id: 'anomalies', label: 'Anomalies financières', icon: '🔎', category: 'COMPTABILITÉ' },
 
   // CAPITAL HUMAIN
-  { id: 'payrollEngine', label: 'Gestion de la Paie & Salaires', icon: '💵', category: 'CAPITAL HUMAIN' },
-  { id: 'hrDeep', label: 'Ressources Humaines & Talents', icon: '👔', category: 'CAPITAL HUMAIN' },
+  { id: 'payrollEngine', label: 'Gestion de la Paie & Salaires', icon: '/icons/paie.png', category: 'CAPITAL HUMAIN' },
+  { id: 'hrDeep', label: 'Ressources Humaines & Talents', icon: '/icons/rh.png', category: 'CAPITAL HUMAIN' },
   { id: 'hrWorkflows', label: 'Documents, recrutement & frais', icon: '📁', category: 'CAPITAL HUMAIN' },
 
   // OPÉRATIONS & SUPPLY CHAIN
   { id: 'purchases', label: 'Achats & Fournisseurs', icon: '🛒', category: 'OPÉRATIONS' },
-  { id: 'stocks', label: 'Stocks & Entrepôts (MM)', icon: '📦', category: 'OPÉRATIONS' },
-  { id: 'mrpPlanning', label: 'Planification Besoins MRP (Planification SAFE)', icon: '⚙️', category: 'OPÉRATIONS' },
-  { id: 'sales', label: 'Ventes & Facturation', icon: '🧾', category: 'OPÉRATIONS' },
+  { id: 'stocks', label: 'Stocks & Entrepôts (MM)', icon: '/icons/stocks.png', category: 'OPÉRATIONS' },
+  { id: 'mrpPlanning', label: 'Planification Besoins MRP (Planification SAFE)', icon: '/icons/production.png', category: 'OPÉRATIONS' },
+  { id: 'sales', label: 'Ventes & Facturation', icon: '/icons/facturation.png', category: 'OPÉRATIONS' },
   { id: 'tunisianEInvoices', label: 'E-Factures TTN (El Fatoora)', icon: '🇹🇳', category: 'OPÉRATIONS' },
   { id: 'incomeStatement', label: 'Compte de Résultat (P&L)', icon: '📉', category: 'OPÉRATIONS' },
-  { id: 'activities', label: 'Activités Opérationnelles & Métiers', icon: '🏭', category: 'OPÉRATIONS' },
+  { id: 'activities', label: 'Activités Opérationnelles & Métiers', icon: '/icons/industrie.png', category: 'OPÉRATIONS' },
   { id: 'maintenance', label: 'Maintenance des équipements', icon: '🛠️', category: 'OPÉRATIONS' },
   { id: 'projects', label: 'Projets & chantiers', icon: '📋', category: 'OPÉRATIONS' },
   { id: 'tenders', label: 'Marchés publics', icon: '📑', category: 'OPÉRATIONS' },
-  { id: 'customsRegimes', label: 'Régimes douaniers AT / ACT', icon: '📦', category: 'OPÉRATIONS' },
+  { id: 'customsRegimes', label: 'Régimes douaniers AT / ACT', icon: '/icons/stocks.png', category: 'OPÉRATIONS' },
   { id: 'quality', label: 'Qualité & actions CAPA', icon: '✅', category: 'OPÉRATIONS' },
 
   // PARAMÈTRES & GOUVERNANCE
   { id: 'governanceSod', label: 'Gouvernance & SoD (Gouvernance SAFE)', icon: '🛡️', category: 'PARAMÈTRES' },
   { id: 'securityAccess', label: 'Sécurité & Droits d’Accès (RBAC)', icon: '🛡️', category: 'PARAMÈTRES' },
-  { id: 'parameters', label: 'Paramètres Fiscaux & Barèmes IRPP', icon: '⚖️', category: 'PARAMÈTRES' },
+  { id: 'parameters', label: 'Paramètres Fiscaux & Barèmes IRPP', icon: '/icons/comptabilite.png', category: 'PARAMÈTRES' },
   { id: 'workbookControls', label: 'Préparation du classeur', icon: '🧩', category: 'PARAMÈTRES' },
   { id: 'reportsExport', label: 'Rapports & Plaquettes Financières', icon: '📂', category: 'PARAMÈTRES' },
 ];
@@ -537,63 +537,63 @@ export const STANDALONE_APPS: Record<SafeStandaloneAppId, StandaloneAppConfig> =
     name: 'SAFE Facturation (Achat & Vente)',
     shortName: 'SAFE Facturation',
     tagline: 'Facturation achats/ventes, conformité TTN El Fatoora, retenues à la source RS, créances & dettes',
-    icon: '🧾',
+    icon: '/icons/facturation.png',
     badge: 'TTN & TVA Tunisienne',
     accentColor: '#E11D48',
     modules: ['sales', 'purchases', 'tunisianEInvoices', 'agedReceivables', 'agedPayables', 'taxation', 'reportsExport'],
     defaultModule: 'sales',
     reportModuleLabel: 'Rapports des Ventes & Facturation',
     reportModuleCategory: 'FACTURATION & VENTES',
-    reportModuleIcon: '📊',
+    reportModuleIcon: '/icons/facturation.png',
   },
   STOCKS: {
     id: 'STOCKS',
     name: 'SAFE Gestion des Stocks & Dépôts',
     shortName: 'SAFE Stocks',
     tagline: 'Entrepôts multi-dépôts, mouvements, inventaires, valorisation PUMP, régimes douaniers AT/ACT',
-    icon: '📦',
+    icon: '/icons/stocks.png',
     badge: 'PUMP & Douane AT/ACT',
     accentColor: '#0D9488',
     modules: ['stocks', 'mrpPlanning', 'customsRegimes', 'purchases', 'reportsExport'],
     defaultModule: 'stocks',
     reportModuleLabel: 'Rapports des Stocks & Mouvements',
     reportModuleCategory: 'STOCKS & MAGASINS',
-    reportModuleIcon: '📈',
+    reportModuleIcon: '/icons/stocks.png',
   },
   PAYROLL: {
     id: 'PAYROLL',
     name: 'SAFE Paie (Paie Tunisienne & Salaires)',
     shortName: 'SAFE Paie',
     tagline: 'Moteur de paie tunisien, barème IRPP 8 tranches, CNSS 9.68%, FOPROLOS, CSS 0.5% & fiches de paie',
-    icon: '💵',
+    icon: '/icons/paie.png',
     badge: 'IRPP & CNSS 2026',
     accentColor: '#16A34A',
     modules: ['payrollEngine', 'hrDeep', 'hrWorkflows', 'reportsExport'],
     defaultModule: 'payrollEngine',
     reportModuleLabel: 'Rapports & Déclarations de Paie',
     reportModuleCategory: 'PAIE & SALAIRES',
-    reportModuleIcon: '📑',
+    reportModuleIcon: '/icons/paie.png',
   },
   HR: {
     id: 'HR',
     name: 'SAFE Gestion RH (Capital Humain & Contrats)',
     shortName: 'SAFE RH',
     tagline: 'Dossiers collaborateurs, contrats CDI/CDD/CIVP, suivi congés légaux, médecine du travail & GPEC',
-    icon: '👔',
+    icon: '/icons/rh.png',
     badge: 'Code du Travail Tunisien',
     accentColor: '#6366F1',
     modules: ['hrDeep', 'hrWorkflows', 'hrTraining', 'quality', 'reportsExport'],
     defaultModule: 'hrDeep',
     reportModuleLabel: 'Rapports RH & Bilan Social',
     reportModuleCategory: 'RESSOURCES HUMAINES',
-    reportModuleIcon: '👥',
+    reportModuleIcon: '/icons/rh.png',
   },
   ACCOUNTING: {
     id: 'ACCOUNTING',
     name: 'SAFE Comptabilité & Fiscalité',
     shortName: 'SAFE Comptabilité',
     tagline: 'Système Comptable des Entreprises (SCE), Grand Livre, Balance 8 colonnes, Déclarations G50, Rapprochement bancaire',
-    icon: '⚖️',
+    icon: '/icons/comptabilite.png',
     badge: 'SCE & Liasse Fiscale G50',
     accentColor: '#1E3A8A',
     modules: [
@@ -613,35 +613,35 @@ export const STANDALONE_APPS: Record<SafeStandaloneAppId, StandaloneAppConfig> =
     defaultModule: 'generalBalance',
     reportModuleLabel: 'Rapports Comptables & Liasse Fiscale',
     reportModuleCategory: 'COMPTABILITÉ & FISCALITÉ',
-    reportModuleIcon: '⚖️',
+    reportModuleIcon: '/icons/comptabilite.png',
   },
   PRODUCTION: {
     id: 'PRODUCTION',
     name: 'SAFE Production & GPAO',
     shortName: 'SAFE Production',
     tagline: 'Nomenclatures BOM, Ordres de Fabrication (OF), Planification MRP & Maintenance des équipements',
-    icon: '⚙️',
+    icon: '/icons/production.png',
     badge: 'Industrie & Fabrication',
     accentColor: '#D97706',
     modules: ['activities', 'mrpPlanning', 'stocks', 'maintenance', 'quality', 'reportsExport'],
     defaultModule: 'activities',
     reportModuleLabel: 'Rapports de Production & GPAO',
     reportModuleCategory: 'PRODUCTION & GPAO',
-    reportModuleIcon: '⚙️',
+    reportModuleIcon: '/icons/production.png',
   },
   IMMOBILISATIONS: {
     id: 'IMMOBILISATIONS',
     name: 'SAFE Immobilisations & Amortissements',
     shortName: 'SAFE Immobilisations',
     tagline: 'Gestion des actifs corporels & incorporels, tableaux d’amortissements linéaires/dégressifs (DGI Tunisie)',
-    icon: '🏢',
+    icon: '/icons/immobilisations.png',
     badge: 'Norme SCE & Fiscalité DGI',
     accentColor: '#0284C7',
     modules: ['assetsManagement', 'accountingEntry', 'generalBalance', 'controlling', 'reportsExport'],
     defaultModule: 'assetsManagement',
     reportModuleLabel: 'Rapports des Actifs & Amortissements',
     reportModuleCategory: 'IMMOBILISATIONS',
-    reportModuleIcon: '🏢',
+    reportModuleIcon: '/icons/immobilisations.png',
   },
 };
 
@@ -3357,7 +3357,13 @@ export const App: React.FC = () => {
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          <span style={{ fontSize: '0.95rem' }}>{item.icon}</span>
+                          <span style={{ fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center' }}>
+                            {item.icon && item.icon.startsWith('/') ? (
+                              <img src={item.icon} alt={item.label} style={{ width: '18px', height: '18px', objectFit: 'contain' }} />
+                            ) : (
+                              item.icon
+                            )}
+                          </span>
                           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{translateModuleLabel(language, item.id, item.label)}</span>
                         </div>
                       </button>
