@@ -575,8 +575,8 @@ export function downloadFinancialDashboard(
   filename: string,
   sheets: ExcelSheetData[],
   metadata: { companyName: string; currency: string; customDate: string },
-) {
-  exportMultiSheetExcel(filename, sheets, {
+): Promise<void> {
+  return exportMultiSheetExcel(filename, sheets, {
     moduleName: 'Tableau de bord financier',
     companyName: metadata.companyName,
     currency: metadata.currency,

@@ -1,10 +1,10 @@
-﻿// â”€â”€ AGENT-OWNED: transmission vers la TÃ©lÃ©dÃ©claration (TTN) et e-Fatoura â”€â”€â”€â”€â”€
-// Appels HTTP rÃ©els vers les plateformes, avec les identifiants fournis par
-// l'utilisateur dans Web Admin â†’ Secrets. Aucun envoi simulÃ© : si les clÃ©s ne
-// sont pas configurÃ©es, la fonction le dit et n'Ã©crit rien.
+﻿// ── AGENT-OWNED: transmission vers la Télédéclaration (TTN) et e-Fatoura ─────
+// Appels HTTP réels vers les plateformes, avec les identifiants fournis par
+// l'utilisateur dans Web Admin → Secrets. Aucun envoi simulé : si les clés ne
+// sont pas configurées, la fonction le dit et n'écrit rien.
 // Import paresseux : `_core/env` valide DATABASE_URL/JWT_SECRET au chargement du
-// module. L'importer ici en haut ferait Ã©chouer tout test unitaire qui charge le
-// routeur sans base de donnÃ©es. On ne le lit qu'au moment de l'envoi.
+// module. L'importer ici en haut ferait échouer tout test unitaire qui charge le
+// routeur sans base de données. On ne le lit qu'au moment de l'envoi.
 async function readEnv() {
   const { env } = await import("./_core/env");
   return env;
@@ -25,7 +25,7 @@ const CONFIG: Record<Platform, { urlKey: string; keyKey: string; label: string }
   ttn: {
     urlKey: "TTN_API_URL",
     keyKey: "TTN_API_KEY",
-    label: "TÃ©lÃ©dÃ©claration TTN",
+    label: "Télédéclaration TTN",
   },
   efatoura: {
     urlKey: "EFATOURA_API_URL",
@@ -34,7 +34,7 @@ const CONFIG: Record<Platform, { urlKey: string; keyKey: string; label: string }
   },
 };
 
-/** Indique, sans jamais rÃ©vÃ©ler les valeurs, quelles plateformes sont prÃªtes. */
+/** Indique, sans jamais révéler les valeurs, quelles plateformes sont prêtes. */
 export async function transmissionStatus() {
   let env: Awaited<ReturnType<typeof readEnv>> | null = null;
   try {
@@ -55,8 +55,8 @@ export async function transmissionStatus() {
 }
 
 /**
- * Envoie une charge utile Ã  une plateforme. Effectue un vrai POST JSON signÃ©
- * par la clÃ© d'API. Ne lÃ¨ve jamais : renvoie un rÃ©sultat explicite.
+ * Envoie une charge utile à une plateforme. Effectue un vrai POST JSON signé
+ * par la clé d'API. Ne lève jamais : renvoie un résultat explicite.
  */
 export async function transmit(
   platform: Platform,
@@ -75,7 +75,7 @@ export async function transmit(
     return {
       ok: false,
       status: "non_configure",
-      message: `${c.label} n'est pas configurÃ©e. Ajoutez ${c.urlKey} et ${c.keyKey} dans Web Admin â†’ Secrets.`,
+      message: `${c.label} n'est pas configurée. Ajoutez ${c.urlKey} et ${c.keyKey} dans Web Admin → Secrets.`,
     };
   }
 
@@ -101,7 +101,7 @@ export async function transmit(
     try {
       body = JSON.parse(text);
     } catch {
-      /* rÃ©ponse non JSON : on garde le texte brut */
+      /* réponse non JSON : on garde le texte brut */
     }
 
     if (!res.ok) {
@@ -109,7 +109,7 @@ export async function transmit(
         ok: false,
         status: "refuse",
         httpStatus: res.status,
-        message: `${c.label} a refusÃ© l'envoi (HTTP ${res.status}). ${summarize(body)}`,
+        message: `${c.label} a refusé l'envoi (HTTP ${res.status}). ${summarize(body)}`,
       };
     }
 
@@ -119,7 +119,7 @@ export async function transmit(
       status: "envoye",
       httpStatus: res.status,
       reference,
-      message: `${c.label} : envoi acceptÃ©${reference ? ` â€” rÃ©fÃ©rence ${reference}` : ""}.`,
+      message: `${c.label} : envoi accepté${reference ? ` — référence ${reference}` : ""}.`,
     };
   } catch (e) {
     const aborted = e instanceof Error && e.name === "AbortError";
@@ -127,8 +127,8 @@ export async function transmit(
       ok: false,
       status: "erreur_reseau",
       message: aborted
-        ? `${c.label} n'a pas rÃ©pondu dans les 20 secondes.`
-        : `${c.label} injoignable : ${e instanceof Error ? e.message : "erreur rÃ©seau"}.`,
+        ? `${c.label} n'a pas répondu dans les 20 secondes.`
+        : `${c.label} injoignable : ${e instanceof Error ? e.message : "erreur réseau"}.`,
     };
   } finally {
     clearTimeout(timer);
@@ -157,7 +157,7 @@ function extractReference(body: unknown): string | undefined {
   return undefined;
 }
 
-/** Construit la charge utile e-Fatoura d'une facture (format TEIF simplifiÃ©). */
+/** Construit la charge utile e-Fatoura d'une facture (format TEIF simplifié). */
 export function buildEfatouraPayload(invoice: {
   number: string;
   issueDate: string;
@@ -199,7 +199,7 @@ export function buildEfatouraPayload(invoice: {
   };
 }
 
-/** Construit la charge utile TTN d'une dÃ©claration. */
+/** Construit la charge utile TTN d'une déclaration. */
 export function buildTtnPayload(decl: {
   kind: string;
   period: string;

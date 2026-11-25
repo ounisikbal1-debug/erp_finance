@@ -4,6 +4,7 @@ import { getHtmlLanguage, translateBusinessText, useInterfaceLanguage } from './
 
 const exportColumns: ExportColumn[] = [
   { header: 'Compte', key: 'accountCode' },
+  { header: 'Intitulé', key: 'accountName' },
   { header: 'Total débit', key: 'totalDebit' },
   { header: 'Total crédit', key: 'totalCredit' },
   { header: 'Solde net', key: 'balance' },
@@ -11,6 +12,7 @@ const exportColumns: ExportColumn[] = [
 
 interface AccountBalance {
   accountCode: string;
+  accountName?: string;
   totalDebit: number;
   totalCredit: number;
   balance: number;
@@ -73,10 +75,16 @@ export default function GeneralBalancePanel({ accessToken, entityId }: GeneralBa
     const loadBalance = async () => {
       setLoading(true);
       try {
-        const response = await fetch('/api/finance/balance', {
-          headers: { Authorization: `Bearer ${accessToken}` },
-          signal: controller.signal,
-        });
+        const [response, accountsResponse] = await Promise.all([
+          fetch('/api/finance/balance', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+            signal: controller.signal,
+          }),
+          fetch('/api/finance/accounts', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+            signal: controller.signal,
+          }),
+        ]);
         const payload: unknown = await response.json();
         if (!response.ok) {
           const message = payload && typeof payload === 'object' && 'error' in payload
@@ -86,7 +94,26 @@ export default function GeneralBalancePanel({ accessToken, entityId }: GeneralBa
           throw new Error(message);
         }
         if (!isAccountBalanceList(payload)) throw new Error('La réponse de balance comptable est invalide.');
-        setAccounts(payload);
+        const accountNameMap = new Map<string, string>();
+        if (accountsResponse.ok) {
+          const accountsPayload: unknown = await accountsResponse.json();
+          if (Array.isArray(accountsPayload)) {
+            for (const item of accountsPayload) {
+              if (item && typeof item === 'object' && 'code' in item && typeof item.code === 'string') {
+                const desc = 'description' in item && typeof item.description === 'string'
+                  ? item.description
+                  : 'name' in item && typeof item.name === 'string'
+                    ? item.name
+                    : '';
+                if (desc) accountNameMap.set(item.code, desc);
+              }
+            }
+          }
+        }
+        setAccounts(payload.map((line) => ({
+          ...line,
+          accountName: accountNameMap.get(line.accountCode) ?? '—',
+        })));
       } catch (requestError) {
         if (!controller.signal.aborted) {
           setError(requestError instanceof Error ? requestError.message : 'Impossible de charger la balance comptable.');
@@ -177,6 +204,7 @@ export default function GeneralBalancePanel({ accessToken, entityId }: GeneralBa
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: language === 'AR' ? 'right' : 'left', fontSize: '0.84rem' }}>
                 <thead><tr style={{ background: '#F8FAFC', color: '#475569' }}>
                     <th style={{ padding: '9px' }}>{text('Compte')}</th>
+                    <th style={{ padding: '9px' }}>{text('Intitulé')}</th>
                     <th style={{ padding: '9px', textAlign: 'right' }}>{text('Total débit')}</th>
                     <th style={{ padding: '9px', textAlign: 'right' }}>{text('Total crédit')}</th>
                     <th style={{ padding: '9px', textAlign: 'right' }}>{text('Solde net')}</th>
@@ -184,6 +212,7 @@ export default function GeneralBalancePanel({ accessToken, entityId }: GeneralBa
                 <tbody>{accounts.map((account) => (
                   <tr key={account.accountCode} style={{ borderTop: '1px solid #E2E8F0' }}>
                       <td dir="ltr" style={{ padding: '9px', color: '#1D4ED8', fontWeight: 700 }}>{account.accountCode}</td>
+                      <td style={{ padding: '9px', color: '#0F172A' }}>{account.accountName || '—'}</td>
                       <td dir="ltr" style={{ padding: '9px', textAlign: 'right' }}>{formatAmount(account.totalDebit, locale)}</td>
                       <td dir="ltr" style={{ padding: '9px', textAlign: 'right' }}>{formatAmount(account.totalCredit, locale)}</td>
                       <td dir="ltr" style={{ padding: '9px', textAlign: 'right', fontWeight: 700 }}>{formatAmount(account.balance, locale)}</td>
@@ -191,7 +220,7 @@ export default function GeneralBalancePanel({ accessToken, entityId }: GeneralBa
                 ))}</tbody>
                 {totals && (
                   <tfoot><tr style={{ borderTop: '2px solid #CBD5E1', fontWeight: 800 }}>
-                    <td style={{ padding: '9px' }}>{text('Totaux')}</td>
+                    <td colSpan={2} style={{ padding: '9px' }}>{text('Totaux')}</td>
                     <td dir="ltr" style={{ padding: '9px', textAlign: 'right' }}>{formatAmount(totals.debitMillimes / 1000, locale)}</td>
                     <td dir="ltr" style={{ padding: '9px', textAlign: 'right' }}>{formatAmount(totals.creditMillimes / 1000, locale)}</td>
                     <td dir="ltr" style={{ padding: '9px', textAlign: 'right' }}>{formatAmount((totals.debitMillimes - totals.creditMillimes) / 1000, locale)}</td>

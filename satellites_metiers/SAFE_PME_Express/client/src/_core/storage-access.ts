@@ -1,6 +1,6 @@
 ﻿/**
  * Best-effort unpartitioned-cookie grant for an embedded preview (iframe).
- * Must run inside the user gesture that triggered login / signup / logout â€”
+ * Must run inside the user gesture that triggered login / signup / logout —
  * do NOT await hasStorageAccess() first; that consumes the gesture.
  *
  * Failures are swallowed: the session cookie is CHIPS, which does not need

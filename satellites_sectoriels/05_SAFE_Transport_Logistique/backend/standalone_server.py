@@ -6,7 +6,7 @@ SAFE ERP - MODULE 05 : TRANSPORT DE MARCHANDISES & LIVRAISON DE COLIS (TUNISIE)
 Gestion du Fret Lourd (Lettres de Voiture) ET de la Livraison Express de Colis
 (Colis E-commerce, Messagerie, Cash on Delivery / COD, Suivi par gouvernorats)
 Conforme aux normes tunisiennes SCE NC 01, TVA 7%/19%, Timbre 1.000 DT,
-Verrou matÃ©riel Hardware ID & HMAC-SHA256 unifiÃ© avec la Suite SAFE ERP.
+Verrou matériel Hardware ID & HMAC-SHA256 unifié avec la Suite SAFE ERP.
 ================================================================================
 """
 import os
@@ -40,7 +40,7 @@ LICENSE_FILE = os.path.join(DATA_DIR, "license.dat")
 DB_PATH = os.path.join(DATA_DIR, "safe_transport_local.db")
 
 # ==============================================================================
-# 1. VERROU MATÃ‰RIEL (HARDWARE ID) & LICENCES HMAC-SHA256
+# 1. VERROU MATÉRIEL (HARDWARE ID) & LICENCES HMAC-SHA256
 # ==============================================================================
 def get_hardware_id() -> str:
     raw = f"{uuid.getnode()}-{socket.gethostname()}-{sys.platform}".encode("utf-8")
@@ -57,11 +57,11 @@ def verify_license_key(key: str, hw_id: str) -> tuple[bool, str]:
     try:
         parts = key.strip().upper().split("-")
         if len(parts) != 6 or parts[0] != "SAFE":
-            return False, "Format de clÃ© invalide"
+            return False, "Format de clé invalide"
         exp_str = parts[1]
         exp_date = datetime.strptime(exp_str, "%Y%m%d").date()
         if exp_date < date.today():
-            return False, f"Licence expirÃ©e le {exp_date.isoformat()}"
+            return False, f"Licence expirée le {exp_date.isoformat()}"
         
         valid = False
         for mod in ["SAFE_ERP_GLOBAL", "TRANSPORT"]:
@@ -72,10 +72,10 @@ def verify_license_key(key: str, hw_id: str) -> tuple[bool, str]:
                 valid = True
                 break
         if not valid:
-            return False, "ClÃ© non valide pour ce PC"
+            return False, "Clé non valide pour ce PC"
         return True, exp_date.isoformat()
     except Exception:
-        return False, "ClÃ© corrompue"
+        return False, "Clé corrompue"
 
 def is_activated() -> tuple[bool, str, str]:
     hw_id = get_hardware_id()
@@ -89,7 +89,7 @@ def is_activated() -> tuple[bool, str, str]:
     return ok, hw_id, info
 
 # ==============================================================================
-# 2. BASE DE DONNÃ‰ES SQLITE : FLOTTE, FRET LOURD & LIVRAISON COLIS
+# 2. BASE DE DONNÉES SQLITE : FLOTTE, FRET LOURD & LIVRAISON COLIS
 # ==============================================================================
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -114,7 +114,7 @@ def init_db():
         )
     """)
     
-    # 2. ParamÃ¨tres SociÃ©tÃ© (pour en-tÃªte des lettres de voiture et bordereaux colis)
+    # 2. Paramètres Société (pour en-tête des lettres de voiture et bordereaux colis)
     c.execute("""
         CREATE TABLE IF NOT EXISTS societe_config (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -250,12 +250,12 @@ def init_db():
             frais_livraison_ttc REAL NOT NULL DEFAULT 8.000,
             montant_cod REAL DEFAULT 0.0,
             montant_net_expediteur REAL DEFAULT 0.0,
-            livreur_nom TEXT DEFAULT 'TournÃ©e Express',
+            livreur_nom TEXT DEFAULT 'Tournée Express',
             statut TEXT DEFAULT 'EN_TRANSIT'
         )
     """)
     
-    # 6. Ã‰critures Comptables SCE NC 01
+    # 6. Écritures Comptables SCE NC 01
     c.execute("""
         CREATE TABLE IF NOT EXISTS ecritures_comptables (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -283,7 +283,7 @@ def init_db():
     if c.fetchone()[0] == 0:
         c.execute("""
             INSERT INTO societe_config (raison_sociale, matricule_fiscal, registre_commerce, adresse, telephone, email, rib, devise)
-            VALUES ('Express Fret & Colis Tunisie - EFCT SARL', '1589420/T/A/000', 'B2019482026', 'Zone Logistique Port de RadÃ¨s, 2040 Ben Arous', '+216 71 445 800 / +216 28 555 444', 'contact@expressfret-colis.tn', 'STB 10 005 0001234567890 12', 'TND')
+            VALUES ('Express Fret & Colis Tunisie - EFCT SARL', '1589420/T/A/000', 'B2019482026', 'Zone Logistique Port de Radès, 2040 Ben Arous', '+216 71 445 800 / +216 28 555 444', 'contact@expressfret-colis.tn', 'STB 10 005 0001234567890 12', 'TND')
         """)
         
     c.execute("SELECT COUNT(*) FROM vehicles")
@@ -301,8 +301,8 @@ def init_db():
         c.execute("""
             INSERT INTO transport_orders VALUES (
                 NULL, 'LV-2026-0001', '2026-11-18', 'LETTRE_VOITURE', NULL,
-                'SociÃ©tÃ© Tunisienne de CÃ©ramique & GrÃ¨s', '1284590/A/M/000',
-                'Port de RadÃ¨s (Tunis)', 'Zone Industrielle Sfax PoudriÃ¨re',
+                'Société Tunisienne de Céramique & Grès', '1284590/A/M/000',
+                'Port de Radès (Tunis)', 'Zone Industrielle Sfax Poudrière',
                 'Palette Carrelage & Produits Chimiques (18T)', 18.0,
                 '198 TN 4521', 1200.000, 150.000, 7.0, 94.500, 1.000, 1.0, 14.455, 1445.500, 1431.045,
                 340.000, 48.000, 65.000, 897.000, 'LIVRE'
@@ -312,9 +312,9 @@ def init_db():
     c.execute("SELECT COUNT(*) FROM colis_expeditions")
     if c.fetchone()[0] == 0:
         colis_data = [
-            ("TN-COLIS-2026-0001", "2026-11-19", "EXPEDITION", None, "Boutique Mode & Chic Tunis", "+216 71 222 333", "Tunis Centre", "Mme. Sonia Riahi", "+216 98 444 555", "Avenue de la RÃ©publique", "Sousse", "STANDARD", 1.8, 1, 7.477, 7.0, 0.523, 1.000, 9.000, 95.000, 86.000, "Walid Gharbi", "LIVRE_ENCAISSE"),
-            ("TN-COLIS-2026-0002", "2026-11-20", "EXPEDITION", None, "High-Tech Store Ariana", "+216 70 888 999", "Ariana", "M. Karim Ben Amor", "+216 97 111 222", "Route de TÃ©niour Km 2.5", "Sfax", "EXPRESS_24H", 3.2, 1, 9.346, 7.0, 0.654, 1.000, 11.000, 180.000, 169.000, "Walid Gharbi", "EN_LIVRAISON"),
-            ("TN-COLIS-2026-0003", "2026-11-20", "EXPEDITION", None, "DÃ©pÃ´t Pharmaceutique Ben Arous", "+216 71 777 666", "Ben Arous", "Clinique Les Oliviers", "+216 72 333 444", "Boulevard de l'Environnement", "Nabeul", "FRAGILE", 5.0, 2, 11.215, 7.0, 0.785, 1.000, 13.000, 0.000, 0.000, "Anis Mansour", "EN_TRANSIT_HUB"),
+            ("TN-COLIS-2026-0001", "2026-11-19", "EXPEDITION", None, "Boutique Mode & Chic Tunis", "+216 71 222 333", "Tunis Centre", "Mme. Sonia Riahi", "+216 98 444 555", "Avenue de la République", "Sousse", "STANDARD", 1.8, 1, 7.477, 7.0, 0.523, 1.000, 9.000, 95.000, 86.000, "Walid Gharbi", "LIVRE_ENCAISSE"),
+            ("TN-COLIS-2026-0002", "2026-11-20", "EXPEDITION", None, "High-Tech Store Ariana", "+216 70 888 999", "Ariana", "M. Karim Ben Amor", "+216 97 111 222", "Route de Téniour Km 2.5", "Sfax", "EXPRESS_24H", 3.2, 1, 9.346, 7.0, 0.654, 1.000, 11.000, 180.000, 169.000, "Walid Gharbi", "EN_LIVRAISON"),
+            ("TN-COLIS-2026-0003", "2026-11-20", "EXPEDITION", None, "Dépôt Pharmaceutique Ben Arous", "+216 71 777 666", "Ben Arous", "Clinique Les Oliviers", "+216 72 333 444", "Boulevard de l'Environnement", "Nabeul", "FRAGILE", 5.0, 2, 11.215, 7.0, 0.785, 1.000, 13.000, 0.000, 0.000, "Anis Mansour", "EN_TRANSIT_HUB"),
             ("TN-COLIS-2026-0004", "2026-11-20", "EXPEDITION", None, "Artisanat du Sud Djerba", "+216 75 666 555", "Djerba Houmt Souk", "M. Hichem Trabelsi", "+216 55 777 888", "Zone Corniche", "Bizerte", "STANDARD", 2.5, 1, 7.477, 7.0, 0.523, 1.000, 9.000, 65.000, 56.000, "Bilel Riahi", "RAMASSE")
         ]
         c.executemany("""
@@ -333,7 +333,7 @@ init_db()
 app = FastAPI(title=MODULE_TITLE, version="2.5.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-# --- AUTHENTIFICATION UNIFIÃ‰E SAFE ---
+# --- AUTHENTIFICATION UNIFIÉE SAFE ---
 class LoginReq(BaseModel):
     username: str
     password: str
@@ -353,9 +353,9 @@ def login(req: LoginReq):
 
 @app.post("/api/auth/logout")
 def logout_api():
-    return {"success": True, "message": "DÃ©connexion rÃ©ussie"}
+    return {"success": True, "message": "Déconnexion réussie"}
 
-# --- STATUT LICENCE & VERROU MATÃ‰RIEL ---
+# --- STATUT LICENCE & VERROU MATÉRIEL ---
 @app.get("/api/license/status")
 def license_status():
     ok, hw_id, info = is_activated()
@@ -365,7 +365,7 @@ def license_status():
         "module_title": MODULE_TITLE,
         "hardware_id": hw_id,
         "info": info,
-        "devise": "TND (3 dÃ©cimales)",
+        "devise": "TND (3 décimales)",
         "tva_transport": "7% (Marchandises & Colis), 19% (Prestations annexes)",
         "norme": "SCE NC 01"
     }
@@ -383,7 +383,7 @@ def license_activate(req: LicenseActivateReq):
         f.write(req.license_key.strip().upper())
     return {"status": "ACTIVATED", "hardware_id": hw_id, "expires": info}
 
-# --- PARAMÃˆTRES SOCIÃ‰TÃ‰ ---
+# --- PARAMÈTRES SOCIÉTÉ ---
 
 class FiscalUpdateReq(BaseModel):
     tranches_irpp_json: str
@@ -448,7 +448,7 @@ def update_company(req: CompanyReq):
     conn.close()
     return {"success": True}
 
-# --- DASHBOARD & KPIS COMBINÃ‰S (FRET + COLIS) ---
+# --- DASHBOARD & KPIS COMBINÉS (FRET + COLIS) ---
 @app.get("/api/dashboard")
 def get_dashboard():
     conn = get_db()
@@ -470,14 +470,14 @@ def get_dashboard():
             "ca_colis_ht": f"{ca_colis:.3f}",
             "total_cod_encaisse": f"{total_cod_encaisse:.3f}",
             "colis_en_cours": colis_en_cours,
-            "flotte_active": f"{len(vehicles)} vÃ©hicules"
+            "flotte_active": f"{len(vehicles)} véhicules"
         },
         "orders": orders,
         "colis": colis,
         "vehicles": vehicles
     }
 
-# --- GESTION DES VÃ‰HICULES ---
+# --- GESTION DES VÉHICULES ---
 class AddVehicleReq(BaseModel):
     plate_number: str
     vehicle_type: str
@@ -494,7 +494,7 @@ def add_vehicle(req: AddVehicleReq):
         conn.commit()
     except Exception:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce matricule vÃ©hicule existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Ce matricule véhicule existe déjà")
     conn.close()
     return {"success": True}
 
@@ -550,13 +550,13 @@ def create_order(req: TransportOrderReq):
         req.vat_rate, vat, stamp, req.rs_rate, rs, ttc, net_pay, req.fuel_cost, req.toll_cost, req.driver_allowance, margin
     ))
     
-    # Ã‰critures comptables
+    # Écritures comptables
     ecritures = [
-        (today_str, "VT", waybill, "411100", f"Clients Fret - {req.client_name}", f"Net Ã  payer {waybill}", net_pay, 0.0),
-        (today_str, "VT", waybill, "434000", f"Retenue Ã  la source ({req.rs_rate}%)", f"RS subie {waybill}", rs, 0.0),
+        (today_str, "VT", waybill, "411100", f"Clients Fret - {req.client_name}", f"Net à payer {waybill}", net_pay, 0.0),
+        (today_str, "VT", waybill, "434000", f"Retenue à la source ({req.rs_rate}%)", f"RS subie {waybill}", rs, 0.0),
         (today_str, "VT", waybill, "706100", "Prestations de Transport de Marchandises", f"Fret {waybill}", 0.0, base_ht),
-        (today_str, "VT", waybill, "436700", f"Ã‰tat - TVA CollectÃ©e ({req.vat_rate}%)", f"TVA transport {waybill}", 0.0, vat),
-        (today_str, "VT", waybill, "437000", "Droits de Timbre Fiscal", "Droit de timbre lÃ©gal 1.000 DT", 0.0, stamp),
+        (today_str, "VT", waybill, "436700", f"État - TVA Collectée ({req.vat_rate}%)", f"TVA transport {waybill}", 0.0, vat),
+        (today_str, "VT", waybill, "437000", "Droits de Timbre Fiscal", "Droit de timbre légal 1.000 DT", 0.0, stamp),
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
     
@@ -571,7 +571,7 @@ def emettre_avoir_fret(waybill: str):
     order = c.execute("SELECT * FROM transport_orders WHERE waybill_number = ?", (waybill,)).fetchone()
     if not order or order["type_piece"] == "AVOIR":
         conn.close()
-        raise HTTPException(status_code=400, detail="Ordre introuvable ou dÃ©jÃ  un avoir")
+        raise HTTPException(status_code=400, detail="Ordre introuvable ou déjà un avoir")
     
     num_seq = c.execute("SELECT COUNT(*) FROM transport_orders WHERE type_piece='AVOIR'").fetchone()[0] + 1
     num_avoir = f"AV-LV-2026-{num_seq:04d}"
@@ -590,9 +590,9 @@ def emettre_avoir_fret(waybill: str):
     ))
     
     ecritures = [
-        (today_str, "VT", num_avoir, "706100", "Transport - Avoirs accordÃ©s", f"Avoir sur {waybill}", base_ht, 0.0),
-        (today_str, "VT", num_avoir, "436700", "TVA RÃ©gularisÃ©e Transport", f"TVA Avoir {num_avoir}", order["vat_amount"], 0.0),
-        (today_str, "VT", num_avoir, "411100", "Clients - CrÃ©dit Avoir Fret", f"Avoir {num_avoir}", 0.0, order["net_payable"]),
+        (today_str, "VT", num_avoir, "706100", "Transport - Avoirs accordés", f"Avoir sur {waybill}", base_ht, 0.0),
+        (today_str, "VT", num_avoir, "436700", "TVA Régularisée Transport", f"TVA Avoir {num_avoir}", order["vat_amount"], 0.0),
+        (today_str, "VT", num_avoir, "411100", "Clients - Crédit Avoir Fret", f"Avoir {num_avoir}", 0.0, order["net_payable"]),
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
     
@@ -614,7 +614,7 @@ class CreateColisReq(BaseModel):
     nombre_pieces: int = 1
     frais_livraison_ttc: float = 8.000
     montant_cod: float = 0.0 # Contre-Remboursement
-    livreur_nom: str = "TournÃ©e Express"
+    livreur_nom: str = "Tournée Express"
 
 @app.post("/api/colis")
 def create_colis(req: CreateColisReq):
@@ -649,11 +649,11 @@ def create_colis(req: CreateColisReq):
         ht, taux_tva, tva, timbre, ttc, req.montant_cod, net_expediteur, req.livreur_nom
     ))
     
-    # Ã‰criture comptable pour prestation de livraison
+    # Écriture comptable pour prestation de livraison
     ecritures = [
         (today_str, "VT", tracking, "411200", f"Clients E-commerce - {req.expediteur_nom}", f"Livraison {tracking}", ttc, 0.0),
         (today_str, "VT", tracking, "706100", "Prestations de Livraison Colis", f"Frais livraison {tracking}", 0.0, ht),
-        (today_str, "VT", tracking, "436700", "Ã‰tat - TVA CollectÃ©e Colis (7%)", f"TVA {tracking}", 0.0, tva),
+        (today_str, "VT", tracking, "436700", "État - TVA Collectée Colis (7%)", f"TVA {tracking}", 0.0, tva),
         (today_str, "VT", tracking, "437000", "Droits de Timbre Fiscal", "Timbre 1.000 DT", 0.0, timbre),
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
@@ -677,12 +677,12 @@ def update_colis_status(tracking: str, req: UpdateColisStatusReq):
     today_str = date.today().isoformat()
     c.execute("UPDATE colis_expeditions SET statut = ? WHERE tracking_code = ?", (req.nouveau_statut, tracking))
     
-    # Si le colis est livrÃ© et encaissÃ© avec contre-remboursement (COD)
+    # Si le colis est livré et encaissé avec contre-remboursement (COD)
     if req.nouveau_statut == "LIVRE_ENCAISSE" and colis["montant_cod"] > 0:
-        # Encaissement des fonds chez le destinataire : DÃ©bit Caisse 541 / CrÃ©dit DÃ©biteurs-CrÃ©diteurs COD 467
+        # Encaissement des fonds chez le destinataire : Débit Caisse 541 / Crédit Débiteurs-Créditeurs COD 467
         ecritures_cod = [
             (today_str, "CA", tracking, "541000", "Caisse Livreur - Encaiss. COD", f"Encaiss. Colis {tracking}", colis["montant_cod"], 0.0),
-            (today_str, "CA", tracking, "467000", f"Fonds COD Ã  reverser Ã  {colis['expediteur_nom']}", f"Fonds collectÃ©s {tracking}", 0.0, colis["montant_cod"]),
+            (today_str, "CA", tracking, "467000", f"Fonds COD à reverser à {colis['expediteur_nom']}", f"Fonds collectés {tracking}", 0.0, colis["montant_cod"]),
         ]
         c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures_cod)
         
@@ -697,7 +697,7 @@ def emettre_avoir_colis(tracking: str):
     colis = c.execute("SELECT * FROM colis_expeditions WHERE tracking_code = ?", (tracking,)).fetchone()
     if not colis or colis["type_piece"] == "AVOIR":
         conn.close()
-        raise HTTPException(status_code=400, detail="Colis introuvable ou dÃ©jÃ  annulÃ©")
+        raise HTTPException(status_code=400, detail="Colis introuvable ou déjà annulé")
     
     num_seq = c.execute("SELECT COUNT(*) FROM colis_expeditions WHERE type_piece='AVOIR'").fetchone()[0] + 1
     num_avoir = f"AV-COLIS-2026-{num_seq:04d}"
@@ -722,8 +722,8 @@ def emettre_avoir_colis(tracking: str):
     
     ecritures = [
         (today_str, "VT", num_avoir, "706100", "Prestations Livraison - Avoirs", f"Avoir sur colis {tracking}", colis["frais_livraison_ht"], 0.0),
-        (today_str, "VT", num_avoir, "436700", "TVA RÃ©gularisÃ©e Colis", f"TVA Avoir {num_avoir}", colis["montant_tva"], 0.0),
-        (today_str, "VT", num_avoir, "411200", "Clients E-commerce - CrÃ©dit Avoir", f"Avoir {num_avoir}", 0.0, colis["frais_livraison_ttc"]),
+        (today_str, "VT", num_avoir, "436700", "TVA Régularisée Colis", f"TVA Avoir {num_avoir}", colis["montant_tva"], 0.0),
+        (today_str, "VT", num_avoir, "411200", "Clients E-commerce - Crédit Avoir", f"Avoir {num_avoir}", 0.0, colis["frais_livraison_ttc"]),
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
     
@@ -731,7 +731,7 @@ def emettre_avoir_colis(tracking: str):
     conn.close()
     return {"success": True, "numero_avoir": num_avoir}
 
-# --- RÃ‰INITIALISATION DONNÃ‰ES OPÃ‰RATIONNELLES (ADMIN ONLY) ---
+# --- RÉINITIALISATION DONNÉES OPÉRATIONNELLES (ADMIN ONLY) ---
 class ResetReq(BaseModel):
     admin_password: str
 
@@ -749,7 +749,7 @@ def reset_operational_data(req: ResetReq):
     c.execute("DELETE FROM ecritures_comptables")
     conn.commit()
     conn.close()
-    return {"success": True, "message": "Mouvements de transport et colis remis Ã  zÃ©ro pour un nouvel usage"}
+    return {"success": True, "message": "Mouvements de transport et colis remis à zéro pour un nouvel usage"}
 
 @app.get("/api/compta/grand-livre")
 def get_grand_livre():
@@ -781,7 +781,7 @@ if __name__ == "__main__":
     print(f" Port Local           : {PORT}")
     print(f" Verrou Hardware ID   : {hw_id}")
     print(f" Cryptographie        : HMAC-SHA256 (SAFE-YYYYMMDD-XXXX-XXXX-XXXX-XXXX)")
-    print(f" Normes Fiscales      : TND (3 dÃ©c.) | TVA Transport 7% | SCE NC 01")
+    print(f" Normes Fiscales      : TND (3 déc.) | TVA Transport 7% | SCE NC 01")
     print("=" * 70)
     threading.Timer(1.5, lambda: webbrowser.open(f"http://localhost:{PORT}")).start()
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="info")

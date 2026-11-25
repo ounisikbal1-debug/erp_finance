@@ -18,10 +18,10 @@ type Product = {
 };
 
 const productColumns: Column<Product>[] = [
-  { key: "ref", label: "RÃ©fÃ©rence", value: (p) => p.reference },
-  { key: "name", label: "DÃ©signation", value: (p) => p.name },
+  { key: "ref", label: "Référence", value: (p) => p.reference },
+  { key: "name", label: "Désignation", value: (p) => p.name },
   { key: "kind", label: "Type", value: (p) => (p.kind === "service" ? "Service" : "Produit") },
-  { key: "unit", label: "UnitÃ©", value: (p) => p.unit },
+  { key: "unit", label: "Unité", value: (p) => p.unit },
   { key: "price", label: "Prix HT", value: (p) => p.priceHt / 1000, display: (p) => (p.priceHt / 1000).toFixed(3) },
   { key: "vat", label: "TVA", value: (p) => p.vatRate },
   { key: "account", label: "Compte", value: (p) => p.accountCode },
@@ -91,7 +91,7 @@ export default function Products() {
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <input
           className="erp-input max-w-xs"
-          placeholder="Rechercher une rÃ©fÃ©rence ou une dÃ©signationâ€¦"
+          placeholder="Rechercher une référence ou une désignation…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
@@ -103,9 +103,9 @@ export default function Products() {
           rows={rows}
           basename="articles"
           title="Catalogue articles & services"
-          subtitle="ERP Tunisie â€” Articles"
+          subtitle="ERP Tunisie — Articles"
           columns={productColumns}
-          templateHeaders={["RÃ©fÃ©rence", "DÃ©signation", "Type", "UnitÃ©", "Prix HT", "TVA", "Compte", "Stock"]}
+          templateHeaders={["Référence", "Désignation", "Type", "Unité", "Prix HT", "TVA", "Compte", "Stock"]}
           onImport={async (r) => {
             const res = await importProducts.mutateAsync({ rows: r });
             utils.products.list.invalidate();
@@ -119,17 +119,17 @@ export default function Products() {
           <Loading />
         ) : rows.length === 0 ? (
           <EmptyState
-            icon="â–¢"
+            icon="▢"
             title="Catalogue vide"
             description="Ajoutez vos produits et services avec leur prix HT et leur taux de TVA (19 %, 13 %, 7 % ou 0 %) pour les retrouver dans vos factures."
             action={
               <button className="erp-btn-gold" onClick={() => setOpen(true)}>
-                CrÃ©er un article
+                Créer un article
               </button>
             }
           />
         ) : (
-          <Table head={["RÃ©fÃ©rence", "DÃ©signation", "Type", "UnitÃ©", "Prix HT", "TVA", "Compte", "Stock"]}>
+          <Table head={["Référence", "Désignation", "Type", "Unité", "Prix HT", "TVA", "Compte", "Stock"]}>
             {rows.map((p) => (
               <tr key={p.id}>
                 <td className="font-mono text-[12px]">{p.reference}</td>
@@ -152,10 +152,10 @@ export default function Products() {
 
       <Modal open={open} onClose={() => setOpen(false)} title="Nouvel article" wide>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="RÃ©fÃ©rence">
+          <Field label="Référence">
             <input className="erp-input" value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} placeholder="ART-001" />
           </Field>
-          <Field label="DÃ©signation">
+          <Field label="Désignation">
             <input className="erp-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Prestation de conseil" />
           </Field>
           <Field label="Type">
@@ -164,18 +164,18 @@ export default function Products() {
               <option value="service">Service</option>
             </select>
           </Field>
-          <Field label="UnitÃ©">
-            <input className="erp-input" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="U, kg, hâ€¦" />
+          <Field label="Unité">
+            <input className="erp-input" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="U, kg, h…" />
           </Field>
           <Field label="Prix HT (TND)">
             <input className="erp-input" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="0.000" />
           </Field>
           <Field label="Taux de TVA">
             <select className="erp-select" value={form.vatRate} onChange={(e) => setForm({ ...form, vatRate: Number(e.target.value) })}>
-              <option value={19}>19 % â€” taux normal</option>
-              <option value={13}>13 % â€” taux intermÃ©diaire</option>
-              <option value={7}>7 % â€” taux rÃ©duit</option>
-              <option value={0}>0 % â€” exonÃ©rÃ© / export</option>
+              <option value={19}>19 % — taux normal</option>
+              <option value={13}>13 % — taux intermédiaire</option>
+              <option value={7}>7 % — taux réduit</option>
+              <option value={0}>0 % — exonéré / export</option>
             </select>
           </Field>
           <Field label="Compte comptable" hint="Plan comptable tunisien">
@@ -198,7 +198,7 @@ export default function Products() {
             Annuler
           </button>
           <button className="erp-btn-gold" onClick={submit} disabled={create.isPending}>
-            {create.isPending ? "Enregistrementâ€¦" : "Enregistrer"}
+            {create.isPending ? "Enregistrement…" : "Enregistrer"}
           </button>
         </div>
       </Modal>

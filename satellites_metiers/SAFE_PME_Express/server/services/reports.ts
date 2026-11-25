@@ -1,5 +1,5 @@
-﻿// â”€â”€ SERVICE : rapports financiers (Bilan & Compte de RÃ©sultat) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Construit les deux Ã©tats Ã  partir des soldes du grand livre, par classe de
+﻿// ── SERVICE : rapports financiers (Bilan & Compte de Résultat) ───────────────
+// Construit les deux états à partir des soldes du grand livre, par classe de
 // comptes du plan comptable tunisien. Montants en millimes.
 import { getAccountBalances } from "../db";
 
@@ -13,7 +13,7 @@ export type BalanceSheet = {
   liabilities: ReportSection[];
   totalAssets: number;
   totalLiabilities: number;
-  /** RÃ©sultat de l'exercice (produits âˆ’ charges) intÃ©grÃ© aux capitaux propres. */
+  /** Résultat de l'exercice (produits − charges) intégré aux capitaux propres. */
   result: number;
   balanced: boolean;
 };
@@ -26,7 +26,7 @@ export type IncomeStatement = {
   totalRevenue: number;
   totalExpenses: number;
   grossResult: number;
-  /** RÃ©sultat net aprÃ¨s IS estimÃ©. */
+  /** Résultat net après IS estimé. */
   netResult: number;
   isRate: number;
   isAmount: number;
@@ -55,13 +55,13 @@ function lines(rows: Bal[], pred: (c: string) => boolean, side: "debit" | "credi
 }
 
 /**
- * Bilan : actif = classes 2, 3, 4 (dÃ©biteurs), 5 ; passif = classes 1, 4
- * (crÃ©diteurs) + rÃ©sultat de l'exercice.
+ * Bilan : actif = classes 2, 3, 4 (débiteurs), 5 ; passif = classes 1, 4
+ * (créditeurs) + résultat de l'exercice.
  */
 export async function buildBalanceSheet(ownerId: string, from: string, to: string): Promise<BalanceSheet> {
   const rows = (await getAccountBalances(ownerId, from, to)) as Bal[];
 
-  // Actif immobilisÃ© (classe 2, net des amortissements)
+  // Actif immobilisé (classe 2, net des amortissements)
   const immobilisations = lines(rows, (c) => firstDigit(c) === "2" && !c.startsWith("28"), "debit");
   const amortissements = lines(rows, (c) => c.startsWith("28"), "credit");
   const netImmobilisations = immobilisations.reduce((s, l) => s + l.amount, 0) - amortissements.reduce((s, l) => s + l.amount, 0);
@@ -69,39 +69,39 @@ export async function buildBalanceSheet(ownerId: string, from: string, to: strin
   // Stocks (classe 3)
   const stocks = lines(rows, (c) => firstDigit(c) === "3", "debit");
 
-  // CrÃ©ances (classe 4, solde dÃ©biteur)
+  // Créances (classe 4, solde débiteur)
   const creances = rows
     .filter((r) => firstDigit(r.accountCode) === "4" && r.debit - r.credit > 0)
     .map((r) => ({ code: r.accountCode, label: r.accountLabel || r.accountCode, amount: r.debit - r.credit }))
     .sort((a, b) => a.code.localeCompare(b.code));
 
-  // TrÃ©sorerie (classe 5)
+  // Trésorerie (classe 5)
   const tresorerie = lines(rows, (c) => firstDigit(c) === "5", "debit");
 
   const assets: ReportSection[] = [
-    { title: "Actif immobilisÃ© net", lines: [...immobilisations, ...amortissements.map((a) => ({ ...a, amount: -a.amount }))], total: netImmobilisations },
+    { title: "Actif immobilisé net", lines: [...immobilisations, ...amortissements.map((a) => ({ ...a, amount: -a.amount }))], total: netImmobilisations },
     { title: "Stocks", lines: stocks, total: stocks.reduce((s, l) => s + l.amount, 0) },
-    { title: "CrÃ©ances et comptes rattachÃ©s", lines: creances, total: creances.reduce((s, l) => s + l.amount, 0) },
-    { title: "TrÃ©sorerie â€” actif", lines: tresorerie, total: tresorerie.reduce((s, l) => s + l.amount, 0) },
+    { title: "Créances et comptes rattachés", lines: creances, total: creances.reduce((s, l) => s + l.amount, 0) },
+    { title: "Trésorerie — actif", lines: tresorerie, total: tresorerie.reduce((s, l) => s + l.amount, 0) },
   ];
 
   // Passif : capitaux propres (classe 1)
   const capitaux = lines(rows, (c) => firstDigit(c) === "1", "credit");
 
-  // Dettes (classe 4, solde crÃ©diteur)
+  // Dettes (classe 4, solde créditeur)
   const dettes = rows
     .filter((r) => firstDigit(r.accountCode) === "4" && r.credit - r.debit > 0)
     .map((r) => ({ code: r.accountCode, label: r.accountLabel || r.accountCode, amount: r.credit - r.debit }))
     .sort((a, b) => a.code.localeCompare(b.code));
 
-  // RÃ©sultat = produits (7) âˆ’ charges (6)
+  // Résultat = produits (7) − charges (6)
   const produits = sum(rows, (c) => firstDigit(c) === "7", "credit");
   const charges = sum(rows, (c) => firstDigit(c) === "6", "debit");
   const result = produits - charges;
 
   const liabilities: ReportSection[] = [
     { title: "Capitaux propres", lines: capitaux, total: capitaux.reduce((s, l) => s + l.amount, 0) },
-    { title: "RÃ©sultat de l'exercice", lines: [{ code: "12", label: result >= 0 ? "BÃ©nÃ©fice" : "Perte", amount: result }], total: result },
+    { title: "Résultat de l'exercice", lines: [{ code: "12", label: result >= 0 ? "Bénéfice" : "Perte", amount: result }], total: result },
     { title: "Dettes", lines: dettes, total: dettes.reduce((s, l) => s + l.amount, 0) },
   ];
 
@@ -120,7 +120,7 @@ export async function buildBalanceSheet(ownerId: string, from: string, to: strin
   };
 }
 
-/** Compte de rÃ©sultat : produits (classe 7) âˆ’ charges (classe 6), puis IS. */
+/** Compte de résultat : produits (classe 7) − charges (classe 6), puis IS. */
 export async function buildIncomeStatement(
   ownerId: string,
   from: string,
@@ -137,9 +137,9 @@ export async function buildIncomeStatement(
   };
 
   const chargeGroups: { title: string; pred: (c: string) => boolean }[] = [
-    { title: "Achats consommÃ©s", pred: (c) => c.startsWith("60") || c.startsWith("61") },
+    { title: "Achats consommés", pred: (c) => c.startsWith("60") || c.startsWith("61") },
     { title: "Charges de personnel", pred: (c) => c.startsWith("64") },
-    { title: "ImpÃ´ts et taxes", pred: (c) => c.startsWith("63") },
+    { title: "Impôts et taxes", pred: (c) => c.startsWith("63") },
     { title: "Dotations aux amortissements", pred: (c) => c.startsWith("68") },
     { title: "Autres charges", pred: (c) => firstDigit(c) === "6" && !/^(60|61|63|64|68)/.test(c) },
   ];

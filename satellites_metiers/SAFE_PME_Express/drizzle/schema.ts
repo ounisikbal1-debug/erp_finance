@@ -1,8 +1,8 @@
 ﻿import { pgTable, uuid, text, timestamp, index, bigint, integer, boolean, date, jsonb } from "drizzle-orm/pg-core";
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// SYSTEM TABLES â€” managed by the scaffold. Do not redefine or drop.
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
+// SYSTEM TABLES — managed by the scaffold. Do not redefine or drop.
+// ─────────────────────────────────────────────────────────────────────────────
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
@@ -26,15 +26,15 @@ export const files = pgTable(
   (t) => [index("files_owner_idx").on(t.ownerId), index("files_created_idx").on(t.createdAt)],
 );
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// BUSINESS TABLES â€” ERP Tunisien
+// ─────────────────────────────────────────────────────────────────────────────
+// BUSINESS TABLES — ERP Tunisien
 // All monetary amounts are stored as INTEGER MILLIMES (1 TND = 1000 millimes)
 // so that 3-decimal TND arithmetic is exact. Never store money as float.
-// Every business row belongs to one user (owner_id) â€” the company file is
+// Every business row belongs to one user (owner_id) — the company file is
 // per-user, so two accounts never see each other's books.
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
-/** SociÃ©tÃ© â€” une ligne par utilisateur. */
+/** Société — une ligne par utilisateur. */
 export const company = pgTable(
   "company",
   {
@@ -42,7 +42,7 @@ export const company = pgTable(
     ownerId: uuid("owner_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    name: text("name").notNull().default("SociÃ©tÃ© Tunisienne SARL"),
+    name: text("name").notNull().default("Société Tunisienne SARL"),
     matriculeFiscal: text("matricule_fiscal").notNull().default("0000000/A/M/000"),
     registreCommerce: text("registre_commerce").notNull().default("B0000000000"),
     address: text("address").notNull().default("Avenue Habib Bourguiba, Tunis"),
@@ -55,9 +55,9 @@ export const company = pgTable(
     /** Taux IS : 15 (services/industries) ou 20 (autres) */
     isRate: integer("is_rate").notNull().default(15),
     fiscalYear: integer("fiscal_year").notNull().default(2026),
-    /** Taux TCL appliquÃ© en points de base (10 = 0,1 %) */
+    /** Taux TCL appliqué en points de base (10 = 0,1 %) */
     tclRateBp: integer("tcl_rate_bp").notNull().default(10),
-    /** NumÃ©ro d'affiliation CNSS de l'employeur */
+    /** Numéro d'affiliation CNSS de l'employeur */
     cnssNumber: text("cnss_number").notNull().default(""),
     // Parametres & Taux avances issus de SAFE ERP
     vatRateStandard: integer("vat_rate_standard").notNull().default(19),
@@ -93,7 +93,7 @@ export const partners = pgTable(
     address: text("address"),
     email: text("email"),
     phone: text("phone"),
-    /** DÃ©lai de paiement en jours */
+    /** Délai de paiement en jours */
     paymentTerms: integer("payment_terms").notNull().default(30),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -119,22 +119,22 @@ export const products = pgTable(
     kind: text("kind").notNull().default("produit"),
     unit: text("unit").notNull().default("U"),
     priceHt: integer("price_ht").notNull().default(0), // millimes
-    /** Prix d'achat / coÃ»t de revient (millimes) */
+    /** Prix d'achat / coût de revient (millimes) */
     costPrice: integer("cost_price").notNull().default(0),
     /** 19 | 13 | 7 | 0 */
     vatRate: integer("vat_rate").notNull().default(19),
     /** Compte de vente / achat (plan comptable tunisien) */
     accountCode: text("account_code").notNull().default("701"),
-    /** QuantitÃ© en stock (milliÃ¨mes d'unitÃ©) */
+    /** Quantité en stock (millièmes d'unité) */
     stockQty: integer("stock_qty").notNull().default(0),
-    /** Seuil d'alerte de rÃ©approvisionnement (milliÃ¨mes d'unitÃ©) */
+    /** Seuil d'alerte de réapprovisionnement (millièmes d'unité) */
     reorderLevel: integer("reorder_level").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("products_owner_idx").on(t.ownerId), index("products_ref_idx").on(t.reference)],
 );
 
-/** Mouvements de stock â€” chaque entrÃ©e/sortie explique la quantitÃ© courante. */
+/** Mouvements de stock — chaque entrée/sortie explique la quantité courante. */
 export const stockMovements = pgTable(
   "stock_movements",
   {
@@ -148,9 +148,9 @@ export const stockMovements = pgTable(
     moveDate: date("move_date").notNull(),
     /** 'entree' | 'sortie' | 'inventaire' */
     kind: text("kind").notNull().default("entree"),
-    /** QuantitÃ© en milliÃ¨mes d'unitÃ© (toujours positive) */
+    /** Quantité en millièmes d'unité (toujours positive) */
     quantity: integer("quantity").notNull().default(0),
-    /** CoÃ»t unitaire du mouvement (millimes) */
+    /** Coût unitaire du mouvement (millimes) */
     unitCost: integer("unit_cost").notNull().default(0),
     reference: text("reference"),
     note: text("note"),
@@ -205,7 +205,7 @@ export const invoiceLines = pgTable(
       .references(() => invoices.id, { onDelete: "cascade" }),
     productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
     label: text("label").notNull(),
-    quantity: integer("quantity").notNull().default(1000), // milliÃ¨mes d'unitÃ©
+    quantity: integer("quantity").notNull().default(1000), // millièmes d'unité
     unitPrice: integer("unit_price").notNull().default(0), // millimes
     vatRate: integer("vat_rate").notNull().default(19),
     lineHt: integer("line_ht").notNull().default(0),
@@ -233,7 +233,7 @@ export const bills = pgTable(
     totalHt: integer("total_ht").notNull().default(0),
     totalVat: integer("total_vat").notNull().default(0),
     totalTtc: integer("total_ttc").notNull().default(0),
-    /** Retenue Ã  la source (1 % ou 3 %) en millimes */
+    /** Retenue à la source (1 % ou 3 %) en millimes */
     withholding: integer("withholding").notNull().default(0),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -262,7 +262,7 @@ export const billLines = pgTable(
   (t) => [index("bill_lines_owner_idx").on(t.ownerId), index("bill_lines_bill_idx").on(t.billId)],
 );
 
-/** SalariÃ©s. */
+/** Salariés. */
 export const employees = pgTable(
   "employees",
   {
@@ -278,12 +278,12 @@ export const employees = pgTable(
     hireDate: date("hire_date").notNull(),
     /** Salaire de base mensuel en millimes */
     baseSalary: integer("base_salary").notNull().default(0),
-    /** Primes mensuelles (transport, rendementâ€¦) en millimes */
+    /** Primes mensuelles (transport, rendement…) en millimes */
     allowances: integer("allowances").notNull().default(0),
     /** 'celibataire' | 'marie' */
     maritalStatus: text("marital_status").notNull().default("celibataire"),
     children: integer("children").notNull().default(0),
-    /** Chef de famille â†’ abattement IRPP */
+    /** Chef de famille → abattement IRPP */
     headOfFamily: boolean("head_of_family").notNull().default(false),
     /** 'actif' | 'sorti' */
     status: text("status").notNull().default("actif"),
@@ -362,7 +362,7 @@ export const accounts = pgTable(
   (t) => [index("accounts_owner_idx").on(t.ownerId), index("accounts_code_idx").on(t.code)],
 );
 
-/** Ã‰critures comptables (en-tÃªte). */
+/** Écritures comptables (en-tête). */
 export const journalEntries = pgTable(
   "journal_entries",
   {
@@ -371,7 +371,7 @@ export const journalEntries = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     entryDate: date("entry_date").notNull(),
-    /** 'VE' ventes | 'AC' achats | 'BQ' banque | 'CA' caisse | 'OD' opÃ©rations diverses | 'PA' paie */
+    /** 'VE' ventes | 'AC' achats | 'BQ' banque | 'CA' caisse | 'OD' opérations diverses | 'PA' paie */
     journal: text("journal").notNull().default("OD"),
     reference: text("reference").notNull().default(""),
     label: text("label").notNull(),
@@ -412,15 +412,15 @@ export const assets = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     code: text("code").notNull(),
     label: text("label").notNull(),
-    category: text("category").notNull().default("MatÃ©riel"),
+    category: text("category").notNull().default("Matériel"),
     acquisitionDate: date("acquisition_date").notNull(),
     /** Valeur d'acquisition en millimes */
     cost: integer("cost").notNull().default(0),
-    /** DurÃ©e d'amortissement en annÃ©es */
+    /** Durée d'amortissement en années */
     durationYears: integer("duration_years").notNull().default(5),
-    /** Taux linÃ©aire en points de base (2000 = 20 %) */
+    /** Taux linéaire en points de base (2000 = 20 %) */
     rateBp: integer("rate_bp").notNull().default(2000),
-    /** Amortissement cumulÃ© en millimes */
+    /** Amortissement cumulé en millimes */
     accumulated: integer("accumulated").notNull().default(0),
     accountCode: text("account_code").notNull().default("2231"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -428,7 +428,7 @@ export const assets = pgTable(
   (t) => [index("assets_owner_idx").on(t.ownerId)],
 );
 
-/** Comptes de trÃ©sorerie. */
+/** Comptes de trésorerie. */
 export const bankAccounts = pgTable(
   "bank_accounts",
   {
@@ -475,7 +475,7 @@ export const bankTransactions = pgTable(
   ],
 );
 
-/** DÃ©clarations fiscales et sociales gÃ©nÃ©rÃ©es. */
+/** Déclarations fiscales et sociales générées. */
 export const taxDeclarations = pgTable(
   "tax_declarations",
   {
@@ -491,7 +491,7 @@ export const taxDeclarations = pgTable(
     taxAmount: integer("tax_amount").notNull().default(0),
     status: text("status").notNull().default("a_declarer"),
     notes: text("notes"),
-    /** DÃ©tail chiffrÃ© de la liquidation (TVA collectÃ©e, dÃ©ductible, crÃ©ditâ€¦). */
+    /** Détail chiffré de la liquidation (TVA collectée, déductible, crédit…). */
     detail: jsonb("detail"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

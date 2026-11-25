@@ -47,18 +47,18 @@ export default function Tax() {
   const d = dash.data;
   const c = company.data;
 
-  // â”€â”€ TVA du mois â”€â”€
+  // ── TVA du mois ──
   const vatCollected = d?.revenueVat ?? 0;
   const vatDeductible = d?.purchaseVat ?? 0;
   const vatNet = vatCollected - vatDeductible;
 
-  // â”€â”€ IS estimÃ© â”€â”€
+  // ── IS estimé ──
   const resultat = (d?.revenueHt ?? 0) - (d?.purchaseHt ?? 0) - (d?.payrollGross ?? 0) - (d?.assetsAccumulated ?? 0);
   const isRate = c?.isRate ?? 15;
   const isDue = resultat > 0 ? Math.round((resultat * isRate) / 100) : 0;
   const acompte = Math.round((isDue * IS_INSTALLMENT_RATE) / 100);
 
-  // â”€â”€ TCL â”€â”€
+  // ── TCL ──
   const tclBase = c ? 0 : 0;
   const tclRateBp = c?.tclRateBp ?? 10;
   const tclDue = Math.round((tclBase * tclRateBp) / 10000);
@@ -80,8 +80,8 @@ export default function Tax() {
   return (
     <>
       <PageHeader
-        title="FiscalitÃ© & social"
-        subtitle="TVA Â· TCL Â· IS Â· IRPP Â· CNSS Â· retenues Ã  la source â€” rÃ©glementation tunisienne"
+        title="Fiscalité & social"
+        subtitle="TVA · TCL · IS · IRPP · CNSS · retenues à la source — réglementation tunisienne"
       />
 
       {/* Bandeau des taux en vigueur */}
@@ -91,7 +91,7 @@ export default function Tax() {
           <p className="num mt-1 text-[15px] font-semibold">{VAT_RATES.join(" / ")} %</p>
         </div>
         <div className="erp-card p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">CNSS salariÃ©</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">CNSS salarié</p>
           <p className="num mt-1 text-[15px] font-semibold text-navy">{CNSS_EMPLOYEE_RATE} %</p>
         </div>
         <div className="erp-card p-3">
@@ -114,14 +114,14 @@ export default function Tax() {
 
       {/* TVA / IS / TCL */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Panel title="TVA â€” pÃ©riode en cours" subtitle={`DÃ©claration ${periodLabel(currentPeriod())}`}>
+        <Panel title="TVA — période en cours" subtitle={`Déclaration ${periodLabel(currentPeriod())}`}>
           <div className="space-y-2 text-[12.5px]">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">TVA collectÃ©e</span>
+              <span className="text-muted-foreground">TVA collectée</span>
               <Money value={vatCollected} />
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">TVA dÃ©ductible</span>
+              <span className="text-muted-foreground">TVA déductible</span>
               <Money value={vatDeductible} />
             </div>
             <div className="flex justify-between border-t border-border pt-2">
@@ -130,19 +130,19 @@ export default function Tax() {
             </div>
           </div>
           <p className="mt-3 rounded-lg bg-info-soft p-2.5 text-[11px] leading-relaxed text-info">
-            DÃ©pÃ´t avant le 28 du mois suivant (rÃ©gime rÃ©el). CrÃ©dit reportable si la TVA dÃ©ductible excÃ¨de la
-            collectÃ©e.
+            Dépôt avant le 28 du mois suivant (régime réel). Crédit reportable si la TVA déductible excède la
+            collectée.
           </p>
         </Panel>
 
-        <Panel title="ImpÃ´t sur les sociÃ©tÃ©s" subtitle={`Taux appliquÃ© : ${isRate} %`}>
+        <Panel title="Impôt sur les sociétés" subtitle={`Taux appliqué : ${isRate} %`}>
           <div className="space-y-2 text-[12.5px]">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">RÃ©sultat estimÃ©</span>
+              <span className="text-muted-foreground">Résultat estimé</span>
               <Money value={resultat} />
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">IS dÃ» ({isRate} %)</span>
+              <span className="text-muted-foreground">IS dû ({isRate} %)</span>
               <Money value={isDue} />
             </div>
             <div className="flex justify-between border-t border-border pt-2">
@@ -151,37 +151,37 @@ export default function Tax() {
             </div>
           </div>
           <p className="mt-3 rounded-lg bg-gold-soft/60 p-2.5 text-[11px] leading-relaxed text-[hsl(38_72%_30%)]">
-            3 acomptes provisionnels de 30 % de l'IS de rÃ©fÃ©rence, exigibles en juin, septembre et dÃ©cembre.
-            Minimum d'impÃ´t : 0,2 % du chiffre d'affaires (plafonnÃ©).
+            3 acomptes provisionnels de 30 % de l'IS de référence, exigibles en juin, septembre et décembre.
+            Minimum d'impôt : 0,2 % du chiffre d'affaires (plafonné).
           </p>
         </Panel>
 
-        <Panel title="TCL & retenues" subtitle="Taxe sur les locaux Â· retenue Ã  la source">
+        <Panel title="TCL & retenues" subtitle="Taxe sur les locaux · retenue à la source">
           <div className="space-y-2 text-[12.5px]">
             <div className="flex justify-between">
               <span className="text-muted-foreground">TCL ({(tclRateBp / 10).toFixed(1)} %)</span>
               <Money value={tclDue} />
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Retenue Ã  la source</span>
+              <span className="text-muted-foreground">Retenue à la source</span>
               <span className="text-muted-foreground">1 % / 3 %</span>
             </div>
           </div>
           <p className="mt-3 rounded-lg bg-secondary/70 p-2.5 text-[11px] leading-relaxed text-muted-foreground">
-            TCL assise sur la valeur locative des locaux professionnels. La retenue Ã  la source s'applique aux
-            prestations de services et honoraires versÃ©s Ã  des tiers.
+            TCL assise sur la valeur locative des locaux professionnels. La retenue à la source s'applique aux
+            prestations de services et honoraires versés à des tiers.
           </p>
         </Panel>
       </div>
 
       {/* Simulateurs IRPP */}
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Panel title="Simulateur IRPP mensuel" subtitle="Retenue Ã  la source sur salaire">
+        <Panel title="Simulateur IRPP mensuel" subtitle="Retenue à la source sur salaire">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <Field label="Salaire net imposable (TND)">
               <input className="erp-input" value={simAmount} onChange={(e) => setSimAmount(e.target.value)} />
             </Field>
-            <Field label="Personnes Ã  charge">
+            <Field label="Personnes à charge">
               <input
                 type="number"
                 className="erp-input"
@@ -201,7 +201,7 @@ export default function Tax() {
           </div>
           <div className="mt-3 space-y-1.5 rounded-lg bg-gold-soft/50 p-3 text-[12.5px]">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Base imposable annualisÃ©e</span>
+              <span className="text-muted-foreground">Base imposable annualisée</span>
               <span className="num">{fmtTND(simMonthly.annualTaxable)}</span>
             </div>
             <div className="flex justify-between">
@@ -209,7 +209,7 @@ export default function Tax() {
               <span className="num">{fmtTND(simMonthly.detail.reduce((s, x) => s + x.tax, 0))}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">IRPP annuel aprÃ¨s abattements</span>
+              <span className="text-muted-foreground">IRPP annuel après abattements</span>
               <span className="num">{fmtTND(simMonthly.annual)}</span>
             </div>
             <div className="flex justify-between border-t border-gold/30 pt-1.5">
@@ -218,12 +218,12 @@ export default function Tax() {
             </div>
           </div>
           <p className="mt-2 text-[11px] text-muted-foreground">
-            Abattement chef de famille {IRPP_HEAD_OF_FAMILY_DEDUCTION} TND/an Â· {IRPP_DEPENDENT_DEDUCTION} TND par
-            personne Ã  charge.
+            Abattement chef de famille {IRPP_HEAD_OF_FAMILY_DEDUCTION} TND/an · {IRPP_DEPENDENT_DEDUCTION} TND par
+            personne à charge.
           </p>
         </Panel>
 
-        <Panel title="BarÃ¨me IRPP annuel" subtitle="8 tranches â€” 0 % Ã  40 %">
+        <Panel title="Barème IRPP annuel" subtitle="8 tranches — 0 % à 40 %">
           <div className="space-y-1">
             {IRPP_BRACKETS.map((b, i) => (
               <div key={i} className="flex items-center gap-2">
@@ -235,7 +235,7 @@ export default function Tax() {
                   />
                 </div>
                 <span className="num w-24 text-right text-[11.5px] text-muted-foreground">
-                  {b.from.toLocaleString("fr-FR")} â€“ {b.to === null ? "âˆž" : b.to.toLocaleString("fr-FR")}
+                  {b.from.toLocaleString("fr-FR")} – {b.to === null ? "∞" : b.to.toLocaleString("fr-FR")}
                 </span>
                 <span className="num w-10 text-right text-[12px] font-semibold">{b.rate} %</span>
               </div>
@@ -246,7 +246,7 @@ export default function Tax() {
 
       {/* Simulateur IRPP annuel */}
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Panel title="Simulateur IRPP annuel" subtitle="Revenu net imposable â†’ impÃ´t dÃ»">
+        <Panel title="Simulateur IRPP annuel" subtitle="Revenu net imposable → impôt dû">
           <Field label="Revenu net imposable annuel (TND)">
             <input className="erp-input" value={annualAmount} onChange={(e) => setAnnualAmount(e.target.value)} />
           </Field>
@@ -261,22 +261,22 @@ export default function Tax() {
             ))}
           </div>
           <div className="mt-3 flex justify-between rounded-lg bg-gold-soft/60 px-3 py-2 text-[13px]">
-            <span className="font-semibold">IRPP annuel dÃ»</span>
+            <span className="font-semibold">IRPP annuel dû</span>
             <span className="num font-semibold text-[hsl(38_72%_28%)]">{fmtTND(annual.total)}</span>
           </div>
         </Panel>
 
-        <Panel title="DÃ©clarations" subtitle="Ã‰chÃ©ances et suivi" noPad>
+        <Panel title="Déclarations" subtitle="Échéances et suivi" noPad>
           {decls.isLoading ? (
             <Loading />
           ) : (decls.data ?? []).length === 0 ? (
             <EmptyState
-              icon="â—ˆ"
-              title="Aucune dÃ©claration gÃ©nÃ©rÃ©e"
-              description="Les dÃ©clarations de TVA, d'IS, de TCL et d'acomptes apparaÃ®tront ici avec leurs Ã©chÃ©ances, prÃªtes Ã  Ãªtre transmises Ã  la TÃ©lÃ©dÃ©claration TTN."
+              icon="◈"
+              title="Aucune déclaration générée"
+              description="Les déclarations de TVA, d'IS, de TCL et d'acomptes apparaîtront ici avec leurs échéances, prêtes à être transmises à la Télédéclaration TTN."
             />
           ) : (
-            <Table head={["Type", "PÃ©riode", "Ã‰chÃ©ance", "Base", "Montant", "Statut", ""]}>
+            <Table head={["Type", "Période", "Échéance", "Base", "Montant", "Statut", ""]}>
               {(decls.data ?? []).map((r) => (
                 <tr key={r.id}>
                   <td>
@@ -288,7 +288,7 @@ export default function Tax() {
                   <td className="text-right"><Money value={r.taxAmount} bold /></td>
                   <td>
                     <Badge tone={r.status === "payee" ? "success" : r.status === "declaree" ? "info" : "muted"}>
-                      {r.status === "payee" ? "PayÃ©e" : r.status === "declaree" ? "DÃ©clarÃ©e" : "Ã€ dÃ©clarer"}
+                      {r.status === "payee" ? "Payée" : r.status === "declaree" ? "Déclarée" : "À déclarer"}
                     </Badge>
                   </td>
                   <td className="text-right">
@@ -298,8 +298,8 @@ export default function Tax() {
                       disabled={sendDecl.isPending}
                       title={
                         ttnReady
-                          ? "Transmettre Ã  la TÃ©lÃ©dÃ©claration TTN"
-                          : "TTN non configurÃ©e â€” ajoutez TTN_API_URL et TTN_API_KEY dans Web Admin â†’ Secrets"
+                          ? "Transmettre à la Télédéclaration TTN"
+                          : "TTN non configurée — ajoutez TTN_API_URL et TTN_API_KEY dans Web Admin → Secrets"
                       }
                     >
                       Transmettre
@@ -326,26 +326,26 @@ export default function Tax() {
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[12.5px] font-semibold text-navy">{s.label}</p>
                 <Badge tone={s.configured ? "success" : "muted"}>
-                  {s.configured ? "ConnectÃ©e" : "Non configurÃ©e"}
+                  {s.configured ? "Connectée" : "Non configurée"}
                 </Badge>
               </div>
               <p className="mt-1.5 text-[11.5px] leading-relaxed text-muted-foreground">
                 {s.platform === "ttn"
-                  ? "Envoi direct des dÃ©clarations (TVA, IS, TCL, acomptes) Ã  la TÃ©lÃ©dÃ©claration."
-                  : "Envoi direct des factures de vente au format Ã©lectronique e-Fatoura."}
+                  ? "Envoi direct des déclarations (TVA, IS, TCL, acomptes) à la Télédéclaration."
+                  : "Envoi direct des factures de vente au format électronique e-Fatoura."}
               </p>
               {!s.configured && (
                 <p className="mt-1.5 font-mono text-[10.5px] text-muted-foreground">
-                  {s.platform === "ttn" ? "TTN_API_URL Â· TTN_API_KEY" : "EFATOURA_API_URL Â· EFATOURA_API_KEY"}
+                  {s.platform === "ttn" ? "TTN_API_URL · TTN_API_KEY" : "EFATOURA_API_URL · EFATOURA_API_KEY"}
                 </p>
               )}
             </div>
           ))}
         </div>
         <p className="mt-3 rounded-lg bg-gold-soft/50 p-2.5 text-[11px] leading-relaxed text-[hsl(38_72%_30%)]">
-          Les identifiants se saisissent dans <strong>Web Admin â†’ Secrets</strong> (une valeur pour l'aperÃ§u, une
-          pour la production). Tant qu'une plateforme n'est pas configurÃ©e, l'ERP refuse l'envoi et l'indique
-          clairement â€” aucun envoi n'est simulÃ©.
+          Les identifiants se saisissent dans <strong>Web Admin → Secrets</strong> (une valeur pour l'aperçu, une
+          pour la production). Tant qu'une plateforme n'est pas configurée, l'ERP refuse l'envoi et l'indique
+          clairement — aucun envoi n'est simulé.
         </p>
       </Panel>
 
@@ -354,12 +354,12 @@ export default function Tax() {
           <Loading />
         ) : (history.data ?? []).length === 0 ? (
           <EmptyState
-            icon="â‡„"
+            icon="⇄"
             title="Aucune transmission"
-            description="Chaque envoi vers la TÃ©lÃ©dÃ©claration ou e-Fatoura est journalisÃ© ici avec son statut, sa rÃ©fÃ©rence et le message renvoyÃ© par la plateforme."
+            description="Chaque envoi vers la Télédéclaration ou e-Fatoura est journalisé ici avec son statut, sa référence et le message renvoyé par la plateforme."
           />
         ) : (
-          <Table head={["Date", "Plateforme", "Objet", "Statut", "RÃ©fÃ©rence", "Message"]}>
+          <Table head={["Date", "Plateforme", "Objet", "Statut", "Référence", "Message"]}>
             {(history.data ?? []).map((h) => (
               <tr key={h.id}>
                 <td className="text-muted-foreground">
@@ -382,15 +382,15 @@ export default function Tax() {
                     }
                   >
                     {h.status === "envoye"
-                      ? "EnvoyÃ©"
+                      ? "Envoyé"
                       : h.status === "non_configure"
-                        ? "Non configurÃ©"
+                        ? "Non configuré"
                         : h.status === "refuse"
-                          ? "RefusÃ©"
-                          : "RÃ©seau"}
+                          ? "Refusé"
+                          : "Réseau"}
                   </Badge>
                 </td>
-                <td className="font-mono text-[11.5px] text-muted-foreground">{h.reference || "â€”"}</td>
+                <td className="font-mono text-[11.5px] text-muted-foreground">{h.reference || "—"}</td>
                 <td className="max-w-[320px] text-[11.5px] text-muted-foreground">{h.message}</td>
               </tr>
             ))}
@@ -398,29 +398,29 @@ export default function Tax() {
         )}
       </Panel>
 
-      <Panel title="Obligations fiscales tunisiennes" subtitle="RepÃ¨res de conformitÃ©" className="mt-4">
+      <Panel title="Obligations fiscales tunisiennes" subtitle="Repères de conformité" className="mt-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {[
             {
               t: "TVA",
               rows: [
-                ["Taux", "19 % Â· 13 % Â· 7 % Â· 0 %"],
-                ["DÃ©pÃ´t", "Avant le 28 du mois suivant"],
-                ["RÃ©gime", c?.taxRegime === "reel" ? "RÃ©el" : "Forfaitaire"],
+                ["Taux", "19 % · 13 % · 7 % · 0 %"],
+                ["Dépôt", "Avant le 28 du mois suivant"],
+                ["Régime", c?.taxRegime === "reel" ? "Réel" : "Forfaitaire"],
               ],
             },
             {
               t: "IRPP",
               rows: [
-                ["Tranches", "8 â€” de 0 % Ã  40 %"],
+                ["Tranches", "8 — de 0 % à 40 %"],
                 ["Abattement", "Chef de famille + charges"],
-                ["Retenue", "Mensuelle Ã  la source"],
+                ["Retenue", "Mensuelle à la source"],
               ],
             },
             {
               t: "CNSS / CSS",
               rows: [
-                ["SalariÃ©", `${CNSS_EMPLOYEE_RATE} %`],
+                ["Salarié", `${CNSS_EMPLOYEE_RATE} %`],
                 ["Employeur", `${CNSS_EMPLOYER_RATE} %`],
                 ["CSS", `${CSS_RATE} %`],
               ],
@@ -429,7 +429,7 @@ export default function Tax() {
               t: "IS",
               rows: [
                 ["Taux", `${IS_RATES.join(" % / ")} %`],
-                ["Acomptes", "3 Ã— 30 %"],
+                ["Acomptes", "3 × 30 %"],
                 ["Minimum", "0,2 % du CA"],
               ],
             },
@@ -437,8 +437,8 @@ export default function Tax() {
               t: "TCL",
               rows: [
                 ["Assiette", "Valeur locative"],
-                ["Taux", "0,1 % Â· 0,2 % (hÃ´tels)"],
-                ["PÃ©riodicitÃ©", "Annuelle"],
+                ["Taux", "0,1 % · 0,2 % (hôtels)"],
+                ["Périodicité", "Annuelle"],
               ],
             },
             {
@@ -446,7 +446,7 @@ export default function Tax() {
               rows: [
                 ["Facture", "1,000 TND"],
                 ["Retenue source", "1 % / 3 %"],
-                ["Export", "GÃ©nÃ©ration CSV / PDF"],
+                ["Export", "Génération CSV / PDF"],
               ],
             },
           ].map((card) => (
@@ -464,8 +464,8 @@ export default function Tax() {
           ))}
         </div>
         <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-          Les dÃ©clarations sont gÃ©nÃ©rÃ©es et exportables ; aucune transmission automatique Ã  la TÃ©lÃ©dÃ©claration TTN
-          n'est effectuÃ©e.
+          Les déclarations sont générées et exportables ; aucune transmission automatique à la Télédéclaration TTN
+          n'est effectuée.
         </p>
       </Panel>
     </>

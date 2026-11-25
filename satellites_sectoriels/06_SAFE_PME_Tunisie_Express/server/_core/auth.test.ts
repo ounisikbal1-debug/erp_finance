@@ -3,7 +3,7 @@ import { DrizzleQueryError } from "drizzle-orm/errors";
 
 // Hoisted, so auth.ts sees them at import time: env.ts calls
 // required("DATABASE_URL")/required("JWT_SECRET") at module load, and db.ts
-// opens a real driver â€” neither can run in a unit test.
+// opens a real driver — neither can run in a unit test.
 vi.mock("./env", () => ({
   env: { jwtSecret: "test-secret", appSlug: "test", isProd: false, authProvider: "local" },
 }));
@@ -56,7 +56,7 @@ describe("registerLocalUser", () => {
 
   // The user-visible half of the bug: the thrown message is what the signup
   // form prints, and the old 500 printed the INSERT statement plus every bound
-  // param â€” the bcrypt hash of the password included â€” into the page.
+  // param — the bcrypt hash of the password included — into the page.
   it("says the email is taken without quoting the query or the password hash", async () => {
     insert.throws = duplicateEmailError();
 

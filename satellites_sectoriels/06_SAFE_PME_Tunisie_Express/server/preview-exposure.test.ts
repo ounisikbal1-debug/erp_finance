@@ -1,6 +1,6 @@
 ﻿// Guards the two `server` options in vite.config.ts that decide what a stranger
-// on the public internet can reach. Both are invisible in normal use â€” nothing
-// about a working preview tells you either one is still set â€” and both fail in
+// on the public internet can reach. Both are invisible in normal use — nothing
+// about a working preview tells you either one is still set — and both fail in
 // directions that are hard to attribute, so they get a test rather than a
 // comment alone.
 //
@@ -11,7 +11,7 @@
 // single Hono process with no Vite, so none of this exists in prod.
 //
 // Asserted through Vite's own `resolveConfig` + `isFileServingAllowed`, not by
-// reading the config source, so the check follows the effective behaviour â€”
+// reading the config source, so the check follows the effective behaviour —
 // including the `fs.deny` defaults this file never restates.
 import path from "node:path";
 import { isFileServingAllowed, resolveConfig, type ResolvedConfig } from "vite";
@@ -42,7 +42,7 @@ describe("dev server file exposure", () => {
 
   // `server/` is the app's auth wiring and tRPC procedure definitions, and
   // `drizzle/` is its schema. Neither leaks a credential, but together they are
-  // the map of which procedures a visitor can call without logging in â€” which
+  // the map of which procedures a visitor can call without logging in — which
   // is the one thing a share-link visitor would want them for. With Vite's
   // default fs.allow (the workspace root) every one of these returned true.
   it.each([
@@ -63,7 +63,7 @@ describe("dev server file exposure", () => {
 describe("dev server host validation", () => {
   // Vite defaults `allowedHosts` to `[]`, which 403s every Host that is not an
   // IP or localhost. Previews survive that default today only because the
-  // upstream proxy rewrites Host before the request lands here â€” an
+  // upstream proxy rewrites Host before the request lands here — an
   // implementation detail of infrastructure this repo does not own. Listing the
   // domains is what makes previews keep working the day it stops.
   it.each([

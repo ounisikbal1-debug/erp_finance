@@ -1,8 +1,8 @@
-﻿// â”€â”€ Import / Export : CSV, Excel (.xlsx) et PDF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Tout se fait cÃ´tÃ© navigateur : aucun serveur, aucun envoi de fichier.
-//  Â· CSV   â€” natif, sÃ©parateur Â« ; Â» (convention franÃ§aise) + BOM UTF-8
-//  Â· Excel â€” classeur .xlsx rÃ©el (SpreadsheetML), pas un CSV renommÃ©
-//  Â· PDF   â€” document imprimable mis en page, via la boÃ®te d'impression
+﻿// ── Import / Export : CSV, Excel (.xlsx) et PDF ──────────────────────────────
+// Tout se fait côté navigateur : aucun serveur, aucun envoi de fichier.
+//  · CSV   — natif, séparateur « ; » (convention française) + BOM UTF-8
+//  · Excel — classeur .xlsx réel (SpreadsheetML), pas un CSV renommé
+//  · PDF   — document imprimable mis en page, via la boîte d'impression
 import * as XLSX from "xlsx";
 
 export type Column<T> = {
@@ -10,9 +10,9 @@ export type Column<T> = {
   label: string;
   /** Valeur brute pour l'export (nombre, date ISO, texte). */
   value: (row: T) => string | number | null | undefined;
-  /** Valeur affichÃ©e dans le PDF (par dÃ©faut : la valeur brute). */
+  /** Valeur affichée dans le PDF (par défaut : la valeur brute). */
   display?: (row: T) => string;
-  /** Format numÃ©rique Excel. */
+  /** Format numérique Excel. */
   numFmt?: string;
 };
 
@@ -38,13 +38,13 @@ function cellText(v: string | number | null | undefined): string {
   return String(v);
 }
 
-/** Ã‰chappe une valeur pour le CSV (guillemets doublÃ©s, sÃ©parateur protÃ©gÃ©). */
+/** Échappe une valeur pour le CSV (guillemets doublés, séparateur protégé). */
 function csvCell(v: string | number | null | undefined): string {
   const s = cellText(v);
   return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
-// â”€â”€ Export CSV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Export CSV ───────────────────────────────────────────────────────────────
 export function exportCsv<T>(rows: T[], columns: Column<T>[], basename: string) {
   const head = columns.map((c) => csvCell(c.label)).join(";");
   const body = rows.map((r) => columns.map((c) => csvCell(c.value(r))).join(";")).join("\r\n");
@@ -53,8 +53,8 @@ export function exportCsv<T>(rows: T[], columns: Column<T>[], basename: string) 
   download(blob, `${basename}_${stamp()}.csv`);
 }
 
-// â”€â”€ Export Excel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export function exportExcel<T>(rows: T[], columns: Column<T>[], basename: string, sheetName = "DonnÃ©es") {
+// ── Export Excel ─────────────────────────────────────────────────────────────
+export function exportExcel<T>(rows: T[], columns: Column<T>[], basename: string, sheetName = "Données") {
   const aoa: (string | number)[][] = [columns.map((c) => c.label)];
   for (const r of rows) {
     aoa.push(
@@ -72,11 +72,11 @@ export function exportExcel<T>(rows: T[], columns: Column<T>[], basename: string
   download(new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${basename}_${stamp()}.xlsx`);
 }
 
-// â”€â”€ Export PDF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Export PDF ───────────────────────────────────────────────────────────────
 /**
- * Ouvre une fenÃªtre d'impression mise en page (A4 paysage, en-tÃªte sociÃ©tÃ©).
- * L'utilisateur choisit Â« Enregistrer au format PDF Â» : c'est le chemin qui
- * produit un vrai PDF sans dÃ©pendre d'une bibliothÃ¨que de rendu cÃ´tÃ© serveur.
+ * Ouvre une fenêtre d'impression mise en page (A4 paysage, en-tête société).
+ * L'utilisateur choisit « Enregistrer au format PDF » : c'est le chemin qui
+ * produit un vrai PDF sans dépendre d'une bibliothèque de rendu côté serveur.
  */
 export function exportPdf<T>(
   rows: T[],
@@ -126,13 +126,13 @@ export function exportPdf<T>(
   <div class="brand"><strong>${esc(opts.company ?? "ERP Tunisie")}</strong>${new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" })}</div>
 </header>
 <table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
-<footer><span>${esc(opts.footer ?? "")}</span><span>${rows.length} ligne(s) â€” montants en TND</span></footer>
+<footer><span>${esc(opts.footer ?? "")}</span><span>${rows.length} ligne(s) — montants en TND</span></footer>
 <script>window.onload=function(){setTimeout(function(){window.print();},250);};</script>
 </body></html>`;
 
   const w = window.open("", "_blank", "width=1100,height=800");
   if (!w) {
-    alert("Autorisez les fenÃªtres surgissantes pour gÃ©nÃ©rer le PDF.");
+    alert("Autorisez les fenêtres surgissantes pour générer le PDF.");
     return;
   }
   w.document.open();
@@ -140,10 +140,10 @@ export function exportPdf<T>(
   w.document.close();
 }
 
-// â”€â”€ Import CSV / Excel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Import CSV / Excel ───────────────────────────────────────────────────────
 export type ParsedSheet = { headers: string[]; rows: Record<string, string>[] };
 
-/** Lit un fichier CSV ou XLSX et renvoie des lignes indexÃ©es par en-tÃªte. */
+/** Lit un fichier CSV ou XLSX et renvoie des lignes indexées par en-tête. */
 export async function parseSpreadsheet(file: File): Promise<ParsedSheet> {
   const isExcel = /\.(xlsx|xls)$/i.test(file.name);
   let aoa: (string | number)[][];
@@ -219,7 +219,7 @@ function parseCsv(text: string, sep: string): string[][] {
   return out;
 }
 
-/** Convertit Â« 1 234,567 Â» ou Â« 1234.567 Â» en millimes. */
+/** Convertit « 1 234,567 » ou « 1234.567 » en millimes. */
 export function parseAmountToMillimes(raw: string): number {
   if (!raw) return 0;
   const cleaned = raw

@@ -1,6 +1,6 @@
 ﻿/**
- * Module de SÃ©curitÃ© & Verrou MatÃ©riel Hardware ID (HMAC-SHA256)
- * SAFE ERP - Protection Commerciale Officielle pour Satellites MÃ©tiers
+ * Module de Sécurité & Verrou Matériel Hardware ID (HMAC-SHA256)
+ * SAFE ERP - Protection Commerciale Officielle pour Satellites Métiers
  */
 import * as crypto from 'crypto';
 import * as os from 'os';
@@ -31,12 +31,12 @@ export function computeValidLicenseKey(hardwareId: string, expiryDate: string): 
 export function verifySatelliteLicense(licenseKey: string): { valid: boolean; hardwareId: string; message: string } {
   const hwId = getHardwareId();
   if (!licenseKey || !licenseKey.startsWith('SAFE-')) {
-    return { valid: false, hardwareId: hwId, message: 'Format de clÃ© de licence SAFE invalide.' };
+    return { valid: false, hardwareId: hwId, message: 'Format de clé de licence SAFE invalide.' };
   }
 
   const parts = licenseKey.trim().toUpperCase().split('-');
   if (parts.length !== 6) {
-    return { valid: false, hardwareId: hwId, message: 'Structure de licence incomplÃ¨te.' };
+    return { valid: false, hardwareId: hwId, message: 'Structure de licence incomplète.' };
   }
 
   const expStr = parts[1]; // YYYYMMDD
@@ -46,15 +46,15 @@ export function verifySatelliteLicense(licenseKey: string): { valid: boolean; ha
   const expiryDate = new Date(expYear, expMonth, expDay);
 
   if (expiryDate < new Date()) {
-    return { valid: false, hardwareId: hwId, message: `Licence expirÃ©e le ${expiryDate.toLocaleDateString('fr-FR')}.` };
+    return { valid: false, hardwareId: hwId, message: `Licence expirée le ${expiryDate.toLocaleDateString('fr-FR')}.` };
   }
 
   const expectedKey = computeValidLicenseKey(hwId, `${expStr.substring(0,4)}-${expStr.substring(4,6)}-${expStr.substring(6,8)}`);
   if (licenseKey.trim().toUpperCase() !== expectedKey) {
-    return { valid: false, hardwareId: hwId, message: `Licence non autorisÃ©e sur cette machine (${hwId}).` };
+    return { valid: false, hardwareId: hwId, message: `Licence non autorisée sur cette machine (${hwId}).` };
   }
 
-  return { valid: true, hardwareId: hwId, message: `Licence vÃ©rifiÃ©e et valide jusqu'au ${expiryDate.toLocaleDateString('fr-FR')}.` };
+  return { valid: true, hardwareId: hwId, message: `Licence vérifiée et valide jusqu'au ${expiryDate.toLocaleDateString('fr-FR')}.` };
 }
 
 

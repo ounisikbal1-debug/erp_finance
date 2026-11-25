@@ -1,11 +1,11 @@
 ﻿# -*- coding: utf-8 -*-
 """
 ================================================================================
-SAFE ERP - SUITE DE GESTION INTÃ‰GRÃ‰E TUNISIENNE (SERVEUR MASTER UNIQUE)
+SAFE ERP - SUITE DE GESTION INTÉGRÉE TUNISIENNE (SERVEUR MASTER UNIQUE)
 ================================================================================
 Un seul serveur pour toute la suite (Port 8000)
-Authentification unifiÃ©e RBAC, IdentitÃ© SAFE officielle, Normes SCE NC 01,
-Verrou matÃ©riel Hardware ID & HMAC-SHA256, Gestion des avoirs, Remise Ã  zÃ©ro.
+Authentification unifiée RBAC, Identité SAFE officielle, Normes SCE NC 01,
+Verrou matériel Hardware ID & HMAC-SHA256, Gestion des avoirs, Remise à zéro.
 ================================================================================
 """
 import os
@@ -28,8 +28,8 @@ from pydantic import BaseModel
 import uvicorn
 
 MODULE_CODE = "SAFE_ERP_SUITE"
-SUITE_TITLE = "SAFE ERP - Suite ComplÃ¨te"
-SUITE_SLOGAN = "SystÃ¨me d'Analyse FinanciÃ¨re des Entreprises - Suite de Gestion IntÃ©grÃ©e Tunisienne (SCE NC 01)"
+SUITE_TITLE = "SAFE ERP - Suite Complète"
+SUITE_SLOGAN = "Système d'Analyse Financière des Entreprises - Suite de Gestion Intégrée Tunisienne (SCE NC 01)"
 APP_PORT = 8000
 SECRET_SALT = b"SAFE_ERP_TUNISIE_2026_MASTER_HMAC_KEY_#991"
 
@@ -40,7 +40,7 @@ LICENSE_FILE = os.path.join(DATA_DIR, "license.dat")
 DB_FILE = os.path.join(DATA_DIR, "safe_erp_suite_master.db")
 
 # ==============================================================================
-# 1. VERROU MATÃ‰RIEL (HARDWARE ID) & LICENCES HMAC-SHA256
+# 1. VERROU MATÉRIEL (HARDWARE ID) & LICENCES HMAC-SHA256
 # ==============================================================================
 def get_hardware_id() -> str:
     raw = f"{uuid.getnode()}-{socket.gethostname()}-{sys.platform}".encode("utf-8")
@@ -57,11 +57,11 @@ def verify_license_key(key: str, hw_id: str) -> tuple[bool, str]:
     try:
         parts = key.strip().upper().split("-")
         if len(parts) != 6 or parts[0] != "SAFE":
-            return False, "Format de clÃ© invalide (Ex: SAFE-20271231-XXXX-XXXX-XXXX-XXXX)"
+            return False, "Format de clé invalide (Ex: SAFE-20271231-XXXX-XXXX-XXXX-XXXX)"
         exp_str = parts[1]
         exp_date = datetime.strptime(exp_str, "%Y%m%d").date()
         if exp_date < date.today():
-            return False, f"Licence expirÃ©e le {exp_date.isoformat()}"
+            return False, f"Licence expirée le {exp_date.isoformat()}"
         
         valid = False
         for mod in ["SAFE_ERP_GLOBAL", "NEGOCE", "SERVICES", "INDUSTRIE", "RESTAURATION", "TRANSPORT"]:
@@ -72,10 +72,10 @@ def verify_license_key(key: str, hw_id: str) -> tuple[bool, str]:
                 valid = True
                 break
         if not valid:
-            return False, "ClÃ© non valide pour ce PC (Hardware ID incompatible)"
+            return False, "Clé non valide pour ce PC (Hardware ID incompatible)"
         return True, exp_date.isoformat()
     except Exception:
-        return False, "ClÃ© corrompue"
+        return False, "Clé corrompue"
 
 def is_activated() -> tuple[bool, str, str]:
     hw_id = get_hardware_id()
@@ -89,7 +89,7 @@ def is_activated() -> tuple[bool, str, str]:
     return ok, hw_id, info
 
 # ==============================================================================
-# 2. BASE DE DONNÃ‰ES SQLITE SUITE MASTER & INITIALISATION DES TABLES
+# 2. BASE DE DONNÉES SQLITE SUITE MASTER & INITIALISATION DES TABLES
 # ==============================================================================
 def get_db():
     conn = sqlite3.connect(DB_FILE)
@@ -103,7 +103,7 @@ def init_db():
     conn = get_db()
     c = conn.cursor()
     
-    # 1. Utilisateurs & Authentification unifiÃ©e
+    # 1. Utilisateurs & Authentification unifiée
     c.execute("""
         CREATE TABLE IF NOT EXISTS utilisateurs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -114,7 +114,7 @@ def init_db():
         )
     """)
     
-    # 2. ParamÃ¨tres SociÃ©tÃ© (pour personnalisation de l'en-tÃªte factures/tickets)
+    # 2. Paramètres Société (pour personnalisation de l'en-tête factures/tickets)
     c.execute("""
         CREATE TABLE IF NOT EXISTS societe_config (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -129,7 +129,7 @@ def init_db():
         )
     """)
     
-    # 3. ParamÃ¨tres Fiscaux & RÃ©glementaires Modifiables
+    # 3. Paramètres Fiscaux & Réglementaires Modifiables
     c.execute("""
         CREATE TABLE IF NOT EXISTS parametres_fiscaux (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -146,7 +146,7 @@ def init_db():
         )
     """)
     
-    # 4. DÃ©pÃ´ts Multi-activitÃ©s (NÃ©goce & Industrie)
+    # 4. Dépôts Multi-activités (Négoce & Industrie)
     c.execute("""
         CREATE TABLE IF NOT EXISTS depots (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -157,7 +157,7 @@ def init_db():
         )
     """)
     
-    # 5. Articles NÃ©goce
+    # 5. Articles Négoce
     c.execute("""
         CREATE TABLE IF NOT EXISTS articles_negoce (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -171,7 +171,7 @@ def init_db():
         )
     """)
     
-    # 6. Factures & Avoirs NÃ©goce
+    # 6. Factures & Avoirs Négoce
     c.execute("""
         CREATE TABLE IF NOT EXISTS factures_negoce (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -205,13 +205,13 @@ def init_db():
         )
     """)
     
-    # 7. Industrie : Produits finis, matiÃ¨res & OF
+    # 7. Industrie : Produits finis, matières & OF
     c.execute("""
         CREATE TABLE IF NOT EXISTS produits_finis_industrie (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             code TEXT UNIQUE NOT NULL,
             designation TEXT NOT NULL,
-            unite TEXT DEFAULT 'PiÃ¨ce',
+            unite TEXT DEFAULT 'Pièce',
             depot_code TEXT DEFAULT 'DEP-USINE-01',
             stock_actuel REAL DEFAULT 0,
             cout_revient_std REAL DEFAULT 0,
@@ -325,7 +325,7 @@ def init_db():
         )
     """)
     
-    # 10. Grand Livre GÃ©nÃ©ral des Ã‰critures Comptables (SCE NC 01)
+    # 10. Grand Livre Général des Écritures Comptables (SCE NC 01)
     c.execute("""
         CREATE TABLE IF NOT EXISTS ecritures_comptables (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -347,21 +347,21 @@ def init_db():
     c.execute("SELECT COUNT(*) FROM utilisateurs")
     if c.fetchone()[0] == 0:
         users = [
-            ("admin", hash_pw("admin2026"), "Administrateur SystÃ¨me", "ADMIN"),
+            ("admin", hash_pw("admin2026"), "Administrateur Système", "ADMIN"),
             ("comptable", hash_pw("compta2026"), "Chef Comptable & Fiscaliste", "COMPTABLE"),
-            ("caisse", hash_pw("caisse2026"), "OpÃ©rateur Caisse & Ventes", "OPERATEUR")
+            ("caisse", hash_pw("caisse2026"), "Opérateur Caisse & Ventes", "OPERATEUR")
         ]
         c.executemany("INSERT INTO utilisateurs (username, password_hash, nom_complet, role) VALUES (?, ?, ?, ?)", users)
     
-    # SociÃ©tÃ© Config
+    # Société Config
     c.execute("SELECT COUNT(*) FROM societe_config")
     if c.fetchone()[0] == 0:
         c.execute("""
             INSERT INTO societe_config (raison_sociale, matricule_fiscal, registre_commerce, adresse, telephone, email, rib, devise)
-            VALUES ('SociÃ©tÃ© Tunisienne de Commerce & Industrie - STCI SARL', '1458923/B/M/000', 'B241582026', 'Zone Industrielle La Charguia II, 2035 Tunis', '+216 71 845 200 / +216 29 111 222', 'contact@stci-tunisie.com', 'BIAT 08 012 0001234567890 42', 'TND')
+            VALUES ('Société Tunisienne de Commerce & Industrie - STCI SARL', '1458923/B/M/000', 'B241582026', 'Zone Industrielle La Charguia II, 2035 Tunis', '+216 71 845 200 / +216 29 111 222', 'contact@stci-tunisie.com', 'BIAT 08 012 0001234567890 42', 'TND')
         """)
         
-    # ParamÃ¨tres Fiscaux Modifiables
+    # Paramètres Fiscaux Modifiables
     c.execute("SELECT COUNT(*) FROM parametres_fiscaux")
     if c.fetchone()[0] == 0:
         irpp_default = json.dumps([
@@ -376,43 +376,43 @@ def init_db():
             VALUES (19.0, 13.0, 7.0, 1.000, 1.5, 10.0, 9.68, 17.07, 0.5, ?)
         """, (irpp_default,))
         
-    # DÃ©pÃ´ts
+    # Dépôts
     c.execute("SELECT COUNT(*) FROM depots")
     if c.fetchone()[0] == 0:
         depots = [
-            ("DEP-TUNIS", "DÃ©pÃ´t Central Tunis Charguia", "M. Mehdi Gharbi", "NEGOCE"),
-            ("DEP-SFAX", "DÃ©pÃ´t RÃ©gional Sfax PoudriÃ¨re", "M. Karim Ben Salah", "NEGOCE"),
-            ("DEP-SOUSSE", "DÃ©pÃ´t Sahel Sousse Akouda", "Mme. Sonia Dridi", "NEGOCE"),
+            ("DEP-TUNIS", "Dépôt Central Tunis Charguia", "M. Mehdi Gharbi", "NEGOCE"),
+            ("DEP-SFAX", "Dépôt Régional Sfax Poudrière", "M. Karim Ben Salah", "NEGOCE"),
+            ("DEP-SOUSSE", "Dépôt Sahel Sousse Akouda", "Mme. Sonia Dridi", "NEGOCE"),
             ("DEP-USINE-01", "Atelier Injection Plastique", "M. Hichem Trabelsi", "INDUSTRIE"),
-            ("DEP-USINE-02", "Magasin MatiÃ¨res PremiÃ¨res", "M. Saber Mansour", "INDUSTRIE")
+            ("DEP-USINE-02", "Magasin Matières Premières", "M. Saber Mansour", "INDUSTRIE")
         ]
         c.executemany("INSERT INTO depots (code, nom, responsable, module_tag) VALUES (?, ?, ?, ?)", depots)
         
-    # Articles NÃ©goce
+    # Articles Négoce
     c.execute("SELECT COUNT(*) FROM articles_negoce")
     if c.fetchone()[0] == 0:
         arts = [
             ("ART-CLIM-12", "Climatiseur Split Inverter 12000 BTU", "DEP-TUNIS", 45.0, 920.000, 1350.000, 19.0),
-            ("ART-TV-55", "TÃ©lÃ©viseur Smart 4K 55 Pouces UHD", "DEP-TUNIS", 60.0, 780.000, 1180.000, 19.0),
-            ("ART-FRIGO-420", "RÃ©frigÃ©rateur No-Frost 420L Inox", "DEP-SFAX", 28.0, 1150.000, 1690.000, 19.0),
+            ("ART-TV-55", "Téléviseur Smart 4K 55 Pouces UHD", "DEP-TUNIS", 60.0, 780.000, 1180.000, 19.0),
+            ("ART-FRIGO-420", "Réfrigérateur No-Frost 420L Inox", "DEP-SFAX", 28.0, 1150.000, 1690.000, 19.0),
             ("ART-LAVE-08", "Lave-Linge Frontal 8 Kg Silver", "DEP-SOUSSE", 35.0, 650.000, 980.000, 19.0),
-            ("ART-FOUR-60", "Four Encastrable Ã‰lectrique 60cm", "DEP-TUNIS", 22.0, 480.000, 740.000, 19.0),
+            ("ART-FOUR-60", "Four Encastrable Électrique 60cm", "DEP-TUNIS", 22.0, 480.000, 740.000, 19.0),
         ]
         c.executemany("INSERT INTO articles_negoce (code, designation, depot_code, stock_actuel, cump, prix_vente_ht, taux_tva) VALUES (?, ?, ?, ?, ?, ?, ?)", arts)
         
-    # Produits & MatiÃ¨res Industrie
+    # Produits & Matières Industrie
     c.execute("SELECT COUNT(*) FROM produits_finis_industrie")
     if c.fetchone()[0] == 0:
         pfs = [
-            ("PF-CASIER-01", "Casier Plastique RenforcÃ© 24 Bouteilles", "PiÃ¨ce", "DEP-USINE-01", 380.0, 11.200, 18.500),
-            ("PF-BIDON-20", "Bidon 20 Litres QualitÃ© Chimique / Huile", "PiÃ¨ce", "DEP-USINE-01", 520.0, 7.800, 13.000),
-            ("PF-PALETTE-03", "Palette Plastique HygiÃ©nique 1200x800", "PiÃ¨ce", "DEP-USINE-01", 140.0, 38.500, 62.000),
+            ("PF-CASIER-01", "Casier Plastique Renforcé 24 Bouteilles", "Pièce", "DEP-USINE-01", 380.0, 11.200, 18.500),
+            ("PF-BIDON-20", "Bidon 20 Litres Qualité Chimique / Huile", "Pièce", "DEP-USINE-01", 520.0, 7.800, 13.000),
+            ("PF-PALETTE-03", "Palette Plastique Hygiénique 1200x800", "Pièce", "DEP-USINE-01", 140.0, 38.500, 62.000),
         ]
         c.executemany("INSERT INTO produits_finis_industrie (code, designation, unite, depot_code, stock_actuel, cout_revient_std, prix_vente_std) VALUES (?, ?, ?, ?, ?, ?, ?)", pfs)
         
         mats = [
-            ("MAT-PP-01", "GranulÃ©s PolypropylÃ¨ne Grade Injection", "KG", "DEP-USINE-02", 2400.0, 3.850, 500.0),
-            ("MAT-HDPE-02", "PolyÃ©thylÃ¨ne Haute DensitÃ© (PEHD)", "KG", "DEP-USINE-02", 1850.0, 4.100, 400.0),
+            ("MAT-PP-01", "Granulés Polypropylène Grade Injection", "KG", "DEP-USINE-02", 2400.0, 3.850, 500.0),
+            ("MAT-HDPE-02", "Polyéthylène Haute Densité (PEHD)", "KG", "DEP-USINE-02", 1850.0, 4.100, 400.0),
             ("MAT-COLOR-03", "Masterbatch Colorant Bleu Industrie", "KG", "DEP-USINE-02", 320.0, 12.500, 50.0),
             ("MAT-ADD-04", "Additif Stabilisant Anti-UV", "KG", "DEP-USINE-02", 180.0, 18.000, 30.0),
         ]
@@ -422,9 +422,9 @@ def init_db():
     c.execute("SELECT COUNT(*) FROM dossiers_missions")
     if c.fetchone()[0] == 0:
         missions = [
-            ("MIS-2026-001", "Audit LÃ©gal & Commissariat aux Comptes", "STB Bank (SiÃ¨ge Tunis)", "0012458/A/M/000", "Me. Karim Gharbi", 120, 85, 180.000, "EN_COURS"),
+            ("MIS-2026-001", "Audit Légal & Commissariat aux Comptes", "STB Bank (Siège Tunis)", "0012458/A/M/000", "Me. Karim Gharbi", 120, 85, 180.000, "EN_COURS"),
             ("MIS-2026-002", "Restructuration Fiscale & Holding", "Poulina Group Holding", "0145892/B/P/000", "Mme. Sonia Ben Amor", 80, 50, 220.000, "EN_COURS"),
-            ("MIS-2026-003", "Assistance Juridique & Contrats", "Orange Tunisie TÃ©lÃ©com", "0369852/D/P/000", "Me. Hichem Trabelsi", 40, 22, 250.000, "EN_COURS"),
+            ("MIS-2026-003", "Assistance Juridique & Contrats", "Orange Tunisie Télécom", "0369852/D/P/000", "Me. Hichem Trabelsi", 40, 22, 250.000, "EN_COURS"),
         ]
         c.executemany("INSERT INTO dossiers_missions (code, intitule, client_nom, client_mf, responsable, budget_heures, heures_consommees, taux_horaire, statut) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", missions)
 
@@ -447,56 +447,56 @@ def init_db():
         ]
         c.executemany("INSERT INTO tables_pos (numero, zone, capacite, statut) VALUES (?, ?, ?, ?)", tables)
         
-    # Catalogue Restauration MaximisÃ© (35+ Articles Authentiques Tunisiens)
+    # Catalogue Restauration Maximisé (35+ Articles Authentiques Tunisiens)
     c.execute("SELECT COUNT(*) FROM menu_pos")
     if c.fetchone()[0] == 0:
         menu_items = [
-            # PLATS TRADITIONNELS & SPÃ‰CIALITÃ‰S
-            ("PL-COUSC-AGN", "PLATS", "Couscous ImpÃ©rial Ã  l'Agneau & LÃ©gumes", 26.500, 7.0, "ðŸ²"),
-            ("PL-COUSC-MER", "PLATS", "Couscous au MÃ©rou Sauvage & Piments", 34.000, 7.0, "ðŸŸ"),
+            # PLATS TRADITIONNELS & SPÉCIALITÉS
+            ("PL-COUSC-AGN", "PLATS", "Couscous Impérial à l'Agneau & Légumes", 26.500, 7.0, "ðŸ²"),
+            ("PL-COUSC-MER", "PLATS", "Couscous au Mérou Sauvage & Piments", 34.000, 7.0, "ðŸŸ"),
             ("PL-OJJA-ROY", "PLATS", "Ojja Royale aux Merguez Artisanales", 18.500, 7.0, "ðŸ³"),
             ("PL-OJJA-FRM", "PLATS", "Ojja aux Crevettes & Fruits de Mer", 22.000, 7.0, "ðŸ¦"),
-            ("PL-LOUP-GRI", "PLATS", "Loup de Mer GrillÃ© & Salade Mechouia", 32.000, 7.0, "ðŸŸ"),
-            ("PL-DAUR-ROY", "PLATS", "Daurade Royale GrillÃ©e au Feu de Bois", 29.000, 7.0, "ðŸŸ"),
+            ("PL-LOUP-GRI", "PLATS", "Loup de Mer Grillé & Salade Mechouia", 32.000, 7.0, "ðŸŸ"),
+            ("PL-DAUR-ROY", "PLATS", "Daurade Royale Grillée au Feu de Bois", 29.000, 7.0, "ðŸŸ"),
             ("PL-GARG-AGN", "PLATS", "Gargoulette d'Agneau Traditionnelle", 35.000, 7.0, "ðŸº"),
-            ("PL-PATE-FRM", "PLATS", "PÃ¢tes Tunisiennes aux Fruits de Mer", 24.000, 7.0, "ðŸ"),
-            ("PL-ESCA-PAN", "PLATS", "Escalope de Dinde PanÃ©e & Frites Maison", 16.500, 7.0, "ðŸ—"),
-            ("PL-POUL-ROT", "PLATS", "Demi-Poulet RÃ´ti aux Ã‰pices de Djerba", 15.000, 7.0, "ðŸ—"),
-            ("PL-KAFT-FOI", "PLATS", "Plat Kafteji Tunisien avec Foie d'Agneau", 12.500, 7.0, "ðŸ¥˜"),
+            ("PL-PATE-FRM", "PLATS", "Pâtes Tunisiennes aux Fruits de Mer", 24.000, 7.0, "ðŸ"),
+            ("PL-ESCA-PAN", "PLATS", "Escalope de Dinde Panée & Frites Maison", 16.500, 7.0, "ðŸ—"),
+            ("PL-POUL-ROT", "PLATS", "Demi-Poulet Rôti aux Épices de Djerba", 15.000, 7.0, "ðŸ—"),
+            ("PL-KAFT-FOI", "PLATS", "Plat Kafteji Tunisien avec Foie d'Agneau", 12.500, 7.0, "🥘"),
             
-            # ENTRÃ‰ES & SALADES
-            ("EN-BRICK-THO", "ENTREES", "Brick au Thon & Oeuf Coulant Tradition", 6.500, 7.0, "ðŸ¥Ÿ"),
-            ("EN-BRICK-CRE", "ENTREES", "Brick aux Crevettes Royales & Fromage", 9.000, 7.0, "ðŸ¥Ÿ"),
-            ("EN-SAL-MECH", "ENTREES", "Salade Mechouia GrillÃ©e au Pilon", 8.000, 7.0, "ðŸ¥—"),
-            ("EN-SAL-TUN", "ENTREES", "Salade Tunisienne aux LÃ©gumes Frais", 6.000, 7.0, "ðŸ¥—"),
-            ("EN-SAL-POUL", "ENTREES", "Salade de Poulpe MarinÃ© Ã  l'Huile d'Olive", 14.500, 7.0, "ðŸ™"),
-            ("EN-DOIG-FAT", "ENTREES", "Assiette Doigts de Fatma (4 piÃ¨ces)", 7.500, 7.0, "ðŸ¥–"),
-            ("EN-TAJI-POU", "ENTREES", "Tajine Tunisien au Poulet & Fromage", 8.000, 7.0, "ðŸ¥§"),
+            # ENTRÉES & SALADES
+            ("EN-BRICK-THO", "ENTREES", "Brick au Thon & Oeuf Coulant Tradition", 6.500, 7.0, "🥟"),
+            ("EN-BRICK-CRE", "ENTREES", "Brick aux Crevettes Royales & Fromage", 9.000, 7.0, "🥟"),
+            ("EN-SAL-MECH", "ENTREES", "Salade Mechouia Grillée au Pilon", 8.000, 7.0, "🥗"),
+            ("EN-SAL-TUN", "ENTREES", "Salade Tunisienne aux Légumes Frais", 6.000, 7.0, "🥗"),
+            ("EN-SAL-POUL", "ENTREES", "Salade de Poulpe Mariné à l'Huile d'Olive", 14.500, 7.0, "ðŸ™"),
+            ("EN-DOIG-FAT", "ENTREES", "Assiette Doigts de Fatma (4 pièces)", 7.500, 7.0, "🥖"),
+            ("EN-TAJI-POU", "ENTREES", "Tajine Tunisien au Poulet & Fromage", 8.000, 7.0, "🥧"),
             
             # SANDWICHS & STREET FOOD
-            ("SW-CHAW-VEA", "SANDWICHS", "Sandwich Chawarma Veau MarinÃ© Maison", 8.500, 7.0, "ðŸ¥ª"),
-            ("SW-CHAP-MAH", "SANDWICHS", "Chapati Mahdia Artisanal Thon Oeuf Fromage", 6.500, 7.0, "ðŸ¥ª"),
-            ("SW-MLAW-THO", "SANDWICHS", "Mlawi FeuilletÃ© Thon Fromage Harissa", 5.500, 7.0, "ðŸŒ¯"),
-            ("SW-BAGU-FAR", "SANDWICHS", "Baguette Farcie au Four Poulet Fromage", 9.000, 7.0, "ðŸ¥–"),
+            ("SW-CHAW-VEA", "SANDWICHS", "Sandwich Chawarma Veau Mariné Maison", 8.500, 7.0, "🥪"),
+            ("SW-CHAP-MAH", "SANDWICHS", "Chapati Mahdia Artisanal Thon Oeuf Fromage", 6.500, 7.0, "🥪"),
+            ("SW-MLAW-THO", "SANDWICHS", "Mlawi Feuilleté Thon Fromage Harissa", 5.500, 7.0, "🌯"),
+            ("SW-BAGU-FAR", "SANDWICHS", "Baguette Farcie au Four Poulet Fromage", 9.000, 7.0, "🥖"),
             
-            # PÃ‚TISSERIES TUNISIENNES & DESSERTS
+            # PÂTISSERIES TUNISIENNES & DESSERTS
             ("DE-MAKR-KAI", "DESSERTS", "Assiette Makroudh Pur Miel de Kairouan", 7.000, 7.0, "ðŸ¯"),
-            ("DE-BAKL-FIN", "DESSERTS", "Assortiment Baklawa Fine aux Amandes", 9.500, 7.0, "ðŸ¥®"),
+            ("DE-BAKL-FIN", "DESSERTS", "Assortiment Baklawa Fine aux Amandes", 9.500, 7.0, "🥮"),
             ("DE-SAMS-NOI", "DESSERTS", "Samsa Tunisienne Croustillante Noisettes", 8.500, 7.0, "ðŸ“"),
-            ("DE-ASSI-ZGO", "DESSERTS", "Bol Assida Zgougou Royale Fruits Secs", 12.000, 7.0, "ðŸ¥£"),
+            ("DE-ASSI-ZGO", "DESSERTS", "Bol Assida Zgougou Royale Fruits Secs", 12.000, 7.0, "🥣"),
             ("DE-KAAK-WAR", "DESSERTS", "Kaak Warka Traditionnel de Zaghouan", 9.000, 7.0, "ðŸ©"),
             ("DE-GLAC-ART", "DESSERTS", "Coupe de Glace Artisanale (3 Boules)", 7.500, 7.0, "ðŸ¨"),
             ("DE-SALA-FRU", "DESSERTS", "Salade de Fruits Frais de Saison", 6.500, 7.0, "ðŸ‰"),
             
-            # BOISSONS CHAUDES & FRAÃŽCHES
-            ("BO-CITR-AMA", "BOISSONS", "Citronnade Tunisienne aux Amandes FraÃ®ches", 7.500, 7.0, "ðŸ‹"),
-            ("BO-THE-PIGN", "BOISSONS", "ThÃ© Rouge / Vert Ã  la Menthe & Pignons", 4.500, 7.0, "ðŸ«–"),
-            ("BO-CAFE-TUR", "BOISSONS", "CafÃ© Turc Ã  la Fleur d'Oranger (Zhr)", 4.000, 7.0, "â˜•"),
-            ("BO-ESPR-ITA", "BOISSONS", "Espresso Italien Pur Arabica", 3.200, 7.0, "â˜•"),
-            ("BO-DIRE-LAI", "BOISSONS", "CafÃ© Direct au Lait Frais", 3.800, 7.0, "ðŸ¥›"),
-            ("BO-JUS-ORAN", "BOISSONS", "Jus d'Orange PressÃ© Minute", 6.000, 7.0, "ðŸŠ"),
-            ("BO-BOGA-CID", "BOISSONS", "Soda Boga Cidre Tunisien 33cl", 3.000, 7.0, "ðŸ¥¤"),
-            ("BO-EAU-1500", "BOISSONS", "Bouteille Eau MinÃ©rale Safia 1.5L", 2.500, 7.0, "ðŸ’§"),
+            # BOISSONS CHAUDES & FRAÎCHES
+            ("BO-CITR-AMA", "BOISSONS", "Citronnade Tunisienne aux Amandes Fraîches", 7.500, 7.0, "ðŸ‹"),
+            ("BO-THE-PIGN", "BOISSONS", "Thé Rouge / Vert à la Menthe & Pignons", 4.500, 7.0, "🫖"),
+            ("BO-CAFE-TUR", "BOISSONS", "Café Turc à la Fleur d'Oranger (Zhr)", 4.000, 7.0, "☕"),
+            ("BO-ESPR-ITA", "BOISSONS", "Espresso Italien Pur Arabica", 3.200, 7.0, "☕"),
+            ("BO-DIRE-LAI", "BOISSONS", "Café Direct au Lait Frais", 3.800, 7.0, "🥛"),
+            ("BO-JUS-ORAN", "BOISSONS", "Jus d'Orange Pressé Minute", 6.000, 7.0, "ðŸŠ"),
+            ("BO-BOGA-CID", "BOISSONS", "Soda Boga Cidre Tunisien 33cl", 3.000, 7.0, "🥤"),
+            ("BO-EAU-1500", "BOISSONS", "Bouteille Eau Minérale Safia 1.5L", 2.500, 7.0, "💧"),
         ]
         c.executemany("INSERT INTO menu_pos (code, categorie, designation, prix_ttc, taux_tva, icone) VALUES (?, ?, ?, ?, ?, ?)", menu_items)
         
@@ -508,7 +508,7 @@ init_db()
 # ==============================================================================
 # 3. APPLICATION FASTAPI & ROUTAGE DES API
 # ==============================================================================
-app = FastAPI(title=f"{SUITE_TITLE} - Serveur UnifiÃ©")
+app = FastAPI(title=f"{SUITE_TITLE} - Serveur Unifié")
 
 app.add_middleware(
     CORSMiddleware,
@@ -518,7 +518,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- ModÃ¨les Pydantic pour requÃªtes ---
+# --- Modèles Pydantic pour requêtes ---
 class LoginReq(BaseModel):
     username: str
     password: str
@@ -550,7 +550,7 @@ class ResetDataReq(BaseModel):
 class ActivateLicenseReq(BaseModel):
     license_key: str
 
-# ----------------- 1. AUTHENTIFICATION UNIFIÃ‰E -----------------
+# ----------------- 1. AUTHENTIFICATION UNIFIÉE -----------------
 @app.post("/api/auth/login")
 def login(req: LoginReq):
     conn = get_db()
@@ -559,7 +559,7 @@ def login(req: LoginReq):
     row = c.fetchone()
     conn.close()
     if not row:
-        raise HTTPException(status_code=401, detail="Identifiants invalides (VÃ©rifiez nom d'utilisateur et mot de passe)")
+        raise HTTPException(status_code=401, detail="Identifiants invalides (Vérifiez nom d'utilisateur et mot de passe)")
     
     # Session token simple pour environnement local autonome
     token = f"SAFE_SESSION_{row['id']}_{int(time.time())}_{row['role']}"
@@ -574,7 +574,7 @@ def login(req: LoginReq):
         }
     }
 
-# ----------------- 2. PARAMÃˆTRES SOCIÃ‰TÃ‰ & EN-TÃŠTE -----------------
+# ----------------- 2. PARAMÈTRES SOCIÉTÉ & EN-TÊTE -----------------
 @app.get("/api/company")
 def get_company():
     conn = get_db()
@@ -593,9 +593,9 @@ def update_company(req: CompanyUpdateReq):
     """, (req.raison_sociale, req.matricule_fiscal, req.registre_commerce, req.adresse, req.telephone, req.email, req.rib))
     conn.commit()
     conn.close()
-    return {"success": True, "message": "En-tÃªte de sociÃ©tÃ© mis Ã  jour avec succÃ¨s"}
+    return {"success": True, "message": "En-tête de société mis à jour avec succès"}
 
-# ----------------- 3. PARAMÃˆTRES FISCAUX & RÃ‰GLEMENTAIRES -----------------
+# ----------------- 3. PARAMÈTRES FISCAUX & RÉGLEMENTAIRES -----------------
 @app.get("/api/fiscal-params")
 def get_fiscal_params():
     conn = get_db()
@@ -617,21 +617,21 @@ def update_fiscal_params(req: FiscalParamsReq):
           req.css_taux, req.irpp_bareme_json))
     conn.commit()
     conn.close()
-    return {"success": True, "message": "ParamÃ¨tres rÃ©glementaires mis Ã  jour"}
+    return {"success": True, "message": "Paramètres réglementaires mis à jour"}
 
-# ----------------- 4. RÃ‰INITIALISATION DONNÃ‰ES OPÃ‰RATIONNELLES (ADMIN ONLY) -----------------
+# ----------------- 4. RÉINITIALISATION DONNÉES OPÉRATIONNELLES (ADMIN ONLY) -----------------
 @app.post("/api/admin/reset-operational-data")
 def reset_operational_data(req: ResetDataReq):
     conn = get_db()
     c = conn.cursor()
-    # VÃ©rification mot de passe admin
+    # Vérification mot de passe admin
     c.execute("SELECT id FROM utilisateurs WHERE role='ADMIN' AND password_hash = ?", (hash_pw(req.admin_password.strip()),))
     admin_row = c.fetchone()
     if not admin_row:
         conn.close()
-        raise HTTPException(status_code=403, detail="Mot de passe Administrateur incorrect. Action refusÃ©e.")
+        raise HTTPException(status_code=403, detail="Mot de passe Administrateur incorrect. Action refusée.")
     
-    # Vidange des mouvements opÃ©rationnels
+    # Vidange des mouvements opérationnels
     c.execute("DELETE FROM factures_negoce")
     c.execute("DELETE FROM facture_lignes_negoce")
     c.execute("DELETE FROM notes_honoraires")
@@ -639,7 +639,7 @@ def reset_operational_data(req: ResetDataReq):
     c.execute("DELETE FROM ordres_fabrication")
     c.execute("DELETE FROM ecritures_comptables")
     
-    # Remise Ã  zÃ©ro des heures consommÃ©es missions et statut tables
+    # Remise à zéro des heures consommées missions et statut tables
     c.execute("UPDATE dossiers_missions SET heures_consommees = 0")
     c.execute("UPDATE tables_pos SET statut = 'LIBRE'")
     
@@ -647,10 +647,10 @@ def reset_operational_data(req: ResetDataReq):
     conn.close()
     return {
         "success": True,
-        "message": "RÃ©initialisation rÃ©ussie : toutes les factures, Ã©critures, tickets et mouvements ont Ã©tÃ© remis Ã  zÃ©ro pour un nouvel usage d'entreprise."
+        "message": "Réinitialisation réussie : toutes les factures, écritures, tickets et mouvements ont été remis à zéro pour un nouvel usage d'entreprise."
     }
 
-# ----------------- 5. NÃ‰GOCE : ARTICLES, DÃ‰PÃ”TS, FACTURES & AVOIRS -----------------
+# ----------------- 5. NÉGOCE : ARTICLES, DÉPÔTS, FACTURES & AVOIRS -----------------
 @app.get("/api/negoce/depots")
 def list_negoce_depots():
     conn = get_db()
@@ -672,7 +672,7 @@ def add_depot(req: AddDepotReq):
         conn.commit()
     except Exception as e:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce code de dÃ©pÃ´t existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Ce code de dépôt existe déjà")
     conn.close()
     return {"success": True}
 
@@ -711,7 +711,7 @@ def add_article_negoce(req: AddArticleNegoceReq):
         conn.commit()
     except Exception:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce code d'article existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Ce code d'article existe déjà")
     conn.close()
     return {"success": True}
 
@@ -756,7 +756,7 @@ def create_facture_negoce(req: CreateFactureNegoceReq):
     taux_tva = art["taux_tva"]
     montant_tva = round(montant_ht * (taux_tva / 100.0), 3)
     
-    # Retenue Ã  la source 1.5% si facture >= 1000 DT TTC
+    # Retenue à la source 1.5% si facture >= 1000 DT TTC
     ttc_brut = montant_ht + montant_tva + timbre
     taux_rs = 1.5 if ttc_brut >= 1000.0 else 0.0
     montant_rs = round(montant_ht * (taux_rs / 100.0), 3) if taux_rs > 0 else 0.0
@@ -778,7 +778,7 @@ def create_facture_negoce(req: CreateFactureNegoceReq):
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (numero, req.article_code, art["designation"], req.quantite, prix_ht, taux_tva, montant_ht))
     
-    # Si validÃ©e ferme : DÃ©crÃ©menter stock et gÃ©nÃ©rer Ã©criture comptable dÃ©finitive
+    # Si validée ferme : Décrémenter stock et générer écriture comptable définitive
     if statut == "VALIDEE":
         c.execute("UPDATE articles_negoce SET stock_actuel = stock_actuel - ? WHERE code = ?", (req.quantite, req.article_code))
         
@@ -786,11 +786,11 @@ def create_facture_negoce(req: CreateFactureNegoceReq):
             (today_str, "VT", numero, "411100", "Clients - Ventes Marchandises", f"{req.client_nom} - Facture {numero}", net_a_payer, 0.0),
         ]
         if montant_rs > 0:
-            ecritures.append((today_str, "VT", numero, "436500", "Ã‰tat - Retenue Ã  la source subie (1.5%)", f"RS 1.5% sur {numero}", montant_rs, 0.0))
+            ecritures.append((today_str, "VT", numero, "436500", "État - Retenue à la source subie (1.5%)", f"RS 1.5% sur {numero}", montant_rs, 0.0))
         ecritures.extend([
             (today_str, "VT", numero, "701000", "Ventes de Marchandises HT", f"Vente {art['designation']}", 0.0, montant_ht),
-            (today_str, "VT", numero, "436700", f"Ã‰tat - TVA CollectÃ©e ({taux_tva:.0f}%)", f"TVA sur {numero}", 0.0, montant_tva),
-            (today_str, "VT", numero, "437000", "Droits de Timbre Fiscal", "Timbre lÃ©gal 1.000 DT", 0.0, timbre),
+            (today_str, "VT", numero, "436700", f"État - TVA Collectée ({taux_tva:.0f}%)", f"TVA sur {numero}", 0.0, montant_tva),
+            (today_str, "VT", numero, "437000", "Droits de Timbre Fiscal", "Timbre légal 1.000 DT", 0.0, timbre),
         ])
         c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
     
@@ -806,7 +806,7 @@ def valider_facture_existante(numero: str):
     fac = c.execute("SELECT * FROM factures_negoce WHERE numero = ?", (numero,)).fetchone()
     if not fac or fac["statut"] != "BROUILLON":
         conn.close()
-        raise HTTPException(status_code=400, detail="Facture introuvable ou dÃ©jÃ  validÃ©e")
+        raise HTTPException(status_code=400, detail="Facture introuvable ou déjà validée")
     
     ligne = c.execute("SELECT * FROM facture_lignes_negoce WHERE facture_numero = ?", (numero,)).fetchone()
     new_num = f"FAC-2026-{fac['id']:04d}"
@@ -817,16 +817,16 @@ def valider_facture_existante(numero: str):
         c.execute("UPDATE facture_lignes_negoce SET facture_numero = ? WHERE facture_numero = ?", (new_num, numero))
         c.execute("UPDATE articles_negoce SET stock_actuel = stock_actuel - ? WHERE code = ?", (ligne["quantite"], ligne["article_code"]))
     
-    # Ã‰critures
+    # Écritures
     ecritures = [
         (today_str, "VT", new_num, "411100", "Clients - Ventes Marchandises", f"{fac['client_nom']} - Facture {new_num}", fac["net_a_payer"], 0.0),
     ]
     if fac["montant_rs"] > 0:
-        ecritures.append((today_str, "VT", new_num, "436500", "Ã‰tat - Retenue Ã  la source subie (1.5%)", f"RS 1.5% sur {new_num}", fac["montant_rs"], 0.0))
+        ecritures.append((today_str, "VT", new_num, "436500", "État - Retenue à la source subie (1.5%)", f"RS 1.5% sur {new_num}", fac["montant_rs"], 0.0))
     ecritures.extend([
         (today_str, "VT", new_num, "701000", "Ventes de Marchandises HT", f"Validation facture {new_num}", 0.0, fac["montant_ht"]),
-        (today_str, "VT", new_num, "436700", f"Ã‰tat - TVA CollectÃ©e ({fac['taux_tva']:.0f}%)", f"TVA sur {new_num}", 0.0, fac["montant_tva"]),
-        (today_str, "VT", new_num, "437000", "Droits de Timbre Fiscal", "Timbre lÃ©gal 1.000 DT", 0.0, fac["timbre_fiscal"]),
+        (today_str, "VT", new_num, "436700", f"État - TVA Collectée ({fac['taux_tva']:.0f}%)", f"TVA sur {new_num}", 0.0, fac["montant_tva"]),
+        (today_str, "VT", new_num, "437000", "Droits de Timbre Fiscal", "Timbre légal 1.000 DT", 0.0, fac["timbre_fiscal"]),
     ])
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
     
@@ -834,7 +834,7 @@ def valider_facture_existante(numero: str):
     conn.close()
     return {"success": True, "nouveau_numero": new_num}
 
-# Ã‰MISSION D'AVOIR NÃ‰GOCE
+# ÉMISSION D'AVOIR NÉGOCE
 @app.post("/api/negoce/factures/{numero}/avoir")
 def emettre_avoir_negoce(numero: str):
     conn = get_db()
@@ -842,31 +842,31 @@ def emettre_avoir_negoce(numero: str):
     fac = c.execute("SELECT * FROM factures_negoce WHERE numero = ?", (numero,)).fetchone()
     if not fac or fac["statut"] != "VALIDEE":
         conn.close()
-        raise HTTPException(status_code=400, detail="Seule une facture validÃ©e peut faire l'objet d'un avoir")
+        raise HTTPException(status_code=400, detail="Seule une facture validée peut faire l'objet d'un avoir")
     
     ligne = c.execute("SELECT * FROM facture_lignes_negoce WHERE facture_numero = ?", (numero,)).fetchone()
     num_seq = c.execute("SELECT COUNT(*) FROM factures_negoce WHERE type_piece='AVOIR'").fetchone()[0] + 1
     num_avoir = f"AV-2026-{num_seq:04d}"
     today_str = date.today().isoformat()
     
-    # CrÃ©ation facture d'avoir
+    # Création facture d'avoir
     c.execute("""
         INSERT INTO factures_negoce (numero, date_facture, type_piece, reference_origine, client_nom, client_mf, montant_ht, taux_tva, montant_tva, timbre_fiscal, taux_rs, montant_rs, net_a_payer, statut)
         VALUES (?, ?, 'AVOIR', ?, ?, ?, ?, ?, ?, 0.0, ?, ?, ?, 'AVOIR')
     """, (num_avoir, today_str, numero, fac["client_nom"], fac["client_mf"], fac["montant_ht"], fac["taux_tva"], fac["montant_tva"], fac["taux_rs"], fac["montant_rs"], fac["net_a_payer"]))
     
-    # RÃ©intÃ©gration en stock si article prÃ©sent
+    # Réintégration en stock si article présent
     if ligne:
         c.execute("UPDATE articles_negoce SET stock_actuel = stock_actuel + ? WHERE code = ?", (ligne["quantite"], ligne["article_code"]))
     
-    # Ã‰critures comptables d'avoir (InversÃ©es)
+    # Écritures comptables d'avoir (Inversées)
     ecritures = [
         (today_str, "VT", num_avoir, "701000", "Rabais, Remises & Retours sur Ventes", f"Avoir sur facture {numero}", fac["montant_ht"], 0.0),
-        (today_str, "VT", num_avoir, "436700", "Ã‰tat - TVA RÃ©gularisÃ©e sur Avoir", f"TVA restituÃ©e sur {num_avoir}", fac["montant_tva"], 0.0),
-        (today_str, "VT", num_avoir, "411100", "Clients - CrÃ©dit Avoir", f"{fac['client_nom']} - Avoir {num_avoir}", 0.0, fac["net_a_payer"]),
+        (today_str, "VT", num_avoir, "436700", "État - TVA Régularisée sur Avoir", f"TVA restituée sur {num_avoir}", fac["montant_tva"], 0.0),
+        (today_str, "VT", num_avoir, "411100", "Clients - Crédit Avoir", f"{fac['client_nom']} - Avoir {num_avoir}", 0.0, fac["net_a_payer"]),
     ]
     if fac["montant_rs"] > 0:
-        ecritures.append((today_str, "VT", num_avoir, "436500", "Ã‰tat - RS RÃ©gularisÃ©e", f"Annulation RS sur {num_avoir}", 0.0, fac["montant_rs"]))
+        ecritures.append((today_str, "VT", num_avoir, "436500", "État - RS Régularisée", f"Annulation RS sur {num_avoir}", 0.0, fac["montant_rs"]))
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
     
     conn.commit()
@@ -901,7 +901,7 @@ def add_mission(req: AddMissionReq):
         conn.commit()
     except Exception:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce code de mission existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Ce code de mission existe déjà")
     conn.close()
     return {"success": True}
 
@@ -946,9 +946,9 @@ def create_note_honoraires(req: CreateNoteHonorairesReq):
         
     ecritures = [
         (today_str, "VT", numero, "411100", "Clients - Prestations de Services", f"{req.client_nom} - Note {numero}", net, 0.0),
-        (today_str, "VT", numero, "436500", "Ã‰tat - Retenue Source subie (10%)", f"RS 10% sur {numero}", rs, 0.0),
+        (today_str, "VT", numero, "436500", "État - Retenue Source subie (10%)", f"RS 10% sur {numero}", rs, 0.0),
         (today_str, "VT", numero, "706000", "Prestations de services & Honoraires", req.description, 0.0, req.montant_ht),
-        (today_str, "VT", numero, "436700", f"Ã‰tat - TVA CollectÃ©e ({req.taux_tva:.0f}%)", f"TVA sur {numero}", 0.0, tva),
+        (today_str, "VT", numero, "436700", f"État - TVA Collectée ({req.taux_tva:.0f}%)", f"TVA sur {numero}", 0.0, tva),
         (today_str, "VT", numero, "437000", "Droits de Timbre Fiscal", "Timbre 1.000 DT", 0.0, timbre),
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
@@ -964,7 +964,7 @@ def emettre_avoir_services(numero: str):
     note = c.execute("SELECT * FROM notes_honoraires WHERE numero = ?", (numero,)).fetchone()
     if not note or note["statut"] != "VALIDEE":
         conn.close()
-        raise HTTPException(status_code=400, detail="Note d'honoraires introuvable ou dÃ©jÃ  annulÃ©e")
+        raise HTTPException(status_code=400, detail="Note d'honoraires introuvable ou déjà annulée")
     
     num_seq = c.execute("SELECT COUNT(*) FROM notes_honoraires WHERE type_piece='AVOIR'").fetchone()[0] + 1
     num_avoir = f"AV-HON-2026-{num_seq:04d}"
@@ -977,9 +977,9 @@ def emettre_avoir_services(numero: str):
     
     ecritures = [
         (today_str, "VT", num_avoir, "706000", "Prestations de services - Avoirs", f"Annulation note {numero}", note["montant_ht"], 0.0),
-        (today_str, "VT", num_avoir, "436700", "Ã‰tat - TVA sur Avoirs Honoraires", f"TVA restituÃ©e sur {num_avoir}", note["montant_tva"], 0.0),
-        (today_str, "VT", num_avoir, "411100", "Clients - CrÃ©dit Avoir Honoraires", f"Avoir {num_avoir}", 0.0, note["net_a_payer"]),
-        (today_str, "VT", num_avoir, "436500", "Ã‰tat - Annulation RS", f"Annulation RS 10%", 0.0, note["montant_rs"]),
+        (today_str, "VT", num_avoir, "436700", "État - TVA sur Avoirs Honoraires", f"TVA restituée sur {num_avoir}", note["montant_tva"], 0.0),
+        (today_str, "VT", num_avoir, "411100", "Clients - Crédit Avoir Honoraires", f"Avoir {num_avoir}", 0.0, note["net_a_payer"]),
+        (today_str, "VT", num_avoir, "436500", "État - Annulation RS", f"Annulation RS 10%", 0.0, note["montant_rs"]),
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
     
@@ -987,7 +987,7 @@ def emettre_avoir_services(numero: str):
     conn.close()
     return {"success": True, "numero_avoir": num_avoir}
 
-# ----------------- 7. INDUSTRIE : PRODUITS FINIS, MATIÃˆRES & OF -----------------
+# ----------------- 7. INDUSTRIE : PRODUITS FINIS, MATIÈRES & OF -----------------
 @app.get("/api/industrie/produits-finis")
 def list_produits_finis():
     conn = get_db()
@@ -998,7 +998,7 @@ def list_produits_finis():
 class AddProduitFiniReq(BaseModel):
     code: str
     designation: str
-    unite: str = "PiÃ¨ce"
+    unite: str = "Pièce"
     depot_code: str = "DEP-USINE-01"
     cout_revient_std: float
     prix_vente_std: float
@@ -1014,7 +1014,7 @@ def add_produit_fini(req: AddProduitFiniReq):
         conn.commit()
     except Exception:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce code de produit fini existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Ce code de produit fini existe déjà")
     conn.close()
     return {"success": True}
 
@@ -1053,7 +1053,7 @@ def add_matiere(req: AddMatiereReq):
         conn.commit()
     except Exception:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce code de matiÃ¨re existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Ce code de matière existe déjà")
     conn.close()
     return {"success": True}
 
@@ -1090,7 +1090,7 @@ def create_of(req: CreateOfReq):
     today_str = date.today().isoformat()
     cout_total = round(req.quantite_prevue * pf["cout_revient_std"], 3)
     
-    # IncrÃ©menter stock produit fini
+    # Incrémenter stock produit fini
     c.execute("UPDATE produits_finis_industrie SET stock_actuel = stock_actuel + ? WHERE code = ?", (req.quantite_prevue, req.produit_code))
     
     c.execute("""
@@ -1098,10 +1098,10 @@ def create_of(req: CreateOfReq):
         VALUES (?, ?, ?, ?, ?, ?, ?, 'CLOTURE')
     """, (numero, today_str, req.produit_code, pf["designation"], req.quantite_prevue, req.quantite_prevue, cout_total))
     
-    # Ã‰critures comptables industrielles
+    # Écritures comptables industrielles
     ecritures = [
         (today_str, "OD", numero, "355000", "Stocks Produits Finis Usine", f"Production {req.quantite_prevue} {pf['designation']}", cout_total, 0.0),
-        (today_str, "OD", numero, "713500", "Production StockÃ©e Produits Finis", f"ClÃ´ture atelier {numero}", 0.0, cout_total),
+        (today_str, "OD", numero, "713500", "Production Stockée Produits Finis", f"Clôture atelier {numero}", 0.0, cout_total),
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
     
@@ -1130,7 +1130,7 @@ def add_pos_table(req: AddTableReq):
         conn.commit()
     except Exception:
         conn.close()
-        raise HTTPException(status_code=400, detail="Cette table existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Cette table existe déjà")
     conn.close()
     return {"success": True}
 
@@ -1168,7 +1168,7 @@ def add_menu_item(req: AddMenuItemReq):
         conn.commit()
     except Exception:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce code d'article menu existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Ce code d'article menu existe déjà")
     conn.close()
     return {"success": True}
 
@@ -1228,12 +1228,12 @@ def create_pos_ticket(req: CreateTicketPosReq):
     """, (numero, today_str, req.table_numero, req.client_nom, req.client_mf, total_ht, total_tva, total_ttc, req.mode_reglement))
     
     cpt = "541000" if req.mode_reglement == "ESPECES" else "532000"
-    lib_cpt = "Caisse EspÃ¨ces POS" if req.mode_reglement == "ESPECES" else "Banque Cartes TPE"
+    lib_cpt = "Caisse Espèces POS" if req.mode_reglement == "ESPECES" else "Banque Cartes TPE"
     
     ecritures = [
         (today_str, "CA", numero, cpt, lib_cpt, f"Recette {req.table_numero}", total_ttc, 0.0),
         (today_str, "CA", numero, "707000", "Ventes Restauration & Boissons", f"Ticket {numero}", 0.0, total_ht),
-        (today_str, "CA", numero, "436700", "Ã‰tat - TVA CollectÃ©e Restauration (7%)", f"TVA {numero}", 0.0, total_tva),
+        (today_str, "CA", numero, "436700", "État - TVA Collectée Restauration (7%)", f"TVA {numero}", 0.0, total_tva),
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
     
@@ -1248,7 +1248,7 @@ def annuler_ticket_pos(numero: str):
     tck = c.execute("SELECT * FROM tickets_pos WHERE numero = ?", (numero,)).fetchone()
     if not tck or tck["statut"] != "PAYE":
         conn.close()
-        raise HTTPException(status_code=400, detail="Ticket introuvable ou dÃ©jÃ  annulÃ©")
+        raise HTTPException(status_code=400, detail="Ticket introuvable ou déjà annulé")
     
     num_avoir = f"AV-TCK-2026-{tck['id']:04d}"
     today_str = date.today().isoformat()
@@ -1259,11 +1259,11 @@ def annuler_ticket_pos(numero: str):
     """, (num_avoir, today_str, tck["table_numero"], tck["client_nom"], tck["client_mf"], tck["total_ht"], tck["total_tva"], tck["total_ttc"], tck["mode_reglement"]))
     
     cpt = "541000" if tck["mode_reglement"] == "ESPECES" else "532000"
-    lib_cpt = "Caisse EspÃ¨ces POS" if tck["mode_reglement"] == "ESPECES" else "Banque Cartes TPE"
+    lib_cpt = "Caisse Espèces POS" if tck["mode_reglement"] == "ESPECES" else "Banque Cartes TPE"
     
     ecritures = [
         (today_str, "CA", num_avoir, "707000", "Annulation Vente Restauration", f"Avoir {num_avoir}", tck["total_ht"], 0.0),
-        (today_str, "CA", num_avoir, "436700", "TVA RestituÃ©e Ticket", f"TVA Avoir {num_avoir}", tck["total_tva"], 0.0),
+        (today_str, "CA", num_avoir, "436700", "TVA Restituée Ticket", f"TVA Avoir {num_avoir}", tck["total_tva"], 0.0),
         (today_str, "CA", num_avoir, cpt, lib_cpt, f"Remboursement ticket {numero}", 0.0, tck["total_ttc"]),
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
@@ -1272,7 +1272,7 @@ def annuler_ticket_pos(numero: str):
     conn.close()
     return {"success": True, "numero_avoir": num_avoir}
 
-# ----------------- 9. GRAND LIVRE & COMPTABILITÃ‰ (SCE NC 01) -----------------
+# ----------------- 9. GRAND LIVRE & COMPTABILITÉ (SCE NC 01) -----------------
 @app.get("/api/compta/grand-livre")
 def get_grand_livre():
     conn = get_db()
@@ -1280,7 +1280,7 @@ def get_grand_livre():
     conn.close()
     return [dict(r) for r in rows]
 
-# ----------------- 10. GESTION DES LICENCES & STATUT SYSTÃˆME -----------------
+# ----------------- 10. GESTION DES LICENCES & STATUT SYSTÈME -----------------
 @app.get("/api/license/status")
 def license_status():
     ok, hw_id, info = is_activated()
@@ -1290,7 +1290,7 @@ def license_status():
         "suite_title": SUITE_TITLE,
         "hardware_id": hw_id,
         "info": info,
-        "devise": "TND (3 dÃ©cimales)",
+        "devise": "TND (3 décimales)",
         "norme": "SCE NC 01"
     }
 
@@ -1305,19 +1305,19 @@ def activate_license(req: ActivateLicenseReq):
     return {"activated": True, "expiration": info}
 
 # ==============================================================================
-# 4. INTERFACE GRAPHIQUE UNIFIÃ‰E SPA (HTML5 / CSS3 / JAVASCRIPT REACTIF)
+# 4. INTERFACE GRAPHIQUE UNIFIÉE SPA (HTML5 / CSS3 / JAVASCRIPT REACTIF)
 # ==============================================================================
 @app.get("/", response_class=HTMLResponse)
 def index_page():
     ok, hw_id, info = is_activated()
-    status_badge = '<span class="badge bg-success">Licence Active</span>' if ok else f'<span class="badge bg-danger">Non ActivÃ©: {info}</span>'
+    status_badge = '<span class="badge bg-success">Licence Active</span>' if ok else f'<span class="badge bg-danger">Non Activé: {info}</span>'
     
     html_content = """<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAFE ERP - Suite IntÃ©grÃ©e Tunisienne</title>
+    <title>SAFE ERP - Suite Intégrée Tunisienne</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {{
@@ -1354,7 +1354,7 @@ def index_page():
     </style>
 </head>
 <body>
-    <!-- 1. EN-TÃŠTE UNIFIÃ‰ OFFICIEL SAFE ERP -->
+    <!-- 1. EN-TÊTE UNIFIÉ OFFICIEL SAFE ERP -->
     <nav class="navbar navbar-safe sticky-top py-2 shadow-sm text-white">
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <!-- Logo officiel, Nom & Slogan -->
@@ -1371,37 +1371,35 @@ def index_page():
                 </div>
             </div>
 
-            <!-- Badges & Profil Utilisateur & Bouton DÃ©connexion (Sortie) -->
+            <!-- Badges & Profil Utilisateur & Bouton Déconnexion -->
             <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-danger-subtle text-danger border border-danger">ðŸ‡¹ðŸ‡³ TND (3 dÃ©c.) | TVA 19/13/7% | Timbre 1.000 DT | SCE NC 01</span>
-                <span class="badge bg-secondary font-monospace" title="Hardware ID machine">{hw_id}</span>
-                {status_badge}
+                <span class="badge bg-danger-subtle text-danger border border-danger">🇹🇳 TND (3 déc.) | TVA 19/13/7% | Timbre 1.000 DT | SCE NC 01</span>
                 
-                <!-- IdentitÃ© utilisateur connectÃ© -->
+                <!-- Identité utilisateur connecté -->
                 <div class="bg-dark px-2 py-1 rounded border border-secondary text-end d-flex align-items-center gap-2">
                     <div style="font-size:0.75rem;">
                         <div class="fw-bold text-white" id="user-display-name">Administrateur</div>
                         <div class="text-warning fw-bold" style="font-size:0.65rem;" id="user-display-role">ADMIN</div>
                     </div>
-                    <!-- BOUTON DE DÃ‰CONNEXION (SORTIE) - EXIGENCE 1 -->
+                    <!-- BOUTON DE DÉCONNEXION -->
                     <button class="btn btn-outline-danger btn-sm py-1 px-2 fw-bold" onclick="logout()" title="Quitter et verrouiller la session">
-                        ðŸšª Sortie
+                        🚪 Déconnexion
                     </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- BARRE D'ONGLETS UNIFIÃ‰E -->
+    <!-- BARRE D'ONGLETS UNIFIÉE -->
     <div class="bg-white border-bottom shadow-sm px-3 py-2 sticky-top" style="top:54px; z-index:1020;">
         <ul class="nav nav-pills gap-1" id="pills-tab" role="tablist">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-negoce">ðŸ›’ NÃ©goce & Facturation</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-services">ðŸ’¼ Services & Cabinets</button></li>
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-negoce">🛒 Négoce & Facturation</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-services">💼 Services & Cabinets</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-industrie">âš™ï¸ Industrie & GPAO</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-pos">ðŸ½ï¸ Restauration & Caisse POS</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-compta">âš–ï¸ Grand Livre (SCE NC 01)</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-company">ðŸ¢ ParamÃ¨tres SociÃ©tÃ© (En-tÃªte)</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-fiscal">âš™ï¸ FiscalitÃ© & RÃ©glementation</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-company">ðŸ¢ Paramètres Société (En-tête)</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-fiscal">âš™ï¸ Fiscalité & Réglementation</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-admin">ðŸ›¡ï¸ Administration & Reset</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-license">ðŸ” Licence & HW-ID</button></li>
         </ul>
@@ -1412,7 +1410,7 @@ def index_page():
         <div class="tab-content" id="pills-tabContent">
             
             <!-- =============================================================== -->
-            <!-- 1. NÃ‰GOCE & FACTURATION                                         -->
+            <!-- 1. NÉGOCE & FACTURATION                                         -->
             <!-- =============================================================== -->
             <div class="tab-pane fade show active" id="tab-negoce">
                 <div class="row g-3">
@@ -1420,14 +1418,14 @@ def index_page():
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <span>Nouvelle Facture de Vente Marchandises</span>
-                                <span class="badge bg-primary">Facturation & DÃ©stockage CUMP</span>
+                                <span class="badge bg-primary">Facturation & Déstockage CUMP</span>
                             </div>
                             <div class="card-body">
                                 <form id="form-facture-negoce">
                                     <div class="row g-2 mb-2">
                                         <div class="col-md-7">
                                             <label class="form-label fw-bold">Client (Raison Sociale) :</label>
-                                            <input type="text" class="form-control form-control-sm" id="neg-client-nom" value="SociÃ©tÃ© Plasturgie du Cap Bon" required>
+                                            <input type="text" class="form-control form-control-sm" id="neg-client-nom" value="Société Plasturgie du Cap Bon" required>
                                         </div>
                                         <div class="col-md-5">
                                             <label class="form-label fw-bold">Matricule Fiscal Client :</label>
@@ -1442,7 +1440,7 @@ def index_page():
                                             </select>
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label fw-bold">QuantitÃ© :</label>
+                                            <label class="form-label fw-bold">Quantité :</label>
                                             <input type="number" step="1" min="1" class="form-control form-control-sm" id="neg-qte" value="2" required oninput="calcNegocePreview()">
                                         </div>
                                         <div class="col-md-2">
@@ -1451,13 +1449,13 @@ def index_page():
                                         </div>
                                     </div>
 
-                                    <!-- DEUX BOUTONS SÃ‰PARÃ‰S : COMPTABILISATION (1) & VALIDATION (2) - EXIGENCE 6 -->
+                                    <!-- DEUX BOUTONS SÉPARÉS : COMPTABILISATION (1) & VALIDATION (2) - EXIGENCE 6 -->
                                     <div class="d-flex gap-2 mt-3">
                                         <button type="button" class="btn btn-outline-primary btn-sm w-50 fw-bold" onclick="submitNegoceFacture('COMPTABILISER')">
                                             ðŸ“ 1. Comptabiliser (Brouillon Provisoire)
                                         </button>
                                         <button type="button" class="btn btn-primary btn-sm w-50 fw-bold" onclick="submitNegoceFacture('VALIDER')">
-                                            ðŸ”’ 2. Valider Facture (Ferme & DÃ©finitive)
+                                            🔒 2. Valider Facture (Ferme & Définitive)
                                         </button>
                                     </div>
                                 </form>
@@ -1468,20 +1466,20 @@ def index_page():
                         <!-- HISTORIQUE COMPLET DES FACTURES & AVOIRS - EXIGENCE 6 -->
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <span>Journal des Factures & Avoirs Ã‰mis</span>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="loadNegoceFactures()">ðŸ”„ Actualiser</button>
+                                <span>Journal des Factures & Avoirs Émis</span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="loadNegoceFactures()">🔄 Actualiser</button>
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
                                     <table class="table table-sm table-striped table-custom mb-0">
                                         <thead>
                                             <tr>
-                                                <th>NumÃ©ro</th>
+                                                <th>Numéro</th>
                                                 <th>Date</th>
                                                 <th>Client (MF)</th>
                                                 <th>Montant HT</th>
                                                 <th>TVA (19%)</th>
-                                                <th>Net Ã  Payer</th>
+                                                <th>Net à Payer</th>
                                                 <th>Statut</th>
                                                 <th>Actions</th>
                                             </tr>
@@ -1494,18 +1492,18 @@ def index_page():
                             </div>
                         </div>
 
-                        <!-- GESTION DES ARTICLES & DÃ‰PÃ”TS (CRUD) - EXIGENCE 6 -->
+                        <!-- GESTION DES ARTICLES & DÉPÔTS (CRUD) - EXIGENCE 6 -->
                         <div class="row g-2 mt-1">
                             <div class="col-md-7">
                                 <div class="card">
                                     <div class="card-header d-flex justify-content-between align-items-center">
-                                        <span>Catalogue Articles NÃ©goce</span>
+                                        <span>Catalogue Articles Négoce</span>
                                         <button class="btn btn-xs btn-primary py-0" data-bs-toggle="collapse" data-bs-target="#add-art-form">+ Ajouter Article</button>
                                     </div>
                                     <div class="collapse p-2 bg-light border-bottom" id="add-art-form">
                                         <div class="row g-2">
                                             <div class="col-4"><input type="text" class="form-control form-control-sm" placeholder="Code (Ex: ART-01)" id="new-art-code"></div>
-                                            <div class="col-8"><input type="text" class="form-control form-control-sm" placeholder="DÃ©signation" id="new-art-nom"></div>
+                                            <div class="col-8"><input type="text" class="form-control form-control-sm" placeholder="Désignation" id="new-art-nom"></div>
                                             <div class="col-4">
                                                 <select class="form-select form-select-sm" id="new-art-depot">
                                                     <!-- Dynamique -->
@@ -1514,11 +1512,11 @@ def index_page():
                                             <div class="col-4"><input type="number" step="0.001" class="form-control form-control-sm" placeholder="CUMP (TND)" id="new-art-cump"></div>
                                             <div class="col-4"><input type="number" step="0.001" class="form-control form-control-sm" placeholder="Prix Vente HT" id="new-art-prix"></div>
                                         </div>
-                                        <button class="btn btn-success btn-sm mt-2 w-100" onclick="saveNewArticle()">ðŸ’¾ Enregistrer l'Article</button>
+                                        <button class="btn btn-success btn-sm mt-2 w-100" onclick="saveNewArticle()">💾 Enregistrer l'Article</button>
                                     </div>
                                     <div class="card-body p-0" style="max-height: 200px; overflow-y: auto;">
                                         <table class="table table-sm table-striped table-custom mb-0">
-                                            <thead><tr><th>Code</th><th>DÃ©signation</th><th>Stock</th><th>Prix HT</th><th>Action</th></tr></thead>
+                                            <thead><tr><th>Code</th><th>Désignation</th><th>Stock</th><th>Prix HT</th><th>Action</th></tr></thead>
                                             <tbody id="negoce-articles-crud-body"></tbody>
                                         </table>
                                     </div>
@@ -1528,14 +1526,14 @@ def index_page():
                             <div class="col-md-5">
                                 <div class="card">
                                     <div class="card-header d-flex justify-content-between align-items-center">
-                                        <span>DÃ©pÃ´ts & Magasins</span>
-                                        <button class="btn btn-xs btn-primary py-0" data-bs-toggle="collapse" data-bs-target="#add-depot-form">+ DÃ©pÃ´t</button>
+                                        <span>Dépôts & Magasins</span>
+                                        <button class="btn btn-xs btn-primary py-0" data-bs-toggle="collapse" data-bs-target="#add-depot-form">+ Dépôt</button>
                                     </div>
                                     <div class="collapse p-2 bg-light border-bottom" id="add-depot-form">
                                         <input type="text" class="form-control form-control-sm mb-1" placeholder="Code (Ex: DEP-NORD)" id="new-depot-code">
-                                        <input type="text" class="form-control form-control-sm mb-1" placeholder="Nom du DÃ©pÃ´t" id="new-depot-nom">
+                                        <input type="text" class="form-control form-control-sm mb-1" placeholder="Nom du Dépôt" id="new-depot-nom">
                                         <input type="text" class="form-control form-control-sm mb-1" placeholder="Responsable" id="new-depot-resp">
-                                        <button class="btn btn-success btn-sm w-100" onclick="saveNewDepot()">ðŸ’¾ CrÃ©er DÃ©pÃ´t</button>
+                                        <button class="btn btn-success btn-sm w-100" onclick="saveNewDepot()">💾 Créer Dépôt</button>
                                     </div>
                                     <div class="card-body p-0" style="max-height: 200px; overflow-y: auto;">
                                         <table class="table table-sm table-striped table-custom mb-0">
@@ -1548,28 +1546,28 @@ def index_page():
                         </div>
                     </div>
 
-                    <!-- APERÃ‡U FISCAL & Ã‰CRITURES COMPTABLES EN DIRECT -->
+                    <!-- APERÇU FISCAL & ÉCRITURES COMPTABLES EN DIRECT -->
                     <div class="col-lg-5">
                         <div class="card mb-3 p-3 bg-light border-primary">
-                            <h6 class="fw-bold text-primary mb-2">ðŸ“‹ Simulation Fiscale & Encaissement</h6>
+                            <h6 class="fw-bold text-primary mb-2">📋 Simulation Fiscale & Encaissement</h6>
                             <table class="table table-sm table-borderless mb-0" style="font-size:0.8rem;">
                                 <tr><td>Montant HT Net :</td><td class="text-end fw-bold" id="prev-neg-ht">0.000 DT</td></tr>
                                 <tr><td>TVA (19%) :</td><td class="text-end fw-bold" id="prev-neg-tva">0.000 DT</td></tr>
                                 <tr><td>Droit de Timbre Fiscal :</td><td class="text-end fw-bold">1.000 DT</td></tr>
                                 <tr class="border-top"><td>Total TTC Facture :</td><td class="text-end fw-bold text-dark" id="prev-neg-ttc">0.000 DT</td></tr>
                                 <tr><td class="text-danger">Retenue Source (1.5%) :</td><td class="text-end fw-bold text-danger" id="prev-neg-rs">- 0.000 DT</td></tr>
-                                <tr class="border-top table-success"><td><strong>Net Client Ã  Payer :</strong></td><td class="text-end fw-bold text-success" id="prev-neg-net">0.000 DT</td></tr>
+                                <tr class="border-top table-success"><td><strong>Net Client à Payer :</strong></td><td class="text-end fw-bold text-success" id="prev-neg-net">0.000 DT</td></tr>
                             </table>
                         </div>
 
                         <div class="card">
                             <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                                <span>Ã‰criture Comptable en Direct (Journal VT)</span>
+                                <span>Écriture Comptable en Direct (Journal VT)</span>
                                 <span class="badge bg-success">SCE NC 01</span>
                             </div>
                             <div class="card-body p-0">
                                 <table class="table table-sm table-custom mb-0 font-monospace" style="font-size:0.75rem;">
-                                    <thead><tr><th>Compte</th><th>LibellÃ©</th><th class="text-end">DÃ©bit</th><th class="text-end">CrÃ©dit</th></tr></thead>
+                                    <thead><tr><th>Compte</th><th>Libellé</th><th class="text-end">Débit</th><th class="text-end">Crédit</th></tr></thead>
                                     <tbody id="live-negoce-ecriture-body"></tbody>
                                 </table>
                             </div>
@@ -1587,14 +1585,14 @@ def index_page():
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <span>Note d'Honoraires & Prestations Intellectuelles</span>
-                                <span class="badge bg-primary">RS LÃ©gale 10% Subie</span>
+                                <span class="badge bg-primary">RS Légale 10% Subie</span>
                             </div>
                             <div class="card-body">
                                 <form id="form-note-services">
                                     <div class="row g-2 mb-2">
                                         <div class="col-md-7">
                                             <label class="form-label fw-bold">Client Cabinet :</label>
-                                            <input type="text" class="form-control form-control-sm" id="serv-client-nom" value="STB Bank (SiÃ¨ge Tunis)" required>
+                                            <input type="text" class="form-control form-control-sm" id="serv-client-nom" value="STB Bank (Siège Tunis)" required>
                                         </div>
                                         <div class="col-md-5">
                                             <label class="form-label fw-bold">Matricule Fiscal :</label>
@@ -1615,9 +1613,9 @@ def index_page():
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label fw-bold">Description de la prestation :</label>
-                                        <input type="text" class="form-control form-control-sm" id="serv-desc" value="Audit contractuel et assistance lÃ©gale" required>
+                                        <input type="text" class="form-control form-control-sm" id="serv-desc" value="Audit contractuel et assistance légale" required>
                                     </div>
-                                    <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold">ðŸ’¾ Ã‰mettre la Note d'Honoraires (RS 10% DÃ©duite)</button>
+                                    <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold">💾 Émettre la Note d'Honoraires (RS 10% Déduite)</button>
                                 </form>
                             </div>
                         </div>
@@ -1630,12 +1628,12 @@ def index_page():
                                     <table class="table table-sm table-striped table-custom mb-0">
                                         <thead>
                                             <tr>
-                                                <th>NumÃ©ro</th>
+                                                <th>Numéro</th>
                                                 <th>Date</th>
                                                 <th>Client</th>
                                                 <th>Montant HT</th>
                                                 <th>RS (10%)</th>
-                                                <th>Net Ã  Percevoir</th>
+                                                <th>Net à Percevoir</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -1655,14 +1653,14 @@ def index_page():
                             </div>
                             <div class="collapse p-2 bg-light border-bottom" id="add-mission-form">
                                 <input type="text" class="form-control form-control-sm mb-1" placeholder="Code (Ex: MIS-2026-005)" id="new-mis-code">
-                                <input type="text" class="form-control form-control-sm mb-1" placeholder="IntitulÃ© de la Mission" id="new-mis-nom">
+                                <input type="text" class="form-control form-control-sm mb-1" placeholder="Intitulé de la Mission" id="new-mis-nom">
                                 <input type="text" class="form-control form-control-sm mb-1" placeholder="Client" id="new-mis-client">
                                 <input type="text" class="form-control form-control-sm mb-1" placeholder="Responsable (Ex: Me. Karim)" id="new-mis-resp">
-                                <button class="btn btn-success btn-sm w-100" onclick="saveNewMission()">ðŸ’¾ CrÃ©er Mission</button>
+                                <button class="btn btn-success btn-sm w-100" onclick="saveNewMission()">💾 Créer Mission</button>
                             </div>
                             <div class="card-body p-0">
                                 <table class="table table-sm table-striped table-custom mb-0">
-                                    <thead><tr><th>Code</th><th>IntitulÃ©</th><th>Responsable</th><th>Taux/h</th></tr></thead>
+                                    <thead><tr><th>Code</th><th>Intitulé</th><th>Responsable</th><th>Taux/h</th></tr></thead>
                                     <tbody id="serv-missions-body"></tbody>
                                 </table>
                             </div>
@@ -1672,7 +1670,7 @@ def index_page():
             </div>
 
             <!-- =============================================================== -->
-            <!-- 3. INDUSTRIE & GPAO (PRODUITS FINIS, MATIÃˆRES, OF) - EXIGENCE 7 -->
+            <!-- 3. INDUSTRIE & GPAO (PRODUITS FINIS, MATIÈRES, OF) - EXIGENCE 7 -->
             <!-- =============================================================== -->
             <div class="tab-pane fade" id="tab-industrie">
                 <div class="row g-3">
@@ -1680,40 +1678,40 @@ def index_page():
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <span>Lancement & Fabrication Atelier (OF)</span>
-                                <span class="badge bg-warning text-dark">DÃ©stockage MatiÃ¨res CUMP</span>
+                                <span class="badge bg-warning text-dark">Déstockage Matières CUMP</span>
                             </div>
                             <div class="card-body">
                                 <form id="form-of-ind">
                                     <div class="row g-2 mb-2">
                                         <div class="col-md-8">
-                                            <label class="form-label fw-bold">Produit Fini Ã  Fabriquer :</label>
+                                            <label class="form-label fw-bold">Produit Fini à Fabriquer :</label>
                                             <select class="form-select form-select-sm" id="ind-pf-select" required>
                                                 <!-- Dynamique -->
                                             </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <label class="form-label fw-bold">QuantitÃ© :</label>
+                                            <label class="form-label fw-bold">Quantité :</label>
                                             <input type="number" step="1" min="1" class="form-control form-control-sm" id="ind-qte" value="100" required>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-warning btn-sm w-100 fw-bold">ðŸš€ Lancer & ClÃ´turer l'OF</button>
+                                    <button type="submit" class="btn btn-warning btn-sm w-100 fw-bold">🚀 Lancer & Clôturer l'OF</button>
                                 </form>
                             </div>
                         </div>
 
                         <!-- HISTORIQUE OF -->
                         <div class="card">
-                            <div class="card-header">Ordres de Fabrication RÃ©alisÃ©s</div>
+                            <div class="card-header">Ordres de Fabrication Réalisés</div>
                             <div class="card-body p-0">
                                 <table class="table table-sm table-striped table-custom mb-0">
-                                    <thead><tr><th>OF NumÃ©ro</th><th>Date</th><th>Produit</th><th>QuantitÃ©</th><th>CoÃ»t Total</th></tr></thead>
+                                    <thead><tr><th>OF Numéro</th><th>Date</th><th>Produit</th><th>Quantité</th><th>Coût Total</th></tr></thead>
                                     <tbody id="ind-ofs-body"></tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
 
-                    <!-- GESTION PRODUITS FINIS & MATIÃˆRES PREMIÃˆRES (CRUD) - EXIGENCE 7 -->
+                    <!-- GESTION PRODUITS FINIS & MATIÈRES PREMIÈRES (CRUD) - EXIGENCE 7 -->
                     <div class="col-lg-5">
                         <div class="card mb-3">
                             <div class="card-header d-flex justify-content-between align-items-center">
@@ -1722,16 +1720,16 @@ def index_page():
                             </div>
                             <div class="collapse p-2 bg-light border-bottom" id="add-pf-form">
                                 <input type="text" class="form-control form-control-sm mb-1" placeholder="Code (Ex: PF-01)" id="new-pf-code">
-                                <input type="text" class="form-control form-control-sm mb-1" placeholder="DÃ©signation" id="new-pf-nom">
+                                <input type="text" class="form-control form-control-sm mb-1" placeholder="Désignation" id="new-pf-nom">
                                 <div class="row g-1">
-                                    <div class="col-6"><input type="number" step="0.001" class="form-control form-control-sm" placeholder="CoÃ»t Revient (TND)" id="new-pf-cout"></div>
+                                    <div class="col-6"><input type="number" step="0.001" class="form-control form-control-sm" placeholder="Coût Revient (TND)" id="new-pf-cout"></div>
                                     <div class="col-6"><input type="number" step="0.001" class="form-control form-control-sm" placeholder="Prix Vente (TND)" id="new-pf-prix"></div>
                                 </div>
-                                <button class="btn btn-success btn-sm mt-1 w-100" onclick="saveNewProduitFini()">ðŸ’¾ Enregistrer Produit Fini</button>
+                                <button class="btn btn-success btn-sm mt-1 w-100" onclick="saveNewProduitFini()">💾 Enregistrer Produit Fini</button>
                             </div>
                             <div class="card-body p-0" style="max-height: 180px; overflow-y: auto;">
                                 <table class="table table-sm table-striped table-custom mb-0">
-                                    <thead><tr><th>Code</th><th>DÃ©signation</th><th>Stock</th><th>Action</th></tr></thead>
+                                    <thead><tr><th>Code</th><th>Désignation</th><th>Stock</th><th>Action</th></tr></thead>
                                     <tbody id="ind-pf-crud-body"></tbody>
                                 </table>
                             </div>
@@ -1739,21 +1737,21 @@ def index_page():
 
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <span>MatiÃ¨res PremiÃ¨res & Composants</span>
-                                <button class="btn btn-xs btn-primary py-0" data-bs-toggle="collapse" data-bs-target="#add-mat-form">+ MatiÃ¨re</button>
+                                <span>Matières Premières & Composants</span>
+                                <button class="btn btn-xs btn-primary py-0" data-bs-toggle="collapse" data-bs-target="#add-mat-form">+ Matière</button>
                             </div>
                             <div class="collapse p-2 bg-light border-bottom" id="add-mat-form">
                                 <input type="text" class="form-control form-control-sm mb-1" placeholder="Code (Ex: MAT-01)" id="new-mat-code">
-                                <input type="text" class="form-control form-control-sm mb-1" placeholder="DÃ©signation" id="new-mat-nom">
+                                <input type="text" class="form-control form-control-sm mb-1" placeholder="Désignation" id="new-mat-nom">
                                 <div class="row g-1">
                                     <div class="col-6"><input type="number" step="0.1" class="form-control form-control-sm" placeholder="Stock Initial" id="new-mat-stock"></div>
                                     <div class="col-6"><input type="number" step="0.001" class="form-control form-control-sm" placeholder="CUMP (TND)" id="new-mat-cump"></div>
                                 </div>
-                                <button class="btn btn-success btn-sm mt-1 w-100" onclick="saveNewMatiere()">ðŸ’¾ Enregistrer MatiÃ¨re</button>
+                                <button class="btn btn-success btn-sm mt-1 w-100" onclick="saveNewMatiere()">💾 Enregistrer Matière</button>
                             </div>
                             <div class="card-body p-0" style="max-height: 180px; overflow-y: auto;">
                                 <table class="table table-sm table-striped table-custom mb-0">
-                                    <thead><tr><th>Code</th><th>DÃ©signation</th><th>Stock</th><th>Action</th></tr></thead>
+                                    <thead><tr><th>Code</th><th>Désignation</th><th>Stock</th><th>Action</th></tr></thead>
                                     <tbody id="ind-mat-crud-body"></tbody>
                                 </table>
                             </div>
@@ -1768,7 +1766,7 @@ def index_page():
             <div class="tab-pane fade" id="tab-pos">
                 <div class="row g-3">
                     <div class="col-lg-7">
-                        <!-- SÃ©lecteur de Tables avec bouton Ajout / Suppression - Exigence 8 -->
+                        <!-- Sélecteur de Tables avec bouton Ajout / Suppression - Exigence 8 -->
                         <div class="card mb-2">
                             <div class="card-header d-flex justify-content-between align-items-center py-1">
                                 <span class="fw-bold">Plan de Tables & Zones :</span>
@@ -1785,9 +1783,9 @@ def index_page():
                                         <option value="TERRASSE">Terrasse</option>
                                         <option value="VIP">Salon VIP</option>
                                         <option value="BAR">Comptoir Bar</option>
-                                        <option value="EMPORTE">Ã€ Emporter</option>
+                                        <option value="EMPORTE">À Emporter</option>
                                     </select>
-                                    <button class="btn btn-success btn-sm text-nowrap" onclick="saveNewTable()">ðŸ’¾ Ajouter</button>
+                                    <button class="btn btn-success btn-sm text-nowrap" onclick="saveNewTable()">💾 Ajouter</button>
                                 </div>
                             </div>
                             <div class="card-body p-2 d-flex flex-wrap gap-2" id="pos-tables-container"></div>
@@ -1802,9 +1800,9 @@ def index_page():
                                     <div class="btn-group btn-group-sm" id="menu-cat-filters">
                                         <button class="btn btn-outline-secondary active" onclick="filterMenu('ALL')">Tous (35+)</button>
                                         <button class="btn btn-outline-secondary" onclick="filterMenu('PLATS')">Plats</button>
-                                        <button class="btn btn-outline-secondary" onclick="filterMenu('ENTREES')">EntrÃ©es</button>
+                                        <button class="btn btn-outline-secondary" onclick="filterMenu('ENTREES')">Entrées</button>
                                         <button class="btn btn-outline-secondary" onclick="filterMenu('SANDWICHS')">Sandwichs</button>
-                                        <button class="btn btn-outline-secondary" onclick="filterMenu('DESSERTS')">PÃ¢tisseries</button>
+                                        <button class="btn btn-outline-secondary" onclick="filterMenu('DESSERTS')">Pâtisseries</button>
                                         <button class="btn btn-outline-secondary" onclick="filterMenu('BOISSONS')">Boissons</button>
                                     </div>
                                 </div>
@@ -1816,7 +1814,7 @@ def index_page():
                                     <div class="col-2">
                                         <select class="form-select form-select-sm" id="new-menu-cat">
                                             <option value="PLATS">Plat</option>
-                                            <option value="ENTREES">EntrÃ©e</option>
+                                            <option value="ENTREES">Entrée</option>
                                             <option value="SANDWICHS">Sandwich</option>
                                             <option value="DESSERTS">Dessert</option>
                                             <option value="BOISSONS">Boisson</option>
@@ -1824,7 +1822,7 @@ def index_page():
                                     </div>
                                     <div class="col-2"><input type="number" step="0.5" class="form-control form-control-sm" placeholder="Prix TTC" id="new-menu-prix"></div>
                                 </div>
-                                <button class="btn btn-success btn-sm mt-2 w-100" onclick="saveNewMenuItem()">ðŸ’¾ Ajouter au Menu</button>
+                                <button class="btn btn-success btn-sm mt-2 w-100" onclick="saveNewMenuItem()">💾 Ajouter au Menu</button>
                             </div>
                             <div class="card-body p-2" style="max-height: 400px; overflow-y: auto;">
                                 <div class="row g-2" id="pos-menu-grid"></div>
@@ -1836,13 +1834,13 @@ def index_page():
                     <div class="col-lg-5">
                         <div class="card shadow-sm border-success">
                             <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                <span class="fw-bold">ðŸ§¾ Ticket Caisse en Cours</span>
+                                <span class="fw-bold">🧾 Ticket Caisse en Cours</span>
                                 <span class="badge bg-light text-dark font-monospace" id="curr-pos-table">Table 01</span>
                             </div>
                             <div class="card-body p-2">
                                 <div class="table-responsive" style="max-height: 220px; overflow-y: auto;">
                                     <table class="table table-sm table-striped mb-2 font-monospace" style="font-size:0.78rem;">
-                                        <thead><tr><th>Article</th><th>QtÃ©</th><th class="text-end">Prix TTC</th><th class="text-end">Total</th><th></th></tr></thead>
+                                        <thead><tr><th>Article</th><th>Qté</th><th class="text-end">Prix TTC</th><th class="text-end">Total</th><th></th></tr></thead>
                                         <tbody id="pos-cart-body"></tbody>
                                     </table>
                                 </div>
@@ -1850,15 +1848,15 @@ def index_page():
                                     <div class="d-flex justify-content-between text-muted"><span>Total HT :</span><strong id="pos-cart-ht">0.000 DT</strong></div>
                                     <div class="d-flex justify-content-between text-muted"><span>TVA Restauration (7%) :</span><strong id="pos-cart-tva">0.000 DT</strong></div>
                                     <div class="d-flex justify-content-between fs-5 fw-bold text-success border-top pt-1 mt-1">
-                                        <span>NET Ã€ PAYER :</span><span id="pos-cart-ttc">0.000 DT</span>
+                                        <span>NET À PAYER :</span><span id="pos-cart-ttc">0.000 DT</span>
                                     </div>
                                 </div>
                                 <div class="mt-2">
                                     <div class="d-flex gap-2 mb-2">
-                                        <button class="btn btn-sm btn-outline-warning w-50 fw-bold active" id="btn-pay-esp" onclick="setPosPayment('ESPECES')">ðŸ’µ EspÃ¨ces (541)</button>
-                                        <button class="btn btn-sm btn-outline-primary w-50 fw-bold" id="btn-pay-tpe" onclick="setPosPayment('CARTE_TPE')">ðŸ’³ Carte TPE (532)</button>
+                                        <button class="btn btn-sm btn-outline-warning w-50 fw-bold active" id="btn-pay-esp" onclick="setPosPayment('ESPECES')">💵 Espèces (541)</button>
+                                        <button class="btn btn-sm btn-outline-primary w-50 fw-bold" id="btn-pay-tpe" onclick="setPosPayment('CARTE_TPE')">💳 Carte TPE (532)</button>
                                     </div>
-                                    <button class="btn btn-success btn-sm w-100 fw-bold py-2" onclick="validatePosTicket()">âœ… Encaisser Ticket & Imprimer</button>
+                                    <button class="btn btn-success btn-sm w-100 fw-bold py-2" onclick="validatePosTicket()">✅ Encaisser Ticket & Imprimer</button>
                                 </div>
                             </div>
                         </div>
@@ -1868,7 +1866,7 @@ def index_page():
                             <div class="card-header">Historique des Tickets & Avoirs Caisse</div>
                             <div class="card-body p-0" style="max-height: 180px; overflow-y: auto;">
                                 <table class="table table-sm table-striped table-custom mb-0">
-                                    <thead><tr><th>NumÃ©ro</th><th>Date</th><th>Table</th><th>Total TTC</th><th>Action</th></tr></thead>
+                                    <thead><tr><th>Numéro</th><th>Date</th><th>Table</th><th>Total TTC</th><th>Action</th></tr></thead>
                                     <tbody id="pos-tickets-history-body"></tbody>
                                 </table>
                             </div>
@@ -1878,20 +1876,20 @@ def index_page():
             </div>
 
             <!-- =============================================================== -->
-            <!-- 5. GRAND LIVRE COMPTABLE GÃ‰NÃ‰RAL (SCE NC 01)                    -->
+            <!-- 5. GRAND LIVRE COMPTABLE GÉNÉRAL (SCE NC 01)                    -->
             <!-- =============================================================== -->
             <div class="tab-pane fade" id="tab-compta">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Grand Livre GÃ©nÃ©ral des Ã‰critures Comptables (SystÃ¨me Comptable des Entreprises - SCE NC 01)</span>
+                        <span>Grand Livre Général des Écritures Comptables (Système Comptable des Entreprises - SCE NC 01)</span>
                         <div class="d-flex gap-2">
                             <select class="form-select form-select-sm" id="gl-journal-filter" onchange="loadGrandLivre()">
                                 <option value="ALL">Tous les Journaux (VT, CA, OD)</option>
                                 <option value="VT">Journal des Ventes (VT)</option>
                                 <option value="CA">Journal de Caisse (CA)</option>
-                                <option value="OD">OpÃ©rations Diverses (OD)</option>
+                                <option value="OD">Opérations Diverses (OD)</option>
                             </select>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="loadGrandLivre()">ðŸ”„ Actualiser</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="loadGrandLivre()">🔄 Actualiser</button>
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -1902,12 +1900,12 @@ def index_page():
                                         <th>ID</th>
                                         <th>Date</th>
                                         <th>Journal</th>
-                                        <th>PiÃ¨ce RÃ©f</th>
+                                        <th>Pièce Réf</th>
                                         <th>Compte</th>
-                                        <th>IntitulÃ© du Compte</th>
-                                        <th>LibellÃ© OpÃ©ration</th>
-                                        <th class="text-end">DÃ©bit (TND)</th>
-                                        <th class="text-end">CrÃ©dit (TND)</th>
+                                        <th>Intitulé du Compte</th>
+                                        <th>Libellé Opération</th>
+                                        <th class="text-end">Débit (TND)</th>
+                                        <th class="text-end">Crédit (TND)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="gl-table-body"></tbody>
@@ -1918,12 +1916,12 @@ def index_page():
             </div>
 
             <!-- =============================================================== -->
-            <!-- 6. PARAMÃˆTRES SOCIÃ‰TÃ‰ & EN-TÃŠTE FACTURES - EXIGENCE 5           -->
+            <!-- 6. PARAMÈTRES SOCIÉTÉ & EN-TÊTE FACTURES - EXIGENCE 5           -->
             <!-- =============================================================== -->
             <div class="tab-pane fade" id="tab-company">
                 <div class="card" style="max-width: 800px; margin: 0 auto;">
                     <div class="card-header bg-primary text-white fw-bold">
-                        ðŸ¢ CoordonnÃ©es & Personnalisation de l'En-tÃªte des Factures / Tickets
+                        ðŸ¢ Coordonnées & Personnalisation de l'En-tête des Factures / Tickets
                     </div>
                     <div class="card-body">
                         <form id="form-company-config">
@@ -1943,12 +1941,12 @@ def index_page():
                                     <input type="text" class="form-control form-control-sm" id="comp-rc">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">TÃ©lÃ©phone & Fax :</label>
+                                    <label class="form-label fw-bold">Téléphone & Fax :</label>
                                     <input type="text" class="form-control form-control-sm" id="comp-tel" required>
                                 </div>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label fw-bold">Adresse ComplÃ¨te du SiÃ¨ge :</label>
+                                <label class="form-label fw-bold">Adresse Complète du Siège :</label>
                                 <input type="text" class="form-control form-control-sm" id="comp-adr" required>
                             </div>
                             <div class="row g-2 mb-3">
@@ -1961,7 +1959,7 @@ def index_page():
                                     <input type="text" class="form-control form-control-sm" id="comp-rib">
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 fw-bold">ðŸ’¾ Enregistrer les CoordonnÃ©es SociÃ©tÃ©</button>
+                            <button type="submit" class="btn btn-primary w-100 fw-bold">💾 Enregistrer les Coordonnées Société</button>
                         </form>
                         <div id="comp-alert" class="alert d-none py-2 my-2"></div>
                     </div>
@@ -1969,16 +1967,16 @@ def index_page():
             </div>
 
             <!-- =============================================================== -->
-            <!-- 7. FISCALITÃ‰ & RÃ‰GLEMENTATION MODIFIABLES - EXIGENCE 11          -->
+            <!-- 7. FISCALITÉ & RÉGLEMENTATION MODIFIABLES - EXIGENCE 11          -->
             <!-- =============================================================== -->
             <div class="tab-pane fade" id="tab-fiscal">
                 <div class="card" style="max-width: 800px; margin: 0 auto;">
                     <div class="card-header bg-dark text-white fw-bold">
-                        âš™ï¸ BarÃ¨mes & Taux RÃ©glementaires Modifiables (Loi de Finances & Normes Tunisiennes)
+                        âš™ï¸ Barèmes & Taux Réglementaires Modifiables (Loi de Finances & Normes Tunisiennes)
                     </div>
                     <div class="card-body">
                         <form id="form-fiscal-params">
-                            <h6 class="fw-bold text-primary">1. Taxes sur la Valeur AjoutÃ©e (TVA) & Timbre Fiscal</h6>
+                            <h6 class="fw-bold text-primary">1. Taxes sur la Valeur Ajoutée (TVA) & Timbre Fiscal</h6>
                             <div class="row g-2 mb-3">
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">TVA Taux 1 (%) :</label>
@@ -1998,19 +1996,19 @@ def index_page():
                                 </div>
                             </div>
 
-                            <h6 class="fw-bold text-primary">2. Retenues Ã  la Source (RS)</h6>
+                            <h6 class="fw-bold text-primary">2. Retenues à la Source (RS)</h6>
                             <div class="row g-2 mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">RS Marchandises & Biens >= 1 000 DT (%) :</label>
                                     <input type="number" step="0.1" class="form-control form-control-sm" id="fisc-rs-march" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">RS Honoraires & Prestations LibÃ©rales (%) :</label>
+                                    <label class="form-label fw-bold">RS Honoraires & Prestations Libérales (%) :</label>
                                     <input type="number" step="0.1" class="form-control form-control-sm" id="fisc-rs-hono" required>
                                 </div>
                             </div>
 
-                            <h6 class="fw-bold text-primary">3. Charges Sociales & SolidaritÃ© (CNSS & CSS)</h6>
+                            <h6 class="fw-bold text-primary">3. Charges Sociales & Solidarité (CNSS & CSS)</h6>
                             <div class="row g-2 mb-3">
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold">CNSS Salariale (%) :</label>
@@ -2021,37 +2019,37 @@ def index_page():
                                     <input type="number" step="0.01" class="form-control form-control-sm" id="fisc-cnss-pat" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">CSS SolidaritÃ© (%) :</label>
+                                    <label class="form-label fw-bold">CSS Solidarité (%) :</label>
                                     <input type="number" step="0.01" class="form-control form-control-sm" id="fisc-css" required>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-dark w-100 fw-bold">ðŸ’¾ Mettre Ã  Jour les ParamÃ¨tres LÃ©gaux</button>
+                            <button type="submit" class="btn btn-dark w-100 fw-bold">💾 Mettre à Jour les Paramètres Légaux</button>
                         </form>
                     </div>
                 </div>
             </div>
 
             <!-- =============================================================== -->
-            <!-- 8. ADMINISTRATION & RÃ‰INITIALISATION OPÃ‰RATIONNELLE - EXIGENCE 10 -->
+            <!-- 8. ADMINISTRATION & RÉINITIALISATION OPÉRATIONNELLE - EXIGENCE 10 -->
             <!-- =============================================================== -->
             <div class="tab-pane fade" id="tab-admin">
                 <div class="card border-danger" style="max-width: 700px; margin: 0 auto;">
                     <div class="card-header bg-danger text-white fw-bold">
-                        âš ï¸ RÃ©initialisation des DonnÃ©es OpÃ©rationnelles d'Entreprise (Remise Ã  ZÃ©ro)
+                        âš ï¸ Réinitialisation des Données Opérationnelles d'Entreprise (Remise à Zéro)
                     </div>
                     <div class="card-body">
-                        <p class="text-danger fw-bold">Cette action est rÃ©servÃ©e EXCLUSIVEMENT Ã  l'Administrateur de la sociÃ©tÃ©.</p>
+                        <p class="text-danger fw-bold">Cette action est réservée EXCLUSIVEMENT à l'Administrateur de la société.</p>
                         <p style="font-size:0.8rem;">
-                            Elle permet de vider l'ensemble des mouvements (factures, avoirs, notes d'honoraires, tickets de caisse, Ã©critures comptables, ordres de fabrication) afin de livrer une <strong>base neuve et vierge</strong> pour un nouvel usage client.<br>
-                            <em>Les donnÃ©es de structure (SociÃ©tÃ©, Utilisateurs, Catalogue Articles, Tables, DÃ©pÃ´ts) sont intÃ©gralement prÃ©servÃ©es.</em>
+                            Elle permet de vider l'ensemble des mouvements (factures, avoirs, notes d'honoraires, tickets de caisse, écritures comptables, ordres de fabrication) afin de livrer une <strong>base neuve et vierge</strong> pour un nouvel usage client.<br>
+                            <em>Les données de structure (Société, Utilisateurs, Catalogue Articles, Tables, Dépôts) sont intégralement préservées.</em>
                         </p>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Saisissez le mot de passe Administrateur pour confirmer :</label>
                             <input type="password" class="form-control form-control-sm" id="admin-reset-pw" placeholder="Mot de passe admin requis">
                         </div>
                         <button class="btn btn-danger w-100 fw-bold" onclick="resetOperationalData()">
-                            ðŸ—‘ï¸ ExÃ©cuter la Remise Ã  ZÃ©ro des DonnÃ©es OpÃ©rationnelles
+                            ðŸ—‘ï¸ Exécuter la Remise à Zéro des Données Opérationnelles
                         </button>
                         <div id="reset-alert" class="alert d-none py-2 my-2"></div>
                     </div>
@@ -2059,12 +2057,12 @@ def index_page():
             </div>
 
             <!-- =============================================================== -->
-            <!-- 9. VERROU MATÃ‰RIEL & LICENCE                                    -->
+            <!-- 9. VERROU MATÉRIEL & LICENCE                                    -->
             <!-- =============================================================== -->
             <div class="tab-pane fade" id="tab-license">
                 <div class="card" style="max-width: 650px; margin: 0 auto;">
                     <div class="card-header bg-primary text-white fw-bold">
-                        ðŸ” Gestionnaire de Licence & Verrou MatÃ©riel Hardware ID
+                        ðŸ” Gestionnaire de Licence & Verrou Matériel Hardware ID
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -2075,7 +2073,7 @@ def index_page():
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">ClÃ© d'Activation HMAC-SHA256 Officielle :</label>
+                            <label class="form-label fw-bold">Clé d'Activation HMAC-SHA256 Officielle :</label>
                             <input type="text" class="form-control font-monospace" placeholder="SAFE-20271231-XXXX-XXXX-XXXX-XXXX" id="lic-key-val">
                         </div>
                         <button class="btn btn-primary w-100 fw-bold mb-2" onclick="activateLicense()">Valider & Activer la Licence</button>
@@ -2087,17 +2085,17 @@ def index_page():
         </div>
     </div>
 
-    <!-- MODAL D'AUTHENTIFICATION UNIFIÃ‰E (LOGIN) - EXIGENCE 4 -->
+    <!-- MODAL D'AUTHENTIFICATION UNIFIÉE (LOGIN) - EXIGENCE 4 -->
     <div class="modal fade show" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" style="display:none; background:rgba(15,30,58,0.85); backdrop-filter:blur(4px);">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius:12px;">
                 <div class="modal-header bg-dark text-white border-bottom border-warning">
-                    <h5 class="modal-title fw-bold">ðŸ›¡ï¸ Connexion SÃ©curisÃ©e SAFE ERP</h5>
+                    <h5 class="modal-title fw-bold">ðŸ›¡ï¸ Connexion Sécurisée SAFE ERP</h5>
                 </div>
                 <div class="modal-body p-4">
                     <div class="text-center mb-3">
-                        <div class="fw-bold text-dark fs-5">Suite de Gestion IntÃ©grÃ©e</div>
-                        <small class="text-muted">Authentification requise pour accÃ©der aux modules</small>
+                        <div class="fw-bold text-dark fs-5">Suite de Gestion Intégrée</div>
+                        <small class="text-muted">Authentification requise pour accéder aux modules</small>
                     </div>
                     <form id="form-login">
                         <div class="mb-3">
@@ -2108,14 +2106,14 @@ def index_page():
                             <label class="form-label fw-bold">Mot de Passe :</label>
                             <input type="password" class="form-control" id="login-password" value="admin2026" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2">Se Connecter Ã  SAFE ERP</button>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2">Se Connecter à SAFE ERP</button>
                     </form>
                     <div id="login-alert" class="alert d-none py-2 my-2" role="alert"></div>
                     <div class="mt-3 p-2 bg-light rounded text-muted" style="font-size:0.7rem;">
                         <strong>Comptes disponibles :</strong><br>
-                        â€¢ <strong>admin</strong> / <code>admin2026</code> (Administrateur)<br>
-                        â€¢ <strong>comptable</strong> / <code>compta2026</code> (Chef Comptable)<br>
-                        â€¢ <strong>caisse</strong> / <code>caisse2026</code> (OpÃ©rateur Caisse)
+                        • <strong>admin</strong> / <code>admin2026</code> (Administrateur)<br>
+                        • <strong>comptable</strong> / <code>compta2026</code> (Chef Comptable)<br>
+                        • <strong>caisse</strong> / <code>caisse2026</code> (Opérateur Caisse)
                     </div>
                 </div>
             </div>
@@ -2127,7 +2125,7 @@ def index_page():
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content" style="border-radius:10px;">
                 <div class="modal-header bg-light py-2 no-print">
-                    <h6 class="modal-title fw-bold text-primary">ðŸ–¨ï¸ AperÃ§u Avant Impression PiÃ¨ce Officielle A4</h6>
+                    <h6 class="modal-title fw-bold text-primary">ðŸ–¨ï¸ Aperçu Avant Impression Pièce Officielle A4</h6>
                     <div>
                         <button class="btn btn-sm btn-primary me-2 fw-bold" onclick="window.print()">Imprimer Document</button>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -2142,7 +2140,7 @@ def index_page():
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Ã‰tat Global Frontend
+        // État Global Frontend
         let currentUser = null;
         let companyConfig = {};
         let fiscalParams = {};
@@ -2179,7 +2177,7 @@ def index_page():
             const p = document.getElementById('login-password').value;
             const al = document.getElementById('login-alert');
             al.className = 'alert alert-info py-2 my-2';
-            al.innerText = 'VÃ©rification en cours...';
+            al.innerText = 'Vérification en cours...';
             al.classList.remove('d-none');
             
             try {
@@ -2199,19 +2197,19 @@ def index_page():
                 }
             } catch(err) {
                 al.className = 'alert alert-danger py-2 my-2';
-                al.innerText = 'Erreur rÃ©seau';
+                al.innerText = 'Erreur réseau';
             }
         });
 
         function logout() {
-            if (confirm('Voulez-vous vraiment vous dÃ©connecter de la suite SAFE ERP ?')) {
+            if (confirm('Voulez-vous vraiment vous déconnecter de la suite SAFE ERP ?')) {
                 sessionStorage.removeItem('safe_token');
                 sessionStorage.removeItem('safe_user');
                 location.reload();
             }
         }
 
-        // --- CHARGEMENT GLOBAL DES DONNÃ‰ES ---
+        // --- CHARGEMENT GLOBAL DES DONNÉES ---
         async function loadAllData() {
             await Promise.all([
                 loadCompany(), loadFiscalParams(), loadNegoceDepots(),
@@ -2223,7 +2221,7 @@ def index_page():
             renderPosCart();
         }
 
-        // --- SOCIÃ‰TÃ‰ & EN-TÃŠTE ---
+        // --- SOCIÉTÉ & EN-TÊTE ---
         async function loadCompany() {
             const res = await fetch('/api/company');
             if (res.ok) {
@@ -2257,12 +2255,12 @@ def index_page():
             const d = await res.json();
             const al = document.getElementById('comp-alert');
             al.className = 'alert alert-success py-2 my-2';
-            al.innerText = 'âœ… ' + d.message;
+            al.innerText = '✅ ' + d.message;
             al.classList.remove('d-none');
             await loadCompany();
         });
 
-        // --- PARAMÃˆTRES FISCAUX ---
+        // --- PARAMÈTRES FISCAUX ---
         async function loadFiscalParams() {
             const res = await fetch('/api/fiscal-params');
             if (res.ok) {
@@ -2298,12 +2296,12 @@ def index_page():
                 body: JSON.stringify(payload)
             });
             if (res.ok) {
-                alert('âœ… ParamÃ¨tres fiscaux et sociaux sauvegardÃ©s avec succÃ¨s !');
+                alert('✅ Paramètres fiscaux et sociaux sauvegardés avec succès !');
                 await loadFiscalParams();
             }
         });
 
-        // --- NÃ‰GOCE : ARTICLES, DÃ‰PÃ”TS, FACTURES & AVOIRS ---
+        // --- NÉGOCE : ARTICLES, DÉPÔTS, FACTURES & AVOIRS ---
         async function loadNegoceDepots() {
             const res = await fetch('/api/negoce/depots');
             if (res.ok) {
@@ -2316,7 +2314,7 @@ def index_page():
                 const tbody = document.getElementById('negoce-depots-crud-body');
                 tbody.innerHTML = '';
                 negoceDepots.forEach(d => {
-                    tbody.innerHTML += `<tr><td>${d.code}</td><td>${d.nom}</td><td><button class="btn btn-xs btn-outline-danger py-0" onclick="deleteDepot('${d.code}')">âœ•</button></td></tr>`;
+                    tbody.innerHTML += `<tr><td>${d.code}</td><td>${d.nom}</td><td><button class="btn btn-xs btn-outline-danger py-0" onclick="deleteDepot('${d.code}')">✕</button></td></tr>`;
                 });
             }
         }
@@ -2337,7 +2335,7 @@ def index_page():
         }
 
         async function deleteDepot(code) {
-            if(confirm('Supprimer ce dÃ©pÃ´t ?')) {
+            if(confirm('Supprimer ce dépôt ?')) {
                 await fetch(`/api/negoce/depots/${code}`, { method: 'DELETE' });
                 await loadNegoceDepots();
             }
@@ -2355,7 +2353,7 @@ def index_page():
                 const tbody = document.getElementById('negoce-articles-crud-body');
                 tbody.innerHTML = '';
                 negoceArticles.forEach(a => {
-                    tbody.innerHTML += `<tr><td>${a.code}</td><td>${a.designation}</td><td>${a.stock_actuel}</td><td>${fmt(a.prix_vente_ht)}</td><td><button class="btn btn-xs btn-outline-danger py-0" onclick="deleteNegoceArticle('${a.code}')">âœ•</button></td></tr>`;
+                    tbody.innerHTML += `<tr><td>${a.code}</td><td>${a.designation}</td><td>${a.stock_actuel}</td><td>${fmt(a.prix_vente_ht)}</td><td><button class="btn btn-xs btn-outline-danger py-0" onclick="deleteNegoceArticle('${a.code}')">✕</button></td></tr>`;
                 });
             }
         }
@@ -2366,7 +2364,7 @@ def index_page():
             const d = document.getElementById('new-art-depot').value;
             const cu = parseFloat(document.getElementById('new-art-cump').value) || 0;
             const px = parseFloat(document.getElementById('new-art-prix').value) || 0;
-            if(!c || !n) return alert('Code et dÃ©signation obligatoires');
+            if(!c || !n) return alert('Code et désignation obligatoires');
             await fetch('/api/negoce/articles', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2405,10 +2403,10 @@ def index_page():
             
             const liveBody = document.getElementById('live-negoce-ecriture-body');
             liveBody.innerHTML = `
-                <tr><td>411100</td><td>Clients (Net Ã  recevoir)</td><td class="text-end text-primary">${fmt(net)}</td><td class="text-end">-</td></tr>
-                ${rs > 0 ? `<tr><td>436500</td><td>Ã‰tat - Retenue Source 1.5%</td><td class="text-end text-warning">${fmt(rs)}</td><td class="text-end">-</td></tr>` : ''}
+                <tr><td>411100</td><td>Clients (Net à recevoir)</td><td class="text-end text-primary">${fmt(net)}</td><td class="text-end">-</td></tr>
+                ${rs > 0 ? `<tr><td>436500</td><td>État - Retenue Source 1.5%</td><td class="text-end text-warning">${fmt(rs)}</td><td class="text-end">-</td></tr>` : ''}
                 <tr><td>701000</td><td>Ventes Marchandises (HT)</td><td class="text-end">-</td><td class="text-end text-success">${fmt(ht)}</td></tr>
-                <tr><td>436700</td><td>Ã‰tat - TVA collectÃ©e (19%)</td><td class="text-end">-</td><td class="text-end text-success">${fmt(tva)}</td></tr>
+                <tr><td>436700</td><td>État - TVA collectée (19%)</td><td class="text-end">-</td><td class="text-end text-success">${fmt(tva)}</td></tr>
                 <tr><td>437000</td><td>Droits de timbre fiscal</td><td class="text-end">-</td><td class="text-end text-success">${fmt(timbre)}</td></tr>
             `;
         }
@@ -2432,15 +2430,15 @@ def index_page():
             if (res.ok) {
                 al.className = 'alert alert-success py-2 my-2';
                 al.innerText = actionType === 'VALIDER' 
-                    ? `âœ… Facture Officielle [${d.numero}] validÃ©e ferme et enregistrÃ©e au Grand Livre !`
-                    : `ðŸ“ PiÃ¨ce Brouillon [${d.numero}] comptabilisÃ©e Ã  l\\'Ã©tat provisoire.`;
+                    ? `✅ Facture Officielle [${d.numero}] validée ferme et enregistrée au Grand Livre !`
+                    : `ðŸ“ Pièce Brouillon [${d.numero}] comptabilisée à l\\'état provisoire.`;
                 al.classList.remove('d-none');
                 await loadNegoceFactures();
                 await loadNegoceArticles();
                 await loadGrandLivre();
             } else {
                 al.className = 'alert alert-danger py-2 my-2';
-                al.innerText = 'âŒ Erreur : ' + (d.detail || 'Impossible de crÃ©er la facture');
+                al.innerText = 'âŒ Erreur : ' + (d.detail || 'Impossible de créer la facture');
                 al.classList.remove('d-none');
             }
         }
@@ -2475,7 +2473,7 @@ def index_page():
         }
 
         async function validerFacture(num) {
-            if (confirm(`Confirmer la validation ferme et dÃ©finitive de la facture ${num} ?`)) {
+            if (confirm(`Confirmer la validation ferme et définitive de la facture ${num} ?`)) {
                 const res = await fetch(`/api/negoce/factures/${num}/valider`, { method: 'POST' });
                 if (res.ok) {
                     await loadNegoceFactures();
@@ -2486,11 +2484,11 @@ def index_page():
         }
 
         async function emettreAvoirNegoce(num) {
-            if (confirm(`Ã‰mettre une Facture d'Avoir intÃ©grale pour la facture ${num} ? Cela rÃ©intÃ©grera les articles en stock au CUMP et rÃ©gularisera la TVA.`)) {
+            if (confirm(`Émettre une Facture d'Avoir intégrale pour la facture ${num} ? Cela réintégrera les articles en stock au CUMP et régularisera la TVA.`)) {
                 const res = await fetch(`/api/negoce/factures/${num}/avoir`, { method: 'POST' });
                 const d = await res.json();
                 if (res.ok) {
-                    alert(`âœ… Avoir ${d.numero_avoir} Ã©mis avec succÃ¨s !`);
+                    alert(`✅ Avoir ${d.numero_avoir} émis avec succès !`);
                     await loadNegoceFactures();
                     await loadNegoceArticles();
                     await loadGrandLivre();
@@ -2521,7 +2519,7 @@ def index_page():
             const n = document.getElementById('new-mis-nom').value.trim();
             const cl = document.getElementById('new-mis-client').value.trim();
             const r = document.getElementById('new-mis-resp').value.trim();
-            if(!c || !n) return alert('Code et intitulÃ© obligatoires');
+            if(!c || !n) return alert('Code et intitulé obligatoires');
             await fetch('/api/services/missions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2575,18 +2573,18 @@ def index_page():
             });
             const d = await res.json();
             if(res.ok) {
-                alert(`âœ… Note d'honoraires ${d.numero} Ã©mise avec succÃ¨s ! (Net: ${fmt(d.net_a_payer)})`);
+                alert(`✅ Note d'honoraires ${d.numero} émise avec succès ! (Net: ${fmt(d.net_a_payer)})`);
                 await loadServicesNotes();
                 await loadGrandLivre();
             }
         });
 
         async function emettreAvoirServices(num) {
-            if(confirm(`Ã‰mettre une Note d'Avoir pour ${num} ?`)) {
+            if(confirm(`Émettre une Note d'Avoir pour ${num} ?`)) {
                 const res = await fetch(`/api/services/notes/${num}/avoir`, { method: 'POST' });
                 const d = await res.json();
                 if(res.ok) {
-                    alert(`âœ… Avoir ${d.numero_avoir} Ã©mis !`);
+                    alert(`✅ Avoir ${d.numero_avoir} émis !`);
                     await loadServicesNotes();
                     await loadGrandLivre();
                 }
@@ -2604,7 +2602,7 @@ def index_page():
                 tbody.innerHTML = '';
                 pfs.forEach(p => {
                     sel.innerHTML += `<option value="${p.code}">${p.designation} (Stock: ${p.stock_actuel})</option>`;
-                    tbody.innerHTML += `<tr><td>${p.code}</td><td>${p.designation}</td><td>${p.stock_actuel}</td><td><button class="btn btn-xs btn-outline-danger py-0" onclick="deleteProduitFini('${p.code}')">âœ•</button></td></tr>`;
+                    tbody.innerHTML += `<tr><td>${p.code}</td><td>${p.designation}</td><td>${p.stock_actuel}</td><td><button class="btn btn-xs btn-outline-danger py-0" onclick="deleteProduitFini('${p.code}')">✕</button></td></tr>`;
                 });
             }
         }
@@ -2637,7 +2635,7 @@ def index_page():
                 const tbody = document.getElementById('ind-mat-crud-body');
                 tbody.innerHTML = '';
                 mats.forEach(m => {
-                    tbody.innerHTML += `<tr><td>${m.code}</td><td>${m.designation}</td><td>${m.stock_actuel} ${m.unite}</td><td><button class="btn btn-xs btn-outline-danger py-0" onclick="deleteMatiere('${m.code}')">âœ•</button></td></tr>`;
+                    tbody.innerHTML += `<tr><td>${m.code}</td><td>${m.designation}</td><td>${m.stock_actuel} ${m.unite}</td><td><button class="btn btn-xs btn-outline-danger py-0" onclick="deleteMatiere('${m.code}')">✕</button></td></tr>`;
                 });
             }
         }
@@ -2657,7 +2655,7 @@ def index_page():
         }
 
         async function deleteMatiere(code) {
-            if(confirm('Supprimer cette matiÃ¨re premiÃ¨re ?')) {
+            if(confirm('Supprimer cette matière première ?')) {
                 await fetch(`/api/industrie/matieres/${code}`, { method: 'DELETE' });
                 await loadMatieres();
             }
@@ -2688,7 +2686,7 @@ def index_page():
             });
             const d = await res.json();
             if (res.ok) {
-                alert(`âœ… Ordre de Fabrication ${d.numero} clÃ´turÃ© ! Stocks et Ã©critures usine enregistrÃ©s.`);
+                alert(`✅ Ordre de Fabrication ${d.numero} clôturé ! Stocks et écritures usine enregistrés.`);
                 await loadOfs();
                 await loadProduitsFinis();
                 await loadGrandLivre();
@@ -2709,7 +2707,7 @@ def index_page():
                             <button type="button" class="btn ${isSelected ? 'btn-primary' : 'btn-outline-secondary'} table-badge" onclick="selectPosTable('${t.numero}')">
                                 ${t.numero} (${t.capacite}p)
                             </button>
-                            <button type="button" class="btn btn-outline-danger btn-xs py-0 px-1" onclick="deletePosTable('${t.numero}')" title="Supprimer la table">âœ•</button>
+                            <button type="button" class="btn btn-outline-danger btn-xs py-0 px-1" onclick="deletePosTable('${t.numero}')" title="Supprimer la table">✕</button>
                         </div>
                     `;
                 });
@@ -2767,7 +2765,7 @@ def index_page():
                                         <div class="text-success fw-bold">${fmt(m.prix_ttc)}</div>
                                     </div>
                                 </div>
-                                <button class="btn btn-xs btn-outline-danger py-0 px-1" onclick="event.stopPropagation(); deleteMenuItem('${m.code}')" title="Supprimer">âœ•</button>
+                                <button class="btn btn-xs btn-outline-danger py-0 px-1" onclick="event.stopPropagation(); deleteMenuItem('${m.code}')" title="Supprimer">✕</button>
                             </div>
                         </div>
                     </div>
@@ -2780,7 +2778,7 @@ def index_page():
             const n = document.getElementById('new-menu-nom').value.trim();
             const cat = document.getElementById('new-menu-cat').value;
             const px = parseFloat(document.getElementById('new-menu-prix').value) || 0;
-            if(!c || !n || px <= 0) return alert('Informations incomplÃ¨tes');
+            if(!c || !n || px <= 0) return alert('Informations incomplètes');
             await fetch('/api/pos/menu', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2831,7 +2829,7 @@ def index_page():
                         <td>${i.quantite}</td>
                         <td class="text-end">${fmt(i.prix_ttc)}</td>
                         <td class="text-end fw-bold">${fmt(tot)}</td>
-                        <td class="text-end"><button class="btn btn-xs btn-link text-danger p-0" onclick="removePosCart('${i.code}')">âœ•</button></td>
+                        <td class="text-end"><button class="btn btn-xs btn-link text-danger p-0" onclick="removePosCart('${i.code}')">✕</button></td>
                     </tr>
                 `;
             });
@@ -2860,7 +2858,7 @@ def index_page():
             });
             const d = await res.json();
             if (res.ok) {
-                alert(`âœ… Ticket ${d.numero} encaissÃ© avec succÃ¨s ! (${fmt(d.total_ttc)})`);
+                alert(`✅ Ticket ${d.numero} encaissé avec succès ! (${fmt(d.total_ttc)})`);
                 printDoc('TICKET_POS', d.numero);
                 posCart = [];
                 renderPosCart();
@@ -2894,11 +2892,11 @@ def index_page():
         }
 
         async function annulerTicketPos(num) {
-            if(confirm(`Annuler le ticket ${num} et gÃ©nÃ©rer un avoir de caisse ?`)) {
+            if(confirm(`Annuler le ticket ${num} et générer un avoir de caisse ?`)) {
                 const res = await fetch(`/api/pos/tickets/${num}/avoir`, { method: 'POST' });
                 const d = await res.json();
                 if(res.ok) {
-                    alert(`âœ… Avoir ${d.numero_avoir} Ã©mis ! Caisse mise Ã  jour.`);
+                    alert(`✅ Avoir ${d.numero_avoir} émis ! Caisse mise à jour.`);
                     await loadPosTickets();
                     await loadGrandLivre();
                 }
@@ -2932,7 +2930,7 @@ def index_page():
             }
         }
 
-        // --- IMPRESSION FORMAT A4 PERSONNALISÃ‰E (EXIGENCE 5) ---
+        // --- IMPRESSION FORMAT A4 PERSONNALISÉE (EXIGENCE 5) ---
         function printDoc(type, numero) {
             const container = document.getElementById('printable-invoice-content');
             container.innerHTML = `
@@ -2940,9 +2938,9 @@ def index_page():
                     <div>
                         <h4 class="fw-bold text-primary mb-1">${companyConfig.raison_sociale || 'ENTREPRISE TUNISIENNE'}</h4>
                         <div style="font-size:0.8rem; color:#475569;">
-                            <div><strong>Matricule Fiscal :</strong> ${companyConfig.matricule_fiscal || 'Non DÃ©fini'} | <strong>RC :</strong> ${companyConfig.registre_commerce || '-'}</div>
+                            <div><strong>Matricule Fiscal :</strong> ${companyConfig.matricule_fiscal || 'Non Défini'} | <strong>RC :</strong> ${companyConfig.registre_commerce || '-'}</div>
                             <div><strong>Adresse :</strong> ${companyConfig.adresse || 'Tunis, Tunisie'}</div>
-                            <div><strong>TÃ©lÃ©phone :</strong> ${companyConfig.telephone || '-'} | <strong>Email :</strong> ${companyConfig.email || '-'}</div>
+                            <div><strong>Téléphone :</strong> ${companyConfig.telephone || '-'} | <strong>Email :</strong> ${companyConfig.email || '-'}</div>
                             <div><strong>RIB Bancaire :</strong> ${companyConfig.rib || '-'}</div>
                         </div>
                     </div>
@@ -2956,20 +2954,20 @@ def index_page():
                 <div class="row g-2 mb-3 p-2 bg-light rounded" style="font-size:0.82rem;">
                     <div class="col-6">
                         <strong>Client / Tiers :</strong><br>
-                        SociÃ©tÃ© Partenaire<br>
+                        Société Partenaire<br>
                         <strong>Matricule Fiscal Client :</strong> 1289456/C/A/000
                     </div>
                     <div class="col-6 text-end">
-                        <strong>Devise :</strong> Dinar Tunisien (TND Ã  3 dÃ©cimales)<br>
-                        <strong>LÃ©gislation :</strong> Conforme SystÃ¨me Comptable Tunisien (SCE NC 01)
+                        <strong>Devise :</strong> Dinar Tunisien (TND à 3 décimales)<br>
+                        <strong>Législation :</strong> Conforme Système Comptable Tunisien (SCE NC 01)
                     </div>
                 </div>
 
                 <table class="table table-sm table-bordered" style="font-size:0.82rem;">
                     <thead class="table-dark">
                         <tr>
-                            <th>DÃ©signation des Articles / Prestations</th>
-                            <th class="text-center">QtÃ©</th>
+                            <th>Désignation des Articles / Prestations</th>
+                            <th class="text-center">Qté</th>
                             <th class="text-end">Prix Unit. HT</th>
                             <th class="text-end">Taux TVA</th>
                             <th class="text-end">Total HT</th>
@@ -2988,10 +2986,10 @@ def index_page():
 
                 <div class="row mt-3">
                     <div class="col-7" style="font-size:0.75rem;">
-                        <strong>ArrÃªtÃ©e la prÃ©sente piÃ¨ce Ã  la somme de :</strong><br>
+                        <strong>Arrêtée la présente pièce à la somme de :</strong><br>
                         <em>Mille quatre cent quatre-vingt-huit Dinars Tunisiens et cinq cents Millimes.</em><br><br>
                         <div class="border p-2 rounded text-muted">
-                            Cachet et Signature autorisÃ©e :<br><br><br>
+                            Cachet et Signature autorisée :<br><br><br>
                         </div>
                     </div>
                     <div class="col-5">
@@ -3008,11 +3006,11 @@ def index_page():
             m.show();
         }
 
-        // --- RÃ‰INITIALISATION DES DONNÃ‰ES OPÃ‰RATIONNELLES (EXIGENCE 10) ---
+        // --- RÉINITIALISATION DES DONNÉES OPÉRATIONNELLES (EXIGENCE 10) ---
         async function resetOperationalData() {
             const pw = document.getElementById('admin-reset-pw').value;
             if(!pw) return alert('Mot de passe Administrateur obligatoire');
-            if(!confirm('CONFIRMATION FINALE : Voulez-vous vraiment remettre Ã  zÃ©ro toutes les factures, Ã©critures et tickets opÃ©rationnels ?')) return;
+            if(!confirm('CONFIRMATION FINALE : Voulez-vous vraiment remettre à zéro toutes les factures, écritures et tickets opérationnels ?')) return;
             
             const al = document.getElementById('reset-alert');
             try {
@@ -3024,7 +3022,7 @@ def index_page():
                 const d = await res.json();
                 if(res.ok) {
                     al.className = 'alert alert-success py-2 my-2';
-                    al.innerText = 'âœ… ' + d.message;
+                    al.innerText = '✅ ' + d.message;
                     al.classList.remove('d-none');
                     document.getElementById('admin-reset-pw').value = '';
                     await loadAllData();
@@ -3034,15 +3032,15 @@ def index_page():
                     al.classList.remove('d-none');
                 }
             } catch(e) {
-                alert('Erreur rÃ©seau');
+                alert('Erreur réseau');
             }
         }
 
-        // --- LICENCE MATÃ‰RIELLE ---
+        // --- LICENCE MATÉRIELLE ---
         function copyHwId() {
             const val = document.getElementById('lic-hwid-val').value;
             navigator.clipboard.writeText(val);
-            alert('Hardware ID copiÃ© : ' + val);
+            alert('Hardware ID copié : ' + val);
         }
 
         async function activateLicense() {
@@ -3061,15 +3059,15 @@ def index_page():
                 const d = await res.json();
                 if(res.ok) {
                     al.className = 'alert alert-success py-2';
-                    al.innerText = 'âœ… Licence activÃ©e jusqu\\'au ' + d.expiration;
+                    al.innerText = '✅ Licence activée jusqu\\'au ' + d.expiration;
                     setTimeout(() => location.reload(), 1500);
                 } else {
                     al.className = 'alert alert-danger py-2';
-                    al.innerText = 'âŒ ' + (d.detail || 'ClÃ© non valide');
+                    al.innerText = 'âŒ ' + (d.detail || 'Clé non valide');
                 }
             } catch(e) {
                 al.className = 'alert alert-danger py-2';
-                al.innerText = 'Erreur rÃ©seau';
+                al.innerText = 'Erreur réseau';
             }
         }
 
@@ -3081,7 +3079,7 @@ def index_page():
     return html_content.replace("{hw_id}", hw_id).replace("{SUITE_SLOGAN}", SUITE_SLOGAN).replace("{status_badge}", status_badge)
 
 # ==============================================================================
-# 5. POINT D'ENTRÃ‰E MASTER SUITE & OUVERTURE DU NAVIGATEUR
+# 5. POINT D'ENTRÉE MASTER SUITE & OUVERTURE DU NAVIGATEUR
 # ==============================================================================
 def open_browser():
     time.sleep(1.2)
@@ -3095,8 +3093,8 @@ if __name__ == "__main__":
     print(f" Port Central         : {APP_PORT} (Serveur Unique pour Toute la Suite)")
     print(f" Verrou Hardware ID   : {hw_id}")
     print(f" Cryptographie        : HMAC-SHA256 (SAFE-YYYYMMDD-XXXX-XXXX-XXXX-XXXX)")
-    print(f" Normes Fiscales      : TND (3 dÃ©c.) | TVA 19/13/7% | Timbre 1.000 DT | SCE NC 01")
-    print(f" Authentification     : Login unifiÃ© (admin/comptable/caisse)")
+    print(f" Normes Fiscales      : TND (3 déc.) | TVA 19/13/7% | Timbre 1.000 DT | SCE NC 01")
+    print(f" Authentification     : Login unifié (admin/comptable/caisse)")
     print("=" * 75)
     
     threading.Thread(target=open_browser, daemon=True).start()

@@ -3,7 +3,7 @@
 """
 SAFE PME Express - Serveur Autonome Standalone
 Port 8006 | SQLite | FastAPI | 16 Modules
-Conforme fiscalitÃ© tunisienne : TVA 19/13/7%, IRPP 8 tranches,
+Conforme fiscalité tunisienne : TVA 19/13/7%, IRPP 8 tranches,
 CNSS 9.68%/17.07%, CSS 0.5%, IS 15/20%, Timbre 1.000 TND
 """
 
@@ -12,7 +12,7 @@ from datetime import datetime, date
 from typing import Optional, List
 from pathlib import Path
 
-# â”€â”€â”€ auto-install deps â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── auto-install deps ───────────────────────────────────────────────────────
 def _pip(pkg):
     subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", pkg])
 
@@ -28,7 +28,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn, sqlite3, uuid
 
-# â”€â”€â”€ Licence / Hardware ID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Licence / Hardware ID ───────────────────────────────────────────────────
 SECRET_KEY = b"SAFE_PME_EXPRESS_2024_SECRET"
 
 def get_hardware_id() -> str:
@@ -59,7 +59,7 @@ def get_hardware_id() -> str:
 def generate_license_token(hw_id: str) -> str:
     return hmac.new(SECRET_KEY, hw_id.encode(), hashlib.sha256).hexdigest()
 
-# â”€â”€â”€ Base de donnÃ©es SQLite â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Base de données SQLite ───────────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent
 DB_PATH = BASE_DIR / "pme_data.db"
 
@@ -75,10 +75,10 @@ def init_db():
     c = conn.cursor()
 
     c.executescript("""
-    -- ParamÃ¨tres sociÃ©tÃ©
+    -- Paramètres société
     CREATE TABLE IF NOT EXISTS settings (
         id INTEGER PRIMARY KEY DEFAULT 1,
-        societe_nom TEXT DEFAULT 'Ma SociÃ©tÃ© SARL',
+        societe_nom TEXT DEFAULT 'Ma Société SARL',
         societe_matricule TEXT DEFAULT '0000000/A/M/000',
         societe_adresse TEXT DEFAULT 'Tunis, Tunisie',
         societe_tel TEXT DEFAULT '+216 71 000 000',
@@ -129,8 +129,8 @@ def init_db():
     INSERT OR IGNORE INTO users (id,nom,prenom,email,mot_de_passe,role)
     VALUES 
         ('admin-001','Administrateur','SAFE','admin@safe.tn','safe2024','administrateur'),
-        ('admin-002','Directeur','GÃ©nÃ©ral','admin','admin','administrateur'),
-        ('demo-001','DÃ©monstration','Compte','demo@erp-tunisie.tn','Demo2026!','administrateur'),
+        ('admin-002','Directeur','Général','admin','admin','administrateur'),
+        ('demo-001','Démonstration','Compte','demo@erp-tunisie.tn','Demo2026!','administrateur'),
         ('user-001','Comptable','Principal','comptable@safe.tn','compta2026','comptable');
 
     -- Tiers (clients & fournisseurs)
@@ -173,7 +173,7 @@ def init_db():
         date_echeance TEXT,
         client_id TEXT REFERENCES tiers(id),
         client_nom TEXT,
-        statut TEXT DEFAULT 'brouillon' CHECK(statut IN ('brouillon','validÃ©e','payÃ©e','annulÃ©e')),
+        statut TEXT DEFAULT 'brouillon' CHECK(statut IN ('brouillon','validée','payée','annulée')),
         montant_ht REAL DEFAULT 0,
         montant_tva REAL DEFAULT 0,
         montant_ttc REAL DEFAULT 0,
@@ -206,7 +206,7 @@ def init_db():
         date_achat TEXT NOT NULL,
         fournisseur_id TEXT REFERENCES tiers(id),
         fournisseur_nom TEXT,
-        statut TEXT DEFAULT 'brouillon' CHECK(statut IN ('brouillon','validÃ©','payÃ©','annulÃ©')),
+        statut TEXT DEFAULT 'brouillon' CHECK(statut IN ('brouillon','validé','payé','annulé')),
         montant_ht REAL DEFAULT 0,
         montant_tva REAL DEFAULT 0,
         montant_ttc REAL DEFAULT 0,
@@ -233,7 +233,7 @@ def init_db():
     CREATE TABLE IF NOT EXISTS mouvements_stock (
         id TEXT PRIMARY KEY,
         article_id TEXT REFERENCES articles(id),
-        type_mouvement TEXT NOT NULL CHECK(type_mouvement IN ('entrÃ©e','sortie','inventaire','retour')),
+        type_mouvement TEXT NOT NULL CHECK(type_mouvement IN ('entrée','sortie','inventaire','retour')),
         quantite REAL NOT NULL,
         prix_unitaire REAL DEFAULT 0,
         reference TEXT,
@@ -241,7 +241,7 @@ def init_db():
         date_mouvement TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
-    -- SalariÃ©s
+    -- Salariés
     CREATE TABLE IF NOT EXISTS salaries (
         id TEXT PRIMARY KEY,
         matricule TEXT UNIQUE NOT NULL,
@@ -254,7 +254,7 @@ def init_db():
         departement TEXT,
         type_contrat TEXT DEFAULT 'CDI',
         salaire_base REAL DEFAULT 0,
-        regime_cnss TEXT DEFAULT 'rÃ©gime gÃ©nÃ©ral',
+        regime_cnss TEXT DEFAULT 'régime général',
         rib TEXT,
         actif INTEGER DEFAULT 1,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -317,13 +317,13 @@ def init_db():
         valeur_acquisition REAL NOT NULL,
         duree_amortissement INTEGER DEFAULT 5,
         taux_amortissement REAL DEFAULT 20.0,
-        methode TEXT DEFAULT 'linÃ©aire',
+        methode TEXT DEFAULT 'linéaire',
         valeur_nette REAL DEFAULT 0,
         statut TEXT DEFAULT 'active',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
-    -- TrÃ©sorerie (comptes bancaires & caisses)
+    -- Trésorerie (comptes bancaires & caisses)
     CREATE TABLE IF NOT EXISTS comptes_tresorerie (
         id TEXT PRIMARY KEY,
         code TEXT UNIQUE NOT NULL,
@@ -336,12 +336,12 @@ def init_db():
         actif INTEGER DEFAULT 1
     );
 
-    -- Mouvements de trÃ©sorerie
+    -- Mouvements de trésorerie
     CREATE TABLE IF NOT EXISTS mouvements_tresorerie (
         id TEXT PRIMARY KEY,
         compte_id TEXT REFERENCES comptes_tresorerie(id),
         date_mouvement TEXT NOT NULL,
-        type_operation TEXT NOT NULL CHECK(type_operation IN ('encaissement','dÃ©caissement','virement')),
+        type_operation TEXT NOT NULL CHECK(type_operation IN ('encaissement','décaissement','virement')),
         montant REAL NOT NULL,
         libelle TEXT,
         reference TEXT,
@@ -349,25 +349,25 @@ def init_db():
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
-    -- DÃ©clarations fiscales
+    -- Déclarations fiscales
     CREATE TABLE IF NOT EXISTS declarations (
         id TEXT PRIMARY KEY,
         type_declaration TEXT NOT NULL,
         periode TEXT NOT NULL,
         date_depot TEXT,
-        statut TEXT DEFAULT 'Ã  dÃ©poser',
+        statut TEXT DEFAULT 'à déposer',
         montant REAL DEFAULT 0,
         notes TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
-    -- DonnÃ©es demo
+    -- Données demo
     INSERT OR IGNORE INTO tiers (id,type,raison_sociale,matricule_fiscal,ville,tel,email,solde)
     VALUES
         ('t001','client','SOTRANS SARL','1234567/A/P/000','Tunis','+216 71 123 456','contact@sotrans.tn',15000),
         ('t002','client','BATIMAT SA','2345678/B/M/000','Sfax','+216 74 234 567','info@batimat.tn',8500),
         ('t003','fournisseur','IMPORT PRO SARL','3456789/C/P/000','Bizerte','+216 72 345 678','achats@importpro.tn',-12000),
-        ('t004','fournisseur','MATÃ‰RIAUX CENTER','4567890/D/M/000','Sousse','+216 73 456 789','commercial@materiaux.tn',-6500);
+        ('t004','fournisseur','MATÉRIAUX CENTER','4567890/D/M/000','Sousse','+216 73 456 789','commercial@materiaux.tn',-6500);
 
     INSERT OR IGNORE INTO articles (id,code,designation,famille,prix_vente_ht,taux_tva,stock_actuel,stock_min)
     VALUES
@@ -395,32 +395,32 @@ def init_db():
         ('c03','401000','Fournisseurs',4,'bilan',-18500),
         ('c04','512000','Banque STB',5,'bilan',67500),
         ('c05','530000','Caisse',5,'bilan',3200),
-        ('c06','700000','Ventes de marchandises',7,'rÃ©sultat',0),
-        ('c07','600000','Achats de marchandises',6,'rÃ©sultat',0),
-        ('c08','445610','TVA collectÃ©e',4,'bilan',0),
-        ('c09','445660','TVA dÃ©ductible',4,'bilan',0);
+        ('c06','700000','Ventes de marchandises',7,'résultat',0),
+        ('c07','600000','Achats de marchandises',6,'résultat',0),
+        ('c08','445610','TVA collectée',4,'bilan',0),
+        ('c09','445660','TVA déductible',4,'bilan',0);
     """)
 
     conn.commit()
     conn.close()
-    print("[DB] Base de donnÃ©es initialisÃ©e.")
+    print("[DB] Base de données initialisée.")
 
-# â”€â”€â”€ App FastAPI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── App FastAPI ──────────────────────────────────────────────────────────────
 app = FastAPI(title="SAFE PME Express", version="2.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-# â”€â”€â”€ Helpers IRPP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Helpers IRPP ─────────────────────────────────────────────────────────────
 def calculer_irpp(revenu_annuel: float, s: dict) -> float:
     """
-    BarÃ¨me progressif lÃ©gal de l'IRPP tunisien (8 tranches) :
-    Tranche 1 (0 Ã  5 000 TND) : 0 %
-    Tranche 2 (5 000 Ã  10 000 TND) : 15 %
-    Tranche 3 (10 000 Ã  20 000 TND) : 25 %
-    Tranche 4 (20 000 Ã  30 000 TND) : 30 %
-    Tranche 5 (30 000 Ã  40 000 TND) : 33 %
-    Tranche 6 (40 000 Ã  50 000 TND) : 36 %
-    Tranche 7 (50 000 Ã  70 000 TND) : 38 %
-    Tranche 8 (Au-delÃ  de 70 000 TND) : 40 %
+    Barème progressif légal de l'IRPP tunisien (8 tranches) :
+    Tranche 1 (0 à 5 000 TND) : 0 %
+    Tranche 2 (5 000 à 10 000 TND) : 15 %
+    Tranche 3 (10 000 à 20 000 TND) : 25 %
+    Tranche 4 (20 000 à 30 000 TND) : 30 %
+    Tranche 5 (30 000 à 40 000 TND) : 33 %
+    Tranche 6 (40 000 à 50 000 TND) : 36 %
+    Tranche 7 (50 000 à 70 000 TND) : 38 %
+    Tranche 8 (Au-delà de 70 000 TND) : 40 %
     """
     t1_max = s.get("irpp_tranche1_max", 5000)
     t2_max = s.get("irpp_tranche2_max", 10000)
@@ -472,7 +472,7 @@ def calculer_paie(salaire_base: float, primes: float, indemnites: float, setting
         "foprolos": foprolos,
     }
 
-# â”€â”€â”€ ROUTE PRINCIPALE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── ROUTE PRINCIPALE ─────────────────────────────────────────────────────────
 @app.get("/", response_class=HTMLResponse)
 async def index():
     html_path = BASE_DIR / "pme_index.html"
@@ -480,7 +480,7 @@ async def index():
         return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
     return HTMLResponse("<h1>SAFE PME Express</h1><p>pme_index.html introuvable.</p>")
 
-# â”€â”€â”€ API SETTINGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API SETTINGS ─────────────────────────────────────────────────────────────
 @app.get("/api/settings")
 def get_settings():
     db = get_db()
@@ -511,22 +511,34 @@ async def update_settings(request: Request):
     db.close()
     return {"success": True}
 
-# â”€â”€â”€ API DASHBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API DASHBOARD ────────────────────────────────────────────────────────────
 @app.get("/api/dashboard")
 def get_dashboard():
     db = get_db()
     annee = datetime.now().year
     mois = datetime.now().month
 
-    ca = db.execute(
-        "SELECT COALESCE(SUM(montant_ttc),0) as v FROM factures WHERE statut IN ('validÃ©e','payÃ©e') AND strftime('%Y',date_facture)=?",
+    ca_ht = db.execute(
+        "SELECT COALESCE(SUM(montant_ht),0) as v FROM factures WHERE statut IN ('validée','payée') AND strftime('%Y',date_facture)=?",
         [str(annee)]
     ).fetchone()["v"]
 
-    achats = db.execute(
-        "SELECT COALESCE(SUM(montant_ttc),0) as v FROM achats WHERE statut IN ('validÃ©','payÃ©') AND strftime('%Y',date_achat)=?",
+    ca_ttc = db.execute(
+        "SELECT COALESCE(SUM(montant_ttc),0) as v FROM factures WHERE statut IN ('validée','payée') AND strftime('%Y',date_facture)=?",
         [str(annee)]
     ).fetchone()["v"]
+
+    achats_ht = db.execute(
+        "SELECT COALESCE(SUM(montant_ht),0) as v FROM achats WHERE statut IN ('validé','payé') AND strftime('%Y',date_achat)=?",
+        [str(annee)]
+    ).fetchone()["v"]
+
+    salaires_row = db.execute(
+        "SELECT COALESCE(SUM(brut_imposable),0) as b, COALESCE(SUM(cnss_patronal+tfp+foprolos),0) as c FROM bulletins_paie WHERE annee=?",
+        [annee]
+    ).fetchone()
+    masse_sal = (salaires_row["b"] or 0) + (salaires_row["c"] or 0)
+    charges_totales = achats_ht + masse_sal
 
     tresorerie = db.execute(
         "SELECT COALESCE(SUM(solde_actuel),0) as v FROM comptes_tresorerie"
@@ -542,7 +554,7 @@ def get_dashboard():
     ).fetchone()["v"]
 
     factures_impayees = db.execute(
-        "SELECT COALESCE(SUM(montant_ttc),0) as v FROM factures WHERE statut='validÃ©e'"
+        "SELECT COALESCE(SUM(montant_ttc),0) as v FROM factures WHERE statut='validée'"
     ).fetchone()["v"]
 
     # CA mensuel (12 derniers mois)
@@ -552,16 +564,18 @@ def get_dashboard():
         a = annee if mois - i > 0 else annee - 1
         label = f"{a}-{m:02d}"
         val = db.execute(
-            "SELECT COALESCE(SUM(montant_ttc),0) as v FROM factures WHERE statut IN ('validÃ©e','payÃ©e') AND strftime('%Y-%m',date_facture)=?",
+            "SELECT COALESCE(SUM(montant_ttc),0) as v FROM factures WHERE statut IN ('validée','payée') AND strftime('%Y-%m',date_facture)=?",
             [label]
         ).fetchone()["v"]
         ca_mensuel.append({"mois": label, "ca": round(val, 3)})
 
     db.close()
     return {
-        "ca_annuel": round(ca, 3),
-        "charges_annuelles": round(achats, 3),
-        "resultat": round(ca - achats, 3),
+        "ca_annuel": round(ca_ht, 3),
+        "ca_ttc": round(ca_ttc, 3),
+        "achats_annuels": round(achats_ht, 3),
+        "charges_annuelles": round(charges_totales, 3),
+        "resultat": round(ca_ht - charges_totales, 3),
         "tresorerie": round(tresorerie, 3),
         "nb_clients": nb_clients,
         "nb_fournisseurs": nb_fournisseurs,
@@ -572,7 +586,7 @@ def get_dashboard():
         "ca_mensuel": ca_mensuel,
     }
 
-# â”€â”€â”€ API TIERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API TIERS ────────────────────────────────────────────────────────────────
 @app.get("/api/tiers")
 def get_tiers(type: Optional[str] = None):
     db = get_db()
@@ -620,7 +634,7 @@ def delete_tier(id_: str):
     db.close()
     return {"success": True}
 
-# â”€â”€â”€ API ARTICLES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API ARTICLES ─────────────────────────────────────────────────────────────
 @app.get("/api/articles")
 def get_articles():
     db = get_db()
@@ -679,13 +693,13 @@ async def stock_mouvement(request: Request):
     id_ = str(uuid.uuid4())[:8]
     article_id = data.get("article_id")
     qte = float(data.get("quantite", 0))
-    type_mv = data.get("type_mouvement", "entrÃ©e")
+    type_mv = data.get("type_mouvement", "entrée")
     db.execute(
         "INSERT INTO mouvements_stock (id,article_id,type_mouvement,quantite,prix_unitaire,reference,notes,date_mouvement) VALUES (?,?,?,?,?,?,?,?)",
         [id_, article_id, type_mv, qte, data.get("prix_unitaire", 0),
          data.get("reference",""), data.get("notes",""), data.get("date_mouvement", datetime.now().isoformat())]
     )
-    if type_mv in ("entrÃ©e", "retour"):
+    if type_mv in ("entrée", "retour"):
         db.execute("UPDATE articles SET stock_actuel=stock_actuel+? WHERE id=?", [qte, article_id])
     elif type_mv == "sortie":
         db.execute("UPDATE articles SET stock_actuel=MAX(0,stock_actuel-?) WHERE id=?", [qte, article_id])
@@ -710,7 +724,7 @@ def get_mouvements_stock(article_id: Optional[str] = None):
     db.close()
     return [dict(r) for r in rows]
 
-# â”€â”€â”€ API FACTURES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API FACTURES ─────────────────────────────────────────────────────────────
 @app.get("/api/factures")
 def get_factures():
     db = get_db()
@@ -737,7 +751,7 @@ async def create_facture(request: Request):
     db = get_db()
     settings = db.execute("SELECT * FROM settings WHERE id=1").fetchone()
     id_ = str(uuid.uuid4())[:8]
-    # GÃ©nÃ©rer numÃ©ro
+    # Générer numéro
     count = db.execute("SELECT COUNT(*) as c FROM factures").fetchone()["c"]
     numero = f"FAC-{datetime.now().year}-{count+1:04d}"
     lignes = data.get("lignes", [])
@@ -778,41 +792,101 @@ def get_efatoura_xml(id_: str):
     f = db.execute("SELECT * FROM factures WHERE id=?", [id_]).fetchone()
     lignes = db.execute("SELECT * FROM lignes_facture WHERE facture_id=?", [id_]).fetchall()
     settings = db.execute("SELECT * FROM settings WHERE id=1").fetchone()
+    client = db.execute("SELECT * FROM tiers WHERE id=?", [f["client_id"]]).fetchone() if f else None
     db.close()
     if not f:
         raise HTTPException(404, "Facture introuvable")
+    client_mf = client["matricule_fiscal"] if client and "matricule_fiscal" in client.keys() and client["matricule_fiscal"] else "0000000/X/A/000"
+    timbre = float(f["timbre"] or 1.0)
     xml_lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
-        '<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">',
-        f'  <ID>{f["numero"]}</ID>',
-        f'  <IssueDate>{f["date_facture"]}</IssueDate>',
-        f'  <AccountingSupplierParty>',
-        f'    <Party><PartyName><Name>{settings["societe_nom"]}</Name></PartyName>',
-        f'    <PartyTaxScheme><CompanyID>{settings["societe_matricule"]}</CompanyID></PartyTaxScheme></Party>',
-        f'  </AccountingSupplierParty>',
-        f'  <AccountingCustomerParty>',
-        f'    <Party><PartyName><Name>{f["client_nom"]}</Name></PartyName></Party>',
-        f'  </AccountingCustomerParty>',
-        f'  <LegalMonetaryTotal>',
-        f'    <LineExtensionAmount currencyID="TND">{f["montant_ht"]}</LineExtensionAmount>',
-        f'    <TaxInclusiveAmount currencyID="TND">{f["montant_ttc"]}</TaxInclusiveAmount>',
-        f'    <PayableAmount currencyID="TND">{f["montant_ttc"]}</PayableAmount>',
-        f'  </LegalMonetaryTotal>',
+        '<TEIF controlingAgency="TTN" version="1.8.8">',
+        '  <InvoiceHeader>',
+        f'    <MessageSenderIdentifier type="I-01">{settings["societe_matricule"]}</MessageSenderIdentifier>',
+        f'    <MessageReceiverIdentifier type="I-01">{client_mf}</MessageReceiverIdentifier>',
+        '  </InvoiceHeader>',
+        '  <InvoiceBody>',
+        '    <Bgm>',
+        f'      <DocumentIdentifier>{f["numero"]}</DocumentIdentifier>',
+        '      <DocumentType code="I-11">Facture</DocumentType>',
+        '    </Bgm>',
+        '    <Dtm>',
+        f'      <DateText format="ddMMyy" functionCode="I-31">{f["date_facture"]}</DateText>',
+        '    </Dtm>',
+        '    <PartnerSection>',
+        '      <PartnerDetails functionCode="I-62">',
+        '        <Nad>',
+        f'          <PartnerIdentifier type="I-01">{settings["societe_matricule"]}</PartnerIdentifier>',
+        f'          <PartnerName nameType="Qualification">{settings["societe_nom"]}</PartnerName>',
+        '        </Nad>',
+        '      </PartnerDetails>',
+        '      <PartnerDetails functionCode="I-64">',
+        '        <Nad>',
+        f'          <PartnerIdentifier type="I-01">{client_mf}</PartnerIdentifier>',
+        f'          <PartnerName nameType="Qualification">{f["client_nom"]}</PartnerName>',
+        '        </Nad>',
+        '      </PartnerDetails>',
+        '    </PartnerSection>',
+        '    <LinSection>',
     ]
     for idx, l in enumerate(lignes, 1):
         xml_lines += [
-            f'  <InvoiceLine>',
-            f'    <ID>{idx}</ID>',
-            f'    <InvoicedQuantity>{l["quantite"]}</InvoicedQuantity>',
-            f'    <LineExtensionAmount currencyID="TND">{l["total_ht"]}</LineExtensionAmount>',
-            f'    <Item><Description>{l["designation"]}</Description></Item>',
-            f'    <Price><PriceAmount currencyID="TND">{l["prix_ht"]}</PriceAmount></Price>',
-            f'  </InvoiceLine>',
+            '      <Lin>',
+            f'        <ItemIdentifier>{idx}</ItemIdentifier>',
+            '        <LinImd>',
+            f'          <ItemCode>{l["article_id"] if "article_id" in l.keys() else idx}</ItemCode>',
+            f'          <ItemDescription>{l["designation"]}</ItemDescription>',
+            '        </LinImd>',
+            '        <LinQty>',
+            f'          <Quantity measurementUnit="PCE">{l["quantite"]}</Quantity>',
+            '        </LinQty>',
+            '        <LinTax>',
+            f'          <TaxRate>{l["taux_tva"] if "taux_tva" in l.keys() else 19.0}</TaxRate>',
+            '        </LinTax>',
+            '        <LinMoa>',
+            '          <MoaDetails>',
+            '            <Moa amountTypeCode="I-183" currencyCodeList="ISO_4217">',
+            f'              <Amount currencyIdentifier="TND">{l["prix_ht"]:.3f}</Amount>',
+            '            </Moa>',
+            '          </MoaDetails>',
+            '          <MoaDetails>',
+            '            <Moa amountTypeCode="I-171" currencyCodeList="ISO_4217">',
+            f'              <Amount currencyIdentifier="TND">{l["total_ht"]:.3f}</Amount>',
+            '            </Moa>',
+            '          </MoaDetails>',
+            '        </LinMoa>',
+            '      </Lin>',
         ]
-    xml_lines.append('</Invoice>')
+    xml_lines += [
+        '    </LinSection>',
+        '    <InvoiceMoa>',
+        '      <AmountDetails>',
+        '        <Moa amountTypeCode="I-176" currencyCodeList="ISO_4217">',
+        f'          <Amount currencyIdentifier="TND">{float(f["montant_ht"]):.3f}</Amount>',
+        '        </Moa>',
+        '      </AmountDetails>',
+        '      <AmountDetails>',
+        '        <Moa amountTypeCode="I-178" currencyCodeList="ISO_4217">',
+        f'          <Amount currencyIdentifier="TND">{float(f["montant_tva"]):.3f}</Amount>',
+        '        </Moa>',
+        '      </AmountDetails>',
+        '      <AmountDetails>',
+        '        <Moa amountTypeCode="I-180" currencyCodeList="ISO_4217">',
+        f'          <Amount currencyIdentifier="TND">{timbre:.3f}</Amount>',
+        '        </Moa>',
+        '      </AmountDetails>',
+        '      <AmountDetails>',
+        '        <Moa amountTypeCode="I-181" currencyCodeList="ISO_4217">',
+        f'          <Amount currencyIdentifier="TND">{float(f["montant_ttc"]):.3f}</Amount>',
+        '        </Moa>',
+        '      </AmountDetails>',
+        '    </InvoiceMoa>',
+        '  </InvoiceBody>',
+        '</TEIF>',
+    ]
     return HTMLResponse(content="\n".join(xml_lines), media_type="application/xml")
 
-# â”€â”€â”€ API ACHATS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API ACHATS ───────────────────────────────────────────────────────────────
 @app.get("/api/achats")
 def get_achats():
     db = get_db()
@@ -850,7 +924,7 @@ async def create_achat(request: Request):
     db.close()
     return {"id": id_, "numero": numero, "success": True}
 
-# â”€â”€â”€ API SALARIÃ‰S â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API SALARIÉS ─────────────────────────────────────────────────────────────
 @app.get("/api/salaries")
 def get_salaries():
     db = get_db()
@@ -889,7 +963,7 @@ async def update_salarie(id_: str, request: Request):
     db.close()
     return {"success": True}
 
-# â”€â”€â”€ API PAIE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API PAIE ─────────────────────────────────────────────────────────────────
 @app.get("/api/paie")
 def get_bulletins(mois: Optional[str] = None, annee: Optional[int] = None):
     db = get_db()
@@ -914,7 +988,7 @@ async def calculer_bulletin(request: Request):
     salarie = db.execute("SELECT * FROM salaries WHERE id=?", [salarie_id]).fetchone()
     if not salarie:
         db.close()
-        raise HTTPException(404, "SalariÃ© introuvable")
+        raise HTTPException(404, "Salarié introuvable")
     primes = float(data.get("primes", 0))
     indemnites = float(data.get("indemnites", 0))
     calcul = calculer_paie(salarie["salaire_base"], primes, indemnites, settings)
@@ -931,7 +1005,7 @@ async def calculer_bulletin(request: Request):
     db.close()
     return {"id": id_, **calcul, "success": True}
 
-# â”€â”€â”€ API COMPTABILITÃ‰ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API COMPTABILITÉ ─────────────────────────────────────────────────────────
 @app.get("/api/comptes")
 def get_comptes():
     db = get_db()
@@ -967,7 +1041,7 @@ async def create_ecriture(request: Request):
     db.close()
     return {"id": id_, "success": True}
 
-# â”€â”€â”€ API TVA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API TVA ──────────────────────────────────────────────────────────────────
 @app.get("/api/tva")
 def get_tva_summary(mois: Optional[str] = None, annee: Optional[int] = None):
     db = get_db()
@@ -975,12 +1049,12 @@ def get_tva_summary(mois: Optional[str] = None, annee: Optional[int] = None):
     mois_filter = f"{annee}-{mois}" if mois else str(annee)
     
     tva_col = db.execute(
-        "SELECT COALESCE(SUM(montant_tva),0) as v FROM factures WHERE statut IN ('validÃ©e','payÃ©e') AND strftime('%Y',date_facture)=?",
+        "SELECT COALESCE(SUM(montant_tva),0) as v FROM factures WHERE statut IN ('validée','payée') AND strftime('%Y',date_facture)=?",
         [str(annee)]
     ).fetchone()["v"]
     
     tva_ded = db.execute(
-        "SELECT COALESCE(SUM(montant_tva),0) as v FROM achats WHERE statut IN ('validÃ©','payÃ©') AND strftime('%Y',date_achat)=?",
+        "SELECT COALESCE(SUM(montant_tva),0) as v FROM achats WHERE statut IN ('validé','payé') AND strftime('%Y',date_achat)=?",
         [str(annee)]
     ).fetchone()["v"]
     
@@ -992,7 +1066,7 @@ def get_tva_summary(mois: Optional[str] = None, annee: Optional[int] = None):
         "annee": annee,
     }
 
-# â”€â”€â”€ API FISCALITÃ‰ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API FISCALITÉ ────────────────────────────────────────────────────────────
 @app.get("/api/fiscalite")
 def get_fiscalite(annee: Optional[int] = None):
     db = get_db()
@@ -1000,26 +1074,42 @@ def get_fiscalite(annee: Optional[int] = None):
     annee = annee or datetime.now().year
 
     ca_ht = db.execute(
-        "SELECT COALESCE(SUM(montant_ht),0) as v FROM factures WHERE statut IN ('validÃ©e','payÃ©e') AND strftime('%Y',date_facture)=?",
+        "SELECT COALESCE(SUM(montant_ht),0) as v FROM factures WHERE statut IN ('validée','payée') AND strftime('%Y',date_facture)=?",
+        [str(annee)]
+    ).fetchone()["v"]
+
+    ca_ttc = db.execute(
+        "SELECT COALESCE(SUM(montant_ttc),0) as v FROM factures WHERE statut IN ('validée','payée') AND strftime('%Y',date_facture)=?",
+        [str(annee)]
+    ).fetchone()["v"]
+
+    tva_col = db.execute(
+        "SELECT COALESCE(SUM(montant_tva),0) as v FROM factures WHERE statut IN ('validée','payée') AND strftime('%Y',date_facture)=?",
+        [str(annee)]
+    ).fetchone()["v"]
+
+    tva_ded = db.execute(
+        "SELECT COALESCE(SUM(montant_tva),0) as v FROM achats WHERE statut IN ('validé','payé') AND strftime('%Y',date_achat)=?",
         [str(annee)]
     ).fetchone()["v"]
 
     charges = db.execute(
-        "SELECT COALESCE(SUM(montant_ht),0) as v FROM achats WHERE statut IN ('validÃ©','payÃ©') AND strftime('%Y',date_achat)=?",
+        "SELECT COALESCE(SUM(montant_ht),0) as v FROM achats WHERE statut IN ('validé','payé') AND strftime('%Y',date_achat)=?",
         [str(annee)]
     ).fetchone()["v"]
 
     masse_salariale = db.execute(
-        "SELECT COALESCE(SUM(net_a_payer),0) as v FROM bulletins_paie WHERE annee=?",
+        "SELECT COALESCE(SUM(brut_imposable + cnss_patronal + tfp + foprolos),0) as v FROM bulletins_paie WHERE annee=?",
         [annee]
     ).fetchone()["v"]
 
     benefice = max(0, ca_ht - charges - masse_salariale)
     taux_is = settings["is_taux_pme"] if benefice <= 100000 else settings["is_taux_normal"]
     is_du = round(benefice * taux_is / 100, 3)
-    tcl = round(ca_ht * settings["tcl_taux"] / 100, 3)
+    tcl_taux = settings["tcl_taux"] if settings["tcl_taux"] else 0.2
+    tcl = round(ca_ttc * tcl_taux / 100, 3)
     timbres = db.execute(
-        "SELECT COALESCE(SUM(timbre),0) as v FROM factures WHERE statut IN ('validÃ©e','payÃ©e') AND strftime('%Y',date_facture)=?",
+        "SELECT COALESCE(SUM(CASE WHEN COALESCE(timbre,0) > 0 THEN timbre ELSE 1.0 END),0) as v FROM factures WHERE statut IN ('validée','payée') AND strftime('%Y',date_facture)=?",
         [str(annee)]
     ).fetchone()["v"]
 
@@ -1027,6 +1117,10 @@ def get_fiscalite(annee: Optional[int] = None):
     return {
         "annee": annee,
         "ca_ht": round(ca_ht, 3),
+        "ca_ttc": round(ca_ttc, 3),
+        "tva_collectee": round(tva_col, 3),
+        "tva_deductible": round(tva_ded, 3),
+        "tva_nette": round(tva_col - tva_ded, 3),
         "charges": round(charges, 3),
         "masse_salariale": round(masse_salariale, 3),
         "benefice": round(benefice, 3),
@@ -1034,10 +1128,10 @@ def get_fiscalite(annee: Optional[int] = None):
         "is_du": is_du,
         "tcl": tcl,
         "timbres": round(timbres, 3),
-        "total_fiscal": round(is_du + tcl + timbres, 3),
+        "total_fiscal": round(is_du + tcl + timbres + max(0, tva_col - tva_ded), 3),
     }
 
-# â”€â”€â”€ API IMMOBILISATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API IMMOBILISATIONS ──────────────────────────────────────────────────────
 @app.get("/api/immobilisations")
 def get_immobilisations():
     db = get_db()
@@ -1070,13 +1164,13 @@ async def create_immobilisation(request: Request):
         [id_, code, data.get("designation",""), data.get("famille",""),
          data.get("date_acquisition", date.today().isoformat()),
          data.get("valeur_acquisition",0), data.get("duree_amortissement",5), taux,
-         data.get("methode","linÃ©aire")]
+         data.get("methode","linéaire")]
     )
     db.commit()
     db.close()
     return {"id": id_, "code": code, "success": True}
 
-# â”€â”€â”€ API TRÃ‰SORERIE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API TRÉSORERIE ───────────────────────────────────────────────────────────
 @app.get("/api/tresorerie")
 def get_tresorerie():
     db = get_db()
@@ -1120,7 +1214,7 @@ async def create_mouvement_tresorerie(request: Request):
     db.close()
     return {"id": id_, "success": True}
 
-# â”€â”€â”€ API DÃ‰CLARATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API DÉCLARATIONS ─────────────────────────────────────────────────────────
 @app.get("/api/declarations")
 def get_declarations():
     db = get_db()
@@ -1136,7 +1230,7 @@ async def create_declaration(request: Request):
     db.execute(
         "INSERT INTO declarations (id,type_declaration,periode,date_depot,statut,montant,notes) VALUES (?,?,?,?,?,?,?)",
         [id_, data.get("type_declaration","TVA"), data.get("periode",""),
-         data.get("date_depot",""), data.get("statut","Ã  dÃ©poser"),
+         data.get("date_depot",""), data.get("statut","à déposer"),
          data.get("montant",0), data.get("notes","")]
     )
     db.commit()
@@ -1155,7 +1249,7 @@ async def update_declaration(id_: str, request: Request):
     db.close()
     return {"success": True}
 
-# â”€â”€â”€ API UTILISATEURS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API UTILISATEURS ─────────────────────────────────────────────────────────
 @app.get("/api/users")
 def get_users():
     db = get_db()
@@ -1199,7 +1293,7 @@ async def login(request: Request):
         }
 
     db = get_db()
-    # Recherche insensible Ã  la casse
+    # Recherche insensible à la casse
     user = db.execute(
         """SELECT * FROM users 
            WHERE (LOWER(email)=? OR LOWER(nom)=? OR LOWER(id)=?) 
@@ -1224,7 +1318,7 @@ async def login(request: Request):
     }
 
 
-# â”€â”€â”€ API RAPPORTS EXÃ‰CUTIFS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API RAPPORTS EXÉCUTIFS ───────────────────────────────────────────────────
 @app.get("/api/reports/sales")
 def report_sales(annee: Optional[int] = None):
     db = get_db()
@@ -1303,22 +1397,44 @@ def report_payroll(annee: Optional[int] = None):
 def report_pnl(annee: Optional[int] = None):
     db = get_db()
     annee = annee or datetime.now().year
-    ca = db.execute("SELECT COALESCE(SUM(montant_ht), 0) as v FROM factures WHERE strftime('%Y', date_facture)=?", [str(annee)]).fetchone()["v"]
-    achats = db.execute("SELECT COALESCE(SUM(montant_ht), 0) as v FROM achats WHERE strftime('%Y', date_achat)=?", [str(annee)]).fetchone()["v"]
+    settings = db.execute("SELECT * FROM settings WHERE id=1").fetchone()
+    ca = db.execute("SELECT COALESCE(SUM(montant_ht), 0) as v, COALESCE(SUM(montant_ttc), 0) as ttc, COALESCE(SUM(timbre), 0) as timbres FROM factures WHERE statut IN ('validée','payée') AND strftime('%Y', date_facture)=?", [str(annee)]).fetchone()
+    achats = db.execute("SELECT COALESCE(SUM(montant_ht), 0) as v FROM achats WHERE statut IN ('validé','payé') AND strftime('%Y', date_achat)=?", [str(annee)]).fetchone()["v"]
     salaires = db.execute("SELECT COALESCE(SUM(brut_imposable), 0) as b, COALESCE(SUM(cnss_patronal+tfp+foprolos), 0) as c FROM bulletins_paie WHERE annee=?", [annee]).fetchone()
-    masse_sal = salaires["b"] + salaires["c"]
-    resultat = ca - achats - masse_sal
+    dotations = db.execute("SELECT COALESCE(SUM(amort_annuel), 0) as v FROM immobilisations").fetchone()["v"]
+    ca_ht = ca["v"] or 0
+    ca_ttc = ca["ttc"] or 0
+    salaires_bruts = salaires["b"] or 0
+    charges_sociales = salaires["c"] or 0
+    masse_sal = salaires_bruts + charges_sociales
+    tcl = round(ca_ttc * ((settings["tcl_taux"] if settings and settings["tcl_taux"] else 0.2) / 100), 3)
+    timbres = ca["timbres"] or 0
+    autres_impots = round(tcl + timbres, 3)
+    marge_brute = ca_ht - achats
+    ebe = marge_brute - masse_sal - autres_impots
+    resultat_exploitation = ebe - dotations
+    taux_is = (settings["is_taux_pme"] if settings else 15.0) if resultat_exploitation <= 100000 else (settings["is_taux_normal"] if settings else 25.0)
+    impot_is = round(max(0, resultat_exploitation) * taux_is / 100, 3)
+    resultat_net = resultat_exploitation - impot_is
     db.close()
     return {
         "annee": annee,
-        "chiffre_affaires_ht": round(ca, 3),
+        "chiffre_affaires_ht": round(ca_ht, 3),
         "achats_consommes_ht": round(achats, 3),
-        "marge_brute": round(ca - achats, 3),
+        "marge_brute": round(marge_brute, 3),
+        "salaires_bruts": round(salaires_bruts, 3),
+        "charges_sociales": round(charges_sociales, 3),
         "charges_personnel": round(masse_sal, 3),
-        "resultat_exploitation": round(resultat, 3)
+        "impots_taxes_tcl_timbre": autres_impots,
+        "ebe": round(ebe, 3),
+        "dotations_amortissements": round(dotations, 3),
+        "resultat_exploitation": round(resultat_exploitation, 3),
+        "taux_is": taux_is,
+        "impot_societes": impot_is,
+        "resultat_net": round(resultat_net, 3),
     }
 
-# â”€â”€â”€ API RÃ‰INITIALISATION & RECHARGEMENT DU JEU DE DONNÃ‰ES (900 LIGNES) â”€â”€â”€â”€â”€â”€â”€
+# ─── API RÉINITIALISATION & RECHARGEMENT DU JEU DE DONNÉES (900 LIGNES) ───────
 @app.post("/api/admin/reset")
 def reset_database(request: Request):
     db = get_db()
@@ -1331,23 +1447,23 @@ def reset_database(request: Request):
         db.execute(f"DELETE FROM {t}")
     db.commit()
     db.close()
-    return {"success": True, "message": "DonnÃ©es opÃ©rationnelles remises Ã  zÃ©ro."}
+    return {"success": True, "message": "Données opérationnelles remises à zéro."}
 
 @app.post("/api/admin/reload-seed")
 def reload_seed_data():
     scratch_script = Path(r"C:\Users\USER\.gemini\antigravity\brain\b17ba095-2677-4276-aa94-3db502806cb0\scratch\load_900_seed_data.py")
     if scratch_script.exists():
         subprocess.run([sys.executable, str(scratch_script)], capture_output=True, text=True, timeout=30)
-        return {"success": True, "message": "Jeu de donnÃ©es de 900 enregistrements sur 12 mois rechargÃ© avec succÃ¨s."}
+        return {"success": True, "message": "Jeu de données de 900 enregistrements sur 12 mois rechargé avec succès."}
     return {"success": False, "message": "Script de rechargement introuvable."}
 
 @app.get("/api/admin/backup-download")
 def download_backup():
     if DB_PATH.exists():
         return FileResponse(str(DB_PATH), filename=f"pme_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db")
-    raise HTTPException(404, "Base de donnÃ©es introuvable")
+    raise HTTPException(404, "Base de données introuvable")
 
-# â”€â”€â”€ API IMPORT EN MASSE (EXCEL / CSV / JSON) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── API IMPORT EN MASSE (EXCEL / CSV / JSON) ─────────────────────────────────
 @app.post("/api/import/tiers")
 async def import_tiers(request: Request):
     data = await request.json()
@@ -1385,7 +1501,7 @@ async def import_articles(request: Request):
         db.execute(
             """INSERT OR REPLACE INTO articles (id, code, designation, famille, unite, prix_vente_ht, taux_tva, stock_actuel, stock_min)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            [id_, code, desig, item.get("famille", "GÃ©nÃ©ral"),
+            [id_, code, desig, item.get("famille", "Général"),
              item.get("unite", "U"), float(item.get("prix_vente_ht", 0)),
              float(item.get("taux_tva", 19)), float(item.get("stock_actuel", 0)),
              float(item.get("stock_min", 5))]
@@ -1396,14 +1512,14 @@ async def import_articles(request: Request):
     return {"success": True, "imported": count}
 
 
-# â”€â”€â”€ Infos licence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Infos licence ────────────────────────────────────────────────────────────
 @app.get("/api/licence")
 def get_licence():
     hw_id = get_hardware_id()
     token = generate_license_token(hw_id)
     return {"hardware_id": hw_id[:16]+"...", "token": token[:16]+"...", "valid": True, "edition": "SAFE PME Express 2.0"}
 
-# â”€â”€â”€ STARTUP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── STARTUP ──────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     init_db()
     hw = get_hardware_id()

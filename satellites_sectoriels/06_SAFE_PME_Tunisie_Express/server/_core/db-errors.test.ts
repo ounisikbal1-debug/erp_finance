@@ -17,7 +17,7 @@ describe("isUniqueViolation", () => {
   // The regression this whole module exists for (observed 2026-08-26, signup on
   // a published app): Drizzle does NOT re-throw the driver error, it WRAPS it.
   // The wrapper's own message is "Failed query: <sql>\nparams: <bound values>"
-  // â€” no "unique", no "duplicate", no SQLSTATE anywhere in it â€” so a caller
+  // — no "unique", no "duplicate", no SQLSTATE anywhere in it — so a caller
   // that pattern-matches `e.message` sees nothing and lets a duplicate signup
   // fall through as a 500 quoting the INSERT and every bound param (including
   // the bcrypt hash) back to the browser.
@@ -49,7 +49,7 @@ describe("isUniqueViolation", () => {
     expect(isUniqueViolation(e, "notes_owner_title_unique")).toBe(false);
   });
 
-  it("is false for every other failure â€” a FK violation is not a duplicate", () => {
+  it("is false for every other failure — a FK violation is not a duplicate", () => {
     const fk = Object.assign(new Error("violates foreign key constraint"), { code: "23503" });
     expect(isUniqueViolation(new DrizzleQueryError("insert into ...", [], fk))).toBe(false);
     expect(isUniqueViolation(new Error("connection terminated"))).toBe(false);

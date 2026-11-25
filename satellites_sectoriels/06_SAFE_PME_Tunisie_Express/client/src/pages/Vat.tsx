@@ -33,15 +33,15 @@ export default function Vat() {
   return (
     <>
       <PageHeader
-        title="TVA â€” collectÃ©e & dÃ©ductible"
-        subtitle="Suivi sÃ©parÃ©, solde Ã  payer ou crÃ©dit reportable, dÃ©claration prÃªte Ã  transmettre"
+        title="TVA — collectée & déductible"
+        subtitle="Suivi séparé, solde à payer ou crédit reportable, déclaration prête à transmettre"
         actions={
           <button
             className="erp-btn-gold"
             onClick={() => generate.mutate(mode === "mois" ? { month } : { quarter })}
             disabled={generate.isPending || !s}
           >
-            {generate.isPending ? "GÃ©nÃ©rationâ€¦" : "GÃ©nÃ©rer la dÃ©claration"}
+            {generate.isPending ? "Génération…" : "Générer la déclaration"}
           </button>
         }
       />
@@ -75,7 +75,7 @@ export default function Vat() {
         )}
         {s && (
           <span className="text-[12px] text-muted-foreground">
-            PÃ©riode du {new Date(s.period.from).toLocaleDateString("fr-FR")} au{" "}
+            Période du {new Date(s.period.from).toLocaleDateString("fr-FR")} au{" "}
             {new Date(s.period.to).toLocaleDateString("fr-FR")}
           </span>
         )}
@@ -83,9 +83,9 @@ export default function Vat() {
 
       {generate.data && (
         <div className="mb-4 rounded-lg border border-success/30 bg-success-soft px-3 py-2 text-[12.5px] text-success">
-          DÃ©claration TVA gÃ©nÃ©rÃ©e pour {generate.data.period} â€” Ã©chÃ©ance le{" "}
-          {new Date(generate.data.dueDate).toLocaleDateString("fr-FR")}. Elle est disponible dans FiscalitÃ© et prÃªte Ã 
-          Ãªtre transmise Ã  la TTN.
+          Déclaration TVA générée pour {generate.data.period} — échéance le{" "}
+          {new Date(generate.data.dueDate).toLocaleDateString("fr-FR")}. Elle est disponible dans Fiscalité et prête à
+          être transmise à la TTN.
         </div>
       )}
 
@@ -93,29 +93,29 @@ export default function Vat() {
         <Loading />
       ) : !s ? (
         <Panel>
-          <EmptyState icon="â—ˆ" title="Aucune donnÃ©e" description="Choisissez une pÃ©riode pour calculer la TVA." />
+          <EmptyState icon="◈" title="Aucune donnée" description="Choisissez une période pour calculer la TVA." />
         </Panel>
       ) : (
         <>
           <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Stat label="TVA collectÃ©e" value={<Money value={s.collected.vat} />} hint={`${s.collected.documents} facture(s) de vente`} tone="info" />
-            <Stat label="TVA dÃ©ductible" value={<Money value={s.deductible.vat} />} hint={`${s.deductible.documents} facture(s) d'achat`} tone="gold" />
+            <Stat label="TVA collectée" value={<Money value={s.collected.vat} />} hint={`${s.collected.documents} facture(s) de vente`} tone="info" />
+            <Stat label="TVA déductible" value={<Money value={s.deductible.vat} />} hint={`${s.deductible.documents} facture(s) d'achat`} tone="gold" />
             <Stat
-              label={s.toPay > 0 ? "TVA Ã  payer" : "CrÃ©dit de TVA"}
+              label={s.toPay > 0 ? "TVA à payer" : "Crédit de TVA"}
               value={<Money value={s.toPay > 0 ? s.toPay : s.credit} />}
-              hint={s.toPay > 0 ? "Ã€ verser au TrÃ©sor" : "Reportable sur la pÃ©riode suivante"}
+              hint={s.toPay > 0 ? "À verser au Trésor" : "Reportable sur la période suivante"}
               tone={s.toPay > 0 ? "danger" : "success"}
             />
             <Stat label="Taux effectif" value={`${s.effectiveRate.toFixed(2)} %`} hint="TVA / base imposable des ventes" />
           </div>
 
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            <Panel title="TVA collectÃ©e" subtitle="FacturÃ©e Ã  vos clients" noPad>
+            <Panel title="TVA collectée" subtitle="Facturée à vos clients" noPad>
               {s.collected.byRate.length === 0 ? (
                 <EmptyState
-                  icon="â†‘"
-                  title="Aucune vente sur la pÃ©riode"
-                  description="La TVA collectÃ©e apparaÃ®tra ici dÃ¨s qu'une facture de vente sera Ã©mise sur cette pÃ©riode."
+                  icon="↑"
+                  title="Aucune vente sur la période"
+                  description="La TVA collectée apparaîtra ici dès qu'une facture de vente sera émise sur cette période."
                 />
               ) : (
                 <Table head={["Taux", "Base HT", "TVA", "Part"]}>
@@ -141,12 +141,12 @@ export default function Vat() {
               )}
             </Panel>
 
-            <Panel title="TVA dÃ©ductible" subtitle="PayÃ©e Ã  vos fournisseurs" noPad>
+            <Panel title="TVA déductible" subtitle="Payée à vos fournisseurs" noPad>
               {s.deductible.byRate.length === 0 ? (
                 <EmptyState
-                  icon="â†“"
-                  title="Aucun achat sur la pÃ©riode"
-                  description="La TVA dÃ©ductible apparaÃ®tra ici dÃ¨s qu'une facture d'achat sera saisie sur cette pÃ©riode."
+                  icon="↓"
+                  title="Aucun achat sur la période"
+                  description="La TVA déductible apparaîtra ici dès qu'une facture d'achat sera saisie sur cette période."
                 />
               ) : (
                 <Table head={["Taux", "Base HT", "TVA", "Part"]}>
@@ -173,24 +173,24 @@ export default function Vat() {
             </Panel>
           </div>
 
-          <Panel title="Liquidation de la TVA" subtitle="Solde de la pÃ©riode" className="mt-4">
+          <Panel title="Liquidation de la TVA" subtitle="Solde de la période" className="mt-4">
             <div className="space-y-1.5 text-[13px]">
               <div className="flex justify-between border-b border-border pb-1.5">
-                <span className="text-muted-foreground">TVA collectÃ©e sur ventes</span>
+                <span className="text-muted-foreground">TVA collectée sur ventes</span>
                 <Money value={s.collected.vat} bold />
               </div>
               <div className="flex justify-between border-b border-border pb-1.5">
-                <span className="text-muted-foreground">TVA dÃ©ductible sur achats</span>
-                <span className="num font-medium">âˆ’ <Money value={s.deductible.vat} /></span>
+                <span className="text-muted-foreground">TVA déductible sur achats</span>
+                <span className="num font-medium">− <Money value={s.deductible.vat} /></span>
               </div>
               <div className="flex justify-between pt-1 text-[15px] font-semibold">
-                <span>{s.balance >= 0 ? "TVA Ã  payer" : "CrÃ©dit de TVA reportable"}</span>
+                <span>{s.balance >= 0 ? "TVA à payer" : "Crédit de TVA reportable"}</span>
                 <Money value={Math.abs(s.balance)} bold />
               </div>
             </div>
             <p className="mt-3 rounded-lg bg-secondary/50 p-2.5 text-[11.5px] leading-relaxed text-muted-foreground">
-              La dÃ©claration est due le 15 du mois suivant la pÃ©riode. Un crÃ©dit de TVA se reporte sur les pÃ©riodes
-              suivantes ; il n'est remboursÃ© que sur demande expresse. Les factures en brouillon sont exclues du calcul.
+              La déclaration est due le 15 du mois suivant la période. Un crédit de TVA se reporte sur les périodes
+              suivantes ; il n'est remboursé que sur demande expresse. Les factures en brouillon sont exclues du calcul.
             </p>
           </Panel>
         </>

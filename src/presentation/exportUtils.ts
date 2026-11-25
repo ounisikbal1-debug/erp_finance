@@ -188,22 +188,31 @@ export const exportToExcel = (
 /**
  * 2b. EXPORT EXCEL MULTI-FEUILLES (Chaque état principal sur son propre onglet)
  */
-export const exportMultiSheetExcel = (
+export const exportMultiSheetExcel = async (
   filename: string,
   sheets: ExcelSheetData[],
   meta: ExportMetadata
-) => {
-  void buildWorkbook(filename, sheets, meta).catch((error: unknown) => {
+): Promise<void> => {
+  try {
+    await buildWorkbook(filename, sheets, meta);
+  } catch (error: unknown) {
     console.error('Erreur lors de la génération du classeur Excel:', error);
-    alert('Impossible de générer le classeur Excel. Vérifiez le fichier et réessayez.');
-  });
+    throw error instanceof Error
+      ? error
+      : new Error('Impossible de générer le classeur Excel. Vérifiez le fichier et réessayez.');
+  }
 };
 
 export async function buildWorkbook(filename: string, sheets: ExcelSheetData[], meta: ExportMetadata): Promise<void> {
   const dateImputation = getImputedDate(meta.customDate);
   const company = meta.companyName || 'Société non précisée';
-  const { default: ExcelJS } = await import('exceljs');
-  const workbook = new ExcelJS.Workbook();
+  const excelModule = await import('exceljs');
+  const ExcelJS = (excelModule as { default?: typeof excelModule }).default ?? excelModule;
+  const WorkbookCtor = ExcelJS.Workbook ?? excelModule.Workbook;
+  if (!WorkbookCtor) {
+    throw new Error('Bibliothèque ExcelJS indisponible pour la génération du classeur.');
+  }
+  const workbook = new WorkbookCtor();
   workbook.creator = 'SAFE_ERP';
   workbook.created = new Date();
   sheets.forEach((sheet) => {

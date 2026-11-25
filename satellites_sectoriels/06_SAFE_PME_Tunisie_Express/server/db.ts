@@ -1,6 +1,6 @@
-﻿// â”€â”€ AGENT-OWNED: business data-access â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Architecture MVC : ce fichier est la couche d'accÃ¨s aux donnÃ©es (Model).
-// Chaque requÃªte est scopÃ©e par `ownerId` â€” deux comptes ne voient jamais les
+﻿// ── AGENT-OWNED: business data-access ─────────────────────────────────────────
+// Architecture MVC : ce fichier est la couche d'accès aux données (Model).
+// Chaque requête est scopée par `ownerId` — deux comptes ne voient jamais les
 // livres de l'autre. Les montants sont en millimes (entiers).
 import { and, asc, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "./_core/db";
@@ -26,7 +26,7 @@ import {
   transmissions,
 } from "../drizzle/schema";
 
-// â”€â”€ SociÃ©tÃ© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Société ──────────────────────────────────────────────────────────────────
 export async function getCompany(ownerId: string) {
   const rows = await db.select().from(company).where(eq(company.ownerId, ownerId)).limit(1);
   if (rows[0]) return rows[0];
@@ -44,7 +44,7 @@ export async function updateCompany(ownerId: string, patch: Record<string, unkno
   return row;
 }
 
-// â”€â”€ Tiers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Tiers ────────────────────────────────────────────────────────────────────
 export async function listPartners(ownerId: string, type?: string) {
   const base = db.select().from(partners).where(eq(partners.ownerId, ownerId)).orderBy(asc(partners.name));
   if (type) return db.select().from(partners).where(and(eq(partners.ownerId, ownerId), eq(partners.type, type))).orderBy(asc(partners.name));
@@ -97,7 +97,7 @@ export async function deletePartner(ownerId: string, id: string) {
   return { ok: true };
 }
 
-// â”€â”€ Articles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Articles ─────────────────────────────────────────────────────────────────
 export async function listProducts(ownerId: string) {
   return db.select().from(products).where(eq(products.ownerId, ownerId)).orderBy(asc(products.reference));
 }
@@ -150,7 +150,7 @@ export async function deleteProduct(ownerId: string, id: string) {
   return { ok: true };
 }
 
-// â”€â”€ Stock â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Stock ────────────────────────────────────────────────────────────────────
 export async function listStockMovements(ownerId: string, productId?: string, limit = 300) {
   const where = productId
     ? and(eq(stockMovements.ownerId, ownerId), eq(stockMovements.productId, productId))
@@ -176,7 +176,7 @@ export async function listStockMovements(ownerId: string, productId?: string, li
     .limit(limit);
 }
 
-/** Enregistre un mouvement et met Ã  jour la quantitÃ© de l'article. */
+/** Enregistre un mouvement et met à jour la quantité de l'article. */
 export async function createStockMovement(
   ownerId: string,
   input: {
@@ -236,16 +236,16 @@ export async function getStockAlerts(ownerId: string) {
       unit: p.unit,
       stockQty: p.stockQty,
       reorderLevel: p.reorderLevel,
-      /** QuantitÃ© Ã  commander pour revenir au double du seuil. */
+      /** Quantité à commander pour revenir au double du seuil. */
       toOrder: Math.max(0, p.reorderLevel * 2 - p.stockQty),
       costPrice: p.costPrice,
-      /** Valeur du rÃ©approvisionnement proposÃ© (millimes). */
+      /** Valeur du réapprovisionnement proposé (millimes). */
       orderValue: Math.max(0, p.reorderLevel * 2 - p.stockQty) * p.costPrice / 1000,
       severity: p.stockQty === 0 ? "rupture" : "alerte",
     }));
 }
 
-// â”€â”€ Factures de vente â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Factures de vente ────────────────────────────────────────────────────────
 export async function listInvoices(ownerId: string) {
   return db
     .select()
@@ -357,7 +357,7 @@ export async function deleteInvoice(ownerId: string, id: string) {
   return { ok: true };
 }
 
-// â”€â”€ Achats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Achats ───────────────────────────────────────────────────────────────────
 export async function listBills(ownerId: string) {
   return db
     .select()
@@ -453,7 +453,7 @@ export async function deleteBill(ownerId: string, id: string) {
   return { ok: true };
 }
 
-// â”€â”€ SalariÃ©s â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Salariés ─────────────────────────────────────────────────────────────────
 export async function listEmployees(ownerId: string) {
   return db.select().from(employees).where(eq(employees.ownerId, ownerId)).orderBy(asc(employees.lastName));
 }
@@ -510,7 +510,7 @@ export async function deleteEmployee(ownerId: string, id: string) {
   return { ok: true };
 }
 
-// â”€â”€ Paie â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Paie ─────────────────────────────────────────────────────────────────────
 export async function listPayrollRuns(ownerId: string) {
   return db.select().from(payrollRuns).where(eq(payrollRuns.ownerId, ownerId)).orderBy(desc(payrollRuns.period));
 }
@@ -605,7 +605,7 @@ export async function deletePayrollRun(ownerId: string, id: string) {
   return { ok: true };
 }
 
-// â”€â”€ ComptabilitÃ© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Comptabilité ─────────────────────────────────────────────────────────────
 export async function listAccounts(ownerId: string) {
   return db.select().from(accounts).where(eq(accounts.ownerId, ownerId)).orderBy(asc(accounts.code));
 }
@@ -684,7 +684,7 @@ export async function deleteJournalEntry(ownerId: string, id: string) {
   return { ok: true };
 }
 
-/** Balance gÃ©nÃ©rale : totaux dÃ©bit/crÃ©dit par compte. */
+/** Balance générale : totaux débit/crédit par compte. */
 export async function getTrialBalance(ownerId: string) {
   return db
     .select({
@@ -699,7 +699,7 @@ export async function getTrialBalance(ownerId: string) {
     .orderBy(asc(journalLines.accountCode));
 }
 
-/** Soldes par compte sur une plage de dates (pour Bilan / RÃ©sultat). */
+/** Soldes par compte sur une plage de dates (pour Bilan / Résultat). */
 export async function getAccountBalances(ownerId: string, from?: string, to?: string) {
   const conds = [eq(journalLines.ownerId, ownerId)];
   if (from) conds.push(gte(journalEntries.entryDate, from));
@@ -718,7 +718,7 @@ export async function getAccountBalances(ownerId: string, from?: string, to?: st
     .orderBy(asc(journalLines.accountCode));
 }
 
-// â”€â”€ Immobilisations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Immobilisations ──────────────────────────────────────────────────────────
 export async function listAssets(ownerId: string) {
   return db.select().from(assets).where(eq(assets.ownerId, ownerId)).orderBy(asc(assets.code));
 }
@@ -743,7 +743,7 @@ export async function createAsset(
       ownerId,
       code: input.code,
       label: input.label,
-      category: input.category ?? "MatÃ©riel",
+      category: input.category ?? "Matériel",
       acquisitionDate: input.acquisitionDate,
       cost: input.cost,
       durationYears: input.durationYears,
@@ -760,7 +760,7 @@ export async function deleteAsset(ownerId: string, id: string) {
   return { ok: true };
 }
 
-// â”€â”€ TrÃ©sorerie â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Trésorerie ───────────────────────────────────────────────────────────────
 export async function listBankAccounts(ownerId: string) {
   return db.select().from(bankAccounts).where(eq(bankAccounts.ownerId, ownerId)).orderBy(asc(bankAccounts.label));
 }
@@ -824,7 +824,7 @@ export async function deleteBankTransaction(ownerId: string, id: string) {
   return { ok: true };
 }
 
-// â”€â”€ FiscalitÃ© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Fiscalité ────────────────────────────────────────────────────────────────
 export async function listTaxDeclarations(ownerId: string) {
   return db
     .select()
@@ -877,7 +877,7 @@ export async function deleteTaxDeclaration(ownerId: string, id: string) {
   return { ok: true };
 }
 
-// â”€â”€ Transmissions TTN / e-Fatoura â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Transmissions TTN / e-Fatoura ────────────────────────────────────────────
 export async function listTransmissions(ownerId: string, limit = 100) {
   return db
     .select()
@@ -917,7 +917,7 @@ export async function logTransmission(
   return row;
 }
 
-// â”€â”€ Tableau de bord â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Tableau de bord ──────────────────────────────────────────────────────────
 export async function getDashboard(ownerId: string) {
   const [invAgg] = await db
     .select({
@@ -1004,12 +1004,12 @@ export async function getDashboard(ownerId: string) {
 
   const topClients = await db
     .select({
-      name: sql<string>`coalesce(nullif(${invoices.partnerName}, ''), 'Client non nommÃ©')`,
+      name: sql<string>`coalesce(nullif(${invoices.partnerName}, ''), 'Client non nommé')`,
       total: sql<number>`coalesce(sum(${invoices.totalHt}),0)::int`,
     })
     .from(invoices)
     .where(and(eq(invoices.ownerId, ownerId), sql`${invoices.status} <> 'annulee'`))
-    .groupBy(sql`coalesce(nullif(${invoices.partnerName}, ''), 'Client non nommÃ©')`)
+    .groupBy(sql`coalesce(nullif(${invoices.partnerName}, ''), 'Client non nommé')`)
     .orderBy(sql`coalesce(sum(${invoices.totalHt}),0) desc`)
     .limit(6);
 
@@ -1047,7 +1047,7 @@ export async function getDashboard(ownerId: string) {
   };
 }
 
-/** Vide toutes les donnÃ©es mÃ©tier d'un utilisateur (garde le compte). */
+/** Vide toutes les données métier d'un utilisateur (garde le compte). */
 export async function clearAllData(ownerId: string) {
   await db.delete(transmissions).where(eq(transmissions.ownerId, ownerId));
   await db.delete(taxDeclarations).where(eq(taxDeclarations.ownerId, ownerId));

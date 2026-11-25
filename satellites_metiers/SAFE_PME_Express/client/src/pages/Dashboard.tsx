@@ -11,7 +11,7 @@ export default function Dashboard() {
   if (dash.isLoading) {
     return (
       <>
-        <PageHeader title="Tableau de bord" subtitle="Vue consolidÃ©e de l'activitÃ©" />
+        <PageHeader title="Tableau de bord" subtitle="Vue consolidée de l'activité" />
         <Panel>
           <Loading />
         </Panel>
@@ -37,7 +37,7 @@ export default function Dashboard() {
     <>
       <PageHeader
         title="Tableau de bord"
-        subtitle="Vue consolidÃ©e de l'activitÃ©, de la fiscalitÃ© et de la trÃ©sorerie"
+        subtitle="Vue consolidée de l'activité, de la fiscalité et de la trésorerie"
         actions={
           <Link href="/factures/nouvelle" className="erp-btn-gold">
             + Nouvelle facture
@@ -47,32 +47,32 @@ export default function Dashboard() {
 
       {/* KPI principaux */}
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat label="Chiffre d'affaires HT" value={fmtTND(d?.revenueHt ?? 0)} hint={`${d?.invoiceCount ?? 0} facture(s) Ã©mise(s)`} tone="gold" />
+        <Stat label="Chiffre d'affaires HT" value={fmtTND(d?.revenueHt ?? 0)} hint={`${d?.invoiceCount ?? 0} facture(s) émise(s)`} tone="gold" />
         <Stat label="Marge brute" value={fmtTND(marge)} hint={`${margePct.toFixed(1)} % du CA`} tone={marge >= 0 ? "success" : "danger"} />
-        <Stat label="TrÃ©sorerie" value={fmtTND(d?.cash ?? 0)} hint="Banque + caisse" />
-        <Stat label="TVA Ã  payer" value={fmtTND(d?.vatDue ?? 0)} hint="CollectÃ©e âˆ’ dÃ©ductible" tone={d && d.vatDue > 0 ? "danger" : "success"} />
+        <Stat label="Trésorerie" value={fmtTND(d?.cash ?? 0)} hint="Banque + caisse" />
+        <Stat label="TVA à payer" value={fmtTND(d?.vatDue ?? 0)} hint="Collectée − déductible" tone={d && d.vatDue > 0 ? "danger" : "success"} />
       </div>
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label="Achats HT" value={fmtTND(d?.purchaseHt ?? 0)} hint="Factures fournisseurs" />
-        <Stat label="Effectif actif" value={String(d?.employees ?? 0)} hint="SalariÃ©s dÃ©clarÃ©s CNSS" />
-        <Stat label="Masse salariale brute" value={fmtTND(d?.payrollGross ?? 0)} hint={`Net payÃ© ${fmtTND(d?.payrollNet ?? 0)}`} />
+        <Stat label="Effectif actif" value={String(d?.employees ?? 0)} hint="Salariés déclarés CNSS" />
+        <Stat label="Masse salariale brute" value={fmtTND(d?.payrollGross ?? 0)} hint={`Net payé ${fmtTND(d?.payrollNet ?? 0)}`} />
         <Stat label="Immobilisations nettes" value={fmtTND((d?.assetsCost ?? 0) - (d?.assetsAccumulated ?? 0))} hint={`Valeur brute ${fmtTND(d?.assetsCost ?? 0)}`} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Panel
           title="Ventes et achats par mois"
-          subtitle="Montants hors taxes, 8 derniers mois â€” survolez une colonne"
+          subtitle="Montants hors taxes, 8 derniers mois — survolez une colonne"
           className="xl:col-span-2"
         >
           {chartData.length === 0 ? (
             <EmptyState
-              title="Aucune facture enregistrÃ©e"
-              description="Le graphique s'alimentera dÃ¨s la premiÃ¨re facture de vente validÃ©e."
+              title="Aucune facture enregistrée"
+              description="Le graphique s'alimentera dès la première facture de vente validée."
               action={
                 <Link href="/factures/nouvelle" className="erp-btn-gold">
-                  CrÃ©er une facture
+                  Créer une facture
                 </Link>
               }
             />
@@ -81,12 +81,12 @@ export default function Dashboard() {
           )}
         </Panel>
 
-        <Panel title="Situation fiscale" subtitle="Ce que l'entreprise doit au TrÃ©sor">
+        <Panel title="Situation fiscale" subtitle="Ce que l'entreprise doit au Trésor">
           <div className="space-y-3">
             {[
               { label: "TVA nette due", value: Math.max(0, d?.vatDue ?? 0) },
               { label: "IRPP retenu sur salaires", value: d?.payrollIrpp ?? 0 },
-              { label: "CNSS salariÃ© retenue", value: d?.payrollCnss ?? 0 },
+              { label: "CNSS salarié retenue", value: d?.payrollCnss ?? 0 },
             ].map((r) => (
               <div key={r.label} className="flex items-center justify-between border-b border-border/60 pb-2.5 last:border-0">
                 <span className="text-[12.5px] text-muted-foreground">{r.label}</span>
@@ -95,7 +95,7 @@ export default function Dashboard() {
             ))}
             <div className="rounded-lg bg-gold-soft/60 p-3">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-[hsl(38_72%_30%)]">
-                Total Ã  dÃ©caisser
+                Total à décaisser
               </p>
               <p className="num mt-1 text-[18px] font-semibold text-[hsl(38_72%_28%)]">
                 {fmtTND(Math.max(0, d?.vatDue ?? 0) + (d?.payrollIrpp ?? 0) + (d?.payrollCnss ?? 0))}
@@ -106,15 +106,15 @@ export default function Dashboard() {
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Panel title="Ã‰volution du chiffre d'affaires" subtitle="Courbe des ventes HT â€” survolez un point" className="xl:col-span-2">
+        <Panel title="Évolution du chiffre d'affaires" subtitle="Courbe des ventes HT — survolez un point" className="xl:col-span-2">
           {trendData.length === 0 ? (
-            <EmptyState title="Pas encore d'historique" description="La courbe apparaÃ®tra dÃ¨s la premiÃ¨re facture." />
+            <EmptyState title="Pas encore d'historique" description="La courbe apparaîtra dès la première facture." />
           ) : (
             <LineChart data={trendData} height={200} label="CA HT" />
           )}
         </Panel>
 
-        <Panel title="RÃ©partition des charges" subtitle="Structure des dÃ©caissements">
+        <Panel title="Répartition des charges" subtitle="Structure des décaissements">
           <Donut
             data={[
               { label: "Achats HT", value: d?.purchaseHt ?? 0 },
@@ -130,19 +130,19 @@ export default function Dashboard() {
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Panel title="Top clients" subtitle="Chiffre d'affaires HT par client">
           {(d?.topClients ?? []).length === 0 ? (
-            <EmptyState title="Aucun client facturÃ©" description="Le classement se remplira avec vos premiÃ¨res factures." />
+            <EmptyState title="Aucun client facturé" description="Le classement se remplira avec vos premières factures." />
           ) : (
             <HBars data={(d?.topClients ?? []).map((c) => ({ label: c.name, value: c.total }))} />
           )}
         </Panel>
 
-        <Panel title="Masse salariale" subtitle="CoÃ»t employeur et net versÃ©">
+        <Panel title="Masse salariale" subtitle="Coût employeur et net versé">
           <div className="space-y-3">
             {[
-              { label: "Salaire brut cumulÃ©", value: d?.payrollGross ?? 0 },
-              { label: "Net payÃ© aux salariÃ©s", value: d?.payrollNet ?? 0 },
-              { label: "CNSS salariÃ© retenue (9,68 %)", value: d?.payrollCnss ?? 0 },
-              { label: "IRPP retenu Ã  la source", value: d?.payrollIrpp ?? 0 },
+              { label: "Salaire brut cumulé", value: d?.payrollGross ?? 0 },
+              { label: "Net payé aux salariés", value: d?.payrollNet ?? 0 },
+              { label: "CNSS salarié retenue (9,68 %)", value: d?.payrollCnss ?? 0 },
+              { label: "IRPP retenu à la source", value: d?.payrollIrpp ?? 0 },
             ].map((r) => (
               <div key={r.label} className="flex items-center justify-between border-b border-border/60 pb-2.5 last:border-0">
                 <span className="text-[12.5px] text-muted-foreground">{r.label}</span>
@@ -161,20 +161,20 @@ export default function Dashboard() {
         </Panel>
       </div>
 
-      <Panel title="DerniÃ¨res factures" subtitle="Mouvements rÃ©cents" className="mt-4" noPad>
+      <Panel title="Dernières factures" subtitle="Mouvements récents" className="mt-4" noPad>
         {(d?.recentInvoices ?? []).length === 0 ? (
           <EmptyState
-            icon="â–¤"
+            icon="▤"
             title="Aucune facture pour le moment"
-            description="CrÃ©ez votre premiÃ¨re facture client : la TVA, le timbre fiscal et les totaux sont calculÃ©s automatiquement."
+            description="Créez votre première facture client : la TVA, le timbre fiscal et les totaux sont calculés automatiquement."
             action={
               <Link href="/factures/nouvelle" className="erp-btn-gold">
-                CrÃ©er une facture
+                Créer une facture
               </Link>
             }
           />
         ) : (
-          <Table head={["NÂ°", "Client", "Date", "Statut", "Total TTC"]}>
+          <Table head={["N°", "Client", "Date", "Statut", "Total TTC"]}>
             {d!.recentInvoices.map((inv) => {
               const st = INVOICE_STATUS[inv.status] ?? INVOICE_STATUS.brouillon;
               return (

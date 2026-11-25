@@ -1,10 +1,10 @@
-﻿// â”€â”€ SERVICE : fichier XML e-Fatoura (schÃ©ma TEIF) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Produit un document XML conforme Ã  la structure TEIF (Tunisian Electronic
-// Invoice Format) utilisÃ©e par la plateforme e-Fatoura : en-tÃªte, vendeur,
+﻿// ── SERVICE : fichier XML e-Fatoura (schéma TEIF) ────────────────────────────
+// Produit un document XML conforme à la structure TEIF (Tunisian Electronic
+// Invoice Format) utilisée par la plateforme e-Fatoura : en-tête, vendeur,
 // acheteur, lignes, totaux, TVA par taux et timbre fiscal.
 //
-// Le XML est gÃ©nÃ©rÃ© cÃ´tÃ© serveur et renvoyÃ© tel quel : l'utilisateur peut le
-// tÃ©lÃ©charger, le contrÃ´ler, puis le transmettre Ã  e-Fatoura.
+// Le XML est généré côté serveur et renvoyé tel quel : l'utilisateur peut le
+// télécharger, le contrôler, puis le transmettre à e-Fatoura.
 import { fmtTND } from "../../shared/fiscal";
 
 export type EfatouraInvoice = {
@@ -46,23 +46,23 @@ function esc(s: string | null | undefined): string {
     .replace(/'/g, "&apos;");
 }
 
-/** Montant en TND avec 3 dÃ©cimales, point dÃ©cimal (format XML). */
+/** Montant en TND avec 3 décimales, point décimal (format XML). */
 function amt(millimes: number): string {
   return (millimes / 1000).toFixed(3);
 }
 
-/** QuantitÃ© en unitÃ©s avec 3 dÃ©cimales. */
+/** Quantité en unités avec 3 décimales. */
 function qty(milliUnits: number): string {
   return (milliUnits / 1000).toFixed(3);
 }
 
 /**
  * Construit le XML TEIF d'une facture.
- * Structure : <TEIF> â†’ <InvoiceHeader>, <Seller>, <Buyer>, <InvoiceLines>,
+ * Structure : <TEIF> → <InvoiceHeader>, <Seller>, <Buyer>, <InvoiceLines>,
  * <VATAnalysis>, <InvoiceTotals>, <StampDuty>.
  */
 export function buildEfatouraXml(invoice: EfatouraInvoice, company: EfatouraCompany): string {
-  // Regroupement de la TVA par taux (obligatoire dans le schÃ©ma TEIF).
+  // Regroupement de la TVA par taux (obligatoire dans le schéma TEIF).
   const byRate = new Map<number, { base: number; vat: number }>();
   for (const l of invoice.lines) {
     const cur = byRate.get(l.vatRate) ?? { base: 0, vat: 0 };
@@ -141,7 +141,7 @@ ${vatXml}
 `;
 }
 
-/** Valide grossiÃ¨rement un XML (balises appariÃ©es, racine TEIF). */
+/** Valide grossièrement un XML (balises appariées, racine TEIF). */
 export function validateEfatouraXml(xml: string): { ok: boolean; errors: string[] } {
   const errors: string[] = [];
   if (!xml.includes("<TEIF")) errors.push("Racine <TEIF> absente.");
@@ -149,6 +149,6 @@ export function validateEfatouraXml(xml: string): { ok: boolean; errors: string[
   if (!xml.includes("<InvoiceTotals>")) errors.push("Bloc <InvoiceTotals> absent.");
   const open = (xml.match(/<[A-Za-z][^/>]*>/g) ?? []).length;
   const close = (xml.match(/<\/[A-Za-z][^>]*>/g) ?? []).length;
-  if (open !== close) errors.push(`Balises non appariÃ©es : ${open} ouvertes, ${close} fermÃ©es.`);
+  if (open !== close) errors.push(`Balises non appariées : ${open} ouvertes, ${close} fermées.`);
   return { ok: errors.length === 0, errors };
 }

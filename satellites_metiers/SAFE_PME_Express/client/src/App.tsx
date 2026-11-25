@@ -19,7 +19,7 @@ import Treasury from "./pages/Treasury";
 import Settings from "./pages/Settings";
 
 // Application avec comptes : /login et /signup sont publiques, tout le reste
-// est protÃ©gÃ© par <Protected> et rendu dans le Shell (navigation latÃ©rale).
+// est protégé par <Protected> et rendu dans le Shell (navigation latérale).
 function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <Protected>

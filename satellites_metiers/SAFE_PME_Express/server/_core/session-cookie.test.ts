@@ -67,7 +67,7 @@ describe("requestIsSecure", () => {
   it("trusts a published host on either product's root domain", () => {
     // A coai app is published on chainopera.io. Without it in the suffix list
     // the app falls back to weaker signals, and a first navigation that carries
-    // no Origin/Referer plants a Lax, unpartitioned cookie â€” which breaks the
+    // no Origin/Referer plants a Lax, unpartitioned cookie — which breaks the
     // session as soon as the app is embedded in the Studio iframe.
     expect(requestIsSecure(ctx(LOCAL, { host: "demo.chainopera.io" }))).toBe(true);
     expect(requestIsSecure(ctx(LOCAL, { host: "demo.chainopera.run" }))).toBe(true);
@@ -103,7 +103,7 @@ describe("requestIsSecure", () => {
     expect(requestIsSecure(ctx(LOCAL, { "x-forwarded-ssl": "on" }))).toBe(true);
   });
 
-  it("trusts https Origin / Referer â€” the Vite /trpc proxy case", () => {
+  it("trusts https Origin / Referer — the Vite /trpc proxy case", () => {
     expect(requestIsSecure(ctx(LOCAL, { origin: PREVIEW_ORIGIN }))).toBe(true);
     expect(requestIsSecure(ctx(LOCAL, { referer: `${PREVIEW_ORIGIN}/login` }))).toBe(true);
   });

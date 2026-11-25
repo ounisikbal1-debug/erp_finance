@@ -6,7 +6,7 @@ import { DrizzleQueryError } from "drizzle-orm/errors";
 import { router, publicProcedure } from "./trpc";
 
 // The exact error a duplicate signup produced before this was handled: Drizzle's
-// wrapper, whose message is the INSERT plus every bound value â€” email, bcrypt
+// wrapper, whose message is the INSERT plus every bound value — email, bcrypt
 // hash, name.
 function drizzleFailure() {
   return new DrizzleQueryError(
@@ -41,7 +41,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// A router that forgets to translate a DB failure is a WHEN, not an IF â€” each
+// A router that forgets to translate a DB failure is a WHEN, not an IF — each
 // app's routers.ts is written per-app. tRPC's default formatter puts
 // `error.message` on the wire verbatim, so that oversight used to hand the
 // browser the SQL statement and its params (2026-08-26, auth.signup on a
@@ -54,7 +54,7 @@ describe("errorFormatter", () => {
 
     expect(status).toBe(500);
     expect(body).not.toMatch(/Failed query|insert into|params:|password_hash|\$2b\$|asce1885@gmail\.com/);
-    expect(logged).toHaveBeenCalled(); // the detail survives â€” server-side only
+    expect(logged).toHaveBeenCalled(); // the detail survives — server-side only
   });
 
   it("answers a 500 with something a person can read", async () => {
@@ -65,7 +65,7 @@ describe("errorFormatter", () => {
     expect(JSON.parse(body).error.json.message).toBe("Something went wrong. Please try again.");
   });
 
-  it("leaves a deliberate TRPCError's message alone â€” that one is written for the user", async () => {
+  it("leaves a deliberate TRPCError's message alone — that one is written for the user", async () => {
     const { status, body } = await call("handled");
 
     expect(status).toBe(409);

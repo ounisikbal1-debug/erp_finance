@@ -4,7 +4,7 @@ import { env } from "./env";
 import { db } from "./db";
 import { files } from "../../drizzle/schema";
 
-// Scoped file storage client (DESIGN Â§5.6). The app NEVER holds raw S3 creds â€”
+// Scoped file storage client (DESIGN §5.6). The app NEVER holds raw S3 creds —
 // it holds one durable scoped credential (APP_STORAGE_TOKEN) and asks the
 // platform presign endpoint for a short-lived signed URL per operation. The
 // platform clamps every key to this app's prefix (the hard isolation boundary).
@@ -28,10 +28,10 @@ export type FileRecord = typeof files.$inferSelect;
  *  notion of the key diverge from the platform's.
  *
  *  The platform runs `posixpath.normpath` on the key before it ever touches
- *  storage, but this function does NOT normalize â€” it CANONICALIZES-OR-REJECTS.
+ *  storage, but this function does NOT normalize — it CANONICALIZES-OR-REJECTS.
  *  Silently normalizing (e.g. collapsing "a/b/../report.pdf" to "a/report.pdf")
  *  would still leave `files.key` holding the un-collapsed string while the
- *  platform head/put/delete/get all clamp to the collapsed one â€” two different
+ *  platform head/put/delete/get all clamp to the collapsed one — two different
  *  strings pointing at the same object, which is exactly the aliasing that lets
  *  one user's `assertNotOwnedByOther` lookup miss another user's row (see the
  *  final-review writeup: a committed "./report.pdf" and an existing
@@ -43,7 +43,7 @@ export type FileRecord = typeof files.$inferSelect;
  *  aliases). What survives is guaranteed byte-identical to what the platform
  *  computes, because normpath is a no-op on a string with no such segments.
  *
- *  Named to signal it can throw â€” every call site must let that throw
+ *  Named to signal it can throw — every call site must let that throw
  *  propagate (StorageError, code "forbidden"), not swallow it. */
 function canonicalKey(relKey: string): string {
   const stripped = relKey.replace(/^\/+/, "");
@@ -57,7 +57,7 @@ function canonicalKey(relKey: string): string {
 }
 
 /** Single call into the platform storage endpoint. The app holds one durable
- *  scoped token and never any object-store credential (DESIGN Â§5.6); the
+ *  scoped token and never any object-store credential (DESIGN §5.6); the
  *  platform clamps every key to this app's prefix. */
 async function callStorage<T>(op: Op, path: string, contentType?: string): Promise<T> {
   if (!env.storage.presignUrl || !env.storage.token) {
@@ -77,7 +77,7 @@ async function callStorage<T>(op: Op, path: string, contentType?: string): Promi
 
   // Cross-boundary invariant: the platform echoes the key it ACTUALLY acted on,
   // after its own clamping. `canonicalKey` above is written to produce exactly
-  // that string, so the two must agree â€” and if they ever stop agreeing, this is
+  // that string, so the two must agree — and if they ever stop agreeing, this is
   // the only place that can notice. When they silently disagreed, an app could
   // index `./x.pdf` while the platform touched `x.pdf`, which let one end user
   // delete another's object through an ownership check that matched the wrong
@@ -92,7 +92,7 @@ async function callStorage<T>(op: Op, path: string, contentType?: string): Promi
   return body;
 }
 
-/** Look up one indexed file by its relative key. `null` means "no such row" â€”
+/** Look up one indexed file by its relative key. `null` means "no such row" —
  *  a normal result, which is why this returns null instead of throwing. */
 export async function storageGet(relKey: string): Promise<FileRecord | null> {
   const [row] = await db.select().from(files).where(eq(files.key, canonicalKey(relKey))).limit(1);
@@ -112,12 +112,12 @@ async function assertNotOwnedByOther(relKey: string, ownerId?: string | null): P
 /** Record an upload that has ALREADY landed in object storage.
  *
  *  The browser PUTs straight to the signed URL, so this server never sees the
- *  upload complete â€” hence the explicit commit. It HEADs the object first, so
+ *  upload complete — hence the explicit commit. It HEADs the object first, so
  *  (a) a row can only exist if the object does, and (b) size/contentType come
  *  from storage rather than from the client, which could lie about both.
  *
  *  Re-committing the same key (e.g. after a deliberate overwrite) updates the
- *  row in place. Throws StorageError("not_found") if the object isn't there â€”
+ *  row in place. Throws StorageError("not_found") if the object isn't there —
  *  and writes nothing.
  *
  *  The owner is set only on the FIRST commit of a key; a re-commit updates
@@ -176,7 +176,7 @@ export async function storageListByOwner(
     .orderBy(desc(files.createdAt)).limit(limit).offset(offset);
 }
 
-/** EVERY file in the app, newest first. Not user-scoped â€” pair it with
+/** EVERY file in the app, newest first. Not user-scoped — pair it with
  *  adminProcedure, never with protectedProcedure. */
 export async function storageListAll(
   opts: { limit?: number; offset?: number } = {},
@@ -185,7 +185,7 @@ export async function storageListAll(
   return db.select().from(files).orderBy(desc(files.createdAt)).limit(limit).offset(offset);
 }
 
-/** Total number of files owned by ONE user. Pairs with storageListByOwner â€”
+/** Total number of files owned by ONE user. Pairs with storageListByOwner —
  *  exists so a pager can be built without changing that function's return
  *  shape (a bare array) in already-frozen apps. Same positional-ownerId
  *  reasoning as storageListByOwner. */
@@ -194,7 +194,7 @@ export async function storageCountByOwner(ownerId: string): Promise<number> {
   return row?.value ?? 0;
 }
 
-/** Total number of files in the app. Not user-scoped â€” pair it with
+/** Total number of files in the app. Not user-scoped — pair it with
  *  adminProcedure, never with protectedProcedure. Pairs with storageListAll. */
 export async function storageCountAll(): Promise<number> {
   const [row] = await db.select({ value: count() }).from(files);
@@ -209,7 +209,7 @@ export async function storageCountAll(): Promise<number> {
  *  and remove; the reverse order would leave a row whose download 404s in the
  *  app's UI.
  *
- *  Returns false when no row matched (never existed, or excluded by `where` â€”
+ *  Returns false when no row matched (never existed, or excluded by `where` —
  *  e.g. owned by someone else). Those are NOT distinguished, so this cannot be
  *  used to probe which keys exist. Nothing is deleted from storage in that
  *  case. */
@@ -222,7 +222,7 @@ async function deleteRowThenObject(key: string, where: SQL | undefined): Promise
 
 /** Delete one indexed file OWNED BY `ownerId`.
  *
- *  `ownerId` is a required positional argument on purpose â€” same reasoning as
+ *  `ownerId` is a required positional argument on purpose — same reasoning as
  *  storageListByOwner: the unsafe, unscoped delete must be spelled out as
  *  storageDeleteAny, so it cannot happen by forgetting an optional field. Keys
  *  are visible in /app-storage/<key> URLs, so an unscoped delete reachable by
@@ -232,7 +232,7 @@ export async function storageDeleteOwned(ownerId: string, relKey: string): Promi
   return deleteRowThenObject(key, and(eq(files.key, key), eq(files.ownerId, ownerId)));
 }
 
-/** Delete one indexed file REGARDLESS OF OWNER. Not user-scoped â€” pair it
+/** Delete one indexed file REGARDLESS OF OWNER. Not user-scoped — pair it
  *  with adminProcedure, never with protectedProcedure. This is the
  *  explicitly-named unsafe escape hatch (mirrors storageListAll): a business
  *  router should almost never call this with a caller-supplied key. */
@@ -243,7 +243,7 @@ export async function storageDeleteAny(relKey: string): Promise<boolean> {
 
 /** Delete one indexed file that has NO OWNER (a public/anonymous upload, e.g.
  *  a contact-form attachment). Scoped with `isNull(files.ownerId)`, so a row
- *  that DOES have an owner is excluded â€” same false-return semantics as
+ *  that DOES have an owner is excluded — same false-return semantics as
  *  storageDeleteOwned: "no row matched" and "matched but excluded" are not
  *  distinguished, and nothing is deleted from storage in that case.
  *
@@ -263,7 +263,7 @@ export async function storageDeleteAnonymous(relKey: string): Promise<boolean> {
  *  /app-storage/<key> URLs, so without it one logged-in user could request a
  *  PUT URL for another user's file and overwrite it. The check is opt-in
  *  because public/anonymous uploads have no owner to compare against, and it
- *  only covers files already committed â€” hence the random key prefix in the
+ *  only covers files already committed — hence the random key prefix in the
  *  filesRouter example. */
 export async function storagePutUrl(
   relKey: string,
@@ -276,7 +276,7 @@ export async function storagePutUrl(
   return { uploadUrl: url, publicPath: `/app-storage/${key}` };
 }
 
-/** Hono handler for GET /app-storage/* â€” 307-redirects to a short-lived signed
+/** Hono handler for GET /app-storage/* — 307-redirects to a short-lived signed
  *  GET URL. Mounted by _core/index.ts; app code just links to /app-storage/...
  *
  *  Routed through canonicalKey like every other entry point: without it,

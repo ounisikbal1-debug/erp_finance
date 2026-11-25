@@ -1,7 +1,7 @@
-﻿// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Moteur de calcul fiscal & social tunisien â€” partagÃ© client â†” serveur.
+﻿// ─────────────────────────────────────────────────────────────────────────────
+// Moteur de calcul fiscal & social tunisien — partagé client ↔ serveur.
 // Tous les montants sont en MILLIMES (1 TND = 1000 millimes), entiers.
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const MILLIMES = 1000;
 
@@ -15,7 +15,7 @@ export function fmtTND(millimes: number, withCurrency = true): string {
   return withCurrency ? `${s} TND` : s;
 }
 
-/** Formate un montant en millimes sans sÃ©parateur de milliers (pour inputs). */
+/** Formate un montant en millimes sans séparateur de milliers (pour inputs). */
 export function tndInput(millimes: number): string {
   return ((millimes ?? 0) / MILLIMES).toFixed(3);
 }
@@ -28,10 +28,10 @@ export function parseTND(input: string | number): number {
   return Number.isFinite(n) ? Math.round(n * MILLIMES) : 0;
 }
 
-// â”€â”€ IRPP : barÃ¨me 8 tranches, 0 % â†’ 40 % (annuel) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── IRPP : barème 8 tranches, 0 % → 40 % (annuel) ────────────────────────────
 export type IrppBracket = { from: number; to: number | null; rate: number };
 
-/** Bornes annuelles en TND (converties en millimes Ã  l'usage). */
+/** Bornes annuelles en TND (converties en millimes à l'usage). */
 export const IRPP_BRACKETS: IrppBracket[] = [
   { from: 0, to: 5000, rate: 0 },
   { from: 5000, to: 10000, rate: 15 },
@@ -43,13 +43,13 @@ export const IRPP_BRACKETS: IrppBracket[] = [
   { from: 70000, to: null, rate: 40 },
 ];
 
-/** Abattement chef de famille (TND/an) et par personne Ã  charge. */
+/** Abattement chef de famille (TND/an) et par personne à charge. */
 export const IRPP_HEAD_OF_FAMILY_DEDUCTION = 300; // TND
-export const IRPP_DEPENDENT_DEDUCTION = 100; // TND par personne Ã  charge
+export const IRPP_DEPENDENT_DEDUCTION = 100; // TND par personne à charge
 
 /**
  * IRPP annuel sur un revenu net imposable (millimes).
- * Applique le barÃ¨me progressif par tranches.
+ * Applique le barème progressif par tranches.
  */
 export function computeIrppAnnual(taxableMillimes: number): {
   total: number;
@@ -77,8 +77,8 @@ export function computeIrppAnnual(taxableMillimes: number): {
 }
 
 /**
- * IRPP mensuel retenu Ã  la source : barÃ¨me annuel appliquÃ© au salaire mensuel
- * annualisÃ©, puis divisÃ© par 12 (mÃ©thode de la retenue mensuelle tunisienne).
+ * IRPP mensuel retenu à la source : barème annuel appliqué au salaire mensuel
+ * annualisé, puis divisé par 12 (méthode de la retenue mensuelle tunisienne).
  */
 export function computeIrppMonthly(
   monthlyTaxableMillimes: number,
@@ -86,7 +86,7 @@ export function computeIrppMonthly(
 ): { monthly: number; annual: number; annualTaxable: number; detail: ReturnType<typeof computeIrppAnnual>["detail"] } {
   const annualTaxable = Math.max(0, monthlyTaxableMillimes) * 12;
   const { total, detail } = computeIrppAnnual(annualTaxable);
-  // Abattements chef de famille / personnes Ã  charge (en millimes)
+  // Abattements chef de famille / personnes à charge (en millimes)
   let deduction = 0;
   if (opts.headOfFamily) deduction += IRPP_HEAD_OF_FAMILY_DEDUCTION * MILLIMES;
   deduction += Math.max(0, opts.children ?? 0) * IRPP_DEPENDENT_DEDUCTION * MILLIMES;
@@ -94,12 +94,12 @@ export function computeIrppMonthly(
   return { monthly: Math.round(annual / 12), annual, annualTaxable, detail };
 }
 
-// â”€â”€ Cotisations sociales â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Cotisations sociales ─────────────────────────────────────────────────────
 export const CNSS_EMPLOYEE_RATE = 9.68; // %
 export const CNSS_EMPLOYER_RATE = 17.07; // %
-export const CSS_RATE = 0.5; // % contribution sociale de solidaritÃ© (0,5 %)
+export const CSS_RATE = 0.5; // % contribution sociale de solidarité (0,5 %)
 
-/** Calcule un bulletin de paie complet Ã  partir du brut (millimes). */
+/** Calcule un bulletin de paie complet à partir du brut (millimes). */
 export function computePayslip(input: {
   baseSalary: number;
   allowances: number;
@@ -110,7 +110,7 @@ export function computePayslip(input: {
   const cnssEmployee = Math.round((gross * CNSS_EMPLOYEE_RATE) / 100);
   const cnssEmployer = Math.round((gross * CNSS_EMPLOYER_RATE) / 100);
   const css = Math.round((gross * CSS_RATE) / 100);
-  // Base imposable = brut âˆ’ CNSS salariÃ©
+  // Base imposable = brut − CNSS salarié
   const taxableBase = Math.max(0, gross - cnssEmployee);
   const { monthly: irpp } = computeIrppMonthly(taxableBase, {
     headOfFamily: input.headOfFamily,
@@ -120,38 +120,38 @@ export function computePayslip(input: {
   return { gross, cnssEmployee, cnssEmployer, css, taxableBase, irpp, net };
 }
 
-// â”€â”€ TVA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── TVA ──────────────────────────────────────────────────────────────────────
 export const VAT_RATES = [19, 13, 7, 0] as const;
 
 /** Timbre fiscal sur facture : 1,000 TND. */
 export const STAMP_DUTY = 1000; // millimes
 
-/** Calcule une ligne de facture. quantity en milliÃ¨mes d'unitÃ©. */
+/** Calcule une ligne de facture. quantity en millièmes d'unité. */
 export function computeLine(quantity: number, unitPrice: number, vatRate: number) {
   const lineHt = Math.round((quantity * unitPrice) / MILLIMES);
   const lineVat = Math.round((lineHt * vatRate) / 100);
   return { lineHt, lineVat };
 }
 
-// â”€â”€ IS : impÃ´t sur les sociÃ©tÃ©s â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── IS : impôt sur les sociétés ──────────────────────────────────────────────
 export const IS_RATES = [15, 20] as const;
 
-/** Acomptes provisionnels : 3 acomptes de 30 % de l'IS de rÃ©fÃ©rence. */
+/** Acomptes provisionnels : 3 acomptes de 30 % de l'IS de référence. */
 export const IS_INSTALLMENT_RATE = 30;
 
-// â”€â”€ TCL : taxe sur les locaux â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-/** Taux TCL en points de base : 10 = 0,1 % (gÃ©nÃ©ral), 20 = 0,2 % (hÃ´tellerie). */
+// ── TCL : taxe sur les locaux ────────────────────────────────────────────────
+/** Taux TCL en points de base : 10 = 0,1 % (général), 20 = 0,2 % (hôtellerie). */
 export const TCL_RATES_BP = [10, 20] as const;
 
-// â”€â”€ Retenue Ã  la source â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Retenue à la source ──────────────────────────────────────────────────────
 export const WITHHOLDING_RATES = [1, 3] as const;
 
-// â”€â”€ Utilitaires de dates / pÃ©riodes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Utilitaires de dates / périodes ──────────────────────────────────────────
 export function periodLabel(period: string): string {
   const [y, m] = period.split("-");
   const months = [
-    "Janvier", "FÃ©vrier", "Mars", "Avril", "Mai", "Juin",
-    "Juillet", "AoÃ»t", "Septembre", "Octobre", "Novembre", "DÃ©cembre",
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
   ];
   const idx = Number(m) - 1;
   return `${months[idx] ?? m} ${y}`;
@@ -171,12 +171,12 @@ export function currentPeriod(): string {
   return new Date().toISOString().slice(0, 7);
 }
 
-/** Statuts de facture avec libellÃ© + couleur. */
+/** Statuts de facture avec libellé + couleur. */
 export const INVOICE_STATUS: Record<string, { label: string; tone: string }> = {
   brouillon: { label: "Brouillon", tone: "muted" },
-  validee: { label: "ValidÃ©e", tone: "info" },
-  payee: { label: "PayÃ©e", tone: "success" },
-  annulee: { label: "AnnulÃ©e", tone: "danger" },
+  validee: { label: "Validée", tone: "info" },
+  payee: { label: "Payée", tone: "success" },
+  annulee: { label: "Annulée", tone: "danger" },
 };
 
 export const JOURNAL_LABELS: Record<string, string> = {
@@ -184,6 +184,6 @@ export const JOURNAL_LABELS: Record<string, string> = {
   AC: "Achats",
   BQ: "Banque",
   CA: "Caisse",
-  OD: "OpÃ©rations diverses",
+  OD: "Opérations diverses",
   PA: "Paie",
 };

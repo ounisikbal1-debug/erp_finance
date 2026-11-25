@@ -13,6 +13,7 @@ import {
   type BankStatementImportIssue,
 } from './bank-statement-import-validation';
 import { isBankStatementCurrencyCompatible, parseBankStatementFileText } from './bank-statement-import-formats';
+import { parsePdfBankStatement } from './pdf-bank-statement-parser';
 import { translateBusinessText, useInterfaceLanguage } from './localization';
 
 const cashflowExportColumns: ExportColumn[] = [
@@ -849,7 +850,11 @@ export default function CashflowPanel({
     try {
       const extension = file.name.toLowerCase().split('.').pop();
       let rows: Array<Record<string, unknown>>;
-      if (extension === 'ofx' || extension === 'qfx' || extension === 'mt940' || extension === 'sta') {
+      if (extension === 'pdf') {
+        const parsedPdf = await parsePdfBankStatement(file);
+        if (parsedPdf.currencyCode) setStatementCurrencyCode(parsedPdf.currencyCode);
+        rows = parsedPdf.rows;
+      } else if (extension === 'ofx' || extension === 'qfx' || extension === 'mt940' || extension === 'sta') {
         const parsed = parseBankStatementFileText(file.name, await file.text());
         setStatementCurrencyCode(parsed.currencyCode);
         rows = parsed.rows;
@@ -1677,9 +1682,9 @@ export default function CashflowPanel({
 
           <section style={{ ...cardStyle, display: 'grid', gap: 14 }}>
             <div>
-              <h3 style={{ margin: '0 0 6px' }}>Importer un relevé CSV</h3>
+              <h3 style={{ margin: '0 0 6px' }}>Importer un relevé bancaire (CSV, Excel, OFX, MT940, PDF)</h3>
               <p style={{ margin: 0, color: '#64748B', fontSize: 13 }}>
-                CSV/XLSX, OFX/QFX et MT940. Les dates MT940 sur 2 chiffres utilisent le pivot 70 (70–99 = 19xx, 00–69 = 20xx). La devise fournie est comparée au compte sélectionné. Les formats tabulaires requièrent <code>date,description,amount</code>; montant signé, positif = entrée, négatif = sortie. Un aperçu est validé avant l’import; aucune écriture comptable n’est créée.
+                CSV/XLSX, OFX/QFX, MT940 et relevés bancaires PDF. Les dates MT940 sur 2 chiffres utilisent le pivot 70 (70–99 = 19xx, 00–69 = 20xx). La devise fournie est comparée au compte sélectionné. Les formats tabulaires requièrent <code>date,description,amount</code>; montant signé, positif = entrée, négatif = sortie. Un aperçu est validé avant l’import; aucune écriture comptable n’est créée.
               </p>
             </div>
             <form onSubmit={importStatement} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10, alignItems: 'end' }}>
@@ -1691,8 +1696,8 @@ export default function CashflowPanel({
                   ))}
                 </select>
               </label>
-              <label style={{ display: 'grid', gap: 4 }}>Fichier CSV, XLSX, OFX/QFX ou MT940
-                <input required type="file" accept=".csv,.xlsx,.ofx,.qfx,.mt940,.sta,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              <label style={{ display: 'grid', gap: 4 }}>Fichier CSV, XLSX, OFX/QFX, MT940 ou PDF
+                <input required type="file" accept=".csv,.xlsx,.ofx,.qfx,.mt940,.sta,.pdf,text/csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                   onChange={(event) => void selectStatementFile(event.target.files?.[0])} />
               </label>
               <button type="submit" disabled={bankImporting || bankLoading || !statementFile || !statementPreviewRows.length

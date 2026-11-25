@@ -60,12 +60,12 @@ export default function Treasury() {
     { inflow: 0, outflow: 0, balance: 0 },
   );
 
-  const accName = (id: string) => (accounts.data ?? []).find((a) => a.id === id)?.label ?? "â€”";
+  const accName = (id: string) => (accounts.data ?? []).find((a) => a.id === id)?.label ?? "—";
 
   return (
     <>
       <PageHeader
-        title="TrÃ©sorerie"
+        title="Trésorerie"
         subtitle="Comptes bancaires, caisse et mouvements"
         actions={
           <>
@@ -81,19 +81,19 @@ export default function Treasury() {
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Stat label="Solde total" value={fmtTND(totals.balance)} hint="Banque + caisse" tone="gold" />
-        <Stat label="Encaissements" value={fmtTND(totals.inflow)} hint="Cumul des entrÃ©es" tone="success" />
-        <Stat label="DÃ©caissements" value={fmtTND(totals.outflow)} hint="Cumul des sorties" tone="danger" />
+        <Stat label="Encaissements" value={fmtTND(totals.inflow)} hint="Cumul des entrées" tone="success" />
+        <Stat label="Décaissements" value={fmtTND(totals.outflow)} hint="Cumul des sorties" tone="danger" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Panel title="Comptes" subtitle="Soldes calculÃ©s" noPad>
+        <Panel title="Comptes" subtitle="Soldes calculés" noPad>
           {accounts.isLoading ? (
             <Loading />
           ) : balances.length === 0 ? (
             <EmptyState
-              icon="â—‰"
-              title="Aucun compte de trÃ©sorerie"
-              description="Ouvrez un compte bancaire ou une caisse pour suivre les encaissements et dÃ©caissements."
+              icon="◉"
+              title="Aucun compte de trésorerie"
+              description="Ouvrez un compte bancaire ou une caisse pour suivre les encaissements et décaissements."
               action={
                 <button className="erp-btn-gold" onClick={() => setOpenAcc(true)}>
                   Ouvrir un compte
@@ -107,13 +107,13 @@ export default function Treasury() {
                   <div>
                     <p className="text-[12.5px] font-medium">{b.acc.label}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      {b.acc.kind === "banque" ? b.acc.bankName || "Banque" : "Caisse"} Â· {b.acc.accountCode}
+                      {b.acc.kind === "banque" ? b.acc.bankName || "Banque" : "Caisse"} · {b.acc.accountCode}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="num text-[13px] font-semibold">{fmtTND(b.balance)}</p>
                     <p className="text-[10.5px] text-muted-foreground">
-                      +{new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(b.inflow / 1000)} / âˆ’
+                      +{new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(b.inflow / 1000)} / −
                       {new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(b.outflow / 1000)}
                     </p>
                   </div>
@@ -123,14 +123,14 @@ export default function Treasury() {
           )}
         </Panel>
 
-        <Panel title="Mouvements" subtitle="Journal de trÃ©sorerie" className="xl:col-span-2" noPad>
+        <Panel title="Mouvements" subtitle="Journal de trésorerie" className="xl:col-span-2" noPad>
           {tx.isLoading ? (
             <Loading />
           ) : (tx.data ?? []).length === 0 ? (
             <EmptyState
-              icon="â—«"
+              icon="◫"
               title="Aucun mouvement"
-              description="Enregistrez vos encaissements clients et dÃ©caissements fournisseurs pour suivre votre position de trÃ©sorerie."
+              description="Enregistrez vos encaissements clients et décaissements fournisseurs pour suivre votre position de trésorerie."
               action={
                 <button className="erp-btn-gold" onClick={() => setOpenTx(true)} disabled={(accounts.data ?? []).length === 0}>
                   Saisir un mouvement
@@ -138,7 +138,7 @@ export default function Treasury() {
               }
             />
           ) : (
-            <Table head={["Date", "Compte", "LibellÃ©", "CatÃ©gorie", "Sens", "Montant"]}>
+            <Table head={["Date", "Compte", "Libellé", "Catégorie", "Sens", "Montant"]}>
               {(tx.data ?? []).map((t) => (
                 <tr key={t.id}>
                   <td className="text-muted-foreground">{new Date(t.txDate).toLocaleDateString("fr-FR")}</td>
@@ -149,7 +149,7 @@ export default function Treasury() {
                   </td>
                   <td>
                     <Badge tone={t.direction === "encaissement" ? "success" : "danger"}>
-                      {t.direction === "encaissement" ? "EntrÃ©e" : "Sortie"}
+                      {t.direction === "encaissement" ? "Entrée" : "Sortie"}
                     </Badge>
                   </td>
                   <td
@@ -159,7 +159,7 @@ export default function Treasury() {
                         : "num text-right font-semibold text-destructive"
                     }
                   >
-                    {t.direction === "encaissement" ? "+" : "âˆ’"}
+                    {t.direction === "encaissement" ? "+" : "−"}
                     {new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 3 }).format(t.amount / 1000)}
                   </td>
                 </tr>
@@ -170,9 +170,9 @@ export default function Treasury() {
       </div>
 
       {/* Nouveau compte */}
-      <Modal open={openAcc} onClose={() => setOpenAcc(false)} title="Nouveau compte de trÃ©sorerie">
+      <Modal open={openAcc} onClose={() => setOpenAcc(false)} title="Nouveau compte de trésorerie">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="LibellÃ©">
+          <Field label="Libellé">
             <input className="erp-input" value={accForm.label} onChange={(e) => setAccForm({ ...accForm, label: e.target.value })} placeholder="Compte courant BIAT" />
           </Field>
           <Field label="Type">
@@ -182,7 +182,7 @@ export default function Treasury() {
             </select>
           </Field>
           <Field label="Banque">
-            <input className="erp-input" value={accForm.bankName} onChange={(e) => setAccForm({ ...accForm, bankName: e.target.value })} placeholder="BIAT, BNA, Attijariâ€¦" />
+            <input className="erp-input" value={accForm.bankName} onChange={(e) => setAccForm({ ...accForm, bankName: e.target.value })} placeholder="BIAT, BNA, Attijari…" />
           </Field>
           <Field label="RIB">
             <input className="erp-input" value={accForm.rib} onChange={(e) => setAccForm({ ...accForm, rib: e.target.value })} placeholder="08 123 0001234567890 12" />
@@ -212,17 +212,17 @@ export default function Treasury() {
               })
             }
           >
-            {createAcc.isPending ? "Enregistrementâ€¦" : "CrÃ©er le compte"}
+            {createAcc.isPending ? "Enregistrement…" : "Créer le compte"}
           </button>
         </div>
       </Modal>
 
       {/* Nouveau mouvement */}
-      <Modal open={openTx} onClose={() => setOpenTx(false)} title="Nouveau mouvement de trÃ©sorerie">
+      <Modal open={openTx} onClose={() => setOpenTx(false)} title="Nouveau mouvement de trésorerie">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Compte">
             <select className="erp-select" value={txForm.accountId} onChange={(e) => setTxForm({ ...txForm, accountId: e.target.value })}>
-              <option value="">â€” SÃ©lectionner â€”</option>
+              <option value="">— Sélectionner —</option>
               {(accounts.data ?? []).map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.label}
@@ -233,19 +233,19 @@ export default function Treasury() {
           <Field label="Date">
             <input type="date" className="erp-input" value={txForm.txDate} onChange={(e) => setTxForm({ ...txForm, txDate: e.target.value })} />
           </Field>
-          <Field label="LibellÃ©">
-            <input className="erp-input" value={txForm.label} onChange={(e) => setTxForm({ ...txForm, label: e.target.value })} placeholder="RÃ¨glement facture FA-2026-0001" />
+          <Field label="Libellé">
+            <input className="erp-input" value={txForm.label} onChange={(e) => setTxForm({ ...txForm, label: e.target.value })} placeholder="Règlement facture FA-2026-0001" />
           </Field>
           <Field label="Sens">
             <select className="erp-select" value={txForm.direction} onChange={(e) => setTxForm({ ...txForm, direction: e.target.value })}>
               <option value="encaissement">Encaissement</option>
-              <option value="decaissement">DÃ©caissement</option>
+              <option value="decaissement">Décaissement</option>
             </select>
           </Field>
           <Field label="Montant (TND)">
             <input className="erp-input" value={txForm.amount} onChange={(e) => setTxForm({ ...txForm, amount: e.target.value })} placeholder="0.000" />
           </Field>
-          <Field label="CatÃ©gorie">
+          <Field label="Catégorie">
             <input className="erp-input" value={txForm.category} onChange={(e) => setTxForm({ ...txForm, category: e.target.value })} />
           </Field>
         </div>
@@ -268,7 +268,7 @@ export default function Treasury() {
               })
             }
           >
-            {createTx.isPending ? "Enregistrementâ€¦" : "Enregistrer"}
+            {createTx.isPending ? "Enregistrement…" : "Enregistrer"}
           </button>
         </div>
       </Modal>

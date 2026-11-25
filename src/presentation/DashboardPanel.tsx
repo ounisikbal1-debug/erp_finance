@@ -330,7 +330,7 @@ export default function DashboardPanel({
         .replace(/[<>:"/\\|?*\u0000-\u001F]/g, '_')
         .trim()
         .slice(0, 60) || 'Societe';
-      downloadFinancialDashboard(`SAFE_Tableau_de_bord_${safeCompanyName}`, sheets, {
+      await downloadFinancialDashboard(`SAFE_Tableau_de_bord_${safeCompanyName}`, sheets, {
         companyName: currentSummary.entity.name,
         currency: currentSummary.entity.currencyCode,
         customDate: generatedAt,
@@ -352,29 +352,7 @@ export default function DashboardPanel({
         <h2 id="dashboard-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.01em' }}>
           TABLEAU DE BORD FINANCIER
         </h2>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button
-            type="button"
-            onClick={() => {
-              window.location.hash = '#sales-invoices';
-            }}
-            style={{
-              background: '#2563EB',
-              color: '#FFFFFF',
-              border: 0,
-              borderRadius: 8,
-              padding: '8px 16px',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6
-            }}
-          >
-            <span>+</span> Nouvelle Facture
-          </button>
-        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }} />
       </div>
 
       {/* 4 Harmonized KPI Cards matching Mockup */}

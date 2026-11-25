@@ -3,15 +3,15 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
 
-// Dev model (DESIGN Â§5.1 / M1): Vite serves the SPA on PORT (default 3000) with
+// Dev model (DESIGN §5.1 / M1): Vite serves the SPA on PORT (default 3000) with
 // native HMR; API calls to /trpc and /app-storage are proxied to the Hono API
-// process (dev:api on API_PORT, default 3001). In prod there is NO Vite â€” the
+// process (dev:api on API_PORT, default 3001). In prod there is NO Vite — the
 // single Hono process (dist/index.js) serves the built client from dist/public
 // AND the API. Keeping runtime fs to that one prod shim (server/_core/serve.ts)
-// is what keeps the template edge-portable (Â§5.7.3).
+// is what keeps the template edge-portable (§5.7.3).
 //
-// base: '/' â€” the template ASSUMES a per-app origin at the root path. It does
-// NOT support being mounted under a shared-host path prefix (DESIGN Â§5.1 / #13).
+// base: '/' — the template ASSUMES a per-app origin at the root path. It does
+// NOT support being mounted under a shared-host path prefix (DESIGN §5.1 / #13).
 const WEB_PORT = Number(process.env.PORT ?? 3000);
 const API_PORT = Number(process.env.API_PORT ?? 3001);
 const apiProxy = { target: `http://localhost:${API_PORT}`, changeOrigin: true };
@@ -36,7 +36,7 @@ export default defineConfig({
     // port, and the holder is by definition someone outside the project. Both
     // options below are load-bearing because of that, not general hardening.
     //
-    // allowedHosts â€” Vite's default is `[]`, which 403s every Host header that
+    // allowedHosts — Vite's default is `[]`, which 403s every Host header that
     // is not an IP or localhost. Previews work today only because the upstream
     // proxy happens to rewrite Host before the request reaches this process:
     // somebody else's implementation detail standing in for configuration. If
@@ -49,11 +49,11 @@ export default defineConfig({
       ".preview.chainopera.run",
       ".proxy.daytona.works",
     ],
-    // fs.allow â€” the default is the workspace root, i.e. the WHOLE app tree, so
+    // fs.allow — the default is the workspace root, i.e. the WHOLE app tree, so
     // `/@fs/<app>/server/routers.ts` hands the server source (auth wiring, tRPC
     // procedure definitions, schema) to anyone holding a preview link. `.env`
     // is denied either way by `fs.deny`, so no credential leaks; what leaks is
-    // the map of which procedures are unauthenticated â€” which is exactly the
+    // the map of which procedures are unauthenticated — which is exactly the
     // thing a share-link visitor would need it for.
     //
     // The client only ever needs its own tree plus `shared/` (the `@shared/*`

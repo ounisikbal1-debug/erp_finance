@@ -6,34 +6,34 @@ import { useInstallPrompt } from "@/lib/useInstallPrompt";
 import * as React from "react";
 
 const NAV = [
-  { group: "Pilotage", items: [{ href: "/", label: "Tableau de bord", icon: "â—ˆ" }] },
+  { group: "Pilotage", items: [{ href: "/", label: "Tableau de bord", icon: "◈" }] },
   {
     group: "Commerce",
     items: [
-      { href: "/factures", label: "Factures clients", icon: "â–¤" },
-      { href: "/achats", label: "Achats fournisseurs", icon: "â–¥" },
+      { href: "/factures", label: "Factures clients", icon: "▤" },
+      { href: "/achats", label: "Achats fournisseurs", icon: "▥" },
       { href: "/tiers", label: "Tiers", icon: "â—" },
-      { href: "/articles", label: "Articles & services", icon: "â–¢" },
+      { href: "/articles", label: "Articles & services", icon: "▢" },
     ],
   },
   {
     group: "Ressources humaines",
     items: [
-      { href: "/paie", label: "Paie & bulletins", icon: "â—«" },
-      { href: "/salaries", label: "SalariÃ©s", icon: "â—”" },
+      { href: "/paie", label: "Paie & bulletins", icon: "◫" },
+      { href: "/salaries", label: "Salariés", icon: "◔" },
     ],
   },
   {
     group: "Finance",
     items: [
-      { href: "/comptabilite", label: "ComptabilitÃ©", icon: "â–¦" },
-      { href: "/tva", label: "TVA", icon: "â—ˆ" },
-      { href: "/fiscalite", label: "FiscalitÃ©", icon: "â—ˆ" },
-      { href: "/immobilisations", label: "Immobilisations", icon: "â–§" },
-      { href: "/tresorerie", label: "TrÃ©sorerie", icon: "â—‰" },
+      { href: "/comptabilite", label: "Comptabilité", icon: "▦" },
+      { href: "/tva", label: "TVA", icon: "◈" },
+      { href: "/fiscalite", label: "Fiscalité", icon: "◈" },
+      { href: "/immobilisations", label: "Immobilisations", icon: "▧" },
+      { href: "/tresorerie", label: "Trésorerie", icon: "◉" },
     ],
   },
-  { group: "Configuration", items: [{ href: "/parametres", label: "ParamÃ¨tres", icon: "âš™" }] },
+  { group: "Configuration", items: [{ href: "/parametres", label: "Paramètres", icon: "⚙" }] },
 ];
 
 export function Shell({ children }: { children: React.ReactNode }) {
@@ -47,11 +47,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex h-full flex-col bg-navy text-[hsl(40_25%_88%)]">
       <div className="flex items-center gap-2.5 border-b border-white/10 px-4 py-4">
         <div className="flex size-8 items-center justify-center rounded-md bg-gold text-[15px] font-bold text-navy">
-          Øª
+          ت
         </div>
         <div className="min-w-0">
           <p className="truncate text-[13px] font-semibold text-white">ERP Tunisie</p>
-          <p className="truncate text-[10.5px] tracking-wide text-white/50">Gestion & FiscalitÃ©</p>
+          <p className="truncate text-[10.5px] tracking-wide text-white/50">Gestion & Fiscalité</p>
         </div>
       </div>
 
@@ -87,11 +87,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </nav>
 
       <div className="border-t border-white/10 px-3 py-3">
-        <p className="text-[10px] uppercase tracking-widest text-white/35">TrÃ©sorerie</p>
+        <p className="text-[10px] uppercase tracking-widest text-white/35">Trésorerie</p>
         <p className="num mt-1 text-[14px] font-semibold text-gold">
-          {dash.data ? fmtTND(dash.data.cash) : "â€”"}
+          {dash.data ? fmtTND(dash.data.cash) : "—"}
         </p>
-        <p className="mt-0.5 truncate text-[10.5px] text-white/40">{company.data?.name ?? "â€¦"}</p>
+        <p className="mt-0.5 truncate text-[10.5px] text-white/40">{company.data?.name ?? "…"}</p>
       </div>
     </div>
   );
@@ -116,17 +116,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
             onClick={() => setMobileOpen(true)}
             aria-label="Menu"
           >
-            â˜°
+            ☰
           </button>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[12px] font-medium text-foreground">{company.data?.name ?? "â€¦"}</p>
+            <p className="truncate text-[12px] font-medium text-foreground">{company.data?.name ?? "…"}</p>
             <p className="truncate text-[10.5px] text-muted-foreground">
-              MF {company.data?.matriculeFiscal ?? "â€”"} Â· Exercice {company.data?.fiscalYear ?? "â€”"}
+              MF {company.data?.matriculeFiscal ?? "—"} · Exercice {company.data?.fiscalYear ?? "—"}
             </p>
           </div>
           <div className="hidden items-center gap-2 sm:flex">
             <span className="erp-chip bg-gold-soft text-[hsl(38_72%_30%)]">
-              TVA {dash.data ? fmtTND(dash.data.vatDue) : "â€”"}
+              TVA {dash.data ? fmtTND(dash.data.vatDue) : "—"}
             </span>
             <span className="erp-chip bg-secondary text-muted-foreground">TND</span>
             {canInstall && (
@@ -135,12 +135,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 className="erp-btn-ghost h-8 gap-1.5 px-2.5 text-[11.5px]"
                 title="Installer l'ERP sur cet ordinateur"
               >
-                â¤“ Installer
+                ⤓ Installer
               </button>
             )}
             {installed && (
-              <span className="erp-chip bg-success-soft text-success" title="Application installÃ©e">
-                InstallÃ©e
+              <span className="erp-chip bg-success-soft text-success" title="Application installée">
+                Installée
               </span>
             )}
           </div>
@@ -149,7 +149,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <main className="mx-auto w-full max-w-[1400px] flex-1 p-4 lg:p-6">{children}</main>
 
         <footer className="no-print border-t border-border px-4 py-3 text-[11px] text-muted-foreground lg:px-6">
-          ERP Tunisie â€” barÃ¨me IRPP 8 tranches (0 % â†’ 40 %) Â· CNSS 9,68 % / 17,07 % Â· CSS 0,5 % Â· TVA 19/13/7/0 %
+          ERP Tunisie — barème IRPP 8 tranches (0 % → 40 %) · CNSS 9,68 % / 17,07 % · CSS 0,5 % · TVA 19/13/7/0 %
         </footer>
       </div>
     </div>

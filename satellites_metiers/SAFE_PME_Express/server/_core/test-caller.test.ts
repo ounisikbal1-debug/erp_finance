@@ -9,27 +9,27 @@ import { describe, expect, it, vi } from "vitest";
 // the business-layer ../db. Three things get mocked below, all for the same
 // reason: none of them can run in a unit test.
 //
-//   ./auth, ./storage â€” read env + open real integrations at module load.
-//   ./db               â€” builds a real DB driver from env.databaseUrl.
+//   ./auth, ./storage — read env + open real integrations at module load.
+//   ./db               — builds a real DB driver from env.databaseUrl.
 //
 // ../db is deliberately left REAL, unlike those three: it is AGENT-OWNED and
 // differs per app (event-signup's exports are not slot-booking's), so this
 // file can't know its shape ahead of time. What every app's ../db actually
-// imports is `./db` above â€” this _core driver module â€” for a `db` handle and
+// imports is `./db` above — this _core driver module — for a `db` handle and
 // (sometimes) `atomic`. Mocking `./db` (the frozen leaf) instead of `../db`
 // (the per-app business layer) means the real ../db module loads for
-// whichever app is overlaid, so every export it happens to have â€” including
-// a router-level zod constant like `MAX_NAME` â€” exists, and `appRouter`
+// whichever app is overlaid, so every export it happens to have — including
+// a router-level zod constant like `MAX_NAME` — exists, and `appRouter`
 // builds against the genuine module instead of a stand-in this file would
 // have to keep re-guessing per app.
 //
 // `db` below can't be a bare `{}`: mini-crm's ../db builds a subquery
 // (`db.select(...).from(...).groupBy(...).as(...)`) at MODULE level, so a
-// stub with no `.select` throws the instant ../db is imported â€” before any
+// stub with no `.select` throws the instant ../db is imported — before any
 // test in this file even runs. It is instead a REAL drizzle instance over an
 // unconnected pg.Pool: building a query performs no I/O and pg.Pool opens no
 // socket until a query actually runs, so any app's module-level query
-// construction â€” mini-crm's or otherwise â€” loads fine, and every OTHER app's
+// construction — mini-crm's or otherwise — loads fine, and every OTHER app's
 // ../db (which only touches `db` inside function bodies this test never
 // calls) is unaffected either way. `atomic` stays a bare vi.fn(): no sample's
 // ../db calls it at module level, only inside function bodies.

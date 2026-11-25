@@ -1,8 +1,8 @@
-﻿// â”€â”€ SERVICE : dÃ©clarations sociales et fiscales â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Calcule les dÃ©clarations Ã  partir des donnÃ©es rÃ©elles de l'ERP :
-//   Â· CNSS mensuelle (salariÃ© 9,68 % + employeur 17,07 % + CSS 0,5 %)
-//   Â· TVA mensuelle / trimestrielle (collectÃ©e âˆ’ dÃ©ductible)
-//   Â· DÃ©pÃ´t du bilan annuel (IS 15 % / 20 % + acomptes)
+﻿// ── SERVICE : déclarations sociales et fiscales ──────────────────────────────
+// Calcule les déclarations à partir des données réelles de l'ERP :
+//   · CNSS mensuelle (salarié 9,68 % + employeur 17,07 % + CSS 0,5 %)
+//   · TVA mensuelle / trimestrielle (collectée − déductible)
+//   · Dépôt du bilan annuel (IS 15 % / 20 % + acomptes)
 // Montants en millimes.
 import { and, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "../_core/db";
@@ -21,7 +21,7 @@ export type CnssDeclaration = {
   lines: { matricule: string; name: string; gross: number; employee: number; employer: number; css: number }[];
 };
 
-/** DÃ©claration CNSS d'un mois (YYYY-MM). Échéance : le 15 du mois suivant. */
+/** Déclaration CNSS d'un mois (YYYY-MM). Échéance : le 15 du mois suivant. */
 export async function buildCnssDeclaration(ownerId: string, period: string): Promise<CnssDeclaration> {
   const [y, m] = period.split("-").map(Number);
   const next = new Date(Date.UTC(y, m, 1));
@@ -67,7 +67,7 @@ export async function buildCnssDeclaration(ownerId: string, period: string): Pro
   };
 }
 
-/** Taux appliquÃ©s, exposÃ©s pour l'affichage et le contrÃ´le. */
+/** Taux appliqués, exposés pour l'affichage et le contrôle. */
 export const SOCIAL_RATES = {
   cnssEmployee: CNSS_EMPLOYEE_RATE,
   cnssEmployer: CNSS_EMPLOYER_RATE,
@@ -84,14 +84,14 @@ export type AnnualFiling = {
   isAmount: number;
   installmentsPaid: number;
   balanceDue: number;
-  /** Acomptes provisionnels : 3 Ã— 30 % de l'IS de rÃ©fÃ©rence. */
+  /** Acomptes provisionnels : 3 × 30 % de l'IS de référence. */
   installmentAmount: number;
   installmentDates: string[];
 };
 
 /**
- * DÃ©pÃ´t du bilan annuel : rÃ©sultat fiscal, IS dÃ», acomptes provisionnels.
- * Échéance du dÃ©pÃ´t : 31 mars de l'annÃ©e suivante (dÃ©claration annuelle).
+ * Dépôt du bilan annuel : résultat fiscal, IS dû, acomptes provisionnels.
+ * Échéance du dépôt : 31 mars de l'année suivante (déclaration annuelle).
  */
 export async function buildAnnualFiling(
   fiscalYear: number,
@@ -118,7 +118,7 @@ export async function buildAnnualFiling(
   };
 }
 
-/** Somme des dÃ©clarations d'un type sur une annÃ©e (acomptes dÃ©jÃ  rÃ©glÃ©s). */
+/** Somme des déclarations d'un type sur une année (acomptes déjà réglés). */
 export async function sumDeclarations(ownerId: string, kind: string, year: number): Promise<number> {
   const rows = await db
     .select({ total: sql<number>`coalesce(sum(${taxDeclarations.taxAmount}),0)::int` })
@@ -134,7 +134,7 @@ export async function sumDeclarations(ownerId: string, kind: string, year: numbe
   return Number(rows[0]?.total ?? 0);
 }
 
-/** Bornes d'une annÃ©e civile. */
+/** Bornes d'une année civile. */
 export function yearPeriod(year: number) {
   return { from: `${year}-01-01`, to: `${year}-12-31` };
 }

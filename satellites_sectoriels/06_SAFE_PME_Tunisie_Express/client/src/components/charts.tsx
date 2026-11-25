@@ -1,6 +1,6 @@
-﻿// â”€â”€ Graphiques interactifs (SVG natif, aucune dÃ©pendance) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Chaque graphique est pilotÃ© par les donnÃ©es rÃ©elles de l'ERP et rÃ©agit au
-// survol : infobulle, mise en Ã©vidence, valeurs au millime.
+﻿// ── Graphiques interactifs (SVG natif, aucune dépendance) ────────────────────
+// Chaque graphique est piloté par les données réelles de l'ERP et réagit au
+// survol : infobulle, mise en évidence, valeurs au millime.
 import { useMemo, useState } from "react";
 import { fmtTND } from "../../../shared/fiscal";
 
@@ -10,8 +10,8 @@ const INFO = "hsl(205 70% 45%)";
 const DANGER = "hsl(0 65% 50%)";
 const SUCCESS = "hsl(152 55% 36%)";
 
-/** Largeur de rÃ©fÃ©rence du viewBox : assez large pour que le SVG ne soit pas
- *  Ã©crasÃ© quand il est Ã©tirÃ© sur toute la largeur d'un panneau. */
+/** Largeur de référence du viewBox : assez large pour que le SVG ne soit pas
+ *  écrasé quand il est étiré sur toute la largeur d'un panneau. */
 const VBW = 620;
 
 /** Montant compact pour les axes : 1,2 M / 340 k / 850. */
@@ -30,7 +30,7 @@ function niceMax(v: number): number {
   return step * mag;
 }
 
-// â”€â”€ Barres groupÃ©es (ventes vs achats par mois) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Barres groupées (ventes vs achats par mois) ──────────────────────────────
 export function GroupedBars({
   data,
   height = 220,
@@ -133,7 +133,7 @@ export function GroupedBars({
   );
 }
 
-// â”€â”€ Donut interactif (rÃ©partition) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Donut interactif (répartition) ───────────────────────────────────────────
 export function Donut({
   data,
   size = 168,
@@ -211,7 +211,7 @@ export function Donut({
   );
 }
 
-// â”€â”€ Courbe (Ã©volution) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Courbe (évolution) ───────────────────────────────────────────────────────
 export function LineChart({
   data,
   height = 200,
@@ -288,7 +288,7 @@ export function LineChart({
   );
 }
 
-// â”€â”€ Barres horizontales (classement) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Barres horizontales (classement) ─────────────────────────────────────────
 export function HBars({
   data,
   color = GOLD,

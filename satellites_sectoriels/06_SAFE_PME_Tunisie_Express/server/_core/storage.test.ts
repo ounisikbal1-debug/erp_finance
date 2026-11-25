@@ -2,7 +2,7 @@
 
 // Both mocks are hoisted by vitest, so storage.ts sees them at import time.
 // This matters: env.ts calls required("DATABASE_URL") at module load and db.ts
-// opens a DB driver (node-postgres pool or Neon HTTP) â€” neither can run here.
+// opens a DB driver (node-postgres pool or Neon HTTP) — neither can run here.
 vi.mock("./env", () => ({
   env: { storage: { presignUrl: "https://platform.test/presign", token: "tok.sig" } },
 }));
@@ -14,8 +14,8 @@ vi.mock("./env", () => ({
 //
 // `timeline` is a SEPARATE, shared log that also receives a "fetch" entry
 // (pushed by the wrapper around fetchMock below). `calls` alone cannot prove
-// relative ordering between the DB and the platform HTTP call â€” it only
-// records DB entry points â€” so anything that asserts "X happens before Y"
+// relative ordering between the DB and the platform HTTP call — it only
+// records DB entry points — so anything that asserts "X happens before Y"
 // across that boundary must assert on `timeline`, not `calls`.
 const dbState: {
   result: unknown[];
@@ -35,7 +35,7 @@ vi.mock("./db", () => {
     for (const m of ["from", "where", "orderBy", "set", "returning"]) {
       obj[m] = () => obj;
     }
-    // values(), limit() and offset() additionally RECORD their argument â€” the
+    // values(), limit() and offset() additionally RECORD their argument — the
     // row shape and the limit/offset floors are behaviours worth asserting, and
     // a fake that swallowed them would let tests named after those behaviours
     // pass without checking.
@@ -70,7 +70,7 @@ vi.mock("./db", () => {
 
 // LOAD-BEARING: this must stay a top-level `await import`, not a static import.
 // vi.mock calls are hoisted above the `const dbState` declaration, and the ./db
-// factory closes over dbState â€” a static import would evaluate that factory
+// factory closes over dbState — a static import would evaluate that factory
 // before dbState is initialized and throw "Cannot access before initialization".
 // Do not "tidy" this into `import { ... } from "./storage"`.
 const { StorageError, storageCommit, storageGet, storageListByOwner, storageListAll,
@@ -137,7 +137,7 @@ describe("storageCommit", () => {
     // The whole point of the protocol: no insert may happen without a HEAD.
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(dbState.calls).toEqual(["insert"]);
-    // dbState.calls alone doesn't prove ORDER relative to the HTTP call â€” a
+    // dbState.calls alone doesn't prove ORDER relative to the HTTP call — a
     // rewrite that inserted first and HEADed after would still produce
     // fetchMock called once and dbState.calls === ["insert"]. The shared
     // timeline is what actually pins "fetch before insert".
@@ -158,7 +158,7 @@ describe("storageCommit", () => {
   });
 
   it("takes size/contentType from the HEAD response while name is caller-supplied", async () => {
-    // NOTE: opts has no size/contentType fields at all â€” that type shape is what
+    // NOTE: opts has no size/contentType fields at all — that type shape is what
     // makes "never from the caller" true, not this test. What this test actually
     // checks is that the two values that DO come from somewhere (name from opts,
     // size/contentType from the HEAD response) land in the row correctly.
@@ -215,7 +215,7 @@ describe("storageGet", () => {
     expect(await storageGet("docs/report.pdf")).toEqual(ROW);
   });
 
-  it("returns null when absent (not an error â€” 'no such row' is a normal result)", async () => {
+  it("returns null when absent (not an error — 'no such row' is a normal result)", async () => {
     dbState.result = [];
     expect(await storageGet("nope.png")).toBeNull();
   });
@@ -239,7 +239,7 @@ describe("storageListByOwner / storageListAll", () => {
     expect(dbState.limit).toBe(50);
   });
 
-  it("storageListAll needs no ownerId â€” it is the explicit escape hatch", async () => {
+  it("storageListAll needs no ownerId — it is the explicit escape hatch", async () => {
     dbState.result = [ROW];
     expect(await storageListAll()).toEqual([ROW]);
   });
@@ -255,21 +255,21 @@ describe("storageDeleteOwned", () => {
     expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
       op: "delete", path: "docs/report.pdf",
     });
-    // dbState.calls alone doesn't prove ORDER relative to the HTTP call â€” see
+    // dbState.calls alone doesn't prove ORDER relative to the HTTP call — see
     // the identical caveat on storageCommit's "HEADs before DB" test. The
     // shared timeline is what actually pins "delete row before delete object".
     expect(dbState.timeline).toEqual(["db:delete", "fetch"]);
   });
 
   it("returns false and does NOT delete the object when no row matched", async () => {
-    dbState.result = [];   // absent, or owned by someone else â€” indistinguishable on purpose
+    dbState.result = [];   // absent, or owned by someone else — indistinguishable on purpose
     expect(await storageDeleteOwned("u1", "nope.png")).toBe(false);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 
 describe("storageDeleteAny", () => {
-  it("deletes regardless of owner â€” the explicit admin escape hatch", async () => {
+  it("deletes regardless of owner — the explicit admin escape hatch", async () => {
     dbState.result = [{ ...ROW, ownerId: "someone-else" }];
     fetchMock.mockResolvedValue(ok({ deleted: true, path: "docs/report.pdf" }));
     expect(await storageDeleteAny("docs/report.pdf")).toBe(true);
@@ -302,9 +302,9 @@ describe("storagePutUrl overwrite guard", () => {
   });
 });
 
-// â”€â”€ C1: canonicalKey must reject every key whose string differs from what the
+// ── C1: canonicalKey must reject every key whose string differs from what the
 // platform's posixpath.normpath clamp would compute. Each of these four is a
-// key-aliasing input verified empirically in the final-review writeup â€” a row
+// key-aliasing input verified empirically in the final-review writeup — a row
 // indexed under any of them would alias an existing, differently-spelled row
 // without the DB `unique` index on `key` ever firing. Exercised through
 // storageGet (the thinnest wrapper around canonicalKey) so the assertion is
@@ -319,7 +319,7 @@ describe("canonicalKey rejects platform-divergent keys (C1a)", () => {
     await expect(storageGet(key)).rejects.toMatchObject({ code: "forbidden" });
     // Rejected before ever reaching the platform. (db.select()/.from() are
     // synchronous query-builder calls that fire before the `.where(...)`
-    // argument â€” where canonicalKey lives â€” is even evaluated, so they show up
+    // argument — where canonicalKey lives — is even evaluated, so they show up
     // in dbState.calls regardless; nothing is actually sent until awaited, and
     // the throw happens before that await. fetchMock not being called is what
     // actually proves the platform was never touched.)
@@ -345,7 +345,7 @@ describe("canonicalKey rejects platform-divergent keys (C1a)", () => {
   });
 });
 
-// The exploit in the writeup doesn't stop at storageGet â€” it goes through
+// The exploit in the writeup doesn't stop at storageGet — it goes through
 // storageCommit (to index the alias) and storageDeleteOwned (to delete the
 // victim's object via the aliased row). Both must reject too, and reject
 // BEFORE touching the platform or the DB.
@@ -412,7 +412,7 @@ describe("serveAppStorage (C1b)", () => {
   it("404s on an embedded double-slash (the un-normalized case that used to reach the wire)", async () => {
     // Before this fix, serveAppStorage never normalized at all: "shared//report.pdf"
     // would have gone straight onto the wire, diverging from the platform's own
-    // posixpath.normpath clamp to "shared/report.pdf" â€” the same aliasing C1
+    // posixpath.normpath clamp to "shared/report.pdf" — the same aliasing C1
     // closes off everywhere else.
     const { c, state } = fakeContext("/app-storage/shared//report.pdf");
     await serveAppStorage(c);

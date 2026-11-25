@@ -4,8 +4,8 @@ import type { SessionUser } from "@shared/types";
 import { requestStorageAccessIfEmbedded } from "./storage-access";
 
 // Frontend auth seam. Wraps the tRPC auth router so pages consume a single
-// `useAuth()` â€” they never see the session mechanism (cookie/JWT/SSO). Mirrors
-// the server AuthProvider abstraction (DESIGN Â§5.1).
+// `useAuth()` — they never see the session mechanism (cookie/JWT/SSO). Mirrors
+// the server AuthProvider abstraction (DESIGN §5.1).
 interface AuthContextValue {
   user: SessionUser | null;
   isLoading: boolean;

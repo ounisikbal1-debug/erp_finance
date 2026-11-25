@@ -86,7 +86,7 @@ export default function Payroll() {
     <>
       <PageHeader
         title="Paie & bulletins"
-        subtitle="IRPP 8 tranches (0 % â†’ 40 %) Â· CNSS 9,68 % / 17,07 % Â· CSS 0,5 %"
+        subtitle="IRPP 8 tranches (0 % → 40 %) · CNSS 9,68 % / 17,07 % · CSS 0,5 %"
         actions={
           <button className="erp-btn-gold" onClick={() => setOpen(true)} disabled={active.length === 0}>
             + Lancer un cycle de paie
@@ -95,34 +95,34 @@ export default function Payroll() {
       />
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat label="SalariÃ©s actifs" value={String(active.length)} hint="Base de calcul du prochain cycle" />
-        <Stat label="Brut soumis" value={fmtTND(totals.gross)} hint={`CNSS salariÃ© ${CNSS_EMPLOYEE_RATE} %`} />
-        <Stat label="IRPP Ã  retenir" value={fmtTND(totals.irpp)} hint="BarÃ¨me progressif annuel Ã· 12" tone="gold" />
-        <Stat label="Net Ã  payer" value={fmtTND(totals.net)} hint={`CSS ${CSS_RATE} % dÃ©duite`} tone="success" />
+        <Stat label="Salariés actifs" value={String(active.length)} hint="Base de calcul du prochain cycle" />
+        <Stat label="Brut soumis" value={fmtTND(totals.gross)} hint={`CNSS salarié ${CNSS_EMPLOYEE_RATE} %`} />
+        <Stat label="IRPP à retenir" value={fmtTND(totals.irpp)} hint="Barème progressif annuel ÷ 12" tone="gold" />
+        <Stat label="Net à payer" value={fmtTND(totals.net)} hint={`CSS ${CSS_RATE} % déduite`} tone="success" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Panel title="Cycles de paie" subtitle="Historique des bulletins gÃ©nÃ©rÃ©s" className="xl:col-span-2" noPad>
+        <Panel title="Cycles de paie" subtitle="Historique des bulletins générés" className="xl:col-span-2" noPad>
           {runs.isLoading ? (
             <Loading />
           ) : (runs.data ?? []).length === 0 ? (
             <EmptyState
-              icon="â—«"
+              icon="◫"
               title="Aucun cycle de paie"
-              description="Lancez votre premier cycle : l'ERP calcule automatiquement la CNSS salariÃ© (9,68 %), employeur (17,07 %), la CSS (0,5 %) et l'IRPP selon le barÃ¨me tunisien Ã  8 tranches."
+              description="Lancez votre premier cycle : l'ERP calcule automatiquement la CNSS salarié (9,68 %), employeur (17,07 %), la CSS (0,5 %) et l'IRPP selon le barème tunisien à 8 tranches."
               action={
                 <button className="erp-btn-gold" onClick={() => setOpen(true)} disabled={active.length === 0}>
-                  {active.length === 0 ? "CrÃ©ez d'abord des salariÃ©s" : "Lancer un cycle"}
+                  {active.length === 0 ? "Créez d'abord des salariés" : "Lancer un cycle"}
                 </button>
               }
             />
           ) : (
-            <Table head={["PÃ©riode", "Statut", "Brut", "CNSS salariÃ©", "IRPP", "Net Ã  payer"]}>
+            <Table head={["Période", "Statut", "Brut", "CNSS salarié", "IRPP", "Net à payer"]}>
               {(runs.data ?? []).map((r) => (
                 <tr key={r.id} className="cursor-pointer" onClick={() => setSelected(r.id)}>
                   <td className="font-medium">{periodLabel(r.period)}</td>
                   <td>
-                    <Badge tone="success">ValidÃ©e</Badge>
+                    <Badge tone="success">Validée</Badge>
                   </td>
                   <td className="text-right"><Money value={r.totalGross} /></td>
                   <td className="text-right"><Money value={r.totalCnssEmployee} /></td>
@@ -134,27 +134,27 @@ export default function Payroll() {
           )}
         </Panel>
 
-        <Panel title="BarÃ¨me IRPP" subtitle="8 tranches annuelles â€” 0 % Ã  40 %">
+        <Panel title="Barème IRPP" subtitle="8 tranches annuelles — 0 % à 40 %">
           <div className="space-y-1.5">
             {IRPP_BRACKETS.map((b, i) => (
               <div key={i} className="flex items-center justify-between rounded-md bg-secondary/50 px-2.5 py-1.5 text-[12px]">
                 <span className="text-muted-foreground">
-                  {b.from.toLocaleString("fr-FR")} â€“ {b.to === null ? "âˆž" : b.to.toLocaleString("fr-FR")}
+                  {b.from.toLocaleString("fr-FR")} – {b.to === null ? "∞" : b.to.toLocaleString("fr-FR")}
                 </span>
                 <span className="num font-semibold">{b.rate} %</span>
               </div>
             ))}
           </div>
           <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-            Abattement chef de famille : 300 TND/an Â· 100 TND par personne Ã  charge.
+            Abattement chef de famille : 300 TND/an · 100 TND par personne à charge.
           </p>
         </Panel>
       </div>
 
-      {/* Bulletins du cycle sÃ©lectionnÃ© */}
+      {/* Bulletins du cycle sélectionné */}
       {selected && detail.data && (
         <Panel
-          title={`Bulletins â€” ${periodLabel(detail.data.period)}`}
+          title={`Bulletins — ${periodLabel(detail.data.period)}`}
           className="mt-4"
           noPad
           actions={
@@ -165,14 +165,14 @@ export default function Payroll() {
         >
           <Table
             head={[
-              "SalariÃ©",
+              "Salarié",
               "Matricule",
               "Brut",
               "CNSS 9,68 %",
               "CSS 0,5 %",
               "Base imposable",
               "IRPP",
-              "Net Ã  payer",
+              "Net à payer",
               "CNSS employeur",
             ]}
           >
@@ -206,13 +206,13 @@ export default function Payroll() {
       {/* Modale de lancement */}
       <Modal open={open} onClose={() => setOpen(false)} title="Lancer un cycle de paie" wide>
         <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="PÃ©riode">
+          <Field label="Période">
             <input type="month" className="erp-input" value={period} onChange={(e) => setPeriod(e.target.value)} />
           </Field>
           <div className="rounded-lg bg-gold-soft/50 p-3 text-[12px] leading-relaxed">
-            <p className="font-semibold text-[hsl(38_72%_30%)]">Taux appliquÃ©s</p>
+            <p className="font-semibold text-[hsl(38_72%_30%)]">Taux appliqués</p>
             <p className="mt-1 text-muted-foreground">
-              CNSS salariÃ© {CNSS_EMPLOYEE_RATE} % Â· CNSS employeur {CNSS_EMPLOYER_RATE} % Â· CSS {CSS_RATE} % Â·
+              CNSS salarié {CNSS_EMPLOYEE_RATE} % · CNSS employeur {CNSS_EMPLOYER_RATE} % · CSS {CSS_RATE} % ·
               IRPP 8 tranches
             </p>
           </div>
@@ -222,7 +222,7 @@ export default function Payroll() {
           <table className="erp-table">
             <thead>
               <tr>
-                <th>SalariÃ©</th>
+                <th>Salarié</th>
                 <th className="text-right">Brut</th>
                 <th className="text-right">CNSS</th>
                 <th className="text-right">CSS</th>
@@ -254,7 +254,7 @@ export default function Payroll() {
             <Money value={totals.gross} bold />
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Net Ã  payer</span>
+            <span className="text-muted-foreground">Net à payer</span>
             <Money value={totals.net} bold />
           </div>
           <div className="flex justify-between">
@@ -272,7 +272,7 @@ export default function Payroll() {
             Annuler
           </button>
           <button className="erp-btn-gold" onClick={generate} disabled={create.isPending || preview.length === 0}>
-            {create.isPending ? "Calculâ€¦" : `GÃ©nÃ©rer ${preview.length} bulletin(s)`}
+            {create.isPending ? "Calcul…" : `Générer ${preview.length} bulletin(s)`}
           </button>
         </div>
       </Modal>
@@ -280,7 +280,7 @@ export default function Payroll() {
   );
 }
 
-/** Page simplifiÃ©e de dÃ©monstration du calcul IRPP annuel. */
+/** Page simplifiée de démonstration du calcul IRPP annuel. */
 export function IrppSimulator() {
   const [annual, setAnnual] = useState("48000");
   const taxable = Math.round(Number(annual.replace(/\s/g, "").replace(",", ".")) * 1000) || 0;
@@ -289,20 +289,20 @@ export function IrppSimulator() {
   const effective = taxable > 0 ? (total / taxable) * 100 : 0;
 
   return (
-    <Panel title="Simulateur IRPP annuel" subtitle="Revenu net imposable â†’ impÃ´t dÃ»">
+    <Panel title="Simulateur IRPP annuel" subtitle="Revenu net imposable → impôt dû">
       <Field label="Revenu net imposable annuel (TND)">
         <input className="erp-input" value={annual} onChange={(e) => setAnnual(e.target.value)} />
       </Field>
       <div className="mt-3 space-y-1">
         {detail.length === 0 ? (
           <p className="py-4 text-center text-[12.5px] text-muted-foreground">
-            Revenu infÃ©rieur au seuil imposable â€” aucun IRPP dÃ».
+            Revenu inférieur au seuil imposable — aucun IRPP dû.
           </p>
         ) : (
           detail.map((d, i) => (
             <div key={i} className="flex items-center justify-between rounded-md bg-secondary/50 px-2.5 py-1.5 text-[12px]">
               <span className="text-muted-foreground">
-                {d.from.toLocaleString("fr-FR")} â€“ {d.to === null ? "âˆž" : d.to.toLocaleString("fr-FR")} Â· {d.rate} %
+                {d.from.toLocaleString("fr-FR")} – {d.to === null ? "∞" : d.to.toLocaleString("fr-FR")} · {d.rate} %
               </span>
               <span className="num">
                 <Money value={d.base} className="mr-3 text-muted-foreground" />
@@ -322,7 +322,7 @@ export function IrppSimulator() {
           <span className="num font-semibold">{effective.toFixed(2)} %</span>
         </div>
         <div className="flex justify-between border-t border-gold/30 pt-1.5">
-          <span>Revenu net aprÃ¨s impÃ´t</span>
+          <span>Revenu net après impôt</span>
           <span className="num font-semibold">{fmtTND(net)}</span>
         </div>
       </div>

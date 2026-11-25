@@ -323,9 +323,76 @@ export default function CountryConfigurationPanel({
         body: JSON.stringify(body),
       }));
       await loadCountry(country.code);
-      setMessage(`${label} enregistré pour ${country.code}.`);
+      window.dispatchEvent(new CustomEvent('safe:country-config-updated', { detail: { countryCode: country.code } }));
+      setMessage(`${label} enregistré pour ${country.code}. Les modules concernés ont été actualisés.`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : `Échec de l’enregistrement de ${label}.`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const saveAllModifications = async () => {
+    if (!accessToken || !country || isSaving) return;
+    const stampDuty = profile.stampDuty.trim() ? Number(profile.stampDuty) : null;
+    const corporateTax = profile.corporateTax.trim() ? Number(profile.corporateTax) : null;
+    if ((stampDuty !== null && !Number.isFinite(stampDuty)) || (corporateTax !== null && !Number.isFinite(corporateTax))) {
+      setError('Les paramètres numériques doivent être des valeurs finies ou rester non configurés.');
+      return;
+    }
+    setIsSaving(true);
+    setError('');
+    setMessage('');
+    try {
+      await readResponse(await fetch(`/api/admin/countries/${encodeURIComponent(country.code)}`, {
+        method: 'PUT',
+        headers: headers(),
+        body: JSON.stringify({
+          name: profile.name,
+          currencyCode: profile.currencyCode,
+          currencySymbol: profile.currencySymbol,
+          stampDuty,
+          corporateTax,
+          salesReceivableAccountCode: profile.salesReceivableAccountCode || null,
+          salesRevenueAccountCode: profile.salesRevenueAccountCode || null,
+          salesVatAccountCode: profile.salesVatAccountCode || null,
+          salesStampDutyAccountCode: profile.salesStampDutyAccountCode || null,
+          stockAssetAccountCode: profile.stockAssetAccountCode || null,
+          stockAdjustmentAccountCode: profile.stockAdjustmentAccountCode || null,
+          productionWipAccountCode: profile.productionWipAccountCode || null,
+          productionLaborAccountCode: profile.productionLaborAccountCode || null,
+          productionOverheadAccountCode: profile.productionOverheadAccountCode || null,
+          purchaseExpenseAccountCode: profile.purchaseExpenseAccountCode || null,
+          purchaseVatAccountCode: profile.purchaseVatAccountCode || null,
+          realizedFxGainAccountCode: profile.realizedFxGainAccountCode || null,
+          realizedFxLossAccountCode: profile.realizedFxLossAccountCode || null,
+          unrealizedFxGainAccountCode: profile.unrealizedFxGainAccountCode || null,
+          unrealizedFxLossAccountCode: profile.unrealizedFxLossAccountCode || null,
+        }),
+      }));
+      await readResponse(await fetch(`/api/admin/countries/${encodeURIComponent(country.code)}/tax-rates`, {
+        method: 'PUT',
+        headers: headers(),
+        body: JSON.stringify({ rates: editableTaxRates }),
+      }));
+      await readResponse(await fetch(`/api/admin/countries/${encodeURIComponent(country.code)}/tax-brackets`, {
+        method: 'PUT',
+        headers: headers(),
+        body: JSON.stringify({ brackets: editableTaxBrackets }),
+      }));
+      const parsedPayroll = JSON.parse(payrollConfig);
+      if (parsedPayroll && typeof parsedPayroll === 'object') {
+        await readResponse(await fetch(`/api/admin/countries/${encodeURIComponent(country.code)}/payroll-config`, {
+          method: 'PUT',
+          headers: headers(),
+          body: JSON.stringify(parsedPayroll),
+        }));
+      }
+      await loadCountry(country.code);
+      window.dispatchEvent(new CustomEvent('safe:country-config-updated', { detail: { countryCode: country.code } }));
+      setMessage(`Toutes les modifications ont été enregistrées pour ${country.code} et appliquées aux modules concernés.`);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Échec de l’enregistrement des modifications.');
     } finally {
       setIsSaving(false);
     }
@@ -483,8 +550,27 @@ export default function CountryConfigurationPanel({
           {countries.map((item) => <option key={item.code} value={item.code}>{item.code} — {item.name}</option>)}
         </select>
         {country && (
-          <div style={{ color: '#64748B', marginTop: 6, fontSize: '0.8rem' }}>
-            {country.isDefault ? 'Pays de référence par défaut' : 'Profil pays distinct'} — devise {country.currencyCode}.
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginTop: 10 }}>
+            <div style={{ color: '#64748B', fontSize: '0.8rem' }}>
+              {country.isDefault ? 'Pays de référence par défaut' : 'Profil pays distinct'} — devise {country.currencyCode}.
+            </div>
+            <button
+              type="button"
+              disabled={isSaving || isLoading}
+              onClick={() => void saveAllModifications()}
+              style={{
+                background: '#059669',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: 7,
+                padding: '9px 18px',
+                fontWeight: 800,
+                fontSize: '0.88rem',
+                cursor: isSaving ? 'wait' : 'pointer',
+              }}
+            >
+              {isSaving ? 'Enregistrement…' : '💾 Enregistrer Modification'}
+            </button>
           </div>
         )}
       </div>

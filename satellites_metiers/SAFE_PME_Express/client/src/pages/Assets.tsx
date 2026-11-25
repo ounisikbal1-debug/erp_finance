@@ -5,10 +5,10 @@ import { fmtTND, parseTND, todayISO } from "../../../shared/fiscal";
 
 const CATEGORIES = [
   { label: "Constructions", rate: 5, account: "2221" },
-  { label: "MatÃ©riel & outillage", rate: 10, account: "2231" },
-  { label: "MatÃ©riel de transport", rate: 20, account: "2241" },
+  { label: "Matériel & outillage", rate: 10, account: "2231" },
+  { label: "Matériel de transport", rate: 20, account: "2241" },
   { label: "Mobilier de bureau", rate: 10, account: "2251" },
-  { label: "MatÃ©riel informatique", rate: 33.33, account: "2281" },
+  { label: "Matériel informatique", rate: 33.33, account: "2281" },
   { label: "Logiciels & licences", rate: 33.33, account: "2261" },
 ];
 
@@ -28,7 +28,7 @@ export default function Assets() {
   const [form, setForm] = useState({
     code: "",
     label: "",
-    category: "MatÃ©riel & outillage",
+    category: "Matériel & outillage",
     acquisitionDate: todayISO(),
     cost: "",
     duration: 10,
@@ -79,7 +79,7 @@ export default function Assets() {
     <>
       <PageHeader
         title="Immobilisations"
-        subtitle="Registre des immobilisations et amortissements linÃ©aires"
+        subtitle="Registre des immobilisations et amortissements linéaires"
         actions={
           <button className="erp-btn-gold" onClick={() => setOpen(true)}>
             + Nouvelle immobilisation
@@ -88,8 +88,8 @@ export default function Assets() {
       />
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat label="Valeur brute" value={fmtTND(totals.cost)} hint="CoÃ»t d'acquisition" />
-        <Stat label="Amortissements cumulÃ©s" value={fmtTND(totals.acc)} hint="Dotations passÃ©es" tone="danger" />
+        <Stat label="Valeur brute" value={fmtTND(totals.cost)} hint="Coût d'acquisition" />
+        <Stat label="Amortissements cumulés" value={fmtTND(totals.acc)} hint="Dotations passées" tone="danger" />
         <Stat label="Valeur nette comptable" value={fmtTND(totals.cost - totals.acc)} hint="VNC" tone="gold" />
         <Stat label="Dotation annuelle" value={fmtTND(totals.annual)} hint="Charge de l'exercice" />
       </div>
@@ -99,9 +99,9 @@ export default function Assets() {
           <Loading />
         ) : (list.data ?? []).length === 0 ? (
           <EmptyState
-            icon="â–§"
+            icon="▧"
             title="Aucune immobilisation"
-            description="Enregistrez vos immobilisations pour calculer automatiquement les amortissements linÃ©aires selon les durÃ©es fiscales tunisiennes (5 Ã  10 ans selon la catÃ©gorie)."
+            description="Enregistrez vos immobilisations pour calculer automatiquement les amortissements linéaires selon les durées fiscales tunisiennes (5 à 10 ans selon la catégorie)."
             action={
               <button className="erp-btn-gold" onClick={() => setOpen(true)}>
                 Ajouter une immobilisation
@@ -112,13 +112,13 @@ export default function Assets() {
           <Table
             head={[
               "Code",
-              "DÃ©signation",
-              "CatÃ©gorie",
+              "Désignation",
+              "Catégorie",
               "Acquisition",
               "Valeur brute",
               "Taux",
-              "DurÃ©e",
-              "Amort. cumulÃ©",
+              "Durée",
+              "Amort. cumulé",
               "VNC",
               "Dotation",
             ]}
@@ -146,7 +146,7 @@ export default function Assets() {
         )}
       </Panel>
 
-      <Panel title="BarÃ¨me d'amortissement" subtitle="DurÃ©es et taux usuels en Tunisie" className="mt-4">
+      <Panel title="Barème d'amortissement" subtitle="Durées et taux usuels en Tunisie" className="mt-4">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {CATEGORIES.map((c) => (
             <div key={c.label} className="flex items-center justify-between rounded-lg bg-secondary/50 px-3 py-2 text-[12.5px]">
@@ -168,10 +168,10 @@ export default function Assets() {
           <Field label="Code">
             <input className="erp-input" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="IMM-001" />
           </Field>
-          <Field label="DÃ©signation">
+          <Field label="Désignation">
             <input className="erp-input" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Camion de livraison" />
           </Field>
-          <Field label="CatÃ©gorie">
+          <Field label="Catégorie">
             <select className="erp-select" value={form.category} onChange={(e) => applyCategory(e.target.value)}>
               {CATEGORIES.map((c) => (
                 <option key={c.label} value={c.label}>
@@ -186,7 +186,7 @@ export default function Assets() {
           <Field label="Valeur d'acquisition (TND)">
             <input className="erp-input" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} placeholder="0.000" />
           </Field>
-          <Field label="Taux linÃ©aire (%)">
+          <Field label="Taux linéaire (%)">
             <input
               type="number"
               step="0.01"
@@ -195,7 +195,7 @@ export default function Assets() {
               onChange={(e) => setForm({ ...form, rate: Number(e.target.value), duration: Math.round(100 / Number(e.target.value)) })}
             />
           </Field>
-          <Field label="DurÃ©e (annÃ©es)">
+          <Field label="Durée (années)">
             <input type="number" className="erp-input" value={form.duration} onChange={(e) => setForm({ ...form, duration: Number(e.target.value) })} />
           </Field>
           <Field label="Compte d'immobilisation">
@@ -227,7 +227,7 @@ export default function Assets() {
             Annuler
           </button>
           <button className="erp-btn-gold" onClick={submit} disabled={create.isPending}>
-            {create.isPending ? "Enregistrementâ€¦" : "Enregistrer"}
+            {create.isPending ? "Enregistrement…" : "Enregistrer"}
           </button>
         </div>
       </Modal>

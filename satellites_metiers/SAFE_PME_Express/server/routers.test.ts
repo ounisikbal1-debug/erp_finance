@@ -4,7 +4,7 @@ import { makeCaller } from "./_core/test-caller";
 import type { SessionUser } from "../shared/types";
 
 // Full rationale for what gets mocked below (and why ./_core/trpc doesn't
-// need to be) lives on server/_core/test-caller.ts, next to makeCaller â€”
+// need to be) lives on server/_core/test-caller.ts, next to makeCaller —
 // mock every _core module routers.ts touches.
 vi.mock("./_core/auth", () => {
   class AuthError extends Error {}
@@ -44,8 +44,8 @@ vi.mock("./services/vat", () => ({
   vatDueDate: vi.fn(() => "2026-12-15"),
 }));
 
-// Les services mÃ©tier importent ./db (donc DATABASE_URL) : on les mocke pour
-// que la suite tourne sans base de donnÃ©es.
+// Les services métier importent ./db (donc DATABASE_URL) : on les mocke pour
+// que la suite tourne sans base de données.
 vi.mock("./services/accounting", () => ({
   postSalesInvoice: vi.fn(),
   postPurchaseBill: vi.fn(),
@@ -126,7 +126,7 @@ const { registerLocalUser, EmailTakenError } = await import("./_core/auth");
 
 // C1c: uploadUrl's key is `${uuid}-${sanitizeBasename(name)}`. The uuid prefix
 // only makes the key unguessable if the REST of the key isn't
-// attacker-controlled â€” sanitizeBasename is what stops a caller-supplied
+// attacker-controlled — sanitizeBasename is what stops a caller-supplied
 // `name` like "/../report.pdf" from steering path segments into someone
 // else's key (which canonicalKey in storage.ts would then reject outright,
 // but the point of sanitizing here is to never construct that key at all).
@@ -143,7 +143,7 @@ describe("sanitizeBasename", () => {
 
   it("strips characters outside [A-Za-z0-9._-]", () => {
     expect(sanitizeBasename("my file (final)!.png")).toBe("myfilefinal.png");
-    expect(sanitizeBasename("hÃ©llo.png")).toBe("hllo.png");
+    expect(sanitizeBasename("héllo.png")).toBe("hllo.png");
   });
 
   it("collapses leading dots so a bare '.' or '..' basename can't survive", () => {
@@ -156,30 +156,30 @@ describe("sanitizeBasename", () => {
   });
 
   // Regression (observed 2026-08, published app gallery-app-gpkd51ak): a file
-  // named é£Žæ™¯.png landed in storage as "<uuid>-png" â€” no dot, no extension.
+  // named 风景.png landed in storage as "<uuid>-png" — no dot, no extension.
   // Two rules compounded. The allowlist is ASCII-only, so a stem written
   // entirely in CJK is deleted, leaving ".png"; the leading-dot strip that
   // follows then ate the dot, because by that point the only dot left in the
   // string is the extension separator, not a dotfile prefix.
   //
   // The trigger is a stem with NO surviving ASCII, which is the common case for
-  // Chinese/Japanese/Korean filenames â€” "å¾®ä¿¡å›¾ç‰‡_2026.png" was always fine,
+  // Chinese/Japanese/Korean filenames — "微信图片_2026.png" was always fine,
   // because "_2026" survives and keeps a stem in front of the dot. That is why
   // this went unnoticed.
   it("keeps the extension when the stem is entirely non-ASCII", () => {
-    expect(sanitizeBasename("é£Žæ™¯.png")).toBe("upload.png");
-    expect(sanitizeBasename("æ—¥æœ¬èªž.jpeg")).toBe("upload.jpeg");
-    expect(sanitizeBasename("í•œê¸€.png")).toBe("upload.png");
-    expect(sanitizeBasename("ç›¸å†Œ/é£Žæ™¯.png")).toBe("upload.png");
+    expect(sanitizeBasename("风景.png")).toBe("upload.png");
+    expect(sanitizeBasename("日本語.jpeg")).toBe("upload.jpeg");
+    expect(sanitizeBasename("한글.png")).toBe("upload.png");
+    expect(sanitizeBasename("相册/风景.png")).toBe("upload.png");
   });
 
   it("keeps the extension on names that already sanitized cleanly", () => {
-    expect(sanitizeBasename("å¾®ä¿¡å›¾ç‰‡_2026.png")).toBe("_2026.png");
+    expect(sanitizeBasename("微信图片_2026.png")).toBe("_2026.png");
     expect(sanitizeBasename("IMG_1234.PNG")).toBe("IMG_1234.PNG");
     expect(sanitizeBasename("archive.tar.gz")).toBe("archive.tar.gz");
   });
 
-  // A dotfile has no extension to preserve â€” the whole name is the stem.
+  // A dotfile has no extension to preserve — the whole name is the stem.
   it("treats a leading-dot name as a stem, not as a bare extension", () => {
     expect(sanitizeBasename(".png")).toBe("png");
     expect(sanitizeBasename(".gitignore")).toBe("gitignore");
@@ -188,7 +188,7 @@ describe("sanitizeBasename", () => {
   // The key is `${uuid}-${basename}`, so a "/" or "\\" surviving here would
   // steer path segments; an over-long extension would pad the key for no gain.
   it("never emits a path separator, and caps the extension", () => {
-    expect(sanitizeBasename("C:\\photos\\é£Žæ™¯.png")).toBe("upload.png");
+    expect(sanitizeBasename("C:\\photos\\风景.png")).toBe("upload.png");
     expect(sanitizeBasename("x." + "a".repeat(40))).toBe("x." + "a".repeat(10));
   });
 
@@ -204,7 +204,7 @@ describe("sanitizeBasename", () => {
 // "../"-traversal segment) BEFORE any db/network access. files.remove had no
 // try/catch, so that throw used to escape as a raw StorageError, which tRPC
 // wraps as an opaque INTERNAL_SERVER_ERROR (500) for what is plainly bad
-// client input. Exercise the real router (only auth/storage/db are mocked â€”
+// client input. Exercise the real router (only auth/storage/db are mocked —
 // ./_core/trpc is real) via makeCaller so this asserts the actual error the
 // client would receive, not a re-implementation of the mapping.
 describe("files.remove", () => {
@@ -227,8 +227,8 @@ describe("files.remove", () => {
 
 // Regression (observed 2026-08-26, published app): signing up twice with the
 // same email answered 500 INTERNAL_SERVER_ERROR whose message was the raw
-// Drizzle failure â€” the INSERT statement plus every bound param, bcrypt hash
-// included â€” which the signup form then printed at the user. The mapping now
+// Drizzle failure — the INSERT statement plus every bound param, bcrypt hash
+// included — which the signup form then printed at the user. The mapping now
 // hangs off a type (EmailTakenError from _core/auth), not a regex over a
 // driver-specific message.
 describe("auth.signup", () => {
@@ -236,7 +236,7 @@ describe("auth.signup", () => {
 
   it("maps an already-registered email to TRPCError CONFLICT, not a 500", async () => {
     vi.mocked(registerLocalUser).mockRejectedValueOnce(
-      new EmailTakenError("That email is already registered â€” try logging in instead."),
+      new EmailTakenError("That email is already registered — try logging in instead."),
     );
     const caller = makeCaller(anonymous);
 
@@ -251,8 +251,8 @@ describe("auth.signup", () => {
   });
 });
 
-// L'ERP fonctionne AVEC comptes : chaque procÃ©dure mÃ©tier est protÃ©gÃ©e et
-// scopÃ©e par l'utilisateur connectÃ©. Un appelant anonyme est refusÃ©.
+// L'ERP fonctionne AVEC comptes : chaque procédure métier est protégée et
+// scopée par l'utilisateur connecté. Un appelant anonyme est refusé.
 describe("accounts ERP shape", () => {
   const anonymous = { c: {} as never, db: {} as never, user: null };
   const signedIn = {
@@ -261,7 +261,7 @@ describe("accounts ERP shape", () => {
     user: { id: "u1", email: "a@b.tn", name: "Test", role: "user" } as SessionUser,
   };
 
-  it("refuse un appelant anonyme sur les procÃ©dures mÃ©tier", async () => {
+  it("refuse un appelant anonyme sur les procédures métier", async () => {
     const caller = makeCaller(anonymous);
     await expect(caller.partners.list({ type: "client" })).rejects.toThrow(/UNAUTHORIZED/i);
     await expect(caller.invoices.list()).rejects.toThrow(/UNAUTHORIZED/i);
@@ -275,8 +275,8 @@ describe("accounts ERP shape", () => {
   });
 
   it("rejects an unbalanced journal entry", async () => {
-    // isBalanced est mockÃ© Ã  true pour les autres tests : on rÃ©tablit ici la
-    // vraie vÃ©rification d'Ã©quilibre.
+    // isBalanced est mocké à true pour les autres tests : on rétablit ici la
+    // vraie vérification d'équilibre.
     const { isBalanced } = await import("./services/accounting");
     vi.mocked(isBalanced).mockImplementationOnce((lines) => {
       const d = lines.reduce((s, l) => s + l.debit, 0);
@@ -288,13 +288,13 @@ describe("accounts ERP shape", () => {
       caller.accounting.createEntry({
         entryDate: "2026-11-22",
         journal: "OD",
-        label: "Test dÃ©sÃ©quilibrÃ©",
+        label: "Test déséquilibré",
         lines: [
           { accountCode: "411", debit: 1000, credit: 0 },
           { accountCode: "701", debit: 0, credit: 900 },
         ],
       }),
-    ).rejects.toThrow(/dÃ©sÃ©quilibrÃ©e/i);
+    ).rejects.toThrow(/déséquilibrée/i);
   });
 
   it("exposes the full ERP surface and no files.list", () => {

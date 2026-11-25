@@ -24,17 +24,17 @@ type Employee = {
 
 const employeeColumns: Column<Employee>[] = [
   { key: "mat", label: "Matricule", value: (e) => e.matricule },
-  { key: "first", label: "PrÃ©nom", value: (e) => e.firstName },
+  { key: "first", label: "Prénom", value: (e) => e.firstName },
   { key: "last", label: "Nom", value: (e) => e.lastName },
   { key: "pos", label: "Poste", value: (e) => e.position },
   { key: "dep", label: "Service", value: (e) => e.department },
   { key: "hire", label: "Date d'embauche", value: (e) => e.hireDate },
   { key: "base", label: "Salaire de base", value: (e) => e.baseSalary / 1000, display: (e) => (e.baseSalary / 1000).toFixed(3) },
   { key: "allow", label: "Primes", value: (e) => e.allowances / 1000, display: (e) => (e.allowances / 1000).toFixed(3) },
-  { key: "sit", label: "Situation", value: (e) => (e.maritalStatus === "marie" ? "MariÃ©(e)" : "CÃ©libataire") },
+  { key: "sit", label: "Situation", value: (e) => (e.maritalStatus === "marie" ? "Marié(e)" : "Célibataire") },
   { key: "kids", label: "Enfants", value: (e) => e.children },
   { key: "head", label: "Chef de famille", value: (e) => (e.headOfFamily ? "Oui" : "Non") },
-  { key: "cnss", label: "NÂ° CNSS", value: (e) => e.cnssNumber ?? "" },
+  { key: "cnss", label: "N° CNSS", value: (e) => e.cnssNumber ?? "" },
 ];
 
 export default function Employees() {
@@ -108,11 +108,11 @@ export default function Employees() {
   return (
     <>
       <PageHeader
-        title="SalariÃ©s"
+        title="Salariés"
         subtitle="Dossiers du personnel, situation familiale et salaires de base"
         actions={
           <button className="erp-btn-gold" onClick={() => setOpen(true)}>
-            + Nouveau salariÃ©
+            + Nouveau salarié
           </button>
         }
       />
@@ -122,9 +122,9 @@ export default function Employees() {
           rows={list.data ?? []}
           basename="salaries"
           title="Dossiers du personnel"
-          subtitle="ERP Tunisie â€” SalariÃ©s"
+          subtitle="ERP Tunisie — Salariés"
           columns={employeeColumns}
-          templateHeaders={["Matricule", "PrÃ©nom", "Nom", "Poste", "Service", "Date d'embauche", "Salaire de base", "Primes", "Situation", "Enfants", "Chef de famille", "NÂ° CNSS"]}
+          templateHeaders={["Matricule", "Prénom", "Nom", "Poste", "Service", "Date d'embauche", "Salaire de base", "Primes", "Situation", "Enfants", "Chef de famille", "N° CNSS"]}
           onImport={async (r) => {
             const res = await importEmployees.mutateAsync({ rows: r });
             utils.employees.list.invalidate();
@@ -138,32 +138,32 @@ export default function Employees() {
           <Loading />
         ) : (list.data ?? []).length === 0 ? (
           <EmptyState
-            icon="â—”"
-            title="Aucun salariÃ© enregistrÃ©"
-            description="CrÃ©ez les dossiers de vos salariÃ©s : le salaire de base, les primes et la situation de famille servent au calcul de la CNSS, de la CSS et de l'IRPP."
+            icon="◔"
+            title="Aucun salarié enregistré"
+            description="Créez les dossiers de vos salariés : le salaire de base, les primes et la situation de famille servent au calcul de la CNSS, de la CSS et de l'IRPP."
             action={
               <button className="erp-btn-gold" onClick={() => setOpen(true)}>
-                CrÃ©er un dossier
+                Créer un dossier
               </button>
             }
           />
         ) : (
-          <Table head={["Matricule", "Nom & prÃ©nom", "Poste", "Service", "Embauche", "Salaire de base", "Primes", "Situation", "Statut"]}>
+          <Table head={["Matricule", "Nom & prénom", "Poste", "Service", "Embauche", "Salaire de base", "Primes", "Situation", "Statut"]}>
             {(list.data ?? []).map((e) => (
               <tr key={e.id}>
                 <td className="font-mono text-[12px]">{e.matricule}</td>
                 <td className="font-medium">
                   {e.lastName.toUpperCase()} {e.firstName}
                 </td>
-                <td className="text-muted-foreground">{e.position || "â€”"}</td>
+                <td className="text-muted-foreground">{e.position || "—"}</td>
                 <td className="text-muted-foreground">{e.department}</td>
                 <td className="text-muted-foreground">{new Date(e.hireDate).toLocaleDateString("fr-FR")}</td>
                 <td className="text-right"><Money value={e.baseSalary} /></td>
                 <td className="text-right"><Money value={e.allowances} zeroDash /></td>
                 <td className="text-[12px] text-muted-foreground">
-                  {e.maritalStatus === "marie" ? "MariÃ©(e)" : "CÃ©libataire"}
-                  {e.children > 0 ? ` Â· ${e.children} enf.` : ""}
-                  {e.headOfFamily ? " Â· CF" : ""}
+                  {e.maritalStatus === "marie" ? "Marié(e)" : "Célibataire"}
+                  {e.children > 0 ? ` · ${e.children} enf.` : ""}
+                  {e.headOfFamily ? " · CF" : ""}
                 </td>
                 <td>
                   <Badge tone={e.status === "actif" ? "success" : "muted"}>{e.status === "actif" ? "Actif" : "Sorti"}</Badge>
@@ -174,15 +174,15 @@ export default function Employees() {
         )}
       </Panel>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Nouveau salariÃ©" wide>
+      <Modal open={open} onClose={() => setOpen(false)} title="Nouveau salarié" wide>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Matricule">
             <input className="erp-input" value={form.matricule} onChange={(e) => setForm({ ...form, matricule: e.target.value })} placeholder="EMP-001" />
           </Field>
-          <Field label="NÂ° CNSS">
+          <Field label="N° CNSS">
             <input className="erp-input" value={form.cnssNumber} onChange={(e) => setForm({ ...form, cnssNumber: e.target.value })} placeholder="0000000000" />
           </Field>
-          <Field label="PrÃ©nom">
+          <Field label="Prénom">
             <input className="erp-input" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
           </Field>
           <Field label="Nom">
@@ -199,8 +199,8 @@ export default function Employees() {
           </Field>
           <Field label="Situation familiale">
             <select className="erp-select" value={form.maritalStatus} onChange={(e) => setForm({ ...form, maritalStatus: e.target.value })}>
-              <option value="celibataire">CÃ©libataire</option>
-              <option value="marie">MariÃ©(e)</option>
+              <option value="celibataire">Célibataire</option>
+              <option value="marie">Marié(e)</option>
             </select>
           </Field>
           <Field label="Salaire de base mensuel (TND)">
@@ -209,7 +209,7 @@ export default function Employees() {
           <Field label="Primes mensuelles (TND)">
             <input className="erp-input" value={form.allowances} onChange={(e) => setForm({ ...form, allowances: e.target.value })} placeholder="0.000" />
           </Field>
-          <Field label="Personnes Ã  charge">
+          <Field label="Personnes à charge">
             <input
               type="number"
               className="erp-input"
@@ -239,7 +239,7 @@ export default function Employees() {
               ["CSS 0,5 %", preview.css],
               ["Base imposable", preview.taxableBase],
               ["IRPP", preview.irpp],
-              ["Net Ã  payer", preview.net],
+              ["Net à payer", preview.net],
             ].map(([label, value]) => (
               <div key={label as string} className="flex justify-between gap-2">
                 <span className="text-muted-foreground">{label}</span>
@@ -258,7 +258,7 @@ export default function Employees() {
             Annuler
           </button>
           <button className="erp-btn-gold" onClick={submit} disabled={create.isPending}>
-            {create.isPending ? "Enregistrementâ€¦" : "Enregistrer"}
+            {create.isPending ? "Enregistrement…" : "Enregistrer"}
           </button>
         </div>
       </Modal>

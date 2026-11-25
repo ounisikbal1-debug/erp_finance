@@ -1,7 +1,7 @@
-﻿// â”€â”€ AGENT-OWNED: tRPC API surface (Controller) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+﻿// ── AGENT-OWNED: tRPC API surface (Controller) ───────────────────────────────
 // Architecture MVC : ce fichier = Controller (validation + orchestration),
-// server/services/* = mÃ©tier, server/db.ts = accÃ¨s donnÃ©es, pages React = View.
-// Toutes les procÃ©dures mÃ©tier sont `protectedProcedure` et scopÃ©es par
+// server/services/* = métier, server/db.ts = accès données, pages React = View.
+// Toutes les procédures métier sont `protectedProcedure` et scopées par
 // ctx.user.id : un compte ne voit jamais les livres d'un autre.
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -56,7 +56,7 @@ const authRouter = router({
   }),
 });
 
-// â”€â”€ SociÃ©tÃ© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Société ──────────────────────────────────────────────────────────────────
 const companyRouter = router({
   get: protectedProcedure.query(({ ctx }) => q.getCompany(ctx.user.id)),
 
@@ -97,7 +97,7 @@ const companyRouter = router({
     .mutation(({ ctx, input }) => q.updateCompany(ctx.user.id, input)),
 });
 
-// â”€â”€ Tiers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Tiers ────────────────────────────────────────────────────────────────────
 const partnerInput = z.object({
   type: z.enum(["client", "fournisseur"]),
   code: z.string().min(1),
@@ -129,7 +129,7 @@ const partnersRouter = router({
     .mutation(({ ctx, input }) => q.deletePartner(ctx.user.id, input.id)),
 });
 
-// â”€â”€ Articles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Articles ─────────────────────────────────────────────────────────────────
 const productInput = z.object({
   reference: z.string().min(1),
   name: z.string().min(1),
@@ -159,7 +159,7 @@ const productsRouter = router({
     .mutation(({ ctx, input }) => q.deleteProduct(ctx.user.id, input.id)),
 });
 
-// â”€â”€ Stock â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Stock ────────────────────────────────────────────────────────────────────
 const stockRouter = router({
   movements: protectedProcedure
     .input(z.object({ productId: z.string().uuid().optional() }).optional())
@@ -182,7 +182,7 @@ const stockRouter = router({
     .mutation(({ ctx, input }) => q.createStockMovement(ctx.user.id, input)),
 });
 
-// â”€â”€ Factures â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Factures ─────────────────────────────────────────────────────────────────
 const lineInput = z.object({
   productId: z.string().uuid().nullish(),
   label: z.string().min(1),
@@ -214,7 +214,7 @@ const invoicesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const inv = await q.createInvoice(ctx.user.id, input);
-      // Une facture validÃ©e gÃ©nÃ¨re son Ã©criture comptable en partie double.
+      // Une facture validée génère son écriture comptable en partie double.
       if (inv.status !== "brouillon" && inv.status !== "annulee") {
         await postSalesInvoice(ctx.user.id, inv);
       }
@@ -227,7 +227,7 @@ const invoicesRouter = router({
       const before = await q.getInvoice(ctx.user.id, input.id);
       if (!before) throw new TRPCError({ code: "NOT_FOUND", message: "Facture introuvable." });
       const row = await q.updateInvoiceStatus(ctx.user.id, input.id, input.status);
-      // Passage brouillon â†’ validÃ©e : on comptabilise maintenant.
+      // Passage brouillon → validée : on comptabilise maintenant.
       if (before.status === "brouillon" && input.status !== "brouillon" && input.status !== "annulee") {
         await postSalesInvoice(ctx.user.id, before);
       }
@@ -238,7 +238,7 @@ const invoicesRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(({ ctx, input }) => q.deleteInvoice(ctx.user.id, input.id)),
 
-  /** XML e-Fatoura (TEIF) de la facture, prÃªt Ã  tÃ©lÃ©charger ou transmettre. */
+  /** XML e-Fatoura (TEIF) de la facture, prêt à télécharger ou transmettre. */
   efatouraXml: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
@@ -256,7 +256,7 @@ const invoicesRouter = router({
     }),
 });
 
-// â”€â”€ Achats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Achats ───────────────────────────────────────────────────────────────────
 const billsRouter = router({
   list: protectedProcedure.query(({ ctx }) => q.listBills(ctx.user.id)),
   get: protectedProcedure
@@ -309,7 +309,7 @@ const billsRouter = router({
     .mutation(({ ctx, input }) => q.deleteBill(ctx.user.id, input.id)),
 });
 
-// â”€â”€ SalariÃ©s â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Salariés ─────────────────────────────────────────────────────────────────
 const employeeInput = z.object({
   matricule: z.string().min(1),
   firstName: z.string().min(1),
@@ -359,7 +359,7 @@ const employeesRouter = router({
     .mutation(({ ctx, input }) => q.deleteEmployee(ctx.user.id, input.id)),
 });
 
-// â”€â”€ Paie â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Paie ─────────────────────────────────────────────────────────────────────
 const payrollRouter = router({
   list: protectedProcedure.query(({ ctx }) => q.listPayrollRuns(ctx.user.id)),
   get: protectedProcedure
@@ -369,7 +369,7 @@ const payrollRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        period: z.string().regex(/^\d{4}-\d{2}$/, "PÃ©riode attendue AAAA-MM"),
+        period: z.string().regex(/^\d{4}-\d{2}$/, "Période attendue AAAA-MM"),
         label: z.string().optional(),
         payslips: z
           .array(
@@ -402,7 +402,7 @@ const payrollRouter = router({
     .mutation(({ ctx, input }) => q.deletePayrollRun(ctx.user.id, input.id)),
 });
 
-// â”€â”€ ComptabilitÃ© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Comptabilité ─────────────────────────────────────────────────────────────
 const accountingRouter = router({
   accounts: protectedProcedure.query(({ ctx }) => q.listAccounts(ctx.user.id)),
   entries: protectedProcedure.query(({ ctx }) => q.listJournalEntries(ctx.user.id)),
@@ -447,7 +447,7 @@ const accountingRouter = router({
         const c = input.lines.reduce((s, l) => s + l.credit, 0);
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: `Ã‰criture dÃ©sÃ©quilibrÃ©e : dÃ©bit ${d} â‰  crÃ©dit ${c} (millimes).`,
+          message: `Écriture déséquilibrée : débit ${d} ≠ crédit ${c} (millimes).`,
         });
       }
       return q.createJournalEntry(ctx.user.id, input);
@@ -457,12 +457,12 @@ const accountingRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(({ ctx, input }) => q.deleteJournalEntry(ctx.user.id, input.id)),
 
-  /** Bilan comptable sur une pÃ©riode. */
+  /** Bilan comptable sur une période. */
   balanceSheet: protectedProcedure
     .input(z.object({ from: z.string().min(10), to: z.string().min(10) }))
     .query(({ ctx, input }) => buildBalanceSheet(ctx.user.id, input.from, input.to)),
 
-  /** Compte de rÃ©sultat sur une pÃ©riode. */
+  /** Compte de résultat sur une période. */
   incomeStatement: protectedProcedure
     .input(z.object({ from: z.string().min(10), to: z.string().min(10), isRate: z.number().int().optional() }))
     .query(async ({ ctx, input }) => {
@@ -471,7 +471,7 @@ const accountingRouter = router({
     }),
 });
 
-// â”€â”€ Immobilisations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Immobilisations ──────────────────────────────────────────────────────────
 const assetsRouter = router({
   list: protectedProcedure.query(({ ctx }) => q.listAssets(ctx.user.id)),
 
@@ -496,7 +496,7 @@ const assetsRouter = router({
     .mutation(({ ctx, input }) => q.deleteAsset(ctx.user.id, input.id)),
 });
 
-// â”€â”€ TrÃ©sorerie â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Trésorerie ───────────────────────────────────────────────────────────────
 const treasuryRouter = router({
   accounts: protectedProcedure.query(({ ctx }) => q.listBankAccounts(ctx.user.id)),
   transactions: protectedProcedure
@@ -535,7 +535,7 @@ const treasuryRouter = router({
     .mutation(({ ctx, input }) => q.deleteBankTransaction(ctx.user.id, input.id)),
 });
 
-// â”€â”€ FiscalitÃ© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Fiscalité ────────────────────────────────────────────────────────────────
 const taxRouter = router({
   list: protectedProcedure.query(({ ctx }) => q.listTaxDeclarations(ctx.user.id)),
 
@@ -562,12 +562,12 @@ const taxRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .mutation(({ ctx, input }) => q.deleteTaxDeclaration(ctx.user.id, input.id)),
 
-  /** DÃ©claration CNSS d'un mois, calculÃ©e depuis les bulletins rÃ©els. */
+  /** Déclaration CNSS d'un mois, calculée depuis les bulletins réels. */
   cnss: protectedProcedure
     .input(z.object({ month: z.string().regex(/^\d{4}-\d{2}$/).optional() }))
     .query(({ ctx, input }) => buildCnssDeclaration(ctx.user.id, input.month ?? currentMonth())),
 
-  /** GÃ©nÃ¨re et enregistre la dÃ©claration CNSS du mois. */
+  /** Génère et enregistre la déclaration CNSS du mois. */
   generateCnss: protectedProcedure
     .input(z.object({ month: z.string().regex(/^\d{4}-\d{2}$/).optional() }))
     .mutation(async ({ ctx, input }) => {
@@ -593,7 +593,7 @@ const taxRouter = router({
       });
     }),
 
-  /** DÃ©pÃ´t du bilan annuel : rÃ©sultat, IS, acomptes. */
+  /** Dépôt du bilan annuel : résultat, IS, acomptes. */
   annualFiling: protectedProcedure
     .input(z.object({ year: z.number().int().min(2000).max(2100) }))
     .query(async ({ ctx, input }) => {
@@ -607,7 +607,7 @@ const taxRouter = router({
       return buildAnnualFiling(input.year, co.isRate, pnl.totalRevenue, pnl.totalExpenses, paid);
     }),
 
-  /** Enregistre le dÃ©pÃ´t du bilan annuel. */
+  /** Enregistre le dépôt du bilan annuel. */
   generateAnnualFiling: protectedProcedure
     .input(z.object({ year: z.number().int().min(2000).max(2100) }))
     .mutation(async ({ ctx, input }) => {
@@ -638,7 +638,7 @@ const taxRouter = router({
     }),
 });
 
-// â”€â”€ Import en masse (Excel / CSV) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Import en masse (Excel / CSV) ────────────────────────────────────────────
 const importRouter = router({
   partners: protectedProcedure
     .input(z.object({ type: z.enum(["client", "fournisseur"]), rows: z.array(z.record(z.string(), z.string())).max(2000) }))
@@ -660,12 +660,12 @@ const importRouter = router({
             matriculeFiscal: (r["Matricule fiscal"] ?? "").trim() || undefined,
             address: (r["Adresse"] ?? "").trim() || undefined,
             email: (r["E-mail"] ?? r["Email"] ?? "").trim() || undefined,
-            phone: (r["TÃ©lÃ©phone"] ?? r["Telephone"] ?? "").trim() || undefined,
-            paymentTerms: Number((r["DÃ©lai"] ?? "30").replace(/[^\d]/g, "")) || 30,
+            phone: (r["Téléphone"] ?? r["Telephone"] ?? "").trim() || undefined,
+            paymentTerms: Number((r["Délai"] ?? "30").replace(/[^\d]/g, "")) || 30,
           });
           imported++;
         } catch (e) {
-          errors.push(`Ligne ${i + 2} : ${e instanceof Error ? e.message : "Ã©chec"}`);
+          errors.push(`Ligne ${i + 2} : ${e instanceof Error ? e.message : "échec"}`);
         }
       }
       return { imported, errors };
@@ -677,10 +677,10 @@ const importRouter = router({
       let imported = 0;
       const errors: string[] = [];
       for (const [i, r] of input.rows.entries()) {
-        const name = (r["DÃ©signation"] ?? r["Designation"] ?? r["name"] ?? "").trim();
-        const reference = (r["RÃ©fÃ©rence"] ?? r["Reference"] ?? "").trim() || `IMP-${Date.now()}-${i}`;
+        const name = (r["Désignation"] ?? r["Designation"] ?? r["name"] ?? "").trim();
+        const reference = (r["Référence"] ?? r["Reference"] ?? "").trim() || `IMP-${Date.now()}-${i}`;
         if (!name) {
-          errors.push(`Ligne ${i + 2} : dÃ©signation manquante.`);
+          errors.push(`Ligne ${i + 2} : désignation manquante.`);
           continue;
         }
         try {
@@ -688,7 +688,7 @@ const importRouter = router({
             reference,
             name,
             kind: /service/i.test(r["Type"] ?? "") ? "service" : "produit",
-            unit: (r["UnitÃ©"] ?? r["Unite"] ?? "U").trim() || "U",
+            unit: (r["Unité"] ?? r["Unite"] ?? "U").trim() || "U",
             priceHt: parseAmountToMillimes(r["Prix HT"] ?? r["Prix"] ?? "0"),
             costPrice: parseAmountToMillimes(r["Prix d'achat"] ?? "0"),
             vatRate: Number((r["TVA"] ?? "19").replace(/[^\d]/g, "")) || 19,
@@ -698,7 +698,7 @@ const importRouter = router({
           });
           imported++;
         } catch (e) {
-          errors.push(`Ligne ${i + 2} : ${e instanceof Error ? e.message : "Ã©chec"}`);
+          errors.push(`Ligne ${i + 2} : ${e instanceof Error ? e.message : "échec"}`);
         }
       }
       return { imported, errors };
@@ -710,10 +710,10 @@ const importRouter = router({
       let imported = 0;
       const errors: string[] = [];
       for (const [i, r] of input.rows.entries()) {
-        const firstName = (r["PrÃ©nom"] ?? r["Prenom"] ?? "").trim();
+        const firstName = (r["Prénom"] ?? r["Prenom"] ?? "").trim();
         const lastName = (r["Nom"] ?? "").trim();
         if (!firstName || !lastName) {
-          errors.push(`Ligne ${i + 2} : prÃ©nom ou nom manquant.`);
+          errors.push(`Ligne ${i + 2} : prénom ou nom manquant.`);
           continue;
         }
         try {
@@ -729,18 +729,18 @@ const importRouter = router({
             maritalStatus: /mari/i.test(r["Situation"] ?? "") ? "marie" : "celibataire",
             children: Number((r["Enfants"] ?? "0").replace(/[^\d]/g, "")) || 0,
             headOfFamily: /oui|true|1/i.test(r["Chef de famille"] ?? ""),
-            cnssNumber: (r["NÂ° CNSS"] ?? "").trim() || undefined,
+            cnssNumber: (r["N° CNSS"] ?? "").trim() || undefined,
           });
           imported++;
         } catch (e) {
-          errors.push(`Ligne ${i + 2} : ${e instanceof Error ? e.message : "Ã©chec"}`);
+          errors.push(`Ligne ${i + 2} : ${e instanceof Error ? e.message : "échec"}`);
         }
       }
       return { imported, errors };
     }),
 });
 
-// â”€â”€ TVA : collectÃ©e / dÃ©ductible / solde â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── TVA : collectée / déductible / solde ─────────────────────────────────────
 const vatRouter = router({
   summary: protectedProcedure
     .input(z.object({ month: z.string().regex(/^\d{4}-\d{2}$/).optional(), quarter: z.string().optional() }))
@@ -749,7 +749,7 @@ const vatRouter = router({
       return computeVat(ctx.user.id, period);
     }),
 
-  /** GÃ©nÃ¨re (ou met Ã  jour) la dÃ©claration TVA de la pÃ©riode. */
+  /** Génère (ou met à jour) la déclaration TVA de la période. */
   generateDeclaration: protectedProcedure
     .input(z.object({ month: z.string().regex(/^\d{4}-\d{2}$/).optional(), quarter: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {
@@ -773,12 +773,12 @@ const vatRouter = router({
     }),
 });
 
-// â”€â”€ Transmissions TTN / e-Fatoura â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Transmissions TTN / e-Fatoura ────────────────────────────────────────────
 const transmissionRouter = router({
   status: protectedProcedure.query(async () => transmissionStatus()),
   history: protectedProcedure.query(({ ctx }) => q.listTransmissions(ctx.user.id)),
 
-  /** Transmet une facture Ã  e-Fatoura (XML TEIF + charge utile JSON). */
+  /** Transmet une facture à e-Fatoura (XML TEIF + charge utile JSON). */
   sendInvoice: protectedProcedure
     .input(z.object({ invoiceId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
@@ -811,13 +811,13 @@ const transmissionRouter = router({
       return result;
     }),
 
-  /** Transmet une dÃ©claration fiscale Ã  la TÃ©lÃ©dÃ©claration TTN. */
+  /** Transmet une déclaration fiscale à la Télédéclaration TTN. */
   sendDeclaration: protectedProcedure
     .input(z.object({ declarationId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       const all = await q.listTaxDeclarations(ctx.user.id);
       const decl = all.find((d) => d.id === input.declarationId);
-      if (!decl) throw new TRPCError({ code: "NOT_FOUND", message: "DÃ©claration introuvable." });
+      if (!decl) throw new TRPCError({ code: "NOT_FOUND", message: "Déclaration introuvable." });
       const company = await q.getCompany(ctx.user.id);
 
       const result = await transmit("ttn", "/api/v1/declarations", buildTtnPayload(decl, company));
@@ -838,14 +838,14 @@ const transmissionRouter = router({
     }),
 });
 
-// â”€â”€ Tableau de bord â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Tableau de bord ──────────────────────────────────────────────────────────
 const dashboardRouter = router({
   get: protectedProcedure.query(({ ctx }) => q.getDashboard(ctx.user.id)),
 });
 
-// â”€â”€ DonnÃ©es de dÃ©monstration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Données de démonstration ─────────────────────────────────────────────────
 const seedRouter = router({
-  /** Charge un jeu de dÃ©monstration rÃ©parti sur les 12 mois de l'annÃ©e. */
+  /** Charge un jeu de démonstration réparti sur les 12 mois de l'année. */
   load: protectedProcedure
     .input(z.object({ year: z.number().int().min(2000).max(2100).optional(), reset: z.boolean().optional() }))
     .mutation(async ({ ctx, input }) => {
@@ -853,11 +853,11 @@ const seedRouter = router({
       return seedDemoData(ctx.user.id, input.year ?? new Date().getFullYear(), input.reset ?? false);
     }),
 
-  /** Vide toutes les donnÃ©es mÃ©tier du compte connectÃ©. */
+  /** Vide toutes les données métier du compte connecté. */
   clear: protectedProcedure.mutation(({ ctx }) => q.clearAllData(ctx.user.id)),
 });
 
-// â”€â”€ Fichiers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Fichiers ─────────────────────────────────────────────────────────────────
 export function sanitizeBasename(name: string): string {
   const last = name.split(/[/\\]/).pop() ?? "";
   const dot = last.lastIndexOf(".");
@@ -878,7 +878,7 @@ const filesRouter = router({
         return { key, uploadUrl, publicPath };
       } catch (e) {
         if (e instanceof StorageError && e.code === "failed") {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "Type de fichier non autorisÃ©." });
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Type de fichier non autorisé." });
         }
         throw e;
       }
@@ -904,7 +904,7 @@ const filesRouter = router({
         return await storageDeleteAnonymous(input.key);
       } catch (e) {
         if (e instanceof StorageError && e.code === "forbidden") {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "ClÃ© invalide." });
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Clé invalide." });
         }
         throw e;
       }

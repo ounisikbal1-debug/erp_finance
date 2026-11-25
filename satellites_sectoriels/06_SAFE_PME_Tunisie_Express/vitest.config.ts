@@ -3,10 +3,10 @@ import path from "node:path";
 
 // Vitest needs its OWN config: vite.config.ts sets `root: client/` (so the dev
 // server serves the SPA), and vitest would inherit that root and silently never
-// discover `server/**/*.test.ts` â€” exactly the tests AGENT.md tells the agent to
+// discover `server/**/*.test.ts` — exactly the tests AGENT.md tells the agent to
 // write. Keep the repo root as the test root and spell the include globs out.
 //
-// environment: "node" â€” tests target the business seams (routers/db/services),
+// environment: "node" — tests target the business seams (routers/db/services),
 // not the DOM; jsdom is deliberately not a dependency.
 export default defineConfig({
   resolve: {

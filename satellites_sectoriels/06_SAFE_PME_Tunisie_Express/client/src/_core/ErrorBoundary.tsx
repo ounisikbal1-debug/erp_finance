@@ -4,7 +4,7 @@ type State = { error: Error | null };
 
 /**
  * Root error boundary. Without it, one component throwing during render
- * unmounts the whole tree and the page is left as an empty `#root` â€” a white
+ * unmounts the whole tree and the page is left as an empty `#root` — a white
  * screen with nothing to tell the user, or the agent reading a screenshot,
  * what broke. With it, the error message is on the page.
  */

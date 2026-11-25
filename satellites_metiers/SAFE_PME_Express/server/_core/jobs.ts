@@ -1,11 +1,11 @@
-﻿// Background / scheduled jobs (DESIGN Â§5.1.2 / Â§8.4).
+﻿// Background / scheduled jobs (DESIGN §5.1.2 / §8.4).
 //
 // TRUST MODEL: the job BODY only ever runs inside THIS app's own runtime. The
 // platform stores just (app, name, schedule) and fires a signed HTTP callback
-// to POST /api/_jobs/{name} on schedule â€” untrusted app code NEVER runs on
-// shared platform infra. Registration below just maps a name â†’ handler; the
+// to POST /api/_jobs/{name} on schedule — untrusted app code NEVER runs on
+// shared platform infra. Registration below just maps a name → handler; the
 // callback route in _core/index.ts verifies the platform signature and invokes
-// the handler. Platform-side scheduling/quota lands in a later milestone (Â§8.4).
+// the handler. Platform-side scheduling/quota lands in a later milestone (§8.4).
 export type JobHandler = () => Promise<void>;
 
 const registry = new Map<string, JobHandler>();

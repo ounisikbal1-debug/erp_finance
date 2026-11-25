@@ -19,21 +19,21 @@ type Bill = {
 };
 
 const billColumns: Column<Bill>[] = [
-  { key: "num", label: "NÂ° fournisseur", value: (b) => b.number },
+  { key: "num", label: "N° fournisseur", value: (b) => b.number },
   { key: "sup", label: "Fournisseur", value: (b) => b.partnerName },
   { key: "date", label: "Date", value: (b) => b.issueDate },
-  { key: "due", label: "Ã‰chÃ©ance", value: (b) => b.dueDate },
+  { key: "due", label: "Échéance", value: (b) => b.dueDate },
   { key: "status", label: "Statut", value: (b) => STATUS[b.status]?.label ?? b.status },
   { key: "ht", label: "Total HT", value: (b) => b.totalHt / 1000, display: (b) => (b.totalHt / 1000).toFixed(3) },
-  { key: "vat", label: "TVA dÃ©ductible", value: (b) => b.totalVat / 1000, display: (b) => (b.totalVat / 1000).toFixed(3) },
+  { key: "vat", label: "TVA déductible", value: (b) => b.totalVat / 1000, display: (b) => (b.totalVat / 1000).toFixed(3) },
   { key: "wh", label: "Retenue", value: (b) => b.withholding / 1000, display: (b) => (b.withholding / 1000).toFixed(3) },
   { key: "ttc", label: "Total TTC", value: (b) => b.totalTtc / 1000, display: (b) => (b.totalTtc / 1000).toFixed(3) },
 ];
 
 const STATUS: Record<string, { label: string; tone: string }> = {
   brouillon: { label: "Brouillon", tone: "muted" },
-  validee: { label: "ValidÃ©e", tone: "info" },
-  payee: { label: "PayÃ©e", tone: "success" },
+  validee: { label: "Validée", tone: "info" },
+  payee: { label: "Payée", tone: "success" },
 };
 
 type Line = { label: string; quantity: string; unitPrice: string; vatRate: number };
@@ -106,7 +106,7 @@ export default function Bills() {
     <>
       <PageHeader
         title="Achats fournisseurs"
-        subtitle="Factures d'achat, TVA dÃ©ductible et retenue Ã  la source"
+        subtitle="Factures d'achat, TVA déductible et retenue à la source"
         actions={
           <button className="erp-btn-gold" onClick={() => setOpen(true)}>
             + Saisir un achat
@@ -119,7 +119,7 @@ export default function Bills() {
           Achats HT {new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 3 }).format(totals.ht / 1000)}
         </span>
         <span className="erp-chip bg-info-soft text-info">
-          TVA dÃ©ductible {new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 3 }).format(totals.vat / 1000)}
+          TVA déductible {new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 3 }).format(totals.vat / 1000)}
         </span>
       </div>
 
@@ -128,7 +128,7 @@ export default function Bills() {
           rows={list.data ?? []}
           basename="achats"
           title="Achats fournisseurs"
-          subtitle="ERP Tunisie â€” Achats"
+          subtitle="ERP Tunisie — Achats"
           columns={billColumns}
         />
       </div>
@@ -138,9 +138,9 @@ export default function Bills() {
           <Loading />
         ) : (list.data ?? []).length === 0 ? (
           <EmptyState
-            icon="â–¥"
-            title="Aucun achat enregistrÃ©"
-            description="Saisissez vos factures fournisseurs : la TVA dÃ©ductible alimentera automatiquement votre dÃ©claration de TVA."
+            icon="▥"
+            title="Aucun achat enregistré"
+            description="Saisissez vos factures fournisseurs : la TVA déductible alimentera automatiquement votre déclaration de TVA."
             action={
               <button className="erp-btn-gold" onClick={() => setOpen(true)}>
                 Saisir un achat
@@ -148,7 +148,7 @@ export default function Bills() {
             }
           />
         ) : (
-          <Table head={["NÂ° fournisseur", "Fournisseur", "Date", "Ã‰chÃ©ance", "Statut", "Total HT", "TVA", "Retenue", "Total TTC"]}>
+          <Table head={["N° fournisseur", "Fournisseur", "Date", "Échéance", "Statut", "Total HT", "TVA", "Retenue", "Total TTC"]}>
             {(list.data ?? []).map((b) => {
               const st = STATUS[b.status] ?? STATUS.brouillon;
               return (
@@ -173,12 +173,12 @@ export default function Bills() {
 
       <Modal open={open} onClose={() => setOpen(false)} title="Nouvel achat" wide>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="NÂ° facture fournisseur">
+          <Field label="N° facture fournisseur">
             <input className="erp-input" value={number} onChange={(e) => setNumber(e.target.value)} placeholder="FA-2026-001" />
           </Field>
           <Field label="Fournisseur">
             <select className="erp-select" value={partnerId} onChange={(e) => setPartnerId(e.target.value)}>
-              <option value="">â€” SÃ©lectionner â€”</option>
+              <option value="">— Sélectionner —</option>
               {(partners.data ?? []).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}
@@ -189,10 +189,10 @@ export default function Bills() {
           <Field label="Date">
             <input type="date" className="erp-input" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} />
           </Field>
-          <Field label="Ã‰chÃ©ance">
+          <Field label="Échéance">
             <input type="date" className="erp-input" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
           </Field>
-          <Field label="Retenue Ã  la source" hint="AppliquÃ©e sur le montant HT">
+          <Field label="Retenue à la source" hint="Appliquée sur le montant HT">
             <select className="erp-select" value={withholdingRate} onChange={(e) => setWithholdingRate(Number(e.target.value))}>
               <option value={0}>Aucune</option>
               <option value={1}>1 %</option>
@@ -225,8 +225,8 @@ export default function Bills() {
           <table className="erp-table">
             <thead>
               <tr>
-                <th>DÃ©signation</th>
-                <th className="w-[12%] text-right">QtÃ©</th>
+                <th>Désignation</th>
+                <th className="w-[12%] text-right">Qté</th>
                 <th className="w-[16%] text-right">P.U. HT</th>
                 <th className="w-[12%]">TVA</th>
                 <th className="w-[16%] text-right">Total HT</th>
@@ -241,7 +241,7 @@ export default function Bills() {
                       className="erp-input h-8"
                       value={l.label}
                       onChange={(e) => setLines((p) => p.map((x, idx) => (idx === i ? { ...x, label: e.target.value } : x)))}
-                      placeholder="DÃ©signation"
+                      placeholder="Désignation"
                     />
                   </td>
                   <td>
@@ -278,7 +278,7 @@ export default function Bills() {
                       onClick={() => setLines((p) => p.filter((_, idx) => idx !== i))}
                       disabled={lines.length === 1}
                     >
-                      âœ•
+                      ✕
                     </button>
                   </td>
                 </tr>
@@ -302,7 +302,7 @@ export default function Bills() {
             Annuler
           </button>
           <button className="erp-btn-gold" onClick={submit} disabled={create.isPending}>
-            {create.isPending ? "Enregistrementâ€¦" : "Enregistrer"}
+            {create.isPending ? "Enregistrement…" : "Enregistrer"}
           </button>
         </div>
       </Modal>

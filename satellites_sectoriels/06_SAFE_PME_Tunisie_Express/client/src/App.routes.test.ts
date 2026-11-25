@@ -1,10 +1,10 @@
 ﻿// Guards the wouter route table in App.tsx against the two ways a generated app
-// silently ships a dead link. Both produce the SAME symptom â€” the catch-all
-// renders "Not found" â€” so neither is distinguishable from a typo'd URL, and
+// silently ships a dead link. Both produce the SAME symptom — the catch-all
+// renders "Not found" — so neither is distinguishable from a typo'd URL, and
 // neither is visible in a screenshot of the home page.
 //
 // Observed in a published app (todo-app, 2026-08, when the template still
-// shipped login pages â€” today they come from the accounts kit): the agent changed
+// shipped login pages — today they come from the accounts kit): the agent changed
 // Login.tsx's post-login `navigate("/dashboard")` to `navigate("/todos")` and
 // never added a `/todos` <Route>. Logging in "succeeded" and dropped the user on
 // a blank page. AGENT.md says in two places that App.tsx is where routes get
@@ -13,7 +13,7 @@
 // Static analysis on purpose: vitest runs `environment: "node"` here and jsdom is
 // deliberately not a dependency (see vitest.config.ts), so this reads source text
 // rather than rendering. What that cannot see is listed at the bottom of this
-// file â€” read it before trusting a green run.
+// file — read it before trusting a green run.
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -36,7 +36,7 @@ function registeredPaths(appSrc: string): string[] {
 
 /**
  * A `<Route>` with no `path` matches EVERYTHING in wouter, and `<Switch>` renders
- * the first match â€” so anything after it is unreachable. Returns the character
+ * the first match — so anything after it is unreachable. Returns the character
  * offset of that bare Route, or -1 when there is none.
  */
 function bareRouteOffset(appSrc: string): number {
@@ -59,7 +59,7 @@ type NavTarget = { file: string; line: number; target: string };
 
 /**
  * In-app navigation written as a string literal. Covers every form the template
- * itself uses â€” `navigate("/x")`, `setLocation("/x")`, `<Link to="/x">`,
+ * itself uses — `navigate("/x")`, `setLocation("/x")`, `<Link to="/x">`,
  * `<Redirect to="/x">`. Targets built from a variable or template literal are
  * returned separately by `dynamicNavigations`, never silently dropped.
  */
@@ -75,7 +75,7 @@ function literalNavigations(files: string[]): NavTarget[] {
       found.push({
         file: path.relative(CLIENT_SRC, file),
         line: src.slice(0, m.index).split("\n").length,
-        // compare the path only â€” a query string or hash is not part of routing
+        // compare the path only — a query string or hash is not part of routing
         target: target.split(/[?#]/)[0],
       });
     }
@@ -125,8 +125,8 @@ describe("App.tsx route wiring", () => {
 
     const skipped = dynamicNavigations(files);
     const skippedNote = skipped.length
-      ? `\n\nNot checked (destination is not a literal â€” verify these by hand):\n` +
-        skipped.map((s) => `  ${s.file}:${s.line} â†’ ${s.target}`).join("\n")
+      ? `\n\nNot checked (destination is not a literal — verify these by hand):\n` +
+        skipped.map((s) => `  ${s.file}:${s.line} → ${s.target}`).join("\n")
       : "";
 
     expect(
@@ -134,7 +134,7 @@ describe("App.tsx route wiring", () => {
       `These navigations lead to a path no <Route> matches, so they land on the ` +
         `catch-all "Not found" instead of a page. Add the <Route> in App.tsx ` +
         `(before the catch-all), or change the destination.\n` +
-        unmatched.map((u) => `  ${u.file}:${u.line} â†’ ${u.target}`).join("\n") +
+        unmatched.map((u) => `  ${u.file}:${u.line} → ${u.target}`).join("\n") +
         `\n\nRegistered: ${registeredPaths(appSrc).join(" ")}` +
         skippedNote,
     ).toEqual([]);
@@ -152,14 +152,14 @@ describe("App.tsx route wiring", () => {
     expect(
       shadowed,
       `A <Route> with no path matches everything in wouter, and <Switch> renders ` +
-        `the FIRST match â€” so these routes are unreachable and their pages will ` +
+        `the FIRST match — so these routes are unreachable and their pages will ` +
         `never render. Move them above the catch-all.\n` +
         shadowed.map((p) => `  ${p}`).join("\n"),
     ).toEqual([]);
   });
 });
 
-// KNOWN BLIND SPOTS â€” a green run here does NOT mean routing works:
+// KNOWN BLIND SPOTS — a green run here does NOT mean routing works:
 //   * destinations built at runtime (`navigate(`/todos/${id}`)`, `navigate(v)`)
 //     are reported, not verified;
 //   * a route that IS registered but whose page component throws or renders
@@ -169,5 +169,5 @@ describe("App.tsx route wiring", () => {
 //     is not exercised at all;
 //   * a page that renders but whose tRPC procedure is missing looks identical to
 //     one that works.
-// Those need the app actually running â€” which is what the delivery gate's
+// Those need the app actually running — which is what the delivery gate's
 // browser pass over EVERY registered route is for.

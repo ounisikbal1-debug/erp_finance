@@ -112,6 +112,8 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
     childDeduction: 100.0,
     parentDeduction: 1750.0,
     cssRate: 0.5,
+    employerInsuranceRate: 6.0,
+    employeeInsuranceRate: 0.0,
     irppBrackets: [
       { min: 0, max: 5000, rate: 0 },
       { min: 5000, max: 10000, rate: 15 },
@@ -125,9 +127,16 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   });
   const [calculationError, setCalculationError] = useState('');
   const [isCalculating, setIsCalculating] = useState(false);
+  const [configVersion, setConfigVersion] = useState(0);
   const printableSlipRef = useRef<HTMLElement | null>(null);
 
   const canCalculate = canUsePayrollCalculator(availability);
+
+  useEffect(() => {
+    const onConfigUpdate = () => setConfigVersion((v) => v + 1);
+    window.addEventListener('safe:country-config-updated', onConfigUpdate);
+    return () => window.removeEventListener('safe:country-config-updated', onConfigUpdate);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -176,7 +185,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
       });
 
     return () => { active = false; };
-  }, [accessToken]);
+  }, [accessToken, configVersion]);
 
   const updateInputs = (changes: Partial<PayrollSimulationInputs>) => {
     setInputs((previous) => ({ ...previous, ...changes }));
@@ -268,8 +277,10 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   const modularMonthlyEmployerCnss = Math.round((modularGross * (customRates.cnssEmployerRate / 100)) * 1000) / 1000;
   const modularMonthlyWorkAccident = Math.round((modularGross * (customRates.workAccidentRate / 100)) * 1000) / 1000;
   const modularMonthlyFoprolos = Math.round((modularGross * (customRates.foprolosRate / 100)) * 1000) / 1000;
-  const modularTotalEmployer = Math.round((modularMonthlyEmployerCnss + modularMonthlyWorkAccident + modularMonthlyFoprolos) * 1000) / 1000;
-  const modularTotalDeductions = Math.round((modularCnss + modularMonthlyIrpp + modularMonthlyCss) * 1000) / 1000;
+  const modularMonthlyEmployerInsurance = Math.round((modularGross * (customRates.employerInsuranceRate / 100)) * 1000) / 1000;
+  const modularMonthlyEmployeeInsurance = Math.round((modularGross * (customRates.employeeInsuranceRate / 100)) * 1000) / 1000;
+  const modularTotalEmployer = Math.round((modularMonthlyEmployerCnss + modularMonthlyWorkAccident + modularMonthlyFoprolos + modularMonthlyEmployerInsurance) * 1000) / 1000;
+  const modularTotalDeductions = Math.round((modularCnss + modularMonthlyIrpp + modularMonthlyCss + modularMonthlyEmployeeInsurance) * 1000) / 1000;
   const modularNet = Math.round((modularGross - modularTotalDeductions) * 1000) / 1000;
 
   // Calculs détaillés Tranche par Tranche : AVANT GAINS et APRÈS GAINS (8 tranches SAFE & CSS 0.5%)
@@ -278,9 +289,9 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   const tranchesBeforeGains = customRates.irppBrackets.map((b) => {
     let slice = 0;
     if (annualTaxableBeforeGains > b.min) {
-      slice = Math.min(annualTaxableBeforeGains, b.max) - b.min;
+      slice = Math.max(0, Math.min(annualTaxableBeforeGains, b.max) - b.min);
     }
-    const tax = slice * (b.rate / 100);
+    const tax = Math.round(slice * (b.rate / 100) * 1000) / 1000;
     sumIrppBeforeGains += tax;
     return {
       min: b.min,
@@ -288,7 +299,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
       rate: b.rate,
       slice,
       taxAnnual: tax,
-      taxMonthly: tax / 12,
+      taxMonthly: Math.round((tax / 12) * 1000) / 1000,
     };
   });
   const monthlyIrppBeforeGains = Math.round((sumIrppBeforeGains / 12) * 1000) / 1000;
@@ -300,9 +311,9 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   const tranchesAfterGains = customRates.irppBrackets.map((b) => {
     let slice = 0;
     if (annualTaxableAfterGains > b.min) {
-      slice = Math.min(annualTaxableAfterGains, b.max) - b.min;
+      slice = Math.max(0, Math.min(annualTaxableAfterGains, b.max) - b.min);
     }
-    const tax = slice * (b.rate / 100);
+    const tax = Math.round(slice * (b.rate / 100) * 1000) / 1000;
     sumIrppAfterGains += tax;
     return {
       min: b.min,
@@ -310,7 +321,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
       rate: b.rate,
       slice,
       taxAnnual: tax,
-      taxMonthly: tax / 12,
+      taxMonthly: Math.round((tax / 12) * 1000) / 1000,
     };
   });
   const monthlyIrppAfterGains = Math.round((sumIrppAfterGains / 12) * 1000) / 1000;
@@ -467,122 +478,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             </table>
           </div>
 
-          {/* TABLES COMPARATIVES DE CALCUL IRPP ET CSS : AVANT ET APRÈS GAINS */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '16px' }}>
-            {/* 1. TABLEAU DE CALCUL AVANT GAINS */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '2px solid #3B82F6', paddingBottom: '6px' }}>
-                <h4 style={{ margin: 0, fontSize: '0.92rem', color: '#1E40AF', fontWeight: 800 }}>
-                  📋 Table de Calcul IRPP &amp; CSS — AVANT GAINS
-                </h4>
-                <span style={{ fontSize: '0.72rem', background: '#DBEAFE', color: '#1E40AF', fontWeight: 700, padding: '2px 8px', borderRadius: '4px' }}>
-                  Base brute imposable
-                </span>
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', marginBottom: '8px' }}>
-                Assiette annuelle brute : <strong>{annualTaxableBeforeGains.toFixed(3)} DT</strong> (Mensuel : {(annualTaxableBeforeGains / 12).toFixed(3)} DT)
-              </div>
-              <table style={{ width: '100%', fontSize: '0.75rem', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: '#F1F5F9', borderBottom: '1px solid #CBD5E1', color: '#334155' }}>
-                    <th style={{ padding: '6px 8px', textAlign: 'left' }}>Tranche IRPP</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'center' }}>Taux</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>Base Tranche</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Annuel</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Mensuel</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tranchesBeforeGains.map((t, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '5px 8px', color: '#0F172A' }}>
-                        T{idx + 1} ({t.max === Infinity ? `> ${t.min.toLocaleString('fr-FR')}` : `${t.min.toLocaleString('fr-FR')} – ${t.max.toLocaleString('fr-FR')}`})
-                      </td>
-                      <td style={{ padding: '5px 8px', textAlign: 'center', fontWeight: 600 }}>{t.rate}%</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.slice > 0 ? '#0F172A' : '#94A3B8' }}>{t.slice.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.taxAnnual > 0 ? '#B91C1C' : '#94A3B8' }}>{t.taxAnnual.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: t.taxMonthly > 0 ? 700 : 400, color: t.taxMonthly > 0 ? '#B91C1C' : '#94A3B8' }}>{t.taxMonthly.toFixed(3)}</td>
-                    </tr>
-                  ))}
-                  <tr style={{ background: '#EFF6FF', fontWeight: 700, borderTop: '2px solid #93C5FD' }}>
-                    <td colSpan={3} style={{ padding: '6px 8px' }}>Sous-total IRPP Avant Gains</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#1E40AF' }}>{sumIrppBeforeGains.toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#1E40AF' }}>{monthlyIrppBeforeGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#FFF7ED', fontWeight: 700 }}>
-                    <td colSpan={3} style={{ padding: '6px 8px', color: '#9A3412' }}>CSS Avant Gains ({customRates.cssRate}%)</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#9A3412' }}>{(annualTaxableBeforeGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#9A3412' }}>{monthlyCssBeforeGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#FEF2F2', fontWeight: 800, borderTop: '2px solid #F87171' }}>
-                    <td colSpan={3} style={{ padding: '7px 8px', color: '#991B1B' }}>TOTAL IMPÔTS AVANT GAINS (IRPP + CSS)</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#991B1B' }}>{(sumIrppBeforeGains + annualTaxableBeforeGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#991B1B' }}>{totalImpotsBeforeGains.toFixed(3)} DT</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* 2. TABLEAU DE CALCUL APRÈS GAINS */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '2px solid #16A34A', paddingBottom: '6px' }}>
-                <h4 style={{ margin: 0, fontSize: '0.92rem', color: '#15803D', fontWeight: 800 }}>
-                  ✅ Table de Calcul IRPP &amp; CSS — APRÈS GAINS
-                </h4>
-                <span style={{ fontSize: '0.72rem', background: '#DCFCE7', color: '#15803D', fontWeight: 700, padding: '2px 8px', borderRadius: '4px' }}>
-                  Après abattements &amp; déductions
-                </span>
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', marginBottom: '8px' }}>
-                Assiette annuelle nette : <strong>{annualTaxableAfterGains.toFixed(3)} DT</strong> (Mensuel : {(annualTaxableAfterGains / 12).toFixed(3)} DT)
-              </div>
-              <table style={{ width: '100%', fontSize: '0.75rem', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: '#F1F5F9', borderBottom: '1px solid #CBD5E1', color: '#334155' }}>
-                    <th style={{ padding: '6px 8px', textAlign: 'left' }}>Tranche IRPP</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'center' }}>Taux</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>Base Tranche</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Annuel</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Retenu</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tranchesAfterGains.map((t, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '5px 8px', color: '#0F172A' }}>
-                        T{idx + 1} ({t.max === Infinity ? `> ${t.min.toLocaleString('fr-FR')}` : `${t.min.toLocaleString('fr-FR')} – ${t.max.toLocaleString('fr-FR')}`})
-                      </td>
-                      <td style={{ padding: '5px 8px', textAlign: 'center', fontWeight: 600 }}>{t.rate}%</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.slice > 0 ? '#0F172A' : '#94A3B8' }}>{t.slice.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.taxAnnual > 0 ? '#15803D' : '#94A3B8' }}>{t.taxAnnual.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: t.taxMonthly > 0 ? 700 : 400, color: t.taxMonthly > 0 ? '#15803D' : '#94A3B8' }}>{t.taxMonthly.toFixed(3)}</td>
-                    </tr>
-                  ))}
-                  <tr style={{ background: '#F0FDF4', fontWeight: 700, borderTop: '2px solid #86EFAC' }}>
-                    <td colSpan={3} style={{ padding: '6px 8px' }}>Sous-total IRPP Après Gains</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#15803D' }}>{sumIrppAfterGains.toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#15803D' }}>{monthlyIrppAfterGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#FFFBEB', fontWeight: 700 }}>
-                    <td colSpan={3} style={{ padding: '6px 8px', color: '#B45309' }}>CSS Retenue Après Gains ({customRates.cssRate}%)</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#B45309' }}>{(annualTaxableAfterGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#B45309' }}>{monthlyCssAfterGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#F0FDF4', fontWeight: 800, borderTop: '2px solid #22C55E' }}>
-                    <td colSpan={3} style={{ padding: '7px 8px', color: '#166534' }}>TOTAL IMPÔTS APRÈS GAINS (IRPP + CSS)</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#166534' }}>{(sumIrppAfterGains + annualTaxableAfterGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#166534' }}>{totalImpotsAfterGains.toFixed(3)} DT</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              {/* GAIN FISCAL RÉALISÉ */}
-              <div style={{ marginTop: '12px', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '6px', padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#065F46' }}>💰 Économie Fiscale Nette Réalisée :</span>
-                <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#047857' }}>+{totalGainFiscalMensuel.toFixed(3)} DT / mois (IRPP : +{gainIrppMensuel.toFixed(3)}, CSS : +{gainCssMensuel.toFixed(3)})</span>
-              </div>
-            </div>
-          </div>
+          {/* Détail de calcul IRPP/CSS supprimé de la fiche de paie conformément à la demande */}
         </div>
 
         {/* VOLET DROIT : GÉNÉRATION OD DE PAIE */}
@@ -703,7 +599,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             transition: 'all 0.15s ease',
           }}
         >
-          ⚙ï¸ Feuille des Taux Modulables (Barème IRPP & CNSS)
+          ⚙️ Feuille des Taux Modulables (Barème IRPP & CNSS)
         </button>
       </div>
 
@@ -815,6 +711,26 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
               />
             </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+              Assurance Mutuelle Patronale (%) — {modularMonthlyEmployerInsurance.toFixed(3)} DT/mois
+              <input
+                type="number"
+                step="0.1"
+                value={customRates.employerInsuranceRate}
+                onChange={(e) => setCustomRates({ ...customRates, employerInsuranceRate: Number(e.target.value) })}
+                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+              />
+            </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+              Assurance Mutuelle Salariale (%) — {modularMonthlyEmployeeInsurance.toFixed(3)} DT/mois
+              <input
+                type="number"
+                step="0.1"
+                value={customRates.employeeInsuranceRate}
+                onChange={(e) => setCustomRates({ ...customRates, employeeInsuranceRate: Number(e.target.value) })}
+                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+              />
+            </label>
           </div>
 
           {/* Tableau Modulable des Tranches IRPP */}
@@ -854,122 +770,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             </table>
           </div>
 
-          {/* TABLES COMPARATIVES DE CALCUL IRPP ET CSS : AVANT ET APRÈS GAINS */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '16px' }}>
-            {/* 1. TABLEAU DE CALCUL AVANT GAINS */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '2px solid #3B82F6', paddingBottom: '6px' }}>
-                <h4 style={{ margin: 0, fontSize: '0.92rem', color: '#1E40AF', fontWeight: 800 }}>
-                  📋 Table de Calcul IRPP &amp; CSS — AVANT GAINS
-                </h4>
-                <span style={{ fontSize: '0.72rem', background: '#DBEAFE', color: '#1E40AF', fontWeight: 700, padding: '2px 8px', borderRadius: '4px' }}>
-                  Base brute imposable
-                </span>
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', marginBottom: '8px' }}>
-                Assiette annuelle brute : <strong>{annualTaxableBeforeGains.toFixed(3)} DT</strong> (Mensuel : {(annualTaxableBeforeGains / 12).toFixed(3)} DT)
-              </div>
-              <table style={{ width: '100%', fontSize: '0.75rem', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: '#F1F5F9', borderBottom: '1px solid #CBD5E1', color: '#334155' }}>
-                    <th style={{ padding: '6px 8px', textAlign: 'left' }}>Tranche IRPP</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'center' }}>Taux</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>Base Tranche</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Annuel</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Mensuel</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tranchesBeforeGains.map((t, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '5px 8px', color: '#0F172A' }}>
-                        T{idx + 1} ({t.max === Infinity ? `> ${t.min.toLocaleString('fr-FR')}` : `${t.min.toLocaleString('fr-FR')} – ${t.max.toLocaleString('fr-FR')}`})
-                      </td>
-                      <td style={{ padding: '5px 8px', textAlign: 'center', fontWeight: 600 }}>{t.rate}%</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.slice > 0 ? '#0F172A' : '#94A3B8' }}>{t.slice.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.taxAnnual > 0 ? '#B91C1C' : '#94A3B8' }}>{t.taxAnnual.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: t.taxMonthly > 0 ? 700 : 400, color: t.taxMonthly > 0 ? '#B91C1C' : '#94A3B8' }}>{t.taxMonthly.toFixed(3)}</td>
-                    </tr>
-                  ))}
-                  <tr style={{ background: '#EFF6FF', fontWeight: 700, borderTop: '2px solid #93C5FD' }}>
-                    <td colSpan={3} style={{ padding: '6px 8px' }}>Sous-total IRPP Avant Gains</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#1E40AF' }}>{sumIrppBeforeGains.toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#1E40AF' }}>{monthlyIrppBeforeGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#FFF7ED', fontWeight: 700 }}>
-                    <td colSpan={3} style={{ padding: '6px 8px', color: '#9A3412' }}>CSS Avant Gains ({customRates.cssRate}%)</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#9A3412' }}>{(annualTaxableBeforeGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#9A3412' }}>{monthlyCssBeforeGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#FEF2F2', fontWeight: 800, borderTop: '2px solid #F87171' }}>
-                    <td colSpan={3} style={{ padding: '7px 8px', color: '#991B1B' }}>TOTAL IMPÔTS AVANT GAINS (IRPP + CSS)</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#991B1B' }}>{(sumIrppBeforeGains + annualTaxableBeforeGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#991B1B' }}>{totalImpotsBeforeGains.toFixed(3)} DT</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* 2. TABLEAU DE CALCUL APRÈS GAINS */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '2px solid #16A34A', paddingBottom: '6px' }}>
-                <h4 style={{ margin: 0, fontSize: '0.92rem', color: '#15803D', fontWeight: 800 }}>
-                  ✅ Table de Calcul IRPP &amp; CSS — APRÈS GAINS
-                </h4>
-                <span style={{ fontSize: '0.72rem', background: '#DCFCE7', color: '#15803D', fontWeight: 700, padding: '2px 8px', borderRadius: '4px' }}>
-                  Après abattements &amp; déductions
-                </span>
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', marginBottom: '8px' }}>
-                Assiette annuelle nette : <strong>{annualTaxableAfterGains.toFixed(3)} DT</strong> (Mensuel : {(annualTaxableAfterGains / 12).toFixed(3)} DT)
-              </div>
-              <table style={{ width: '100%', fontSize: '0.75rem', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: '#F1F5F9', borderBottom: '1px solid #CBD5E1', color: '#334155' }}>
-                    <th style={{ padding: '6px 8px', textAlign: 'left' }}>Tranche IRPP</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'center' }}>Taux</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>Base Tranche</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Annuel</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Retenu</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tranchesAfterGains.map((t, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '5px 8px', color: '#0F172A' }}>
-                        T{idx + 1} ({t.max === Infinity ? `> ${t.min.toLocaleString('fr-FR')}` : `${t.min.toLocaleString('fr-FR')} – ${t.max.toLocaleString('fr-FR')}`})
-                      </td>
-                      <td style={{ padding: '5px 8px', textAlign: 'center', fontWeight: 600 }}>{t.rate}%</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.slice > 0 ? '#0F172A' : '#94A3B8' }}>{t.slice.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.taxAnnual > 0 ? '#15803D' : '#94A3B8' }}>{t.taxAnnual.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: t.taxMonthly > 0 ? 700 : 400, color: t.taxMonthly > 0 ? '#15803D' : '#94A3B8' }}>{t.taxMonthly.toFixed(3)}</td>
-                    </tr>
-                  ))}
-                  <tr style={{ background: '#F0FDF4', fontWeight: 700, borderTop: '2px solid #86EFAC' }}>
-                    <td colSpan={3} style={{ padding: '6px 8px' }}>Sous-total IRPP Après Gains</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#15803D' }}>{sumIrppAfterGains.toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#15803D' }}>{monthlyIrppAfterGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#FFFBEB', fontWeight: 700 }}>
-                    <td colSpan={3} style={{ padding: '6px 8px', color: '#B45309' }}>CSS Retenue Après Gains ({customRates.cssRate}%)</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#B45309' }}>{(annualTaxableAfterGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#B45309' }}>{monthlyCssAfterGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#F0FDF4', fontWeight: 800, borderTop: '2px solid #22C55E' }}>
-                    <td colSpan={3} style={{ padding: '7px 8px', color: '#166534' }}>TOTAL IMPÔTS APRÈS GAINS (IRPP + CSS)</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#166534' }}>{(sumIrppAfterGains + annualTaxableAfterGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#166534' }}>{totalImpotsAfterGains.toFixed(3)} DT</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              {/* GAIN FISCAL RÉALISÉ */}
-              <div style={{ marginTop: '12px', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '6px', padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#065F46' }}>💰 Économie Fiscale Nette Réalisée :</span>
-                <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#047857' }}>+{totalGainFiscalMensuel.toFixed(3)} DT / mois (IRPP : +{gainIrppMensuel.toFixed(3)}, CSS : +{gainCssMensuel.toFixed(3)})</span>
-              </div>
-            </div>
-          </div>
+          {/* Détail de calcul IRPP/CSS supprimé de la fiche de paie conformément à la demande */}
 
           {/* Récapitulatif en Direct avec Recalcul Immédiat */}
           <div style={{ background: '#FFFFFF', border: '2px solid #2563EB', borderRadius: '10px', padding: '16px' }}>
@@ -977,6 +778,10 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
               <span>📊 Résultat du Recalcul en Temps Réel</span>
               <span style={{ fontSize: '0.82rem', background: '#DBEAFE', color: '#1E40AF', padding: '3px 8px', borderRadius: '4px' }}>Actualisation instantanée</span>
             </h3>
+            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.78rem', color: '#334155', lineHeight: 1.5 }}>
+              <div><strong>Assiette annuelle brute détaillée :</strong> {(modularGross * 12).toFixed(3)} DT (Base {(baseSal * 12).toFixed(3)} + Présence {(presenceSal * 12).toFixed(3)} + Transport {(transportSal * 12).toFixed(3)}) − CNSS annuelle {(modularCnss * 12).toFixed(3)} DT = <strong>{modularAnnualTaxableGross.toFixed(3)} DT</strong></div>
+              <div><strong>Assiette nette imposable annuelle :</strong> {modularAnnualTaxableGross.toFixed(3)} − Frais pro {modularAnnualProfExpenses.toFixed(3)} − Déductions familiales {modularAnnualFamilyDeductions.toFixed(3)} = <strong>{modularAnnualNetTaxable.toFixed(3)} DT</strong></div>
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
               <div style={{ background: '#F8FAFC', padding: '10px', borderRadius: '6px' }}>
                 <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 700 }}>1. SALAIRE BRUT</div>
@@ -1057,15 +862,15 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
           </select>
         </label>
         <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-          Assurance mutuelle & Parents à charge
+          Assurance mutuelle &amp; Parents à charge
           <select
             value={inputs.dependentParents}
             onChange={(event) => updateInputs({ dependentParents: Number(event.target.value) })}
             style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit' }}
           >
-            <option value={0}>Aucun parent à charge (0 DT)</option>
-            <option value={1}>1er Parent à charge (145,833 DT / mois)</option>
-            <option value={2}>2ème Parent à charge (291,667 DT / mois)</option>
+            <option value={0}>Aucun parent à charge</option>
+            <option value={1}>1er Parent à charge</option>
+            <option value={2}>2ème Parent à charge</option>
           </select>
         </label>
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
@@ -1119,7 +924,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 onClick={() => printPayslip(printableSlipRef.current)}
                 style={{ marginTop: 8, background: '#0F172A', border: 'none', borderRadius: 6, color: '#FFFFFF', cursor: 'pointer', fontWeight: 700, padding: '6px 12px', fontSize: '0.78rem' }}
               >
-                🖨ï¸ Imprimer le bulletin de paie
+                🖨️ Imprimer le bulletin de paie
               </button>
             </div>
           </header>
@@ -1217,21 +1022,11 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                   <td style={{ padding: '6px' }}>9000</td>
-                  <td style={{ padding: '6px' }}>IRPP Brut</td>
+                  <td style={{ padding: '6px' }}>IRPP Retenu</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>{result.netImposable.toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>Barème</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.irppBeforeRetirementGain.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                  <td style={{ padding: '6px' }}>9046</td>
-                  <td style={{ padding: '6px', color: '#15803D' }}>* * Gain IRPP Mensuel (Déductions familiales & fiscales)</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#15803D', fontWeight: 700 }}>{result.gainIrpp.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C', fontWeight: 700 }}>{result.irpp.toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                 </tr>
@@ -1241,29 +1036,19 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                   <td style={{ padding: '6px', textAlign: 'right' }}>{result.netImposable.toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>0,500 %</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.cssBeforeRetirementGain.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                  <td style={{ padding: '6px' }}>9446</td>
-                  <td style={{ padding: '6px', color: '#15803D' }}>* * Gain CSS Mensuel</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#15803D', fontWeight: 700 }}>{result.gainCss.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.css.toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                   <td style={{ padding: '6px' }}>9910</td>
                   <td style={{ padding: '6px' }}>Assurance Compl. Mutuelle Patronale</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>6,000 %</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>{(Math.round(result.grossSalary * 0.06 * 1000) / 1000).toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                 </tr>
                 <tr style={{ borderTop: '2px solid #CBD5E1', borderBottom: '2px solid #CBD5E1', background: '#F8FAFC', fontWeight: 800 }}>
                   <td style={{ padding: '6px' }} colSpan={2}>TOTAL COTISATIONS</td>
@@ -1273,7 +1058,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                   <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(result.employeeCnss + result.irpp + result.css).toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right', color: '#334155' }}>
-                    {(Math.round((result.grossSalary * (0.1657 + 0.005 + 0.06)) * 1000) / 1000).toFixed(3)}
+                    {(Math.round((result.grossSalary * (0.1657 + 0.005)) * 1000) / 1000).toFixed(3)}
                   </td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
@@ -1287,10 +1072,10 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                   <td style={{ padding: '6px' }}>10200</td>
                   <td style={{ padding: '6px' }}>Assurance Compl. Mutuelle Salariale</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>{inputs.complementaryRetirementRate},000 %</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.retirementBonusDeduction.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }} colSpan={2}>—</td>
                 </tr>
                 {inputs.dependentParents >= 1 && (
@@ -1319,122 +1104,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             </table>
           </div>
 
-          {/* TABLES COMPARATIVES DE CALCUL IRPP ET CSS : AVANT ET APRÈS GAINS */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '16px' }}>
-            {/* 1. TABLEAU DE CALCUL AVANT GAINS */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '2px solid #3B82F6', paddingBottom: '6px' }}>
-                <h4 style={{ margin: 0, fontSize: '0.92rem', color: '#1E40AF', fontWeight: 800 }}>
-                  📋 Table de Calcul IRPP &amp; CSS — AVANT GAINS
-                </h4>
-                <span style={{ fontSize: '0.72rem', background: '#DBEAFE', color: '#1E40AF', fontWeight: 700, padding: '2px 8px', borderRadius: '4px' }}>
-                  Base brute imposable
-                </span>
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', marginBottom: '8px' }}>
-                Assiette annuelle brute : <strong>{annualTaxableBeforeGains.toFixed(3)} DT</strong> (Mensuel : {(annualTaxableBeforeGains / 12).toFixed(3)} DT)
-              </div>
-              <table style={{ width: '100%', fontSize: '0.75rem', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: '#F1F5F9', borderBottom: '1px solid #CBD5E1', color: '#334155' }}>
-                    <th style={{ padding: '6px 8px', textAlign: 'left' }}>Tranche IRPP</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'center' }}>Taux</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>Base Tranche</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Annuel</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Mensuel</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tranchesBeforeGains.map((t, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '5px 8px', color: '#0F172A' }}>
-                        T{idx + 1} ({t.max === Infinity ? `> ${t.min.toLocaleString('fr-FR')}` : `${t.min.toLocaleString('fr-FR')} – ${t.max.toLocaleString('fr-FR')}`})
-                      </td>
-                      <td style={{ padding: '5px 8px', textAlign: 'center', fontWeight: 600 }}>{t.rate}%</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.slice > 0 ? '#0F172A' : '#94A3B8' }}>{t.slice.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.taxAnnual > 0 ? '#B91C1C' : '#94A3B8' }}>{t.taxAnnual.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: t.taxMonthly > 0 ? 700 : 400, color: t.taxMonthly > 0 ? '#B91C1C' : '#94A3B8' }}>{t.taxMonthly.toFixed(3)}</td>
-                    </tr>
-                  ))}
-                  <tr style={{ background: '#EFF6FF', fontWeight: 700, borderTop: '2px solid #93C5FD' }}>
-                    <td colSpan={3} style={{ padding: '6px 8px' }}>Sous-total IRPP Avant Gains</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#1E40AF' }}>{sumIrppBeforeGains.toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#1E40AF' }}>{monthlyIrppBeforeGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#FFF7ED', fontWeight: 700 }}>
-                    <td colSpan={3} style={{ padding: '6px 8px', color: '#9A3412' }}>CSS Avant Gains ({customRates.cssRate}%)</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#9A3412' }}>{(annualTaxableBeforeGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#9A3412' }}>{monthlyCssBeforeGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#FEF2F2', fontWeight: 800, borderTop: '2px solid #F87171' }}>
-                    <td colSpan={3} style={{ padding: '7px 8px', color: '#991B1B' }}>TOTAL IMPÔTS AVANT GAINS (IRPP + CSS)</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#991B1B' }}>{(sumIrppBeforeGains + annualTaxableBeforeGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#991B1B' }}>{totalImpotsBeforeGains.toFixed(3)} DT</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* 2. TABLEAU DE CALCUL APRÈS GAINS */}
-            <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '2px solid #16A34A', paddingBottom: '6px' }}>
-                <h4 style={{ margin: 0, fontSize: '0.92rem', color: '#15803D', fontWeight: 800 }}>
-                  ✅ Table de Calcul IRPP &amp; CSS — APRÈS GAINS
-                </h4>
-                <span style={{ fontSize: '0.72rem', background: '#DCFCE7', color: '#15803D', fontWeight: 700, padding: '2px 8px', borderRadius: '4px' }}>
-                  Après abattements &amp; déductions
-                </span>
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#64748B', marginBottom: '8px' }}>
-                Assiette annuelle nette : <strong>{annualTaxableAfterGains.toFixed(3)} DT</strong> (Mensuel : {(annualTaxableAfterGains / 12).toFixed(3)} DT)
-              </div>
-              <table style={{ width: '100%', fontSize: '0.75rem', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: '#F1F5F9', borderBottom: '1px solid #CBD5E1', color: '#334155' }}>
-                    <th style={{ padding: '6px 8px', textAlign: 'left' }}>Tranche IRPP</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'center' }}>Taux</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>Base Tranche</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Annuel</th>
-                    <th style={{ padding: '6px 8px', textAlign: 'right' }}>IRPP Retenu</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tranchesAfterGains.map((t, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '5px 8px', color: '#0F172A' }}>
-                        T{idx + 1} ({t.max === Infinity ? `> ${t.min.toLocaleString('fr-FR')}` : `${t.min.toLocaleString('fr-FR')} – ${t.max.toLocaleString('fr-FR')}`})
-                      </td>
-                      <td style={{ padding: '5px 8px', textAlign: 'center', fontWeight: 600 }}>{t.rate}%</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.slice > 0 ? '#0F172A' : '#94A3B8' }}>{t.slice.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', color: t.taxAnnual > 0 ? '#15803D' : '#94A3B8' }}>{t.taxAnnual.toFixed(3)}</td>
-                      <td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: t.taxMonthly > 0 ? 700 : 400, color: t.taxMonthly > 0 ? '#15803D' : '#94A3B8' }}>{t.taxMonthly.toFixed(3)}</td>
-                    </tr>
-                  ))}
-                  <tr style={{ background: '#F0FDF4', fontWeight: 700, borderTop: '2px solid #86EFAC' }}>
-                    <td colSpan={3} style={{ padding: '6px 8px' }}>Sous-total IRPP Après Gains</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#15803D' }}>{sumIrppAfterGains.toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#15803D' }}>{monthlyIrppAfterGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#FFFBEB', fontWeight: 700 }}>
-                    <td colSpan={3} style={{ padding: '6px 8px', color: '#B45309' }}>CSS Retenue Après Gains ({customRates.cssRate}%)</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#B45309' }}>{(annualTaxableAfterGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#B45309' }}>{monthlyCssAfterGains.toFixed(3)} DT</td>
-                  </tr>
-                  <tr style={{ background: '#F0FDF4', fontWeight: 800, borderTop: '2px solid #22C55E' }}>
-                    <td colSpan={3} style={{ padding: '7px 8px', color: '#166534' }}>TOTAL IMPÔTS APRÈS GAINS (IRPP + CSS)</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#166534' }}>{(sumIrppAfterGains + annualTaxableAfterGains * (customRates.cssRate / 100)).toFixed(3)} DT</td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right', color: '#166534' }}>{totalImpotsAfterGains.toFixed(3)} DT</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              {/* GAIN FISCAL RÉALISÉ */}
-              <div style={{ marginTop: '12px', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '6px', padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#065F46' }}>💰 Économie Fiscale Nette Réalisée :</span>
-                <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#047857' }}>+{totalGainFiscalMensuel.toFixed(3)} DT / mois (IRPP : +{gainIrppMensuel.toFixed(3)}, CSS : +{gainCssMensuel.toFixed(3)})</span>
-              </div>
-            </div>
-          </div>
+          {/* Détail de calcul IRPP/CSS supprimé de la fiche de paie conformément à la demande */}
 
           {/* Net à Payer & Footer */}
           <div style={{ marginTop: '1.2rem', padding: '12px 16px', background: '#0F172A', color: '#FFFFFF', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

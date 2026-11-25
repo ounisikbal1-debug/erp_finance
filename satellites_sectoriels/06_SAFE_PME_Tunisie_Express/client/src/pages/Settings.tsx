@@ -21,7 +21,7 @@ export default function Settings() {
   const updateCompany = trpc.company.update.useMutation({
     onSuccess: () => {
       utils.company.get.invalidate();
-      setMessage({ type: "success", text: "ParamÃ¨tres et taux SAFE ERP enregistrÃ©s avec succÃ¨s !" });
+      setMessage({ type: "success", text: "Paramètres et taux SAFE ERP enregistrés avec succès !" });
       setTimeout(() => setMessage(null), 4000);
     },
     onError: (err) => {
@@ -104,8 +104,8 @@ export default function Settings() {
   return (
     <>
       <PageHeader
-        title="ParamÃ¨tres GÃ©nÃ©raux & Taux SAFE ERP"
-        subtitle="IdentitÃ© lÃ©gale, rÃ©gime fiscal, taux de TVA, cotisations sociales CNSS et barÃ¨mes dynamiquement modifiables"
+        title="Paramètres Généraux & Taux SAFE ERP"
+        subtitle="Identité légale, régime fiscal, taux de TVA, cotisations sociales CNSS et barèmes dynamiquement modifiables"
       />
 
       {message && (
@@ -125,8 +125,8 @@ export default function Settings() {
 
       <form onSubmit={handleSave}>
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          {/* IdentitÃ© de la sociÃ©tÃ© */}
-          <Panel title="IdentitÃ© de la SociÃ©tÃ© & CoordonnÃ©es (Ã‰ditable)" subtitle="Mentions portÃ©es sur les factures et bilans">
+          {/* Identité de la société */}
+          <Panel title="Identité de la Société & Coordonnées (Éditable)" subtitle="Mentions portées sur les factures et bilans">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="text-[12px] text-muted-foreground block mb-1">Raison sociale</label>
@@ -158,7 +158,7 @@ export default function Settings() {
                 />
               </div>
               <div>
-                <label className="text-[12px] text-muted-foreground block mb-1">NÂ° CNSS Employeur</label>
+                <label className="text-[12px] text-muted-foreground block mb-1">N° CNSS Employeur</label>
                 <input
                   type="text"
                   className="w-full bg-background border border-border rounded px-3 py-1.5 text-[13px]"
@@ -167,7 +167,7 @@ export default function Settings() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="text-[12px] text-muted-foreground block mb-1">Adresse SiÃ¨ge</label>
+                <label className="text-[12px] text-muted-foreground block mb-1">Adresse Siège</label>
                 <input
                   type="text"
                   className="w-full bg-background border border-border rounded px-3 py-1.5 text-[13px]"
@@ -176,7 +176,7 @@ export default function Settings() {
                 />
               </div>
               <div>
-                <label className="text-[12px] text-muted-foreground block mb-1">TÃ©lÃ©phone</label>
+                <label className="text-[12px] text-muted-foreground block mb-1">Téléphone</label>
                 <input
                   type="text"
                   className="w-full bg-background border border-border rounded px-3 py-1.5 text-[13px]"
@@ -196,11 +196,11 @@ export default function Settings() {
             </div>
           </Panel>
 
-          {/* RÃ©gimes & ParamÃ¨tres Fiscaux Modifiables */}
-          <Panel title="RÃ©gimes & Taux Fiscaux (SAFE ERP)" subtitle="TVA, IS, TCL et Timbre fiscal configurables">
+          {/* Régimes & Paramètres Fiscaux Modifiables */}
+          <Panel title="Régimes & Taux Fiscaux (SAFE ERP)" subtitle="TVA, IS, TCL et Timbre fiscal configurables">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-[12px] text-muted-foreground block mb-1">RÃ©gime TVA</label>
+                <label className="text-[12px] text-muted-foreground block mb-1">Régime TVA</label>
                 <select
                   className="w-full bg-background border border-border rounded px-3 py-1.5 text-[13px]"
                   value={formData.vatRegime}
@@ -212,14 +212,14 @@ export default function Settings() {
                 </select>
               </div>
               <div>
-                <label className="text-[12px] text-muted-foreground block mb-1">RÃ©gime Fiscal</label>
+                <label className="text-[12px] text-muted-foreground block mb-1">Régime Fiscal</label>
                 <select
                   className="w-full bg-background border border-border rounded px-3 py-1.5 text-[13px]"
                   value={formData.taxRegime}
                   onChange={e => handleChange("taxRegime", e.target.value)}
                 >
-                  <option value="reel">RÃ©gime RÃ©el</option>
-                  <option value="forfaitaire">RÃ©gime Forfaitaire</option>
+                  <option value="reel">Régime Réel</option>
+                  <option value="forfaitaire">Régime Forfaitaire</option>
                 </select>
               </div>
               <div>
@@ -250,7 +250,7 @@ export default function Settings() {
                 />
               </div>
               <div>
-                <label className="text-[12px] text-muted-foreground block mb-1">TVA IntermÃ©diaire (%)</label>
+                <label className="text-[12px] text-muted-foreground block mb-1">TVA Intermédiaire (%)</label>
                 <input
                   type="number"
                   className="w-full bg-background border border-border rounded px-3 py-1.5 text-[13px]"
@@ -259,7 +259,7 @@ export default function Settings() {
                 />
               </div>
               <div>
-                <label className="text-[12px] text-muted-foreground block mb-1">TVA Taux RÃ©duit (%)</label>
+                <label className="text-[12px] text-muted-foreground block mb-1">TVA Taux Réduit (%)</label>
                 <input
                   type="number"
                   className="w-full bg-background border border-border rounded px-3 py-1.5 text-[13px]"
@@ -305,7 +305,7 @@ export default function Settings() {
                 />
               </div>
               <div>
-                <label className="text-[12px] text-muted-foreground block mb-1">CSS SolidaritÃ© Sociale (%)</label>
+                <label className="text-[12px] text-muted-foreground block mb-1">CSS Solidarité Sociale (%)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -346,7 +346,7 @@ export default function Settings() {
             </div>
           </Panel>
 
-          <Panel title="DÃ©ductions IRPP & Avantages Fiscaux" subtitle="Abattements annuels lÃ©gaux (TND)">
+          <Panel title="Déductions IRPP & Avantages Fiscaux" subtitle="Abattements annuels légaux (TND)">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="text-[12px] text-muted-foreground block mb-1">Abattement Chef de Famille (TND/an)</label>
@@ -358,7 +358,7 @@ export default function Settings() {
                 />
               </div>
               <div>
-                <label className="text-[12px] text-muted-foreground block mb-1">Abattement par Enfant Ã  Charge (TND/an)</label>
+                <label className="text-[12px] text-muted-foreground block mb-1">Abattement par Enfant à Charge (TND/an)</label>
                 <input
                   type="number"
                   className="w-full bg-background border border-border rounded px-3 py-1.5 text-[13px]"
@@ -382,20 +382,20 @@ export default function Settings() {
                   cursor: "pointer"
                 }}
               >
-                {updateCompany.isPending ? "Enregistrement en cours..." : "ðŸ’¾ Enregistrer Tous les ParamÃ¨tres & Taux"}
+                {updateCompany.isPending ? "Enregistrement en cours..." : "💾 Enregistrer Tous les Paramètres & Taux"}
               </button>
             </div>
           </Panel>
         </div>
       </form>
 
-      <Panel title="BarÃ¨me IRPP en Vigueur (Loi de Finances 2024-48)" subtitle="8 tranches progressives â€” 0 % Ã  40 %" className="mt-4" noPad>
+      <Panel title="Barème IRPP en Vigueur (Loi de Finances 2024-48)" subtitle="8 tranches progressives — 0 % à 40 %" className="mt-4" noPad>
         <Table head={["Tranche", "Bornes annuelles (TND)", "Taux marginal"]}>
           {IRPP_BRACKETS.map((b, i) => (
             <tr key={i}>
               <td className="text-muted-foreground">Tranche {i + 1}</td>
               <td>
-                {b.from.toLocaleString("fr-FR")} â€” {b.to === null ? "au-delÃ " : b.to.toLocaleString("fr-FR")}
+                {b.from.toLocaleString("fr-FR")} — {b.to === null ? "au-delà" : b.to.toLocaleString("fr-FR")}
               </td>
               <td className="num text-right font-semibold text-gold">{b.rate} %</td>
             </tr>

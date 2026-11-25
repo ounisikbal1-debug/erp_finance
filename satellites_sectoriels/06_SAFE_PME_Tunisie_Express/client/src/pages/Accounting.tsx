@@ -74,22 +74,22 @@ export default function Accounting() {
   return (
     <>
       <PageHeader
-        title="ComptabilitÃ©"
-        subtitle="Plan comptable tunisien Â· journaux Â· balance gÃ©nÃ©rale"
+        title="Comptabilité"
+        subtitle="Plan comptable tunisien · journaux · balance générale"
         actions={
           <button className="erp-btn-gold" onClick={() => setOpen(true)}>
-            + Nouvelle Ã©criture
+            + Nouvelle écriture
           </button>
         }
       />
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Stat label="Total dÃ©bits" value={fmtTND(tbTotals.d)} hint="Balance gÃ©nÃ©rale" />
-        <Stat label="Total crÃ©dits" value={fmtTND(tbTotals.c)} hint="Balance gÃ©nÃ©rale" />
+        <Stat label="Total débits" value={fmtTND(tbTotals.d)} hint="Balance générale" />
+        <Stat label="Total crédits" value={fmtTND(tbTotals.c)} hint="Balance générale" />
         <Stat
-          label="Ã‰quilibre"
-          value={tbTotals.d === tbTotals.c ? "Ã‰quilibrÃ©e" : fmtTND(tbTotals.d - tbTotals.c)}
-          hint={tbTotals.d === tbTotals.c ? "DÃ©bit = CrÃ©dit" : "Ã‰cart Ã  corriger"}
+          label="Équilibre"
+          value={tbTotals.d === tbTotals.c ? "Équilibrée" : fmtTND(tbTotals.d - tbTotals.c)}
+          hint={tbTotals.d === tbTotals.c ? "Débit = Crédit" : "Écart à corriger"}
           tone={tbTotals.d === tbTotals.c ? "success" : "danger"}
         />
       </div>
@@ -111,28 +111,28 @@ export default function Accounting() {
       </div>
 
       {tab === "balance" && (
-        <Panel title="Balance gÃ©nÃ©rale" subtitle="Cumuls par compte" noPad>
+        <Panel title="Balance générale" subtitle="Cumuls par compte" noPad>
           {balance.isLoading ? (
             <Loading />
           ) : (balance.data ?? []).length === 0 ? (
             <EmptyState
-              icon="â–¦"
+              icon="▦"
               title="Aucun mouvement comptable"
-              description="La balance se remplit Ã  mesure que vous saisissez des Ã©critures. Chaque Ã©criture doit Ãªtre Ã©quilibrÃ©e (dÃ©bit = crÃ©dit)."
+              description="La balance se remplit à mesure que vous saisissez des écritures. Chaque écriture doit être équilibrée (débit = crédit)."
               action={
                 <button className="erp-btn-gold" onClick={() => setOpen(true)}>
-                  Saisir une Ã©criture
+                  Saisir une écriture
                 </button>
               }
             />
           ) : (
-            <Table head={["Compte", "LibellÃ©", "DÃ©bit", "CrÃ©dit", "Solde"]}>
+            <Table head={["Compte", "Libellé", "Débit", "Crédit", "Solde"]}>
               {(balance.data ?? []).map((r) => {
                 const solde = r.debit - r.credit;
                 return (
                   <tr key={r.accountCode}>
                     <td className="font-mono text-[12px]">{r.accountCode}</td>
-                    <td>{r.accountLabel || "â€”"}</td>
+                    <td>{r.accountLabel || "—"}</td>
                     <td className="text-right"><Money value={r.debit} /></td>
                     <td className="text-right"><Money value={r.credit} /></td>
                     <td className="text-right">
@@ -153,22 +153,22 @@ export default function Accounting() {
       )}
 
       {tab === "journaux" && (
-        <Panel title="Ã‰critures" subtitle="Journal chronologique" noPad>
+        <Panel title="Écritures" subtitle="Journal chronologique" noPad>
           {entries.isLoading ? (
             <Loading />
           ) : (entries.data ?? []).length === 0 ? (
             <EmptyState
-              icon="â–¤"
-              title="Aucune Ã©criture"
-              description="Enregistrez vos opÃ©rations : ventes (VE), achats (AC), banque (BQ), caisse (CA), paie (PA) ou opÃ©rations diverses (OD)."
+              icon="▤"
+              title="Aucune écriture"
+              description="Enregistrez vos opérations : ventes (VE), achats (AC), banque (BQ), caisse (CA), paie (PA) ou opérations diverses (OD)."
               action={
                 <button className="erp-btn-gold" onClick={() => setOpen(true)}>
-                  Saisir une Ã©criture
+                  Saisir une écriture
                 </button>
               }
             />
           ) : (
-            <Table head={["Date", "Journal", "RÃ©fÃ©rence", "LibellÃ©"]}>
+            <Table head={["Date", "Journal", "Référence", "Libellé"]}>
               {(entries.data ?? []).map((e) => (
                 <tr key={e.id}>
                   <td className="text-muted-foreground">{new Date(e.entryDate).toLocaleDateString("fr-FR")}</td>
@@ -176,7 +176,7 @@ export default function Accounting() {
                     <span className="erp-chip bg-secondary text-muted-foreground">{e.journal}</span>
                     <span className="ml-2 text-[12px] text-muted-foreground">{JOURNAL_LABELS[e.journal]}</span>
                   </td>
-                  <td className="font-mono text-[12px]">{e.reference || "â€”"}</td>
+                  <td className="font-mono text-[12px]">{e.reference || "—"}</td>
                   <td>{e.label}</td>
                 </tr>
               ))}
@@ -186,17 +186,17 @@ export default function Accounting() {
       )}
 
       {tab === "plan" && (
-        <Panel title="Plan comptable tunisien" subtitle="Classes 1 Ã  7" noPad>
+        <Panel title="Plan comptable tunisien" subtitle="Classes 1 à 7" noPad>
           {plan.isLoading ? (
             <Loading />
           ) : (plan.data ?? []).length === 0 ? (
             <EmptyState
-              icon="â–§"
-              title="Plan comptable non initialisÃ©"
-              description="Le plan comptable tunisien se charge automatiquement Ã  la premiÃ¨re Ã©criture, ou peut Ãªtre complÃ©tÃ© depuis le panneau base de donnÃ©es."
+              icon="▧"
+              title="Plan comptable non initialisé"
+              description="Le plan comptable tunisien se charge automatiquement à la première écriture, ou peut être complété depuis le panneau base de données."
             />
           ) : (
-            <Table head={["Code", "IntitulÃ©", "Classe", "Nature"]}>
+            <Table head={["Code", "Intitulé", "Classe", "Nature"]}>
               {(plan.data ?? []).map((a) => (
                 <tr key={a.id}>
                   <td className="font-mono text-[12px]">{a.code}</td>
@@ -210,7 +210,7 @@ export default function Accounting() {
         </Panel>
       )}
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Nouvelle Ã©criture comptable" wide>
+      <Modal open={open} onClose={() => setOpen(false)} title="Nouvelle écriture comptable" wide>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
           <Field label="Date">
             <input type="date" className="erp-input" value={form.entryDate} onChange={(e) => setForm({ ...form, entryDate: e.target.value })} />
@@ -219,15 +219,15 @@ export default function Accounting() {
             <select className="erp-select" value={form.journal} onChange={(e) => setForm({ ...form, journal: e.target.value })}>
               {Object.entries(JOURNAL_LABELS).map(([k, v]) => (
                 <option key={k} value={k}>
-                  {k} â€” {v}
+                  {k} — {v}
                 </option>
               ))}
             </select>
           </Field>
-          <Field label="RÃ©fÃ©rence">
+          <Field label="Référence">
             <input className="erp-input" value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
           </Field>
-          <Field label="LibellÃ©">
+          <Field label="Libellé">
             <input className="erp-input" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Facture FA-2026-0001" />
           </Field>
         </div>
@@ -237,9 +237,9 @@ export default function Accounting() {
             <thead>
               <tr>
                 <th className="w-[16%]">Compte</th>
-                <th>LibellÃ©</th>
-                <th className="w-[20%] text-right">DÃ©bit</th>
-                <th className="w-[20%] text-right">CrÃ©dit</th>
+                <th>Libellé</th>
+                <th className="w-[20%] text-right">Débit</th>
+                <th className="w-[20%] text-right">Crédit</th>
                 <th className="w-[4%]" />
               </tr>
             </thead>
@@ -282,7 +282,7 @@ export default function Accounting() {
                       onClick={() => setLines((p) => p.filter((_, idx) => idx !== i))}
                       disabled={lines.length <= 2}
                     >
-                      âœ•
+                      ✕
                     </button>
                   </td>
                 </tr>
@@ -299,10 +299,10 @@ export default function Accounting() {
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-secondary/60 px-3 py-2 text-[12.5px]">
           <span className="text-muted-foreground">
-            DÃ©bit {fmtTND(totalDebit)} Â· CrÃ©dit {fmtTND(totalCredit)}
+            Débit {fmtTND(totalDebit)} · Crédit {fmtTND(totalCredit)}
           </span>
           <span className={balanced ? "font-semibold text-success" : "font-semibold text-destructive"}>
-            {balanced ? "âœ“ Ã‰quilibrÃ©e" : `Ã‰cart ${fmtTND(Math.abs(totalDebit - totalCredit))}`}
+            {balanced ? "✓ Équilibrée" : `Écart ${fmtTND(Math.abs(totalDebit - totalCredit))}`}
           </span>
         </div>
 
@@ -315,7 +315,7 @@ export default function Accounting() {
             Annuler
           </button>
           <button className="erp-btn-gold" onClick={submit} disabled={createEntry.isPending || !balanced}>
-            {createEntry.isPending ? "Enregistrementâ€¦" : "Enregistrer l'Ã©criture"}
+            {createEntry.isPending ? "Enregistrement…" : "Enregistrer l'écriture"}
           </button>
         </div>
       </Modal>

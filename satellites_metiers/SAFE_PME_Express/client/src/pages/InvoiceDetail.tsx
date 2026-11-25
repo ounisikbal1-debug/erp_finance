@@ -22,7 +22,7 @@ export default function InvoiceDetail() {
         <p className="py-8 text-center text-[13px] text-muted-foreground">
           Facture introuvable.{" "}
           <Link href="/factures" className="text-info hover:underline">
-            Retour Ã  la liste
+            Retour à la liste
           </Link>
         </p>
       </Panel>
@@ -37,7 +37,7 @@ export default function InvoiceDetail() {
     <>
       <PageHeader
         title={`Facture ${i.number}`}
-        subtitle={`${i.partnerName} Â· Ã©mise le ${new Date(i.issueDate).toLocaleDateString("fr-FR")}`}
+        subtitle={`${i.partnerName} · émise le ${new Date(i.issueDate).toLocaleDateString("fr-FR")}`}
         actions={
           <>
             <Link href="/factures" className="erp-btn-ghost no-print">
@@ -49,11 +49,11 @@ export default function InvoiceDetail() {
               disabled={send.isPending}
               title={
                 efatouraReady
-                  ? "Transmettre cette facture Ã  e-Fatoura"
-                  : "e-Fatoura n'est pas configurÃ©e â€” ajoutez EFATOURA_API_URL et EFATOURA_API_KEY dans Web Admin â†’ Secrets"
+                  ? "Transmettre cette facture à e-Fatoura"
+                  : "e-Fatoura n'est pas configurée — ajoutez EFATOURA_API_URL et EFATOURA_API_KEY dans Web Admin → Secrets"
               }
             >
-              {send.isPending ? "Transmissionâ€¦" : "Transmettre Ã  e-Fatoura"}
+              {send.isPending ? "Transmission…" : "Transmettre à e-Fatoura"}
             </button>
             <button className="erp-btn no-print" onClick={() => window.print()}>
               Imprimer / PDF
@@ -82,9 +82,9 @@ export default function InvoiceDetail() {
               <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
                 {c?.address}
                 <br />
-                MF : {c?.matriculeFiscal} Â· RC : {c?.registreCommerce}
+                MF : {c?.matriculeFiscal} · RC : {c?.registreCommerce}
                 <br />
-                TÃ©l : {c?.phone} Â· {c?.email}
+                Tél : {c?.phone} · {c?.email}
               </p>
             </div>
             <div className="text-right">
@@ -93,7 +93,7 @@ export default function InvoiceDetail() {
               <p className="mt-1 text-[12px] text-muted-foreground">
                 Date : {new Date(i.issueDate).toLocaleDateString("fr-FR")}
                 <br />
-                Ã‰chÃ©ance : {new Date(i.dueDate).toLocaleDateString("fr-FR")}
+                Échéance : {new Date(i.dueDate).toLocaleDateString("fr-FR")}
               </p>
               <div className="mt-2 flex justify-end">
                 <Badge tone={st.tone}>{st.label}</Badge>
@@ -107,13 +107,13 @@ export default function InvoiceDetail() {
               <p className="mt-1 text-[13.5px] font-semibold">{i.partnerName}</p>
             </div>
             <div className="sm:text-right">
-              <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground">Montant dÃ»</p>
+              <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground">Montant dû</p>
               <p className="num mt-1 text-[20px] font-semibold text-gold">{fmtTND(i.totalTtc)}</p>
             </div>
           </div>
 
           <div className="mt-2">
-            <Table head={["DÃ©signation", "QtÃ©", "P.U. HT", "TVA", "Total HT", "TVA"]}>
+            <Table head={["Désignation", "Qté", "P.U. HT", "TVA", "Total HT", "TVA"]}>
               {i.lines.map((l) => (
                 <tr key={l.id}>
                   <td>{l.label}</td>
@@ -155,18 +155,18 @@ export default function InvoiceDetail() {
           )}
 
           <p className="mt-4 border-t border-border pt-3 text-[10.5px] text-muted-foreground">
-            ArrÃªtÃ©e la prÃ©sente facture Ã  la somme de {fmtTND(i.totalTtc)} toutes taxes comprises.
+            Arrêtée la présente facture à la somme de {fmtTND(i.totalTtc)} toutes taxes comprises.
           </p>
         </div>
 
         <div className="space-y-4">
-          <Panel title="Ventilation comptable" subtitle="Ã‰criture type (plan comptable tunisien)">
+          <Panel title="Ventilation comptable" subtitle="Écriture type (plan comptable tunisien)">
             <div className="space-y-2 text-[12.5px]">
               {[
-                { code: "411", label: "Clients", amount: i.totalTtc, side: "DÃ©bit" },
-                { code: "701", label: "Ventes de produits finis", amount: i.totalHt, side: "CrÃ©dit" },
-                { code: "4366", label: "TVA collectÃ©e 19 %", amount: i.totalVat, side: "CrÃ©dit" },
-                { code: "4458", label: "Timbre fiscal", amount: i.stampDuty, side: "CrÃ©dit" },
+                { code: "411", label: "Clients", amount: i.totalTtc, side: "Débit" },
+                { code: "701", label: "Ventes de produits finis", amount: i.totalHt, side: "Crédit" },
+                { code: "4366", label: "TVA collectée 19 %", amount: i.totalVat, side: "Crédit" },
+                { code: "4458", label: "Timbre fiscal", amount: i.stampDuty, side: "Crédit" },
               ]
                 .filter((r) => r.amount > 0)
                 .map((r) => (
@@ -183,16 +183,16 @@ export default function InvoiceDetail() {
           <Panel title="Suivi">
             <div className="space-y-2 text-[12.5px]">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">DÃ©lai de rÃ¨glement</span>
+                <span className="text-muted-foreground">Délai de règlement</span>
                 <span>{Math.max(0, Math.round((new Date(i.dueDate).getTime() - new Date(i.issueDate).getTime()) / 86400000))} jours</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">TVA applicable</span>
-                <span>{i.totalVat > 0 ? fmtTND(i.totalVat) : "ExonÃ©rÃ©"}</span>
+                <span>{i.totalVat > 0 ? fmtTND(i.totalVat) : "Exonéré"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Timbre fiscal</span>
-                <span>{i.stampDuty > 0 ? fmtTND(i.stampDuty) : "Non appliquÃ©"}</span>
+                <span>{i.stampDuty > 0 ? fmtTND(i.stampDuty) : "Non appliqué"}</span>
               </div>
             </div>
           </Panel>

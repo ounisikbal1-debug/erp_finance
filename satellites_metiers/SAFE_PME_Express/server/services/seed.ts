@@ -1,15 +1,15 @@
-﻿// â”€â”€ SERVICE : jeu de donnÃ©es de dÃ©monstration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Charge exactement 900 enregistrements rÃ©partis sur les 12 mois de l'annÃ©e,
-// puis gÃ©nÃ¨re les Ã©critures comptables correspondantes (partie double).
+﻿// ── SERVICE : jeu de données de démonstration ────────────────────────────────
+// Charge exactement 900 enregistrements répartis sur les 12 mois de l'année,
+// puis génère les écritures comptables correspondantes (partie double).
 //
-// RÃ©partition (900 lignes) :
-//   tiers 30 Â· articles 40 Â· salariÃ©s 12 Â· cycles de paie 12 Â· bulletins 144
-//   factures 168 Â· lignes de facture 168 Â· achats 108 Â· lignes d'achat 108
-//   mouvements de stock 50 Â· opÃ©rations de trÃ©sorerie 36 Â· dÃ©clarations 12
+// Répartition (900 lignes) :
+//   tiers 30 · articles 40 · salariés 12 · cycles de paie 12 · bulletins 144
+//   factures 168 · lignes de facture 168 · achats 108 · lignes d'achat 108
+//   mouvements de stock 50 · opérations de trésorerie 36 · déclarations 12
 //   immobilisations 12
 //
-// Les Ã©critures comptables (ventes, achats, paie) sont produites en plus, en
-// partie double, pour que le Bilan et le Compte de RÃ©sultat soient exploitables.
+// Les écritures comptables (ventes, achats, paie) sont produites en plus, en
+// partie double, pour que le Bilan et le Compte de Résultat soient exploitables.
 import { eq } from "drizzle-orm";
 import { db } from "../_core/db";
 import {
@@ -35,7 +35,7 @@ import {
 import { computePayslip, STAMP_DUTY } from "../../shared/fiscal";
 import { ACCOUNT_LABELS } from "./accounting";
 
-// â”€â”€ GÃ©nÃ©rateur pseudo-alÃ©atoire dÃ©terministe (mÃªme jeu Ã  chaque exÃ©cution) â”€â”€â”€
+// ── Générateur pseudo-aléatoire déterministe (même jeu à chaque exécution) ───
 function makeRng(seed: number) {
   let s = seed >>> 0;
   return () => {
@@ -45,56 +45,56 @@ function makeRng(seed: number) {
 }
 
 const CLIENTS = [
-  "SociÃ©tÃ© GÃ©nÃ©rale de Commerce", "Ã‰tablissements Ben Amor", "Tunisie Distribution SA",
-  "Groupe MÃ©diterranÃ©en de Services", "Ste Industrielle du Sahel", "Comptoir National de Quincaillerie",
-  "Agro Plus Tunisie", "Techno Systems Tunis", "BÃ¢tir & Construire SARL", "Pharmacie Centrale El Manar",
-  "HÃ´tel Les Palmiers", "Clinique Ibn Sina", "Transports Rapides du Sud", "Ã‰ditions Carthage",
-  "Menuiserie Moderne Sfax", "Textile Nord SARL", "Ã‰lectro MÃ©nager Djerba", "Cabinet Comptable Nabeul",
+  "Société Générale de Commerce", "Établissements Ben Amor", "Tunisie Distribution SA",
+  "Groupe Méditerranéen de Services", "Ste Industrielle du Sahel", "Comptoir National de Quincaillerie",
+  "Agro Plus Tunisie", "Techno Systems Tunis", "Bâtir & Construire SARL", "Pharmacie Centrale El Manar",
+  "Hôtel Les Palmiers", "Clinique Ibn Sina", "Transports Rapides du Sud", "Éditions Carthage",
+  "Menuiserie Moderne Sfax", "Textile Nord SARL", "Électro Ménager Djerba", "Cabinet Comptable Nabeul",
   "Boulangerie El Baraka", "Garage Auto Plus",
 ];
 
 const SUPPLIERS = [
-  "Grossiste MatiÃ¨res PremiÃ¨res", "Fournitures de Bureau Tunis", "Ã‰nergie & Carburants SA",
-  "Import Ã‰quipements Industriels", "Papeterie du Centre", "Transport & Logistique Tunisie",
-  "Maintenance Industrielle SARL", "TÃ©lÃ©com Business Solutions", "Emballages MÃ©diterranÃ©e",
+  "Grossiste Matières Premières", "Fournitures de Bureau Tunis", "Énergie & Carburants SA",
+  "Import Équipements Industriels", "Papeterie du Centre", "Transport & Logistique Tunisie",
+  "Maintenance Industrielle SARL", "Télécom Business Solutions", "Emballages Méditerranée",
   "Assurances Salim",
 ];
 
 const PRODUCTS = [
   ["Ordinateur portable 15\"", "produit", "U", 2450, 19],
-  ["Ã‰cran 27\" 4K", "produit", "U", 890, 19],
-  ["Clavier mÃ©canique", "produit", "U", 185, 19],
+  ["Écran 27\" 4K", "produit", "U", 890, 19],
+  ["Clavier mécanique", "produit", "U", 185, 19],
   ["Souris ergonomique", "produit", "U", 79, 19],
   ["Imprimante laser", "produit", "U", 1250, 19],
   ["Cartouche toner", "produit", "U", 145, 19],
   ["Ramette papier A4", "produit", "U", 12.5, 19],
   ["Onduleur 1200 VA", "produit", "U", 420, 19],
   ["Disque SSD 1 To", "produit", "U", 310, 19],
-  ["Switch rÃ©seau 24 ports", "produit", "U", 780, 19],
-  ["CÃ¢ble RJ45 3 m", "produit", "U", 8.5, 19],
+  ["Switch réseau 24 ports", "produit", "U", 780, 19],
+  ["Câble RJ45 3 m", "produit", "U", 8.5, 19],
   ["Serveur rack", "produit", "U", 6800, 19],
   ["Licence logicielle annuelle", "service", "U", 1200, 19],
   ["Maintenance informatique", "service", "H", 65, 19],
   ["Formation bureautique", "service", "J", 480, 19],
   ["Audit et conseil", "service", "J", 750, 19],
-  ["HÃ©bergement cloud", "service", "M", 180, 19],
-  ["DÃ©veloppement sur mesure", "service", "J", 620, 19],
+  ["Hébergement cloud", "service", "M", 180, 19],
+  ["Développement sur mesure", "service", "J", 620, 19],
   ["Bureau ergonomique", "produit", "U", 680, 19],
   ["Chaise de bureau", "produit", "U", 420, 19],
-  ["Armoire mÃ©tallique", "produit", "U", 550, 19],
+  ["Armoire métallique", "produit", "U", 550, 19],
   ["Climatiseur 12000 BTU", "produit", "U", 1850, 19],
-  ["RÃ©frigÃ©rateur de bureau", "produit", "U", 980, 19],
-  ["Machine Ã  cafÃ©", "produit", "U", 340, 19],
+  ["Réfrigérateur de bureau", "produit", "U", 980, 19],
+  ["Machine à café", "produit", "U", 340, 19],
   ["Fournitures scolaires", "produit", "U", 45, 7],
   ["Produits alimentaires", "produit", "U", 22, 7],
-  ["MÃ©dicaments gÃ©nÃ©riques", "produit", "U", 15, 7],
+  ["Médicaments génériques", "produit", "U", 15, 7],
   ["Livres et manuels", "produit", "U", 38, 7],
-  ["MatÃ©riel mÃ©dical", "produit", "U", 3200, 19],
+  ["Matériel médical", "produit", "U", 3200, 19],
   ["Produits d'entretien", "produit", "U", 18, 19],
   ["Carburant diesel", "produit", "L", 2.2, 19],
-  ["PiÃ¨ces dÃ©tachÃ©es", "produit", "U", 240, 19],
+  ["Pièces détachées", "produit", "U", 240, 19],
   ["Emballages carton", "produit", "U", 3.5, 19],
-  ["MatiÃ¨re premiÃ¨re textile", "produit", "M", 14, 19],
+  ["Matière première textile", "produit", "M", 14, 19],
   ["Peinture industrielle", "produit", "L", 28, 19],
   ["Outillage manuel", "produit", "U", 95, 19],
   ["Consommables imprimante", "produit", "U", 88, 19],
@@ -105,35 +105,35 @@ const PRODUCTS = [
 
 const FIRST_NAMES = ["Ahmed", "Mohamed", "Sami", "Leila", "Fatma", "Youssef", "Nadia", "Karim", "Ines", "Hatem", "Sonia", "Bilel"];
 const LAST_NAMES = ["Ben Ali", "Trabelsi", "Gharbi", "Bouazizi", "Mansour", "Jaziri", "Chaabane", "Ferchichi", "Khelifi", "Sassi", "Ayari", "Mejri"];
-const POSITIONS = ["Comptable", "Commercial", "Technicien", "Chef de service", "Assistant administratif", "DÃ©veloppeur", "Magasinier", "Directeur financier", "Responsable RH", "IngÃ©nieur", "ChargÃ© de clientÃ¨le", "Agent de production"];
+const POSITIONS = ["Comptable", "Commercial", "Technicien", "Chef de service", "Assistant administratif", "Développeur", "Magasinier", "Directeur financier", "Responsable RH", "Ingénieur", "Chargé de clientèle", "Agent de production"];
 const DEPARTMENTS = ["Administration", "Commercial", "Technique", "Finance", "Production", "Informatique"];
 
 const ASSET_CATEGORIES: [string, number, number][] = [
-  ["MatÃ©riel informatique", 3, 3333],
-  ["MatÃ©riel de transport", 5, 2000],
+  ["Matériel informatique", 3, 3333],
+  ["Matériel de transport", 5, 2000],
   ["Mobilier de bureau", 10, 1000],
-  ["MatÃ©riel industriel", 8, 1250],
+  ["Matériel industriel", 8, 1250],
   ["Constructions", 20, 500],
-  ["Installations gÃ©nÃ©rales", 10, 1000],
+  ["Installations générales", 10, 1000],
 ];
 
 const CHART: [string, string, number, string][] = [
   ["101", "Capital social", 1, "passif"],
-  ["106", "RÃ©serves", 1, "passif"],
-  ["12", "RÃ©sultat de l'exercice", 1, "passif"],
-  ["2231", "MatÃ©riel", 2, "actif"],
-  ["2232", "MatÃ©riel de transport", 2, "actif"],
+  ["106", "Réserves", 1, "passif"],
+  ["12", "Résultat de l'exercice", 1, "passif"],
+  ["2231", "Matériel", 2, "actif"],
+  ["2232", "Matériel de transport", 2, "actif"],
   ["2281", "Mobilier de bureau", 2, "actif"],
   ["281", "Amortissements des immobilisations", 2, "passif"],
   ["310", "Stocks de marchandises", 3, "actif"],
   ["401", "Fournisseurs", 4, "passif"],
   ["411", "Clients", 4, "actif"],
-  ["421", "Personnel â€” rÃ©munÃ©rations dues", 4, "passif"],
+  ["421", "Personnel — rémunérations dues", 4, "passif"],
   ["431", "CNSS", 4, "passif"],
-  ["436", "TVA collectÃ©e", 4, "passif"],
-  ["445", "TVA dÃ©ductible", 4, "actif"],
-  ["447", "ImpÃ´ts sur les salaires (IRPP)", 4, "passif"],
-  ["448", "Ã‰tat â€” autres impÃ´ts et taxes", 4, "passif"],
+  ["436", "TVA collectée", 4, "passif"],
+  ["445", "TVA déductible", 4, "actif"],
+  ["447", "Impôts sur les salaires (IRPP)", 4, "passif"],
+  ["448", "État — autres impôts et taxes", 4, "passif"],
   ["532", "Banque", 5, "actif"],
   ["571", "Caisse", 5, "actif"],
   ["601", "Achats de marchandises", 6, "charge"],
@@ -161,8 +161,8 @@ export type SeedResult = {
 };
 
 /**
- * Charge le jeu de dÃ©monstration. `reset` vide d'abord les donnÃ©es mÃ©tier.
- * Retourne le dÃ©compte exact par table.
+ * Charge le jeu de démonstration. `reset` vide d'abord les données métier.
+ * Retourne le décompte exact par table.
  */
 export async function seedDemoData(ownerId: string, year: number, reset: boolean): Promise<SeedResult> {
   const rng = makeRng(20261123);
@@ -189,13 +189,13 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
 
   const breakdown: Record<string, number> = {};
 
-  // â”€â”€ SociÃ©tÃ© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Société ────────────────────────────────────────────────────────────────
   const existing = await db.select().from(company).where(eq(company.ownerId, ownerId)).limit(1);
   if (existing[0]) {
     await db
       .update(company)
       .set({
-        name: "SociÃ©tÃ© Tunisienne de Distribution SARL",
+        name: "Société Tunisienne de Distribution SARL",
         matriculeFiscal: "1234567/A/M/000",
         registreCommerce: "B0123452026",
         address: "12, Avenue Habib Bourguiba, 1001 Tunis",
@@ -210,7 +210,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
     await db.insert(company).values({
       id: ownerId,
       ownerId,
-      name: "SociÃ©tÃ© Tunisienne de Distribution SARL",
+      name: "Société Tunisienne de Distribution SARL",
       matriculeFiscal: "1234567/A/M/000",
       registreCommerce: "B0123452026",
       address: "12, Avenue Habib Bourguiba, 1001 Tunis",
@@ -221,12 +221,12 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
     });
   }
 
-  // â”€â”€ Plan comptable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Plan comptable ─────────────────────────────────────────────────────────
   await db.insert(accounts).values(
     CHART.map(([code, label, classNo, nature]) => ({ ownerId, code, label, classNo, nature })),
   );
 
-  // â”€â”€ Tiers : 30 (20 clients + 10 fournisseurs) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Tiers : 30 (20 clients + 10 fournisseurs) ──────────────────────────────
   const partnerRows = [
     ...CLIENTS.map((name, i) => ({
       ownerId,
@@ -234,7 +234,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
       code: `CLI-${String(i + 1).padStart(3, "0")}`,
       name,
       matriculeFiscal: `${1000000 + i * 137}/A/M/000`,
-      address: `${10 + i * 3}, Rue de la LibertÃ©, ${["Tunis", "Sfax", "Sousse", "Nabeul", "Bizerte"][i % 5]}`,
+      address: `${10 + i * 3}, Rue de la Liberté, ${["Tunis", "Sfax", "Sousse", "Nabeul", "Bizerte"][i % 5]}`,
       email: `contact${i + 1}@client.tn`,
       phone: `+216 7${i % 10} ${200 + i} ${300 + i}`,
       paymentTerms: [30, 45, 60, 15][i % 4],
@@ -256,7 +256,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
   const clients = insertedPartners.filter((p) => p.type === "client");
   const suppliers = insertedPartners.filter((p) => p.type === "fournisseur");
 
-  // â”€â”€ Articles : 40 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Articles : 40 ──────────────────────────────────────────────────────────
   const productRows = PRODUCTS.map(([name, kind, unit, price, vat], i) => {
     const p = Number(price);
     return {
@@ -277,7 +277,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
   breakdown.articles = insertedProducts.length;
   const stockable = insertedProducts.filter((p) => p.kind === "produit");
 
-  // â”€â”€ SalariÃ©s : 12 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Salariés : 12 ──────────────────────────────────────────────────────────
   const employeeRows = Array.from({ length: 12 }, (_, i) => {
     const base = 900 + Math.round(rng() * 2600);
     return {
@@ -300,7 +300,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
   const insertedEmployees = await db.insert(employees).values(employeeRows).returning();
   breakdown.salaries = insertedEmployees.length;
 
-  // â”€â”€ Immobilisations : 12 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Immobilisations : 12 ───────────────────────────────────────────────────
   const assetRows = Array.from({ length: 12 }, (_, i) => {
     const [cat, years, bp] = ASSET_CATEGORIES[i % ASSET_CATEGORIES.length];
     const cost = Math.round((3000 + rng() * 45000) * 1000);
@@ -308,7 +308,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
     return {
       ownerId,
       code: `IMM-${String(i + 1).padStart(3, "0")}`,
-      label: `${cat} â€” lot ${i + 1}`,
+      label: `${cat} — lot ${i + 1}`,
       category: cat,
       acquisitionDate: isoDate(year - 1, acqMonth, 15),
       cost,
@@ -321,7 +321,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
   const insertedAssets = await db.insert(assets).values(assetRows).returning();
   breakdown.immobilisations = insertedAssets.length;
 
-  // â”€â”€ Factures de vente : 168 (14 par mois) + 168 lignes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Factures de vente : 168 (14 par mois) + 168 lignes ─────────────────────
   const invoiceRows: (typeof invoices.$inferInsert)[] = [];
   const invoiceLinePlan: { idx: number; label: string; qty: number; price: number; vat: number; ht: number; vatAmt: number }[] = [];
   let invSeq = 0;
@@ -373,7 +373,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
   await db.insert(invoiceLines).values(invoiceLineRows);
   breakdown.lignes_facture = invoiceLineRows.length;
 
-  // â”€â”€ Achats : 108 (9 par mois) + 108 lignes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Achats : 108 (9 par mois) + 108 lignes ─────────────────────────────────
   const billRows: (typeof bills.$inferInsert)[] = [];
   const billLinePlan: { idx: number; label: string; qty: number; price: number; vat: number; ht: number; vatAmt: number }[] = [];
   let billSeq = 0;
@@ -423,7 +423,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
   await db.insert(billLines).values(billLineRows);
   breakdown.lignes_achat = billLineRows.length;
 
-  // â”€â”€ Paie : 12 cycles + 144 bulletins â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Paie : 12 cycles + 144 bulletins ───────────────────────────────────────
   const runRows: (typeof payrollRuns.$inferInsert)[] = [];
   const slipPlan: { runIdx: number; slip: typeof payslips.$inferInsert }[] = [];
 
@@ -485,7 +485,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
   await db.insert(payslips).values(slipRows);
   breakdown.bulletins = slipRows.length;
 
-  // â”€â”€ Stock : 50 mouvements â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Stock : 50 mouvements ──────────────────────────────────────────────────
   const moveRows: (typeof stockMovements.$inferInsert)[] = [];
   for (let i = 0; i < 50; i++) {
     const prod = stockable[Math.floor(rng() * stockable.length)];
@@ -501,13 +501,13 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
       quantity: qty,
       unitCost: prod.costPrice,
       reference: kind === "entree" ? `BL-${year}-${String(i + 1).padStart(3, "0")}` : `BS-${year}-${String(i + 1).padStart(3, "0")}`,
-      note: kind === "inventaire" ? "RÃ©gularisation d'inventaire" : null,
+      note: kind === "inventaire" ? "Régularisation d'inventaire" : null,
     });
   }
   await db.insert(stockMovements).values(moveRows);
   breakdown.mouvements_stock = moveRows.length;
 
-  // â”€â”€ TrÃ©sorerie : 3 comptes + 36 opÃ©rations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Trésorerie : 3 comptes + 36 opérations ─────────────────────────────────
   const bankRows = await db
     .insert(bankAccounts)
     .values([
@@ -527,7 +527,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
       ownerId,
       accountId: acc.id,
       txDate: isoDate(year, month, day),
-      label: isIn ? `Encaissement client â€” virement` : `Paiement fournisseur â€” virement`,
+      label: isIn ? `Encaissement client — virement` : `Paiement fournisseur — virement`,
       direction: isIn ? "encaissement" : "decaissement",
       amount: Math.round((800 + rng() * 12000) * 1000),
       category: isIn ? "Ventes" : "Achats",
@@ -537,7 +537,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
   await db.insert(bankTransactions).values(txRows);
   breakdown.operations_tresorerie = txRows.length;
 
-  // â”€â”€ DÃ©clarations : 12 (une TVA par mois) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Déclarations : 12 (une TVA par mois) ───────────────────────────────────
   const declRows: (typeof taxDeclarations.$inferInsert)[] = [];
   for (let month = 1; month <= 12; month++) {
     const period = `${year}-${String(month).padStart(2, "0")}`;
@@ -564,7 +564,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
   await db.insert(taxDeclarations).values(declRows);
   breakdown.declarations = declRows.length;
 
-  // â”€â”€ Ã‰critures comptables (partie double) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Écritures comptables (partie double) ───────────────────────────────────
   const entryRows: (typeof journalEntries.$inferInsert)[] = [];
   const linePlan: { entryIdx: number; code: string; debit: number; credit: number }[] = [];
 
@@ -579,7 +579,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
   ) => {
     const d = lines.reduce((s, l) => s + l.debit, 0);
     const c = lines.reduce((s, l) => s + l.credit, 0);
-    if (d !== c || d === 0) return; // jamais d'Ã©criture dÃ©sÃ©quilibrÃ©e
+    if (d !== c || d === 0) return; // jamais d'écriture déséquilibrée
     entryRows.push({ ownerId, entryDate, journal, reference, label, source, sourceId });
     const idx = entryRows.length - 1;
     for (const l of lines) linePlan.push({ entryIdx: idx, code: l.code, debit: l.debit, credit: l.credit });
@@ -593,7 +593,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
     ];
     if (inv.totalVat > 0) lines.push({ code: "436", debit: 0, credit: inv.totalVat });
     if (inv.stampDuty > 0) lines.push({ code: "448", debit: 0, credit: inv.stampDuty });
-    pushEntry(inv.issueDate, "VE", inv.number, `Facture ${inv.number} â€” ${inv.partnerName}`, "facture", inv.id, lines);
+    pushEntry(inv.issueDate, "VE", inv.number, `Facture ${inv.number} — ${inv.partnerName}`, "facture", inv.id, lines);
   }
 
   for (const b of insertedBills) {
@@ -601,7 +601,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
     const lines = [{ code: "607", debit: b.totalHt, credit: 0 }];
     if (b.totalVat > 0) lines.push({ code: "445", debit: b.totalVat, credit: 0 });
     lines.push({ code: "401", debit: 0, credit: b.totalTtc });
-    pushEntry(b.issueDate, "AC", b.number, `Achat ${b.number} â€” ${b.partnerName}`, "achat", b.id, lines);
+    pushEntry(b.issueDate, "AC", b.number, `Achat ${b.number} — ${b.partnerName}`, "achat", b.id, lines);
   }
 
   for (const run of insertedRuns) {
@@ -615,8 +615,8 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
     pushEntry(`${run.period}-28`, "PA", run.period, `Paie ${run.period}`, "paie", run.id, lines);
   }
 
-  // Ã‰criture d'ouverture : capital social en banque.
-  pushEntry(`${year}-01-01`, "OD", "OUV-2026", "Apport en capital â€” ouverture d'exercice", "manuel", "ouverture", [
+  // Écriture d'ouverture : capital social en banque.
+  pushEntry(`${year}-01-01`, "OD", "OUV-2026", "Apport en capital — ouverture d'exercice", "manuel", "ouverture", [
     { code: "532", debit: 60000 * 1000, credit: 0 },
     { code: "101", debit: 0, credit: 60000 * 1000 },
   ]);
@@ -632,7 +632,7 @@ export async function seedDemoData(ownerId: string, year: number, reset: boolean
       credit: l.credit,
       position: i,
     }));
-    // Insertion par lots pour rester sous la limite de paramÃ¨tres PostgreSQL.
+    // Insertion par lots pour rester sous la limite de paramètres PostgreSQL.
     for (let i = 0; i < journalLineRows.length; i += 500) {
       await db.insert(journalLines).values(journalLineRows.slice(i, i + 500));
     }

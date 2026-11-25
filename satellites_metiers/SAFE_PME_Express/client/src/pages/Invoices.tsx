@@ -20,10 +20,10 @@ type Invoice = {
 };
 
 const invoiceColumns: Column<Invoice>[] = [
-  { key: "num", label: "NumÃ©ro", value: (i) => i.number },
+  { key: "num", label: "Numéro", value: (i) => i.number },
   { key: "client", label: "Client", value: (i) => i.partnerName },
   { key: "date", label: "Date", value: (i) => i.issueDate },
-  { key: "due", label: "Ã‰chÃ©ance", value: (i) => i.dueDate },
+  { key: "due", label: "Échéance", value: (i) => i.dueDate },
   { key: "status", label: "Statut", value: (i) => INVOICE_STATUS[i.status]?.label ?? i.status },
   { key: "ht", label: "Total HT", value: (i) => i.totalHt / 1000, display: (i) => (i.totalHt / 1000).toFixed(3) },
   { key: "vat", label: "TVA", value: (i) => i.totalVat / 1000, display: (i) => (i.totalVat / 1000).toFixed(3) },
@@ -61,7 +61,7 @@ export default function Invoices() {
     <>
       <PageHeader
         title="Factures clients"
-        subtitle="Facturation, TVA, timbre fiscal et suivi des rÃ¨glements"
+        subtitle="Facturation, TVA, timbre fiscal et suivi des règlements"
         actions={
           <Link href="/factures/nouvelle" className="erp-btn-gold">
             + Nouvelle facture
@@ -72,16 +72,16 @@ export default function Invoices() {
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <input
           className="erp-input max-w-xs"
-          placeholder="Rechercher un numÃ©ro ou un clientâ€¦"
+          placeholder="Rechercher un numéro ou un client…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
         <select className="erp-select max-w-[190px]" value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="tous">Tous les statuts</option>
           <option value="brouillon">Brouillon</option>
-          <option value="validee">ValidÃ©e</option>
-          <option value="payee">PayÃ©e</option>
-          <option value="annulee">AnnulÃ©e</option>
+          <option value="validee">Validée</option>
+          <option value="payee">Payée</option>
+          <option value="annulee">Annulée</option>
         </select>
         <div className="ml-auto flex gap-2 text-[12px]">
           <span className="erp-chip bg-secondary text-muted-foreground">HT {new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 3 }).format(totals.ht / 1000)}</span>
@@ -95,7 +95,7 @@ export default function Invoices() {
           rows={rows}
           basename="factures"
           title="Factures clients"
-          subtitle="ERP Tunisie â€” Ventes"
+          subtitle="ERP Tunisie — Ventes"
           columns={invoiceColumns}
         />
       </div>
@@ -105,21 +105,21 @@ export default function Invoices() {
           <Loading />
         ) : rows.length === 0 ? (
           <EmptyState
-            icon="â–¤"
-            title="Aucune facture Ã  afficher"
+            icon="▤"
+            title="Aucune facture à afficher"
             description={
               list.data?.length
-                ? "Aucune facture ne correspond Ã  votre recherche. Modifiez les filtres."
-                : "CrÃ©ez votre premiÃ¨re facture de vente : TVA 19/13/7/0 %, timbre fiscal 1,000 TND et totaux calculÃ©s automatiquement."
+                ? "Aucune facture ne correspond à votre recherche. Modifiez les filtres."
+                : "Créez votre première facture de vente : TVA 19/13/7/0 %, timbre fiscal 1,000 TND et totaux calculés automatiquement."
             }
             action={
               <Link href="/factures/nouvelle" className="erp-btn-gold">
-                CrÃ©er une facture
+                Créer une facture
               </Link>
             }
           />
         ) : (
-          <Table head={["NumÃ©ro", "Client", "Ã‰mission", "Ã‰chÃ©ance", "Statut", "Total HT", "TVA", "Timbre", "Total TTC"]}>
+          <Table head={["Numéro", "Client", "Émission", "Échéance", "Statut", "Total HT", "TVA", "Timbre", "Total TTC"]}>
             {rows.map((inv) => {
               const st = INVOICE_STATUS[inv.status] ?? INVOICE_STATUS.brouillon;
               const late =
@@ -153,7 +153,7 @@ export default function Invoices() {
   );
 }
 
-// â”€â”€ Nouvelle facture â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Nouvelle facture ─────────────────────────────────────────────────────────
 type Line = { label: string; quantity: string; unitPrice: string; vatRate: number; productId?: string | null };
 
 export function NewInvoice() {
@@ -226,14 +226,14 @@ export function NewInvoice() {
     <>
       <PageHeader
         title="Nouvelle facture"
-        subtitle={nextNum.data ? `NumÃ©ro attribuÃ© : ${nextNum.data}` : "RÃ©daction d'une facture de vente"}
+        subtitle={nextNum.data ? `Numéro attribué : ${nextNum.data}` : "Rédaction d'une facture de vente"}
         actions={
           <>
             <button className="erp-btn-ghost" onClick={() => navigate("/factures")}>
               Annuler
             </button>
             <button className="erp-btn-gold" onClick={submit} disabled={create.isPending || !partner}>
-              {create.isPending ? "Enregistrementâ€¦" : "Enregistrer la facture"}
+              {create.isPending ? "Enregistrement…" : "Enregistrer la facture"}
             </button>
           </>
         }
@@ -246,43 +246,43 @@ export function NewInvoice() {
       )}
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Panel title="Informations gÃ©nÃ©rales" className="xl:col-span-2">
+        <Panel title="Informations générales" className="xl:col-span-2">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Client">
               <select className="erp-select" value={partnerId} onChange={(e) => setPartnerId(e.target.value)}>
-                <option value="">â€” SÃ©lectionner un client â€”</option>
+                <option value="">— Sélectionner un client —</option>
                 {(partners.data ?? []).map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} {p.matriculeFiscal ? `Â· MF ${p.matriculeFiscal}` : ""}
+                    {p.name} {p.matriculeFiscal ? `· MF ${p.matriculeFiscal}` : ""}
                   </option>
                 ))}
               </select>
             </Field>
             <Field label="Statut">
               <select className="erp-select" value={status} onChange={(e) => setStatus(e.target.value as "brouillon" | "validee")}>
-                <option value="validee">ValidÃ©e</option>
+                <option value="validee">Validée</option>
                 <option value="brouillon">Brouillon</option>
               </select>
             </Field>
-            <Field label="Date d'Ã©mission">
+            <Field label="Date d'émission">
               <input type="date" className="erp-input" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} />
             </Field>
-            <Field label="Date d'Ã©chÃ©ance">
+            <Field label="Date d'échéance">
               <input type="date" className="erp-input" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             </Field>
           </div>
           {partner && (
             <div className="mt-3 rounded-lg bg-secondary/60 p-3 text-[12px] text-muted-foreground">
               <p className="font-medium text-foreground">{partner.name}</p>
-              <p>{partner.address || "Adresse non renseignÃ©e"}</p>
+              <p>{partner.address || "Adresse non renseignée"}</p>
               <p>
-                MF : {partner.matriculeFiscal || "â€”"} Â· TÃ©l : {partner.phone || "â€”"} Â· DÃ©lai {partner.paymentTerms} j
+                MF : {partner.matriculeFiscal || "—"} · Tél : {partner.phone || "—"} · Délai {partner.paymentTerms} j
               </p>
             </div>
           )}
         </Panel>
 
-        <Panel title="RÃ©capitulatif">
+        <Panel title="Récapitulatif">
           <dl className="space-y-2 text-[13px]">
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Total HT</dt>
@@ -302,7 +302,7 @@ export function NewInvoice() {
             </div>
           </dl>
           <div className="mt-4 grid gap-3">
-            <Field label="Timbre fiscal (TND)" hint="1,000 TND par facture â€” saisir 0 si exonÃ©rÃ©">
+            <Field label="Timbre fiscal (TND)" hint="1,000 TND par facture — saisir 0 si exonéré">
               <input className="erp-input" value={stamp} onChange={(e) => setStamp(e.target.value)} />
             </Field>
             <Field label="Observations">
@@ -310,7 +310,7 @@ export function NewInvoice() {
                 className="erp-input h-20 py-2"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Conditions de rÃ¨glement, mentions lÃ©galesâ€¦"
+                placeholder="Conditions de règlement, mentions légales…"
               />
             </Field>
           </div>
@@ -335,8 +335,8 @@ export function NewInvoice() {
             <thead>
               <tr>
                 <th className="w-[34%]">Article</th>
-                <th className="w-[22%]">DÃ©signation</th>
-                <th className="w-[10%] text-right">QtÃ©</th>
+                <th className="w-[22%]">Désignation</th>
+                <th className="w-[10%] text-right">Qté</th>
                 <th className="w-[14%] text-right">P.U. HT</th>
                 <th className="w-[9%]">TVA</th>
                 <th className="w-[8%] text-right">Total HT</th>
@@ -348,10 +348,10 @@ export function NewInvoice() {
                 <tr key={i}>
                   <td>
                     <select className="erp-select h-8" value={l.productId ?? ""} onChange={(e) => pickProduct(i, e.target.value)}>
-                      <option value="">â€” libre â€”</option>
+                      <option value="">— libre —</option>
                       {(products.data ?? []).map((p) => (
                         <option key={p.id} value={p.id}>
-                          {p.reference} Â· {p.name}
+                          {p.reference} · {p.name}
                         </option>
                       ))}
                     </select>
@@ -361,7 +361,7 @@ export function NewInvoice() {
                       className="erp-input h-8"
                       value={l.label}
                       onChange={(e) => setLine(i, { label: e.target.value })}
-                      placeholder="DÃ©signation"
+                      placeholder="Désignation"
                     />
                   </td>
                   <td>
@@ -399,7 +399,7 @@ export function NewInvoice() {
                       disabled={lines.length === 1}
                       aria-label="Supprimer la ligne"
                     >
-                      âœ•
+                      ✕
                     </button>
                   </td>
                 </tr>

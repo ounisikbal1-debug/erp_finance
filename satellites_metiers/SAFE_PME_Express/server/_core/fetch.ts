@@ -1,11 +1,11 @@
 ﻿// Controlled outbound HTTP for business `services/`.
 //
-// SECURITY POSTURE (DESIGN Â§5.1.2 / Â§8.1): this is a DEV-CONVENIENCE + coding
+// SECURITY POSTURE (DESIGN §5.1.2 / §8.1): this is a DEV-CONVENIENCE + coding
 // convention (uniform timeout/observability), NOT a security boundary. It runs
 // in the app's own (untrusted) process, so nothing here can stop a determined
 // caller from using global fetch directly. Real SSRF / metadata-endpoint
 // protection is enforced at the NETWORK layer by the platform per deploy stage
-// (Â§8.1) â€” do not rely on this wrapper for isolation.
+// (§8.1) — do not rely on this wrapper for isolation.
 export interface OutboundOptions extends RequestInit {
   timeoutMs?: number;
 }

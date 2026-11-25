@@ -1,35 +1,35 @@
-﻿// â”€â”€ SERVICE : comptabilitÃ© en partie double â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Couche mÃ©tier distincte (MVC : ce fichier = Service, routers = Controller,
-// pages React = View). Toute Ã©criture gÃ©nÃ©rÃ©e ici est Ã©quilibrÃ©e par
-// construction : dÃ©bit total = crÃ©dit total, sinon elle est refusÃ©e.
+﻿// ── SERVICE : comptabilité en partie double ──────────────────────────────────
+// Couche métier distincte (MVC : ce fichier = Service, routers = Controller,
+// pages React = View). Toute écriture générée ici est équilibrée par
+// construction : débit total = crédit total, sinon elle est refusée.
 //
-// Plan comptable tunisien (SYSCOHADA / norme tunisienne) utilisÃ© :
+// Plan comptable tunisien (SYSCOHADA / norme tunisienne) utilisé :
 //   411  Clients                         701  Ventes de marchandises
 //   401  Fournisseurs                    607  Achats de marchandises
-//   436  TVA collectÃ©e                   445  TVA dÃ©ductible
-//   421  Personnel â€” rÃ©munÃ©rations dues  431  CNSS
-//   447  ImpÃ´ts sur les salaires (IRPP)  448  Ã‰tat â€” autres impÃ´ts
+//   436  TVA collectée                   445  TVA déductible
+//   421  Personnel — rémunérations dues  431  CNSS
+//   447  Impôts sur les salaires (IRPP)  448  État — autres impôts
 //   532  Banque                          571  Caisse
-//   2231 MatÃ©riel                        681  Dotations aux amortissements
-//   12   RÃ©sultat de l'exercice          101  Capital social
+//   2231 Matériel                        681  Dotations aux amortissements
+//   12   Résultat de l'exercice          101  Capital social
 import { createJournalEntry } from "../db";
 
 export type JournalLine = { accountCode: string; accountLabel: string; debit: number; credit: number };
 
 export const ACCOUNT_LABELS: Record<string, string> = {
   "101": "Capital social",
-  "106": "RÃ©serves",
-  "12": "RÃ©sultat de l'exercice",
-  "2231": "MatÃ©riel",
+  "106": "Réserves",
+  "12": "Résultat de l'exercice",
+  "2231": "Matériel",
   "281": "Amortissements des immobilisations",
   "401": "Fournisseurs",
   "411": "Clients",
-  "421": "Personnel â€” rÃ©munÃ©rations dues",
+  "421": "Personnel — rémunérations dues",
   "431": "CNSS",
-  "436": "TVA collectÃ©e",
-  "445": "TVA dÃ©ductible",
-  "447": "ImpÃ´ts sur les salaires (IRPP)",
-  "448": "Ã‰tat â€” autres impÃ´ts et taxes",
+  "436": "TVA collectée",
+  "445": "TVA déductible",
+  "447": "Impôts sur les salaires (IRPP)",
+  "448": "État — autres impôts et taxes",
   "532": "Banque",
   "571": "Caisse",
   "601": "Achats de marchandises",
@@ -45,7 +45,7 @@ export function label(code: string): string {
   return ACCOUNT_LABELS[code] ?? "";
 }
 
-/** VÃ©rifie l'Ã©quilibre d'une Ã©criture. */
+/** Vérifie l'équilibre d'une écriture. */
 export function isBalanced(lines: JournalLine[]): boolean {
   const d = lines.reduce((s, l) => s + l.debit, 0);
   const c = lines.reduce((s, l) => s + l.credit, 0);
@@ -53,9 +53,9 @@ export function isBalanced(lines: JournalLine[]): boolean {
 }
 
 /**
- * Ã‰criture d'une facture de vente validÃ©e :
- *   411 Clients (TTC)  au dÃ©bit
- *   701 Ventes (HT) + 436 TVA collectÃ©e + 448 timbre  au crÃ©dit
+ * Écriture d'une facture de vente validée :
+ *   411 Clients (TTC)  au débit
+ *   701 Ventes (HT) + 436 TVA collectée + 448 timbre  au crédit
  */
 export async function postSalesInvoice(
   ownerId: string,
@@ -77,12 +77,12 @@ export async function postSalesInvoice(
   if (inv.totalVat > 0) lines.push({ accountCode: "436", accountLabel: label("436"), debit: 0, credit: inv.totalVat });
   if (inv.stampDuty > 0) lines.push({ accountCode: "448", accountLabel: label("448"), debit: 0, credit: inv.stampDuty });
 
-  if (!isBalanced(lines)) throw new Error("Ã‰criture de vente dÃ©sÃ©quilibrÃ©e.");
+  if (!isBalanced(lines)) throw new Error("Écriture de vente déséquilibrée.");
   return createJournalEntry(ownerId, {
     entryDate: inv.issueDate,
     journal: "VE",
     reference: inv.number,
-    label: `Facture ${inv.number} â€” ${inv.partnerName}`,
+    label: `Facture ${inv.number} — ${inv.partnerName}`,
     source: "facture",
     sourceId: inv.id,
     lines,
@@ -90,9 +90,9 @@ export async function postSalesInvoice(
 }
 
 /**
- * Ã‰criture d'une facture d'achat validÃ©e :
- *   607 Achats (HT) + 445 TVA dÃ©ductible  au dÃ©bit
- *   401 Fournisseurs (TTC)                au crÃ©dit
+ * Écriture d'une facture d'achat validée :
+ *   607 Achats (HT) + 445 TVA déductible  au débit
+ *   401 Fournisseurs (TTC)                au crédit
  */
 export async function postPurchaseBill(
   ownerId: string,
@@ -112,12 +112,12 @@ export async function postPurchaseBill(
   if (bill.totalVat > 0) lines.push({ accountCode: "445", accountLabel: label("445"), debit: bill.totalVat, credit: 0 });
   lines.push({ accountCode: "401", accountLabel: label("401"), debit: 0, credit: bill.totalTtc });
 
-  if (!isBalanced(lines)) throw new Error("Ã‰criture d'achat dÃ©sÃ©quilibrÃ©e.");
+  if (!isBalanced(lines)) throw new Error("Écriture d'achat déséquilibrée.");
   return createJournalEntry(ownerId, {
     entryDate: bill.issueDate,
     journal: "AC",
     reference: bill.number,
-    label: `Achat ${bill.number} â€” ${bill.partnerName}`,
+    label: `Achat ${bill.number} — ${bill.partnerName}`,
     source: "achat",
     sourceId: bill.id,
     lines,
@@ -125,9 +125,9 @@ export async function postPurchaseBill(
 }
 
 /**
- * Ã‰criture de paie d'un cycle :
- *   641 Charges de personnel (brut) + 645 Charges patronales  au dÃ©bit
- *   421 Net Ã  payer + 431 CNSS (salariÃ© + employeur) + 447 IRPP + 448 CSS  au crÃ©dit
+ * Écriture de paie d'un cycle :
+ *   641 Charges de personnel (brut) + 645 Charges patronales  au débit
+ *   421 Net à payer + 431 CNSS (salarié + employeur) + 447 IRPP + 448 CSS  au crédit
  */
 export async function postPayrollRun(
   ownerId: string,
@@ -153,7 +153,7 @@ export async function postPayrollRun(
   if (run.totalIrpp > 0) lines.push({ accountCode: "447", accountLabel: label("447"), debit: 0, credit: run.totalIrpp });
   if (run.totalCss > 0) lines.push({ accountCode: "448", accountLabel: label("448"), debit: 0, credit: run.totalCss });
 
-  if (!isBalanced(lines)) throw new Error("Ã‰criture de paie dÃ©sÃ©quilibrÃ©e.");
+  if (!isBalanced(lines)) throw new Error("Écriture de paie déséquilibrée.");
   return createJournalEntry(ownerId, {
     entryDate: `${run.period}-28`,
     journal: "PA",
@@ -165,7 +165,7 @@ export async function postPayrollRun(
   });
 }
 
-/** Ã‰criture d'un encaissement client (banque). */
+/** Écriture d'un encaissement client (banque). */
 export async function postReceipt(
   ownerId: string,
   input: { date: string; reference: string; label: string; amount: number; accountCode?: string },
@@ -174,7 +174,7 @@ export async function postReceipt(
     { accountCode: input.accountCode ?? "532", accountLabel: label(input.accountCode ?? "532"), debit: input.amount, credit: 0 },
     { accountCode: "411", accountLabel: label("411"), debit: 0, credit: input.amount },
   ];
-  if (!isBalanced(lines)) throw new Error("Ã‰criture d'encaissement dÃ©sÃ©quilibrÃ©e.");
+  if (!isBalanced(lines)) throw new Error("Écriture d'encaissement déséquilibrée.");
   return createJournalEntry(ownerId, {
     entryDate: input.date,
     journal: "BQ",
@@ -185,7 +185,7 @@ export async function postReceipt(
   });
 }
 
-/** Ã‰criture d'un dÃ©caissement fournisseur. */
+/** Écriture d'un décaissement fournisseur. */
 export async function postPayment(
   ownerId: string,
   input: { date: string; reference: string; label: string; amount: number; accountCode?: string },
@@ -194,7 +194,7 @@ export async function postPayment(
     { accountCode: "401", accountLabel: label("401"), debit: input.amount, credit: 0 },
     { accountCode: input.accountCode ?? "532", accountLabel: label(input.accountCode ?? "532"), debit: 0, credit: input.amount },
   ];
-  if (!isBalanced(lines)) throw new Error("Ã‰criture de dÃ©caissement dÃ©sÃ©quilibrÃ©e.");
+  if (!isBalanced(lines)) throw new Error("Écriture de décaissement déséquilibrée.");
   return createJournalEntry(ownerId, {
     entryDate: input.date,
     journal: "BQ",

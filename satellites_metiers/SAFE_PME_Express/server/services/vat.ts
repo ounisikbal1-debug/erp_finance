@@ -1,14 +1,14 @@
-﻿// â”€â”€ SERVICE: TVA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Couche mÃ©tier distincte (architecture MVC : ce fichier = Model/Service, les
+﻿// ── SERVICE: TVA ─────────────────────────────────────────────────────────────
+// Couche métier distincte (architecture MVC : ce fichier = Model/Service, les
 // routeurs = Controller, les pages React = View).
 //
-// RÃ¨gle tunisienne appliquÃ©e :
-//   TVA collectÃ©e  = TVA facturÃ©e aux clients (factures de vente non brouillon)
-//   TVA dÃ©ductible = TVA payÃ©e aux fournisseurs (factures d'achat non brouillon)
-//   TVA Ã  payer    = collectÃ©e âˆ’ dÃ©ductible   (si > 0)
-//   CrÃ©dit de TVA  = dÃ©ductible âˆ’ collectÃ©e   (si > 0, reportable)
+// Règle tunisienne appliquée :
+//   TVA collectée  = TVA facturée aux clients (factures de vente non brouillon)
+//   TVA déductible = TVA payée aux fournisseurs (factures d'achat non brouillon)
+//   TVA à payer    = collectée − déductible   (si > 0)
+//   Crédit de TVA  = déductible − collectée   (si > 0, reportable)
 //
-// Le calcul se fait par ligne de document, car une facture peut mÃ©langer
+// Le calcul se fait par ligne de document, car une facture peut mélanger
 // plusieurs taux (19 %, 13 %, 7 %, 0 %). Montants en millimes (entiers).
 import { and, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "../_core/db";
@@ -29,7 +29,7 @@ export type VatSummary = {
   period: VatPeriod;
   collected: VatSide;
   deductible: VatSide;
-  /** Solde : positif = Ã  payer, nÃ©gatif = crÃ©dit reportable. */
+  /** Solde : positif = à payer, négatif = crédit reportable. */
   balance: number;
   toPay: number;
   credit: number;
@@ -58,8 +58,8 @@ function side(rows: { rate: number; base: number; vat: number }[], documents: nu
 }
 
 /**
- * Calcule la situation TVA d'une pÃ©riode Ã  partir des documents validÃ©s.
- * Les brouillons sont exclus : une TVA n'est due qu'une fois la facture Ã©mise.
+ * Calcule la situation TVA d'une période à partir des documents validés.
+ * Les brouillons sont exclus : une TVA n'est due qu'une fois la facture émise.
  */
 export async function computeVat(ownerId: string, period: VatPeriod): Promise<VatSummary> {
   const [sales, purchases] = await Promise.all([
@@ -152,7 +152,7 @@ export function quarterPeriod(quarter: string): VatPeriod {
   };
 }
 
-/** Échéance lÃ©gale de la dÃ©claration : le 15 du mois suivant la pÃ©riode. */
+/** Échéance légale de la déclaration : le 15 du mois suivant la période. */
 export function vatDueDate(period: VatPeriod): string {
   const d = new Date(`${period.to}T00:00:00Z`);
   d.setUTCMonth(d.getUTCMonth() + 1);

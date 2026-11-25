@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { fmtTND } from "../../../shared/fiscal";
 
-// â”€â”€ En-tÃªte de page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── En-tête de page ──────────────────────────────────────────────────────────
 export function PageHeader({
   title,
   subtitle,
@@ -23,7 +23,7 @@ export function PageHeader({
   );
 }
 
-// â”€â”€ Carte â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Carte ────────────────────────────────────────────────────────────────────
 export function Panel({
   title,
   subtitle,
@@ -57,7 +57,7 @@ export function Panel({
   );
 }
 
-// â”€â”€ KPI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── KPI ──────────────────────────────────────────────────────────────────────
 export function Stat({
   label,
   value,
@@ -92,7 +92,7 @@ export function Stat({
   );
 }
 
-// â”€â”€ Badge de statut â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Badge de statut ──────────────────────────────────────────────────────────
 const TONES: Record<string, string> = {
   muted: "bg-secondary text-muted-foreground",
   info: "bg-info-soft text-info",
@@ -105,7 +105,7 @@ export function Badge({ tone = "muted", children }: { tone?: string; children: R
   return <span className={cn("erp-chip", TONES[tone] ?? TONES.muted)}>{children}</span>;
 }
 
-// â”€â”€ Ã‰tat vide dessinÃ© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── État vide dessiné ────────────────────────────────────────────────────────
 export function EmptyState({
   icon,
   title,
@@ -120,7 +120,7 @@ export function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-6 py-14 text-center">
       <div className="flex size-12 items-center justify-center rounded-full bg-gold-soft text-gold">
-        {icon ?? "â—‡"}
+        {icon ?? "◇"}
       </div>
       <div>
         <p className="text-[15px] font-semibold">{title}</p>
@@ -131,7 +131,7 @@ export function EmptyState({
   );
 }
 
-// â”€â”€ Champ de formulaire â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Champ de formulaire ──────────────────────────────────────────────────────
 export function Field({
   label,
   children,
@@ -152,7 +152,7 @@ export function Field({
   );
 }
 
-// â”€â”€ Montant TND â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Montant TND ──────────────────────────────────────────────────────────────
 export function Money({
   value,
   className,
@@ -165,7 +165,7 @@ export function Money({
   zeroDash?: boolean;
 }) {
   const v = value ?? 0;
-  if (zeroDash && v === 0) return <span className={cn("num text-muted-foreground/60", className)}>â€”</span>;
+  if (zeroDash && v === 0) return <span className={cn("num text-muted-foreground/60", className)}>—</span>;
   return (
     <span className={cn("num whitespace-nowrap text-right", bold && "font-semibold", v < 0 && "text-destructive", className)}>
       {fmtTND(v)}
@@ -173,7 +173,7 @@ export function Money({
   );
 }
 
-// â”€â”€ Barre de progression â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Barre de progression ─────────────────────────────────────────────────────
 export function Meter({ value, max, tone = "gold" }: { value: number; max: number; tone?: string }) {
   const pct = max > 0 ? Math.min(100, Math.round((value / max) * 100)) : 0;
   return (
@@ -186,7 +186,7 @@ export function Meter({ value, max, tone = "gold" }: { value: number; max: numbe
   );
 }
 
-// â”€â”€ Graphique en barres (SVG, sans dÃ©pendance) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Graphique en barres (SVG, sans dépendance) ────────────────────────────────
 export function BarChart({
   data,
   height = 180,
@@ -219,7 +219,7 @@ export function BarChart({
   );
 }
 
-// â”€â”€ Modale â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Modale ───────────────────────────────────────────────────────────────────
 export function Modal({
   open,
   onClose,
@@ -249,7 +249,7 @@ export function Modal({
             className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition hover:bg-secondary hover:text-foreground"
             aria-label="Fermer"
           >
-            âœ•
+            ✕
           </button>
         </header>
         <div className="p-4">{children}</div>
@@ -258,7 +258,7 @@ export function Modal({
   );
 }
 
-// â”€â”€ Tableau dense â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Tableau dense ────────────────────────────────────────────────────────────
 export function Table({ head, children }: { head: string[]; children: React.ReactNode }) {
   return (
     <div className="overflow-x-auto">
@@ -266,7 +266,7 @@ export function Table({ head, children }: { head: string[]; children: React.Reac
         <thead>
           <tr>
             {head.map((h, i) => (
-              <th key={i} className={i > 0 && /Montant|Total|HT|TVA|TTC|DÃ©bit|CrÃ©dit|Solde|Brut|Net|Salaire|Valeur/i.test(h) ? "text-right" : ""}>
+              <th key={i} className={i > 0 && /Montant|Total|HT|TVA|TTC|Débit|Crédit|Solde|Brut|Net|Salaire|Valeur/i.test(h) ? "text-right" : ""}>
                 {h}
               </th>
             ))}
@@ -278,7 +278,7 @@ export function Table({ head, children }: { head: string[]; children: React.Reac
   );
 }
 
-export function Loading({ label = "Chargementâ€¦" }: { label?: string }) {
+export function Loading({ label = "Chargement…" }: { label?: string }) {
   return (
     <div className="flex items-center gap-2 px-4 py-10 text-[13px] text-muted-foreground">
       <span className="size-3 animate-spin rounded-full border-2 border-border border-t-gold" />

@@ -30,7 +30,7 @@ export default function Signup() {
   // Declarative, not `navigate()` straight after the await. The auth query's
   // cache update and this component's re-render are not the same tick, so an
   // imperative jump reaches the guarded route while `user` is still null, and
-  // <Protected> bounces it right back here â€” the user has signed up or logged
+  // <Protected> bounces it right back here — the user has signed up or logged
   // in successfully and is looking at a login form. Rendering a Redirect once
   // `user` actually exists waits for the state to arrive.
   if (user) return <Redirect to="/dashboard" />;
@@ -65,7 +65,7 @@ export default function Signup() {
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full" disabled={busy}>
-              {busy ? "Creatingâ€¦" : "Sign up"}
+              {busy ? "Creating…" : "Sign up"}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">

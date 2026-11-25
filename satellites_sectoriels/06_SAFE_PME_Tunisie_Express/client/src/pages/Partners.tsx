@@ -22,8 +22,8 @@ const partnerColumns: Column<Partner>[] = [
   { key: "mf", label: "Matricule fiscal", value: (p) => p.matriculeFiscal ?? "" },
   { key: "address", label: "Adresse", value: (p) => p.address ?? "" },
   { key: "email", label: "E-mail", value: (p) => p.email ?? "" },
-  { key: "phone", label: "TÃ©lÃ©phone", value: (p) => p.phone ?? "" },
-  { key: "terms", label: "DÃ©lai (jours)", value: (p) => p.paymentTerms },
+  { key: "phone", label: "Téléphone", value: (p) => p.phone ?? "" },
+  { key: "terms", label: "Délai (jours)", value: (p) => p.paymentTerms },
   { key: "type", label: "Type", value: (p) => (p.type === "client" ? "Client" : "Fournisseur") },
 ];
 
@@ -70,7 +70,7 @@ export default function Partners() {
     <>
       <PageHeader
         title="Tiers"
-        subtitle="RÃ©pertoire des clients et fournisseurs"
+        subtitle="Répertoire des clients et fournisseurs"
         actions={
           <button className="erp-btn-gold" onClick={() => setOpen(true)}>
             + Nouveau {type}
@@ -96,7 +96,7 @@ export default function Partners() {
         </div>
         <input
           className="erp-input max-w-xs"
-          placeholder="Rechercher par nom ou codeâ€¦"
+          placeholder="Rechercher par nom ou code…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
@@ -107,10 +107,10 @@ export default function Partners() {
         <ExportBar
           rows={rows}
           basename={type === "client" ? "clients" : "fournisseurs"}
-          title={type === "client" ? "RÃ©pertoire clients" : "RÃ©pertoire fournisseurs"}
-          subtitle="ERP Tunisie â€” Tiers"
+          title={type === "client" ? "Répertoire clients" : "Répertoire fournisseurs"}
+          subtitle="ERP Tunisie — Tiers"
           columns={partnerColumns}
-          templateHeaders={["Code", "Raison sociale", "Matricule fiscal", "Adresse", "E-mail", "TÃ©lÃ©phone", "DÃ©lai"]}
+          templateHeaders={["Code", "Raison sociale", "Matricule fiscal", "Adresse", "E-mail", "Téléphone", "Délai"]}
           onImport={async (r) => {
             const res = await importPartners.mutateAsync({ type, rows: r });
             utils.partners.list.invalidate();
@@ -125,28 +125,28 @@ export default function Partners() {
         ) : rows.length === 0 ? (
           <EmptyState
             icon="â—"
-            title={type === "client" ? "Aucun client enregistrÃ©" : "Aucun fournisseur enregistrÃ©"}
+            title={type === "client" ? "Aucun client enregistré" : "Aucun fournisseur enregistré"}
             description={
               type === "client"
-                ? "CrÃ©ez vos clients avec leur matricule fiscal : il apparaÃ®tra sur les factures et les dÃ©clarations."
-                : "CrÃ©ez vos fournisseurs pour saisir les factures d'achat et suivre la TVA dÃ©ductible."
+                ? "Créez vos clients avec leur matricule fiscal : il apparaîtra sur les factures et les déclarations."
+                : "Créez vos fournisseurs pour saisir les factures d'achat et suivre la TVA déductible."
             }
             action={
               <button className="erp-btn-gold" onClick={() => setOpen(true)}>
-                CrÃ©er une fiche
+                Créer une fiche
               </button>
             }
           />
         ) : (
-          <Table head={["Code", "Raison sociale", "Matricule fiscal", "Contact", "DÃ©lai", "Statut"]}>
+          <Table head={["Code", "Raison sociale", "Matricule fiscal", "Contact", "Délai", "Statut"]}>
             {rows.map((p) => (
               <tr key={p.id}>
                 <td className="font-mono text-[12px]">{p.code}</td>
                 <td className="font-medium">{p.name}</td>
-                <td className="font-mono text-[12px] text-muted-foreground">{p.matriculeFiscal || "â€”"}</td>
+                <td className="font-mono text-[12px] text-muted-foreground">{p.matriculeFiscal || "—"}</td>
                 <td className="text-[12px] text-muted-foreground">
-                  {p.phone || "â€”"}
-                  {p.email ? ` Â· ${p.email}` : ""}
+                  {p.phone || "—"}
+                  {p.email ? ` · ${p.email}` : ""}
                 </td>
                 <td className="text-right">{p.paymentTerms} j</td>
                 <td>
@@ -166,18 +166,18 @@ export default function Partners() {
             <input className="erp-input" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="CLI-001" />
           </Field>
           <Field label="Raison sociale">
-            <input className="erp-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="SociÃ©tÃ© Exemple SARL" />
+            <input className="erp-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Société Exemple SARL" />
           </Field>
           <Field label="Matricule fiscal">
             <input className="erp-input" value={form.matriculeFiscal} onChange={(e) => setForm({ ...form, matriculeFiscal: e.target.value })} placeholder="1234567/A/M/000" />
           </Field>
-          <Field label="TÃ©lÃ©phone">
+          <Field label="Téléphone">
             <input className="erp-input" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+216 71 000 000" />
           </Field>
           <Field label="E-mail">
             <input className="erp-input" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="contact@exemple.tn" />
           </Field>
-          <Field label="DÃ©lai de paiement (jours)">
+          <Field label="Délai de paiement (jours)">
             <input
               type="number"
               className="erp-input"
@@ -197,7 +197,7 @@ export default function Partners() {
             Annuler
           </button>
           <button className="erp-btn-gold" onClick={submit} disabled={create.isPending}>
-            {create.isPending ? "Enregistrementâ€¦" : "Enregistrer"}
+            {create.isPending ? "Enregistrement…" : "Enregistrer"}
           </button>
         </div>
       </Modal>

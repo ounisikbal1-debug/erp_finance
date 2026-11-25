@@ -8,9 +8,9 @@ type Props<T> = {
   title: string;
   subtitle?: string;
   company?: string;
-  /** Import activÃ© : reÃ§oit les lignes lues et renvoie un compte-rendu. */
+  /** Import activé : reçoit les lignes lues et renvoie un compte-rendu. */
   onImport?: (rows: Record<string, string>[]) => Promise<{ imported: number; errors: string[] }> | { imported: number; errors: string[] };
-  /** ModÃ¨le CSV Ã  tÃ©lÃ©charger pour l'import. */
+  /** Modèle CSV à télécharger pour l'import. */
   templateHeaders?: string[];
 };
 
@@ -64,17 +64,17 @@ export function ExportBar<T>({
     <div className="no-print">
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="mr-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Exporter</span>
-        <button className="erp-btn-ghost h-7 px-2 text-[11.5px]" onClick={() => exportExcel(rows, columns, basename)} disabled={rows.length === 0} title="TÃ©lÃ©charger en Excel (.xlsx)">
+        <button className="erp-btn-ghost h-7 px-2 text-[11.5px]" onClick={() => exportExcel(rows, columns, basename)} disabled={rows.length === 0} title="Télécharger en Excel (.xlsx)">
           Excel
         </button>
-        <button className="erp-btn-ghost h-7 px-2 text-[11.5px]" onClick={() => exportCsv(rows, columns, basename)} disabled={rows.length === 0} title="TÃ©lÃ©charger en CSV">
+        <button className="erp-btn-ghost h-7 px-2 text-[11.5px]" onClick={() => exportCsv(rows, columns, basename)} disabled={rows.length === 0} title="Télécharger en CSV">
           CSV
         </button>
         <button
           className="erp-btn-ghost h-7 px-2 text-[11.5px]"
           onClick={() => exportPdf(rows, columns, { title, subtitle, company })}
           disabled={rows.length === 0}
-          title="GÃ©nÃ©rer un PDF imprimable"
+          title="Générer un PDF imprimable"
         >
           PDF
         </button>
@@ -83,11 +83,11 @@ export function ExportBar<T>({
           <>
             <span className="ml-2 mr-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Importer</span>
             <button className="erp-btn-ghost h-7 px-2 text-[11.5px]" onClick={() => fileRef.current?.click()} disabled={busy}>
-              {busy ? "Lectureâ€¦" : "Excel / CSV"}
+              {busy ? "Lecture…" : "Excel / CSV"}
             </button>
             {templateHeaders && (
-              <button className="erp-btn-ghost h-7 px-2 text-[11.5px]" onClick={downloadTemplate} title="TÃ©lÃ©charger un modÃ¨le vierge">
-                ModÃ¨le
+              <button className="erp-btn-ghost h-7 px-2 text-[11.5px]" onClick={downloadTemplate} title="Télécharger un modèle vierge">
+                Modèle
               </button>
             )}
             <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls,text/csv" className="hidden" onChange={handleFile} />
@@ -103,13 +103,13 @@ export function ExportBar<T>({
               : "mt-2 rounded-lg border border-destructive/30 bg-danger-soft px-2.5 py-1.5 text-[11.5px] text-destructive"
           }
         >
-          <strong>{report.imported}</strong> ligne(s) importÃ©e(s).
+          <strong>{report.imported}</strong> ligne(s) importée(s).
           {report.errors.length > 0 && (
             <ul className="mt-1 list-inside list-disc space-y-0.5">
               {report.errors.slice(0, 6).map((e, i) => (
                 <li key={i}>{e}</li>
               ))}
-              {report.errors.length > 6 && <li>â€¦ et {report.errors.length - 6} autre(s).</li>}
+              {report.errors.length > 6 && <li>… et {report.errors.length - 6} autre(s).</li>}
             </ul>
           )}
         </div>

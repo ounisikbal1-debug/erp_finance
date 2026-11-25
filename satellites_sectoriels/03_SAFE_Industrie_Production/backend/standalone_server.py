@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 """
 SAFE ERP - MODULE 03 : INDUSTRIE & PRODUCTION (TUNISIE) - STANDALONE PORT 8003
-Articles produits finis Ã  fabriquer, dÃ©pÃ´ts, ordres de fabrication, valorisation stocks (SCE NC 01)
+Articles produits finis à fabriquer, dépôts, ordres de fabrication, valorisation stocks (SCE NC 01)
 """
 import os
 import sys
@@ -128,7 +128,7 @@ def init_db():
         )
     """)
     
-        # MatiÃ¨res PremiÃ¨res / Composants Usine (EXIGENCE 6)
+        # Matières Premières / Composants Usine (EXIGENCE 6)
     c.execute("""
         CREATE TABLE IF NOT EXISTS industrie_matieres_premieres (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -138,7 +138,7 @@ def init_db():
             unite TEXT DEFAULT 'KG',
             cout_achat_ht REAL DEFAULT 0,
             stock_actuel REAL DEFAULT 0,
-            depot_nom TEXT DEFAULT 'Magasin MatiÃ¨res'
+            depot_nom TEXT DEFAULT 'Magasin Matières'
         )
     """)
     c.execute("SELECT COUNT(*) FROM industrie_matieres_premieres")
@@ -147,9 +147,9 @@ def init_db():
             INSERT INTO industrie_matieres_premieres (code, designation, famille, unite, cout_achat_ht, stock_actuel, depot_nom)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, [
-            ("MP-ACIER-01", "TÃ´le Acier GalvanisÃ© 2mm", "MÃ©tallurgie", "FEUILLE", 45.0, 350.0, "Magasin MatiÃ¨res"),
-            ("MP-VIS-M8", "Boulons Haute RÃ©sistance M8x40", "Visserie", "PIECE", 0.35, 5000.0, "Magasin Visserie"),
-            ("MP-PEINT-GRIS", "Peinture Ã‰poxy Poudre Grise", "RevÃªtement", "KG", 18.5, 120.0, "Atelier Finition")
+            ("MP-ACIER-01", "Tôle Acier Galvanisé 2mm", "Métallurgie", "FEUILLE", 45.0, 350.0, "Magasin Matières"),
+            ("MP-VIS-M8", "Boulons Haute Résistance M8x40", "Visserie", "PIECE", 0.35, 5000.0, "Magasin Visserie"),
+            ("MP-PEINT-GRIS", "Peinture Époxy Poudre Grise", "Revêtement", "KG", 18.5, 120.0, "Atelier Finition")
         ])
 
     c.execute("""
@@ -209,7 +209,7 @@ def init_db():
     if c.fetchone()[0] == 0:
         c.execute("""
             INSERT INTO societe_config (raison_sociale, matricule_fiscal, registre_commerce, adresse, telephone, email, rib, devise)
-            VALUES ('SociÃ©tÃ© Industrielle MÃ©canique & Plastique Tunisienne - SIMPT SA', '1184950/K/A/000', 'B164822026', 'Zone Industrielle Ben Arous, 2013 Tunis', '+216 71 385 400', 'direction@simpt-industrie.tn', 'BNA 03 004 0001234567890 33', 'TND')
+            VALUES ('Société Industrielle Mécanique & Plastique Tunisienne - SIMPT SA', '1184950/K/A/000', 'B164822026', 'Zone Industrielle Ben Arous, 2013 Tunis', '+216 71 385 400', 'direction@simpt-industrie.tn', 'BNA 03 004 0001234567890 33', 'TND')
         """)
         
     c.execute("SELECT COUNT(*) FROM fiscal_params")
@@ -227,24 +227,24 @@ def init_db():
     if c.fetchone()[0] == 0:
         c.executemany("INSERT INTO industrie_depots (code, libelle, type_stock, adresse, responsable, actif) VALUES (?, ?, ?, ?, ?, 1)", [
             ("DEP-PF-01", "Magasin Produits Finis Usine", "PRODUITS_FINIS", "Atelier Principal Ben Arous", "M. Foued Cherif"),
-            ("DEP-MP-01", "DÃ©pÃ´t MatiÃ¨res PremiÃ¨res & GranulÃ©s", "MATIERES_PREMIERES", "BÃ¢timent Logistique Nord", "M. Adel Ben Mansour"),
+            ("DEP-MP-01", "Dépôt Matières Premières & Granulés", "MATIERES_PREMIERES", "Bâtiment Logistique Nord", "M. Adel Ben Mansour"),
             ("DEP-PIECES", "Magasin Composants & Quincaillerie", "COMPOSANTS", "Zone Outillage", "Mme. Fatma Zribi")
         ])
 
     c.execute("SELECT COUNT(*) FROM industrie_produits_finis")
     if c.fetchone()[0] == 0:
         c.executemany("INSERT INTO industrie_produits_finis (reference, designation, gamme, cout_revient_estime, prix_vente_ht, stock_actuel, depot_id) VALUES (?, ?, ?, ?, ?, ?, ?)", [
-            ("PF-INJ-001", "BoÃ®tier Ã‰lectrique Ã‰tanche IP65 Polycarbonate", "Injection Plastique", 14.800, 24.500, 350, 1),
-            ("PF-INJ-002", "Caisse Palette Plastique RenforcÃ©e 120x80", "Manutention", 62.000, 95.000, 80, 1),
-            ("PF-MEC-001", "Raccord Haute Pression Inox UsinÃ© 3/4", "Usinage CNC", 28.500, 46.000, 120, 1),
-            ("PF-MEC-002", "Plaque ChÃ¢ssis Support Moteur DÃ©coupÃ©e Laser", "TÃ´lerie & DÃ©coupe", 45.000, 72.000, 45, 1)
+            ("PF-INJ-001", "Boîtier Électrique Étanche IP65 Polycarbonate", "Injection Plastique", 14.800, 24.500, 350, 1),
+            ("PF-INJ-002", "Caisse Palette Plastique Renforcée 120x80", "Manutention", 62.000, 95.000, 80, 1),
+            ("PF-MEC-001", "Raccord Haute Pression Inox Usiné 3/4", "Usinage CNC", 28.500, 46.000, 120, 1),
+            ("PF-MEC-002", "Plaque Châssis Support Moteur Découpée Laser", "Tôlerie & Découpe", 45.000, 72.000, 45, 1)
         ])
 
     c.execute("SELECT COUNT(*) FROM industrie_ordres_fabrication")
     if c.fetchone()[0] == 0:
         c.execute("""
             INSERT INTO industrie_ordres_fabrication (numero_of, date_lancement, type_piece, reference_origine, produit_ref, produit_nom, quantite_a_fabriquer, cout_matiere_ht, cout_mo_ht, cout_total_ht, depot_destination, statut)
-            VALUES ('OF-2026-0001', '2026-11-19', 'ORDRE_FABRICATION', NULL, 'PF-INJ-001', 'BoÃ®tier Ã‰lectrique Ã‰tanche IP65 Polycarbonate', 100, 950.000, 530.000, 1480.000, 'Magasin Produits Finis Usine', 'TERMINE_EN_STOCK')
+            VALUES ('OF-2026-0001', '2026-11-19', 'ORDRE_FABRICATION', NULL, 'PF-INJ-001', 'Boîtier Électrique Étanche IP65 Polycarbonate', 100, 950.000, 530.000, 1480.000, 'Magasin Produits Finis Usine', 'TERMINE_EN_STOCK')
         """)
 
     conn.commit()
@@ -322,7 +322,7 @@ def license_status():
 @app.post("/api/license/activate")
 def license_activate(req: LicenseActivateReq):
     if not verify_license_key(req.license_key):
-        raise HTTPException(status_code=400, detail="ClÃ© de licence invalide pour ce poste")
+        raise HTTPException(status_code=400, detail="Clé de licence invalide pour ce poste")
     with open(LICENSE_FILE, "w", encoding="utf-8") as f:
         f.write(req.license_key.strip())
     return {"status": "ACTIVATED", "hardware_id": get_hardware_id()}
@@ -379,7 +379,7 @@ def add_depot(req: DepotCreateReq):
         conn.commit()
     except sqlite3.IntegrityError:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce code dÃ©pÃ´t existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Ce code dépôt existe déjà")
     conn.close()
     return {"success": True}
 
@@ -391,8 +391,8 @@ def delete_depot(depot_id: int):
     conn.close()
     return {"success": True}
 
-# --- PRODUITS FINIS Ã€ FABRIQUER ---
-# --- ROUTES MATIÃˆRES PREMIÃˆRES / COMPOSANTS (EXIGENCE 6) ---
+# --- PRODUITS FINIS À FABRIQUER ---
+# --- ROUTES MATIÈRES PREMIÈRES / COMPOSANTS (EXIGENCE 6) ---
 class MatierePremiereCreateReq(BaseModel):
     code: str
     designation: str
@@ -400,7 +400,7 @@ class MatierePremiereCreateReq(BaseModel):
     unite: str = "KG"
     cout_achat_ht: float = 0.0
     stock_actuel: float = 0.0
-    depot_nom: str = "Magasin MatiÃ¨res"
+    depot_nom: str = "Magasin Matières"
 
 @app.get("/api/matieres-premieres")
 def list_matieres():
@@ -420,7 +420,7 @@ def add_matiere(req: MatierePremiereCreateReq):
         conn.commit()
     except sqlite3.IntegrityError:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce code matiÃ¨re premiÃ¨re existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Ce code matière première existe déjà")
     conn.close()
     return {"success": True}
 
@@ -455,7 +455,7 @@ def add_produit_fini(req: ProduitFiniCreateReq):
         conn.commit()
     except sqlite3.IntegrityError:
         conn.close()
-        raise HTTPException(status_code=400, detail="Cette rÃ©fÃ©rence produit existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Cette référence produit existe déjà")
     conn.close()
     return {"success": True}
 
@@ -489,7 +489,7 @@ def create_of(req: OfCreateReq):
     today_str = date.today().isoformat()
     cout_total = req.cout_matiere + req.cout_mo
     
-    # EntrÃ©e en stock des produits finis fabriquÃ©s
+    # Entrée en stock des produits finis fabriqués
     c.execute("UPDATE industrie_produits_finis SET stock_actuel = stock_actuel + ? WHERE reference = ?", (req.quantite, req.produit_ref))
     
     c.execute("""
@@ -500,10 +500,10 @@ def create_of(req: OfCreateReq):
         ) VALUES (?, ?, 'ORDRE_FABRICATION', ?, ?, ?, ?, ?, ?, 'Magasin Produits Finis Usine', 'TERMINE_EN_STOCK')
     """, (num_of, today_str, pf["reference"], pf["designation"], req.quantite, req.cout_matiere, req.cout_mo, cout_total))
     
-    # Ã‰critures SCE NC 01 : DÃ©bit 355000 (Stocks de Produits Finis) / CrÃ©dit 713500 (Variation des Stocks de Produits)
+    # Écritures SCE NC 01 : Débit 355000 (Stocks de Produits Finis) / Crédit 713500 (Variation des Stocks de Produits)
     ecritures = [
         (today_str, "PR", num_of, "355000", "Stocks de Produits Finis", f"Production {req.quantite}x {pf['reference']}", cout_total, 0),
-        (today_str, "PR", num_of, "713500", "Variation des Stocks de Produits", "Production StockÃ©e RÃ©elle", 0, cout_total)
+        (today_str, "PR", num_of, "713500", "Variation des Stocks de Produits", "Production Stockée Réelle", 0, cout_total)
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
     conn.commit()
@@ -523,7 +523,7 @@ def emettre_avoir_of(id: int):
     num_av = f"AV-OF-2026-{count_av:04d}"
     today_str = date.today().isoformat()
     
-    # DÃ©crÃ©mentation du stock
+    # Décrémentation du stock
     c.execute("UPDATE industrie_produits_finis SET stock_actuel = stock_actuel - ? WHERE reference = ?", (of_row["quantite_a_fabriquer"], of_row["produit_ref"]))
     
     c.execute("""
@@ -537,7 +537,7 @@ def emettre_avoir_of(id: int):
     # Extourne comptable
     ecritures_extourne = [
         (today_str, "OD", num_av, "713500", "Variation des Stocks de Produits", f"Annulation OF {num_av}", of_row["cout_total_ht"], 0),
-        (today_str, "OD", num_av, "355000", "Stocks de Produits Finis", f"DÃ©stockage Annulation {num_av}", 0, of_row["cout_total_ht"])
+        (today_str, "OD", num_av, "355000", "Stocks de Produits Finis", f"Déstockage Annulation {num_av}", 0, of_row["cout_total_ht"])
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures_extourne)
     conn.commit()
@@ -558,7 +558,7 @@ def reset_operational_data(req: ResetReq):
     c.execute("UPDATE industrie_produits_finis SET stock_actuel = 0")
     conn.commit()
     conn.close()
-    return {"success": True, "message": "Mouvements de production et Ã©critures comptables remis Ã  zÃ©ro"}
+    return {"success": True, "message": "Mouvements de production et écritures comptables remis à zéro"}
 
 # --- GESTION DES UTILISATEURS (ADMIN ONLY) ---
 class UserCreateReq(BaseModel):
@@ -585,7 +585,7 @@ def add_user(req: UserCreateReq):
         conn.commit()
     except sqlite3.IntegrityError:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce nom d'utilisateur existe dÃ©jÃ ")
+        raise HTTPException(status_code=400, detail="Ce nom d'utilisateur existe déjà")
     conn.close()
     return {"success": True}
 
@@ -628,7 +628,7 @@ if __name__ == "__main__":
     print(f" Port Local           : {PORT}")
     print(f" Verrou Hardware ID   : {hw_id}")
     print(f" Cryptographie        : HMAC-SHA256")
-    print(f" Normes Fiscales      : TND (3 dÃ©c.) | SCE NC 01")
+    print(f" Normes Fiscales      : TND (3 déc.) | SCE NC 01")
     print("=" * 70)
     threading.Timer(1.5, lambda: webbrowser.open(f"http://localhost:{PORT}")).start()
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="info")

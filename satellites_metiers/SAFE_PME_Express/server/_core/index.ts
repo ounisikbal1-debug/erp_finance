@@ -1,6 +1,6 @@
 ﻿import "dotenv/config"; // load .env into process.env before env.ts reads it.
 // No-op when .env is absent (platform injects real env) and never overrides
-// already-set vars â€” so it's safe in prod. MUST stay the first import.
+// already-set vars — so it's safe in prod. MUST stay the first import.
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { trpcServer } from "@hono/trpc-server";
@@ -16,7 +16,7 @@ const app = new Hono();
 
 app.get("/api/health", (c) => c.json({ ok: true }));
 
-// tRPC â€” all app business endpoints live under /trpc (agent writes routers.ts).
+// tRPC — all app business endpoints live under /trpc (agent writes routers.ts).
 app.use(
   "/trpc/*",
   trpcServer({
@@ -25,18 +25,18 @@ app.use(
   }),
 );
 
-// Scoped per-app file storage (DESIGN Â§5.6): 307 â†’ short-lived signed S3 URL.
+// Scoped per-app file storage (DESIGN §5.6): 307 → short-lived signed S3 URL.
 app.all("/app-storage/*", (c) => serveAppStorage(c));
 
-// Platform-signed scheduled-job callback (DESIGN Â§8.4). The body runs in THIS
+// Platform-signed scheduled-job callback (DESIGN §8.4). The body runs in THIS
 // app's runtime; the platform only triggers on schedule. Until the platform
 // signature scheme exists we REQUIRE (and, later, verify) a signature header,
 // so a registered job can never be triggered by an anonymous caller.
-// TODO(Â§8.4): replace the presence check with real HMAC verification.
+// TODO(§8.4): replace the presence check with real HMAC verification.
 app.post("/api/_jobs/:name", async (c) => {
   const signature = c.req.header("x-platform-signature");
   if (!signature /* || !verifyPlatformSignature(c, signature) */) {
-    return c.text("unauthorized (job callback signature required â€” DESIGN Â§8.4)", 401);
+    return c.text("unauthorized (job callback signature required — DESIGN §8.4)", 401);
   }
   const handler = getJob(c.req.param("name"));
   if (!handler) return c.text("no such job", 404);
