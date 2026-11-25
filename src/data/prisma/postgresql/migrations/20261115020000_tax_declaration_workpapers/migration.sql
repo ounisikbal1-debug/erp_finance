@@ -1,4 +1,4 @@
-CREATE TABLE "TaxDeclarationWorkpaper" (
+﻿CREATE TABLE "TaxDeclarationWorkpaper" (
     "id" TEXT NOT NULL,
     "entityId" TEXT NOT NULL,
     "period" TEXT NOT NULL,

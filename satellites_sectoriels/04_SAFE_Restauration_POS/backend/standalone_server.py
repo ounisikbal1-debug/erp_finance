@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-SAFE ERP - MODULE 04 : RESTAURATION, CAFÉ & PÂTISSERIE POS (TUNISIE) - STANDALONE PORT 8004
-Point de Vente tactile, Menu restaurant & pâtisserie riche, Tables & Comptoir, TVA 7%/19%, SCE NC 01
+SAFE ERP - MODULE 04 : RESTAURATION, CAFÃ‰ & PÃ‚TISSERIE POS (TUNISIE) - STANDALONE PORT 8004
+Point de Vente tactile, Menu restaurant & pÃ¢tisserie riche, Tables & Comptoir, TVA 7%/19%, SCE NC 01
 """
 import os
 import sys
@@ -186,7 +186,7 @@ def init_db():
     if c.fetchone()[0] == 0:
         c.execute("""
             INSERT INTO societe_config (raison_sociale, matricule_fiscal, registre_commerce, adresse, telephone, email, rib, devise)
-            VALUES ('Restaurant & Pâtisserie Fine Les Saveurs de Carthage SARL', '1428590/M/C/000', 'B184952026', 'Avenue Habib Bourguiba, 2016 Carthage Tunis', '+216 71 730 400', 'carthage@saveurs-tunisie.tn', 'ATB 01 003 0001234567890 22', 'TND')
+            VALUES ('Restaurant & PÃ¢tisserie Fine Les Saveurs de Carthage SARL', '1428590/M/C/000', 'B184952026', 'Avenue Habib Bourguiba, 2016 Carthage Tunis', '+216 71 730 400', 'carthage@saveurs-tunisie.tn', 'ATB 01 003 0001234567890 22', 'TND')
         """)
         
     c.execute("SELECT COUNT(*) FROM fiscal_params")
@@ -219,54 +219,54 @@ def init_db():
         ]
         c.executemany("INSERT INTO pos_tables (numero_table, zone, capacite, statut, actif) VALUES (?, ?, ?, 'LIBRE', 1)", tables_data)
 
-    # Menu Restaurant & Pâtisserie Très Large (37 articles)
+    # Menu Restaurant & PÃ¢tisserie TrÃ¨s Large (37 articles)
     c.execute("SELECT COUNT(*) FROM pos_menu_items")
     if c.fetchone()[0] == 0:
         menu_data = [
-            # ENTRÉES & SALADES
-            ("ENTREES", "M-ENT-01", "Salade Méchouia Traditionnelle au Thon", 8.500, 7.0),
-            ("ENTREES", "M-ENT-02", "Salade Tunisienne aux Légumes Frais", 6.500, 7.0),
-            ("ENTREES", "M-ENT-03", "Brik à l'Œuf & Thon de Mahdia", 4.500, 7.0),
+            # ENTRÃ‰ES & SALADES
+            ("ENTREES", "M-ENT-01", "Salade MÃ©chouia Traditionnelle au Thon", 8.500, 7.0),
+            ("ENTREES", "M-ENT-02", "Salade Tunisienne aux LÃ©gumes Frais", 6.500, 7.0),
+            ("ENTREES", "M-ENT-03", "Brik Ã  l'Å’uf & Thon de Mahdia", 4.500, 7.0),
             ("ENTREES", "M-ENT-04", "Brik aux Crevettes Royales", 7.500, 7.0),
             ("ENTREES", "M-ENT-05", "Ojja Traditionnelle Merguez Maison", 14.000, 7.0),
             ("ENTREES", "M-ENT-06", "Ojja Fruits de Mer (Crevettes & Calamars)", 22.000, 7.0),
             ("ENTREES", "M-ENT-07", "Soupe Poissons & Langoustines du Golfe", 12.500, 7.0),
 
             # PLATS PRINCIPAUX TRADITIONNELS & INTERNATIONAUX
-            ("PLATS", "M-PLT-01", "Couscous Royal à l'Agneau de Sidi Bouzid", 28.000, 7.0),
-            ("PLATS", "M-PLT-02", "Couscous Poisson Mérou à la Sfaxienne", 34.000, 7.0),
-            ("PLATS", "M-PLT-03", "Pâtes Tunisiennes aux Fruits de Mer Épicées", 26.500, 7.0),
-            ("PLATS", "M-PLT-04", "Loup de Mer Entier Grillé au Feu de Bois", 32.000, 7.0),
-            ("PLATS", "M-PLT-05", "Daurade Royale Grillée & Pommes Vapeur", 29.000, 7.0),
-            ("PLATS", "M-PLT-06", "Filet de Bœuf Grillé Sauce Poivre Vert", 38.000, 7.0),
-            ("PLATS", "M-PLT-07", "Escalope Cordon Bleu Maison Crème Champignons", 19.500, 7.0),
-            ("PLATS", "M-PLT-08", "Kamounia Tunisienne à la Viande Tendre", 18.000, 7.0),
+            ("PLATS", "M-PLT-01", "Couscous Royal Ã  l'Agneau de Sidi Bouzid", 28.000, 7.0),
+            ("PLATS", "M-PLT-02", "Couscous Poisson MÃ©rou Ã  la Sfaxienne", 34.000, 7.0),
+            ("PLATS", "M-PLT-03", "PÃ¢tes Tunisiennes aux Fruits de Mer Ã‰picÃ©es", 26.500, 7.0),
+            ("PLATS", "M-PLT-04", "Loup de Mer Entier GrillÃ© au Feu de Bois", 32.000, 7.0),
+            ("PLATS", "M-PLT-05", "Daurade Royale GrillÃ©e & Pommes Vapeur", 29.000, 7.0),
+            ("PLATS", "M-PLT-06", "Filet de BÅ“uf GrillÃ© Sauce Poivre Vert", 38.000, 7.0),
+            ("PLATS", "M-PLT-07", "Escalope Cordon Bleu Maison CrÃ¨me Champignons", 19.500, 7.0),
+            ("PLATS", "M-PLT-08", "Kamounia Tunisienne Ã  la Viande Tendre", 18.000, 7.0),
 
             # PIZZAS & SNACKS
             ("PIZZAS", "M-PIZ-01", "Pizza Margherita Tomate Mozzarella Basilic", 13.500, 7.0),
-            ("PIZZAS", "M-PIZ-02", "Pizza Thon & Câpres de Kerkennah", 16.500, 7.0),
+            ("PIZZAS", "M-PIZ-02", "Pizza Thon & CÃ¢pres de Kerkennah", 16.500, 7.0),
             ("PIZZAS", "M-PIZ-03", "Pizza Fruits de Mer & Ail Confit", 24.000, 7.0),
-            ("PIZZAS", "M-PIZ-04", "Pizza 4 Fromages Affinés", 19.000, 7.0),
+            ("PIZZAS", "M-PIZ-04", "Pizza 4 Fromages AffinÃ©s", 19.000, 7.0),
 
-            # BOISSONS & CAFÉ
-            ("BOISSONS", "M-BOI-01", "Café Express Lavazza Torréfié", 2.800, 7.0),
-            ("BOISSONS", "M-BOI-02", "Café Direct / Capucin Mousseux", 3.200, 7.0),
-            ("BOISSONS", "M-BOI-03", "Thé à la Menthe Fraîche & Pignons", 4.500, 7.0),
-            ("BOISSONS", "M-BOI-04", "Thé aux Amandes Grillées", 4.000, 7.0),
-            ("BOISSONS", "M-BOI-05", "Jus d'Orange Frais Pressé 33cl", 5.500, 7.0),
+            # BOISSONS & CAFÃ‰
+            ("BOISSONS", "M-BOI-01", "CafÃ© Express Lavazza TorrÃ©fiÃ©", 2.800, 7.0),
+            ("BOISSONS", "M-BOI-02", "CafÃ© Direct / Capucin Mousseux", 3.200, 7.0),
+            ("BOISSONS", "M-BOI-03", "ThÃ© Ã  la Menthe FraÃ®che & Pignons", 4.500, 7.0),
+            ("BOISSONS", "M-BOI-04", "ThÃ© aux Amandes GrillÃ©es", 4.000, 7.0),
+            ("BOISSONS", "M-BOI-05", "Jus d'Orange Frais PressÃ© 33cl", 5.500, 7.0),
             ("BOISSONS", "M-BOI-06", "Citronnade Maison aux Amandes", 6.000, 7.0),
-            ("BOISSONS", "M-BOI-07", "Eau Minérale Safia 1L", 2.000, 7.0),
-            ("BOISSONS", "M-BOI-08", "Soda Gazéifié Canette 24cl", 3.000, 7.0),
+            ("BOISSONS", "M-BOI-07", "Eau MinÃ©rale Safia 1L", 2.000, 7.0),
+            ("BOISSONS", "M-BOI-08", "Soda GazÃ©ifiÃ© Canette 24cl", 3.000, 7.0),
 
-            # PÂTISSERIE TUNISIENNE & DESSERTS FINS
+            # PÃ‚TISSERIE TUNISIENNE & DESSERTS FINS
             ("PATISSERIE", "M-PAT-01", "Assortiment Baklawa Tunisienne aux Pistaches", 7.500, 7.0),
             ("PATISSERIE", "M-PAT-02", "Kaak Warka Traditionnel Zaghouan", 5.000, 7.0),
-            ("PATISSERIE", "M-PAT-03", "Assida Zgougou Crème & Noisettes", 8.000, 7.0),
+            ("PATISSERIE", "M-PAT-03", "Assida Zgougou CrÃ¨me & Noisettes", 8.000, 7.0),
             ("PATISSERIE", "M-PAT-04", "Mille-Feuille Croustillant Vanille Bourbon", 4.500, 7.0),
-            ("PATISSERIE", "M-PAT-05", "Cheesecake Framboise & Spéculoos", 7.000, 7.0),
-            ("PATISSERIE", "M-PAT-06", "Fondant au Chocolat Noir Cœur Coulant", 8.500, 7.0),
+            ("PATISSERIE", "M-PAT-05", "Cheesecake Framboise & SpÃ©culoos", 7.000, 7.0),
+            ("PATISSERIE", "M-PAT-06", "Fondant au Chocolat Noir CÅ“ur Coulant", 8.500, 7.0),
             ("PATISSERIE", "M-PAT-07", "Corbeille de Makroudh Kairouanais", 4.000, 7.0),
-            ("PATISSERIE", "M-PAT-08", "Zrir Tunisien au Sésame & Noisettes", 6.500, 7.0)
+            ("PATISSERIE", "M-PAT-08", "Zrir Tunisien au SÃ©same & Noisettes", 6.500, 7.0)
         ]
         c.executemany("INSERT INTO pos_menu_items (categorie, code, nom, prix_ttc, taux_tva, actif) VALUES (?, ?, ?, ?, ?, 1)", menu_data)
 
@@ -348,7 +348,7 @@ def license_status():
 @app.post("/api/license/activate")
 def license_activate(req: LicenseActivateReq):
     if not verify_license_key(req.license_key):
-        raise HTTPException(status_code=400, detail="Clé de licence invalide pour ce poste")
+        raise HTTPException(status_code=400, detail="ClÃ© de licence invalide pour ce poste")
     with open(LICENSE_FILE, "w", encoding="utf-8") as f:
         f.write(req.license_key.strip())
     return {"status": "ACTIVATED", "hardware_id": get_hardware_id()}
@@ -406,7 +406,7 @@ def add_table(req: TableCreateReq):
         conn.commit()
     except sqlite3.IntegrityError:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce nom ou numéro de table existe déjà")
+        raise HTTPException(status_code=400, detail="Ce nom ou numÃ©ro de table existe dÃ©jÃ ")
     conn.close()
     return {"success": True}
 
@@ -418,7 +418,7 @@ def delete_table(id: int):
     conn.close()
     return {"success": True}
 
-# --- MENU & CARTE DU RESTAURANT / PÂTISSERIE (AJOUT, MODIF, SUPPR) ---
+# --- MENU & CARTE DU RESTAURANT / PÃ‚TISSERIE (AJOUT, MODIF, SUPPR) ---
 @app.get("/api/pos/menu")
 def list_menu():
     conn = get_db()
@@ -437,7 +437,7 @@ def add_menu_item(req: MenuItemCreateReq):
         conn.commit()
     except sqlite3.IntegrityError:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce code article existe déjà")
+        raise HTTPException(status_code=400, detail="Ce code article existe dÃ©jÃ ")
     conn.close()
     return {"success": True}
 
@@ -471,7 +471,7 @@ def list_commandes():
 @app.post("/api/pos/commandes")
 def create_commande(req: CreateCommandeReq):
     if not req.lignes:
-        raise HTTPException(status_code=400, detail="Veuillez sélectionner au moins un article")
+        raise HTTPException(status_code=400, detail="Veuillez sÃ©lectionner au moins un article")
     conn = get_db()
     c = conn.cursor()
     
@@ -492,11 +492,11 @@ def create_commande(req: CreateCommandeReq):
     """, (num_ticket, today_str, req.table_numero, req.client_nom, req.client_mf,
           json.dumps([l.dict() for l in req.lignes]), tot_ht, tot_tva, tot_ttc, req.mode_reglement))
     
-    # Écritures comptables SCE NC 01 : Caisse 541 / Ventes Restauration 707 & TVA 4367
+    # Ã‰critures comptables SCE NC 01 : Caisse 541 / Ventes Restauration 707 & TVA 4367
     ecritures = [
         (today_str, "CA", num_ticket, "541100", "Caisse Principale Restaurant", f"Ticket {num_ticket} {req.table_numero}", tot_ttc, 0),
-        (today_str, "CA", num_ticket, "707000", "Ventes Restauration & Pâtisserie", "Recettes Journée HT", 0, tot_ht),
-        (today_str, "CA", num_ticket, "436710", "TVA Collectée Restauration (7%)", "TVA sur Ventes Caisse", 0, tot_tva)
+        (today_str, "CA", num_ticket, "707000", "Ventes Restauration & PÃ¢tisserie", "Recettes JournÃ©e HT", 0, tot_ht),
+        (today_str, "CA", num_ticket, "436710", "TVA CollectÃ©e Restauration (7%)", "TVA sur Ventes Caisse", 0, tot_tva)
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures)
     conn.commit()
@@ -526,8 +526,8 @@ def emettre_avoir_ticket(id: int):
     
     # Extourne caisse
     ecritures_extourne = [
-        (today_str, "CA", num_av, "707000", "Ventes Restauration & Pâtisserie", f"Annulation Recette {num_av}", tck["total_ht"], 0),
-        (today_str, "CA", num_av, "436710", "TVA Collectée Restauration (7%)", f"Annulation TVA {num_av}", tck["total_tva"], 0),
+        (today_str, "CA", num_av, "707000", "Ventes Restauration & PÃ¢tisserie", f"Annulation Recette {num_av}", tck["total_ht"], 0),
+        (today_str, "CA", num_av, "436710", "TVA CollectÃ©e Restauration (7%)", f"Annulation TVA {num_av}", tck["total_tva"], 0),
         (today_str, "CA", num_av, "541100", "Caisse Principale Restaurant", f"Remboursement Caisse {num_av}", 0, tck["total_ttc"])
     ]
     c.executemany("INSERT INTO ecritures_comptables (date_ecriture, journal, piece_ref, compte, libelle_compte, libelle_operation, debit, credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ecritures_extourne)
@@ -548,7 +548,7 @@ def reset_operational_data(req: ResetReq):
     c.execute("DELETE FROM ecritures_comptables")
     conn.commit()
     conn.close()
-    return {"success": True, "message": "Tickets de caisse et écritures comptables remis à zéro"}
+    return {"success": True, "message": "Tickets de caisse et Ã©critures comptables remis Ã  zÃ©ro"}
 
 # --- GESTION DES UTILISATEURS (ADMIN ONLY) ---
 class UserCreateReq(BaseModel):
@@ -575,7 +575,7 @@ def add_user(req: UserCreateReq):
         conn.commit()
     except sqlite3.IntegrityError:
         conn.close()
-        raise HTTPException(status_code=400, detail="Ce nom d'utilisateur existe déjà")
+        raise HTTPException(status_code=400, detail="Ce nom d'utilisateur existe dÃ©jÃ ")
     conn.close()
     return {"success": True}
 
@@ -618,7 +618,7 @@ if __name__ == "__main__":
     print(f" Port Local           : {PORT}")
     print(f" Verrou Hardware ID   : {hw_id}")
     print(f" Cryptographie        : HMAC-SHA256")
-    print(f" Normes Fiscales      : TND (3 déc.) | TVA 7% | SCE NC 01")
+    print(f" Normes Fiscales      : TND (3 dÃ©c.) | TVA 7% | SCE NC 01")
     print("=" * 70)
     threading.Timer(1.5, lambda: webbrowser.open(f"http://localhost:{PORT}")).start()
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="info")

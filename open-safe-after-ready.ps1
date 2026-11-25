@@ -1,8 +1,8 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 
 $healthUrl = 'http://127.0.0.1:3000/health'
 $uiUrl = 'http://127.0.0.1:5176/'
-$lastError = 'Aucune réponse de SAFE.'
+$lastError = 'Aucune rÃ©ponse de SAFE.'
 
 for ($attempt = 0; $attempt -lt 90; $attempt += 1) {
   $isReady = $false
@@ -13,10 +13,10 @@ for ($attempt = 0; $attempt -lt 90; $attempt += 1) {
       if ($page.StatusCode -eq 200) {
         $isReady = $true
       } else {
-        $lastError = "L’interface a répondu avec le statut HTTP $($page.StatusCode)."
+        $lastError = "Lâ€™interface a rÃ©pondu avec le statut HTTP $($page.StatusCode)."
       }
     } else {
-      $lastError = 'Le contrôle de santé de l’API n’est pas encore prêt.'
+      $lastError = 'Le contrÃ´le de santÃ© de lâ€™API nâ€™est pas encore prÃªt.'
     }
   } catch {
     $lastError = $_.Exception.Message
@@ -27,11 +27,11 @@ for ($attempt = 0; $attempt -lt 90; $attempt += 1) {
       Start-Process -FilePath $uiUrl
       return
     } catch {
-      throw "SAFE est prêt, mais le navigateur n’a pas pu être ouvert : $($_.Exception.Message)"
+      throw "SAFE est prÃªt, mais le navigateur nâ€™a pas pu Ãªtre ouvert : $($_.Exception.Message)"
     }
   }
 
   Start-Sleep -Seconds 1
 }
 
-throw "SAFE n’est pas devenu disponible après 90 secondes. Dernière erreur : $lastError"
+throw "SAFE nâ€™est pas devenu disponible aprÃ¨s 90 secondes. DerniÃ¨re erreur : $lastError"

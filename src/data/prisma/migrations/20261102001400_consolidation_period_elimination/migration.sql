@@ -1,4 +1,4 @@
-CREATE TABLE "ConsolidationEliminationConfirmation" (
+﻿CREATE TABLE "ConsolidationEliminationConfirmation" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "groupId" TEXT NOT NULL,
   "period" TEXT NOT NULL,

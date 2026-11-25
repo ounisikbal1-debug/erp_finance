@@ -1,4 +1,4 @@
-SAFE FINANCE - DOSSIER FORMATIONS
+﻿SAFE FINANCE - DOSSIER FORMATIONS
 =======================================
 
 Ce dossier contient le MODELE DE FORMATION COMPLET (port 5200).

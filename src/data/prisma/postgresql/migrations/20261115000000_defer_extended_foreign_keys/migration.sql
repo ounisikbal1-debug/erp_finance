@@ -1,4 +1,4 @@
-ALTER TABLE "CustomsTariffRate" ALTER CONSTRAINT "CustomsTariffRate_countryId_fkey" DEFERRABLE INITIALLY DEFERRED;
+﻿ALTER TABLE "CustomsTariffRate" ALTER CONSTRAINT "CustomsTariffRate_countryId_fkey" DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE "EquipmentVehicleAssignment" ALTER CONSTRAINT "EquipmentVehicleAssignment_equipmentId_entityId_fkey" DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE "EquipmentVehicleAssignment" ALTER CONSTRAINT "EquipmentVehicleAssignment_employeeId_entityId_fkey" DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE "EquipmentVehicleAssignment" ALTER CONSTRAINT "EquipmentVehicleAssignment_entityId_fkey" DEFERRABLE INITIALLY DEFERRED;

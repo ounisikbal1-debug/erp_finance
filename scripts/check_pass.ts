@@ -1,4 +1,4 @@
-import prisma from '../src/data/prisma/client';
+﻿import prisma from '../src/data/prisma/client';
 import { verifyPassword } from '../src/application/security/passwords';
 
 async function test() {

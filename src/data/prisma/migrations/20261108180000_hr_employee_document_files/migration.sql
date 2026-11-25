@@ -1,4 +1,4 @@
-CREATE TABLE "EmployeeDocumentFile" (
+﻿CREATE TABLE "EmployeeDocumentFile" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "documentId" TEXT NOT NULL,
     "storageKey" TEXT NOT NULL,

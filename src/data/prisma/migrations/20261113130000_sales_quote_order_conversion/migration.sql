@@ -1,4 +1,4 @@
-CREATE UNIQUE INDEX "SalesQuote_id_entityId_key" ON "SalesQuote"("id", "entityId");
+﻿CREATE UNIQUE INDEX "SalesQuote_id_entityId_key" ON "SalesQuote"("id", "entityId");
 
 CREATE TABLE "SalesQuoteOrderConversion" (
     "id" TEXT NOT NULL PRIMARY KEY,

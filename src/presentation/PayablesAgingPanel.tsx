@@ -228,7 +228,7 @@ export default function PayablesAgingPanel({
           <strong>{data.entity.name} · avoirs comptabilisés : {amount(data.totals.credited, data.entity.currencyCode)} · total restant dû : {amount(data.totals.outstanding, data.entity.currencyCode)}</strong>
           {data.coverage.invalidInvoiceCount > 0 && (
             <p role="status" style={{ color: '#0284C7', margin: '8px 0', fontSize: '0.82rem', background: '#F0F9FF', padding: '6px 10px', borderRadius: '6px' }}>
-              ℹ️ {data.coverage.invalidInvoiceCount} pièce(s) ajustée(s) selon les écritures de règlement réelles. Les totaux sont à jour.
+              ℹï¸ {data.coverage.invalidInvoiceCount} pièce(s) ajustée(s) selon les écritures de règlement réelles. Les totaux sont à jour.
             </p>
           )}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, margin: '12px 0', fontSize: 13 }}>

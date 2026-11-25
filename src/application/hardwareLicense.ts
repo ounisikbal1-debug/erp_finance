@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
-export const MODULE_CODE_GLOBAL = "SAFE_ERP_GLOBAL";
+export const MODULE_CODE_GLOBAL = "SAFE_Grandes_Entreprises";
 export const SECRET_SALT = Buffer.from("SAFE_ERP_TUNISIE_2026_MASTER_HMAC_KEY_#991", "utf-8");
 
 const progData = process.env.PROGRAMDATA || path.join(os.homedir(), "AppData", "Roaming");
@@ -76,7 +76,7 @@ export function verifyLicenseKey(key: string, moduleCode: string, hwId: string):
       return { valid: false, info: `Licence expirée le ${expDate.toISOString().slice(0, 10)}` };
     }
 
-    // Accepter la clé si elle valide soit le module spécifique, soit la clé globale SAFE_ERP_GLOBAL
+    // Accepter la clé si elle valide soit le module spécifique, soit la clé globale SAFE_Grandes_Entreprises
     const expectedKey = computeValidLicense(moduleCode, hwId, expStr);
     const expectedGlobalKey = computeValidLicense(MODULE_CODE_GLOBAL, hwId, expStr);
 
@@ -141,3 +141,5 @@ export function saveSystemLicense(key: string, moduleCode = MODULE_CODE_GLOBAL):
     return { success: false, message: `Impossible d'enregistrer la licence: ${err.message}` };
   }
 }
+
+

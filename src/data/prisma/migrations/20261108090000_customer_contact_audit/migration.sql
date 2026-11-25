@@ -1,4 +1,4 @@
-CREATE TABLE "CustomerContactChange" (
+﻿CREATE TABLE "CustomerContactChange" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "customerId" TEXT NOT NULL,
   "field" TEXT NOT NULL,

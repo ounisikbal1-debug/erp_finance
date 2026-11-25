@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3').verbose();
+﻿const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('src/data/data.db');
 
 db.all('SELECT id, entryNumber, date, createdAt, approvedAt, postedAt FROM JournalEntry WHERE entityId = "f3a4d90d-440c-4f3c-9c56-ae72507ca6c2"', (err, rows) => {

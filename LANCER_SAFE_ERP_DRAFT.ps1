@@ -1,4 +1,4 @@
-param(
+﻿param(
   [ValidateRange(1, 65535)]
   [int]$Port = 3300
 )
@@ -19,13 +19,13 @@ function Write-StartupLog([string]$Message) {
 $databasePath = Join-Path $root 'src\data\data.db'
 if (-not (Test-Path -LiteralPath $databasePath -PathType Leaf)) {
   Write-StartupLog "ERROR: draft database missing at $databasePath; refusing to start."
-  throw 'La base privée du draft est absente; initialisez-la avant le démarrage.'
+  throw 'La base privÃ©e du draft est absente; initialisez-la avant le dÃ©marrage.'
 }
 
 $listener = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
 if ($listener) {
   Write-StartupLog "ERROR: port $Port is already in use; no existing process was stopped."
-  throw "Le port $Port est déjà utilisé; aucun processus existant n’a été arrêté."
+  throw "Le port $Port est dÃ©jÃ  utilisÃ©; aucun processus existant nâ€™a Ã©tÃ© arrÃªtÃ©."
 }
 
 $rng = [Security.Cryptography.RandomNumberGenerator]::Create()
@@ -54,7 +54,7 @@ for ($attempt = 0; $attempt -lt 60; $attempt++) {
   Start-Sleep -Seconds 1
   if ($server.HasExited) {
     Write-StartupLog "ERROR: server process exited with code $($server.ExitCode); see $stderrPath."
-    throw "Le serveur SAFE_ERP-DRAFT s’est arrêté. Consultez $stderrPath."
+    throw "Le serveur SAFE_ERP-DRAFT sâ€™est arrÃªtÃ©. Consultez $stderrPath."
   }
   try {
     $health = Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:$Port/health" -TimeoutSec 2
@@ -69,7 +69,7 @@ for ($attempt = 0; $attempt -lt 60; $attempt++) {
 
 if (-not $ready) {
   Write-StartupLog "ERROR: server on port $Port did not become ready within 60 seconds; see $stderrPath."
-  throw "Le serveur SAFE_ERP-DRAFT n’a pas répondu après 60 secondes. Consultez $stderrPath."
+  throw "Le serveur SAFE_ERP-DRAFT nâ€™a pas rÃ©pondu aprÃ¨s 60 secondes. Consultez $stderrPath."
 }
 
 Write-StartupLog "Server ready; opening http://127.0.0.1:$Port."

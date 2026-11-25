@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 
 $launcherPath = Join-Path $PSScriptRoot 'start-safe-from-favorite.ps1'
 if (-not (Test-Path -LiteralPath $launcherPath -PathType Leaf)) {

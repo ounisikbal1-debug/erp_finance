@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 
 $launcherPath = Join-Path $PSScriptRoot 'start-safe-from-favorite.ps1'
 $powerShell = (Get-Command powershell.exe -ErrorAction Stop).Source
@@ -7,7 +7,7 @@ $protocolPath = 'Software\Classes\safe-erp-local'
 $commandKeyPath = "HKCU:\$protocolPath\shell\open\command"
 
 if (-not (Test-Path -LiteralPath $commandKeyPath)) {
-  Write-Host 'Aucun protocole SAFE n’est actuellement enregistré.'
+  Write-Host 'Aucun protocole SAFE nâ€™est actuellement enregistrÃ©.'
   return
 }
 
@@ -19,8 +19,8 @@ try {
 }
 
 if ($registeredCommand -ne $expectedCommand) {
-  throw 'L’association du protocole a changé; suppression refusée pour ne pas supprimer une commande tierce.'
+  throw 'Lâ€™association du protocole a changÃ©; suppression refusÃ©e pour ne pas supprimer une commande tierce.'
 }
 
 Remove-Item -LiteralPath "HKCU:\$protocolPath" -Recurse
-Write-Host 'L’association SAFE a été supprimée pour votre compte Windows. Le serveur déjà lancé n’a pas été arrêté.'
+Write-Host 'Lâ€™association SAFE a Ã©tÃ© supprimÃ©e pour votre compte Windows. Le serveur dÃ©jÃ  lancÃ© nâ€™a pas Ã©tÃ© arrÃªtÃ©.'

@@ -1,4 +1,4 @@
-CREATE TABLE "Project" (
+﻿CREATE TABLE "Project" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "entityId" TEXT NOT NULL,
   "projectCode" TEXT NOT NULL,

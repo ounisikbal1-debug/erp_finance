@@ -1,17 +1,17 @@
-# Module Finance (FI)
+﻿# Module Finance (FI)
 
 ## Description
-Gestion de la comptabilité générale, comptes fournisseurs, comptes clients, facturation et trésorerie.
+Gestion de la comptabilitÃ© gÃ©nÃ©rale, comptes fournisseurs, comptes clients, facturation et trÃ©sorerie.
 
 ## API (Express)
 ```ts
 import { Router } from 'express';
 const router = Router();
 
-// Exemple de route: création d'une facture
+// Exemple de route: crÃ©ation d'une facture
 router.post('/invoices', (req, res) => {
   // TODO: validation, persistance
-  res.status(201).json({ message: 'Facture créée' });
+  res.status(201).json({ message: 'Facture crÃ©Ã©e' });
 });
 
 export default router;
@@ -20,9 +20,9 @@ export default router;
 ## Service (business logic)
 ```ts
 export class FinanceService {
-  // TODO: implémenter les méthodes
+  // TODO: implÃ©menter les mÃ©thodes
   async createInvoice(data: any) {
-    // logique métier
+    // logique mÃ©tier
     return { id: 'inv_001', ...data };
   }
 }

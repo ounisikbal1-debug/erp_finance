@@ -1,4 +1,4 @@
-ALTER TABLE "CountryProfile" ADD COLUMN "realizedFxGainAccountCode" TEXT;
+﻿ALTER TABLE "CountryProfile" ADD COLUMN "realizedFxGainAccountCode" TEXT;
 ALTER TABLE "CountryProfile" ADD COLUMN "realizedFxLossAccountCode" TEXT;
 
 ALTER TABLE "CashflowPayment" ADD COLUMN "settledDocumentAmount" REAL;

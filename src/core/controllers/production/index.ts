@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import type { Response } from 'express';
 import type { AuthenticatedUser } from '../../../application/auth';
 import { EntityScopeError, resolveEntityScope } from '../../../application/modules/finance/entity-scope';

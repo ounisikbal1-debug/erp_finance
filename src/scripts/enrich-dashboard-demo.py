@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 import datetime as dt
 import os
 import pathlib
@@ -13,17 +13,17 @@ RUN_MARKER = "SAFE-SYNTHETIC-COMPLETE-2026"
 AS_OF = dt.date(2026, 11, 9)
 
 COUNTRY_CONFIG = [
-    {"code": "ZZ", "name": "Pays fictif de démonstration", "currencyCode": "TND", "currencySymbol": "DT", "isDefault": True},
-    {"code": "FR", "name": "France synthétique", "currencyCode": "EUR", "currencySymbol": "€", "isDefault": False},
-    {"code": "MA", "name": "Maroc synthétique", "currencyCode": "MAD", "currencySymbol": "DH", "isDefault": False},
-    {"code": "AE", "name": "Émirats synthétiques", "currencyCode": "AED", "currencySymbol": "د.إ", "isDefault": False},
+    {"code": "ZZ", "name": "Pays fictif de dÃ©monstration", "currencyCode": "TND", "currencySymbol": "DT", "isDefault": True},
+    {"code": "FR", "name": "France synthÃ©tique", "currencyCode": "EUR", "currencySymbol": "â‚¬", "isDefault": False},
+    {"code": "MA", "name": "Maroc synthÃ©tique", "currencyCode": "MAD", "currencySymbol": "DH", "isDefault": False},
+    {"code": "AE", "name": "Ã‰mirats synthÃ©tiques", "currencyCode": "AED", "currencySymbol": "Ø¯.Ø¥", "isDefault": False},
 ]
 
 ENTITY_CONFIG = [
-    {"code": "SAFE-DEMO-001", "name": "SAFE Démonstration Synthétique (fictive)", "countryCode": "ZZ"},
+    {"code": "SAFE-DEMO-001", "name": "SAFE DÃ©monstration SynthÃ©tique (fictive)", "countryCode": "ZZ"},
     {"code": "SAFE-FR-001", "name": "SAFE France Distribution (fictive)", "countryCode": "FR"},
     {"code": "SAFE-MA-001", "name": "SAFE Maroc Industrie (fictive)", "countryCode": "MA"},
-    {"code": "SAFE-AE-001", "name": "SAFE Émirats Trading (fictive)", "countryCode": "AE"},
+    {"code": "SAFE-AE-001", "name": "SAFE Ã‰mirats Trading (fictive)", "countryCode": "AE"},
 ]
 
 ACCOUNT_CATEGORIES = {
@@ -73,7 +73,7 @@ def ensure_country(db, config):
         if not db.execute('SELECT 1 FROM "ChartOfAccount" WHERE "countryId"=? AND "code"=?', (country_id, f"SYN-{category}")).fetchone():
             db.execute(
                 'INSERT INTO "ChartOfAccount" ("id","countryId","code","description","classNumber","type","financialCategory","isPostingAllowed","createdAt") VALUES (?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)',
-                (new_id(), country_id, f"SYN-{category}", f"Compte synthétique — {category}", details["classNumber"], details["type"], category, 1),
+                (new_id(), country_id, f"SYN-{category}", f"Compte synthÃ©tique â€” {category}", details["classNumber"], details["type"], category, 1),
             )
     return country_id
 
@@ -144,7 +144,7 @@ def add_entry(db, entity_id, number, day, description, lines, reference=None):
     for code, debit, credit in lines:
         db.execute(
             'INSERT INTO "JournalLine" ("id","journalEntryId","accountCode","debit","credit","description") VALUES (?,?,?,?,?,?)',
-            (new_id(), entry_id, f'SYN-{code}', debit, credit, f'{RUN_MARKER} — {description}'),
+            (new_id(), entry_id, f'SYN-{code}', debit, credit, f'{RUN_MARKER} â€” {description}'),
         )
     return entry_id
 
@@ -159,7 +159,7 @@ def add_intercompany_trade(db, seller_entity_id, buyer_entity_id, day, amount, t
             seller_entity_id,
             seller_entry,
             day,
-            f'Vente intercompagnie synthétique — {trade_label}',
+            f'Vente intercompagnie synthÃ©tique â€” {trade_label}',
             [
                 ('TRADE_RECEIVABLE', amount, 0),
                 ('REVENUE', 0, amount),
@@ -172,7 +172,7 @@ def add_intercompany_trade(db, seller_entity_id, buyer_entity_id, day, amount, t
             buyer_entity_id,
             buyer_entry,
             day,
-            f'Achat intercompagnie synthétique — {trade_label}',
+            f'Achat intercompagnie synthÃ©tique â€” {trade_label}',
             [
                 ('INVENTORY', amount, 0),
                 ('TRADE_PAYABLE', 0, amount),
@@ -190,7 +190,7 @@ def add_invoice(db, entity_id, customer_id, currency_code, invoice_number, day, 
         entity_id,
         f'{invoice_number}-JOURNAL',
         day,
-        f'Facture synthétique {invoice_number}',
+        f'Facture synthÃ©tique {invoice_number}',
         [
             ('TRADE_RECEIVABLE', subtotal * (1 + tax_rate / 100), 0),
             ('REVENUE', 0, subtotal),
@@ -226,7 +226,7 @@ def add_purchase_invoice(db, entity_id, vendor_id, currency_code, invoice_number
         entity_id,
         f'{invoice_number}-JOURNAL',
         day,
-        f'Achat synthétique {invoice_number}',
+        f'Achat synthÃ©tique {invoice_number}',
         [
             ('INVENTORY', subtotal, 0),
             ('OTHER_CURRENT_ASSET', subtotal * (tax_rate / 100), 0),
@@ -260,20 +260,20 @@ def ensure_multinational_dataset(db):
         entities[entity_cfg['code']] = ensure_entity(db, entity_cfg['code'], entity_cfg['name'], countries[entity_cfg['countryCode']])
 
     # Keep the original group synthetic demo accessible to the dashboard export.
-    if not db.execute('SELECT 1 FROM "ConsolidationGroup" WHERE "name"=?', ('SAFE Groupe synthétique',)).fetchone():
-        group_id = new_id(); db.execute('INSERT INTO "ConsolidationGroup" ("id","ownerEntityId","name","reportingCurrencyCode","eliminationPolicy","createdAt","updatedAt") VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)', (group_id, entities['SAFE-DEMO-001'], 'SAFE Groupe synthétique', 'TND', 'UNCONFIGURED'))
+    if not db.execute('SELECT 1 FROM "ConsolidationGroup" WHERE "name"=?', ('SAFE Groupe synthÃ©tique',)).fetchone():
+        group_id = new_id(); db.execute('INSERT INTO "ConsolidationGroup" ("id","ownerEntityId","name","reportingCurrencyCode","eliminationPolicy","createdAt","updatedAt") VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)', (group_id, entities['SAFE-DEMO-001'], 'SAFE Groupe synthÃ©tique', 'TND', 'UNCONFIGURED'))
         for code, entity_id in entities.items():
             membership_id = new_id()
             db.execute('INSERT INTO "ConsolidationGroupEntity" ("id","groupId","entityId","ownershipPercentage","consolidationMethod","createdAt") VALUES (?,?,?,?,?,CURRENT_TIMESTAMP)', (membership_id, group_id, entity_id, 100 if code == 'SAFE-DEMO-001' else 80, 'PROPORTIONAL',))
             for period in ['2026-01', '2026-11']:
                 db.execute('INSERT INTO "ConsolidationFxRate" ("id","membershipId","period","rate","rateDate","source","createdAt","updatedAt") VALUES (?,?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)', (new_id(), membership_id, period, 1.0 if code == 'SAFE-DEMO-001' else 0.27 if code == 'SAFE-FR-001' else 0.36 if code == 'SAFE-MA-001' else 0.31, f"2026-{period[-2:]}-01", 'SYNTHETIC_RATE',))
-            db.execute('INSERT INTO "ConsolidationAccountMapping" ("id","membershipId","localAccountCode","groupAccountCode","groupAccountDescription","createdAt") VALUES (?,?,?,?,?,CURRENT_TIMESTAMP)', (new_id(), membership_id, 'SYN-REVENUE', 'REVENUE_GRP', 'Produits consolidés synthétiques'))
+            db.execute('INSERT INTO "ConsolidationAccountMapping" ("id","membershipId","localAccountCode","groupAccountCode","groupAccountDescription","createdAt") VALUES (?,?,?,?,?,CURRENT_TIMESTAMP)', (new_id(), membership_id, 'SYN-REVENUE', 'REVENUE_GRP', 'Produits consolidÃ©s synthÃ©tiques'))
 
     for country_code, entity_code in [('ZZ', 'SAFE-DEMO-001'), ('FR', 'SAFE-FR-001'), ('MA', 'SAFE-MA-001'), ('AE', 'SAFE-AE-001')]:
         entity_id = entities[entity_code]
         ensure_bank_account(db, entity_id, f'Banque {country_code} (fictive)', countries[country_code])
-        customer_id = ensure_customer(db, entity_id, f'SYN-CUST-{country_code}', f'Client {country_code} synthétique')
-        vendor_id = ensure_vendor(db, entity_id, f'SYN-VEND-{country_code}', f'Fournisseur {country_code} synthétique')
+        customer_id = ensure_customer(db, entity_id, f'SYN-CUST-{country_code}', f'Client {country_code} synthÃ©tique')
+        vendor_id = ensure_vendor(db, entity_id, f'SYN-VEND-{country_code}', f'Fournisseur {country_code} synthÃ©tique')
         for month in range(1, 13):
             day = dt.date(2026, month, 12)
             if month % 2 == 0:
@@ -287,7 +287,7 @@ def ensure_multinational_dataset(db):
                 entity_id,
                 f'SYN-OPS-{country_code}-{month:02d}',
                 day,
-                f'Opérations mensuelles synthétiques {country_code}',
+                f'OpÃ©rations mensuelles synthÃ©tiques {country_code}',
                 [
                     ('COST_OF_GOODS_SOLD', 600 + month * 40, 0),
                     ('INVENTORY', 0, 600 + month * 40),
@@ -343,9 +343,9 @@ def main():
         or os.environ.get("SAFE_ERP_DATABASE_URL") != expected_database_url
         or os.environ.get("SAFE_ERP_DASHBOARD_DEMO_CONFIRM") != "YES"
     ):
-        raise SystemExit("Refusé : le script exige la cible SQLite synthétique explicitement confirmée.")
+        raise SystemExit("RefusÃ© : le script exige la cible SQLite synthÃ©tique explicitement confirmÃ©e.")
     if database_path.parent != DATA_DIR or not database_path.is_file():
-        raise SystemExit("Base synthétique dédiée introuvable; aucune donnée écrite.")
+        raise SystemExit("Base synthÃ©tique dÃ©diÃ©e introuvable; aucune donnÃ©e Ã©crite.")
 
     db = sqlite3.connect(database_path)
     db.execute("PRAGMA foreign_keys=ON")

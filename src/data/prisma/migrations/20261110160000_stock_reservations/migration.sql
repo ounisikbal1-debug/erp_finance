@@ -1,4 +1,4 @@
-ALTER TABLE "Material" ADD COLUMN "reservedQuantity" REAL NOT NULL DEFAULT 0;
+﻿ALTER TABLE "Material" ADD COLUMN "reservedQuantity" REAL NOT NULL DEFAULT 0;
 ALTER TABLE "MaterialWarehouseStock" ADD COLUMN "reservedQuantity" REAL NOT NULL DEFAULT 0;
 
 UPDATE "Material"

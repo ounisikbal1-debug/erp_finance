@@ -1089,7 +1089,7 @@ export default function SalesInvoicesPanel({ accessToken, entityId, currency }: 
                         }}
                         title="Imprimer la facture officielle TTN (Modèle Tunisie TradeNet)"
                       >
-                        <span>🖨️ Facture TTN</span>
+                        <span>🖨ï¸ Facture TTN</span>
                       </button>
                     </div>
                     {invoice.workflowEvents.map((event, index) => (

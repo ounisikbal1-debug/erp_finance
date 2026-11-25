@@ -1,4 +1,4 @@
-ALTER TABLE "CountryProfile" ADD COLUMN "purchaseExpenseAccountCode" TEXT;
+﻿ALTER TABLE "CountryProfile" ADD COLUMN "purchaseExpenseAccountCode" TEXT;
 ALTER TABLE "CountryProfile" ADD COLUMN "purchaseVatAccountCode" TEXT;
 
 ALTER TABLE "TaxRate" ADD COLUMN "purchaseVatRecoverable" BOOLEAN NOT NULL DEFAULT false;

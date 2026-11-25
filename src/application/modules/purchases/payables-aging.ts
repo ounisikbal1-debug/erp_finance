@@ -177,22 +177,31 @@ export function calculatePayablesAging(input: {
       diagnostic ??= 'Une allocation de règlement est invalide.';
     }
     if (invalidCredits) diagnostic ??= 'Un avoir fournisseur comptabilisé est invalide.';
-    if (totalMillimes === null) {
-      diagnostic ??= 'Montant de facture non renseigné.';
+    if (totalMillimes !== null && paidMillimes + creditedMillimes > totalMillimes) {
+      diagnostic ??= 'Les règlements et avoirs dépassent le montant total de la pièce.';
+    }
+
+    if (diagnostic !== null || totalMillimes === null || !dueDate) {
       invalidInvoiceCount += 1;
+      invoices.push({
+        id: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        vendorCode: invoice.vendor.code,
+        vendorName: invoice.vendor.name,
+        postedAt,
+        dueDate,
+        daysOverdue: null,
+        totalAmount: totalMillimes !== null ? totalMillimes / 1000 : null,
+        paidAmount: !invalidPayments ? paidMillimes / 1000 : null,
+        creditedAmount: !invalidCredits ? creditedMillimes / 1000 : null,
+        outstandingAmount: null,
+        diagnostic: diagnostic ?? 'Montant de facture non renseigné.',
+      });
       continue;
     }
 
-    // Sécurisation et plafonnement des règlements
-    const effectivePaid = Math.min(paidMillimes, totalMillimes);
-    const effectiveCredited = Math.min(creditedMillimes, Math.max(0, totalMillimes - effectivePaid));
-    const remainingMillimes = Math.max(0, totalMillimes - effectivePaid - effectiveCredited);
-
-    if (paidMillimes + creditedMillimes > totalMillimes) {
-      diagnostic = 'Règlements/avoirs ajustés au montant total de la pièce.';
-    }
-
-    creditedMillimesOverall += effectiveCredited;
+    const remainingMillimes = totalMillimes - paidMillimes - creditedMillimes;
+    creditedMillimesOverall += creditedMillimes;
     if (remainingMillimes === 0) continue;
 
     outstandingMillimes += remainingMillimes;
@@ -212,14 +221,14 @@ export function calculatePayablesAging(input: {
       dueDate,
       daysOverdue,
       totalAmount: totalMillimes / 1000,
-      paidAmount: effectivePaid / 1000,
-      creditedAmount: effectiveCredited / 1000,
+      paidAmount: paidMillimes / 1000,
+      creditedAmount: creditedMillimes / 1000,
       outstandingAmount: remainingMillimes / 1000,
       diagnostic,
     });
   }
 
-  const totalsAvailable = true;
+  const totalsAvailable = invalidInvoiceCount === 0;
   const sortedInvoices = invoices.sort((left, right) => {
     if (left.outstandingAmount === null) return right.outstandingAmount === null ? 0 : -1;
     if (right.outstandingAmount === null) return 1;

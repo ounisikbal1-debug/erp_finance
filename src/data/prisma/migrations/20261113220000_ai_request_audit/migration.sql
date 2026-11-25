@@ -1,4 +1,4 @@
-CREATE TABLE "AiRequestAuditEvent" (
+﻿CREATE TABLE "AiRequestAuditEvent" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "requestId" TEXT NOT NULL,
   "entityId" TEXT NOT NULL,

@@ -1,4 +1,4 @@
-ALTER TABLE "BudgetLine" ADD COLUMN "revisionNumber" INTEGER NOT NULL DEFAULT 1;
+﻿ALTER TABLE "BudgetLine" ADD COLUMN "revisionNumber" INTEGER NOT NULL DEFAULT 1;
 ALTER TABLE "BudgetLine" ADD COLUMN "supersedesLineId" TEXT;
 ALTER TABLE "BudgetLine" ADD COLUMN "revisionReason" TEXT;
 

@@ -45,7 +45,7 @@ describe('stock accounting configuration', () => {
       accounts,
       'production',
       { labor: true, overhead: false },
-    ).some((issue) => issue.includes('main-d’œuvre')));
+    ).some((issue) => issue.includes('main-d’Å“uvre')));
     assert.ok(getStockPostingConfigurationIssues(
       'TN',
       { ...costMapping, productionOverheadAccountCode: 'LAB' },

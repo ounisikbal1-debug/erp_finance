@@ -1,0 +1,53 @@
+﻿version: '3.8'
+
+services:
+  safe-erp-db:
+    image: postgres:15-alpine
+    container_name: safe_erp_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: safe_user
+      POSTGRES_PASSWORD: safe_secure_password_2026
+      POSTGRES_DB: safe_erp_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - safe_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U safe_user -d safe_erp_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  safe-erp-redis:
+    image: redis:7-alpine
+    container_name: safe_erp_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - safe_redisdata:/data
+
+  safe-erp-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: safe_erp_application
+    restart: always
+    depends_on:
+      safe-erp-db:
+        condition: service_healthy
+      safe-erp-redis:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: "postgresql://safe_user:safe_secure_password_2026@safe-erp-db:5432/safe_erp_db?schema=public"
+      REDIS_URL: "redis://safe-erp-redis:6379"
+      SESSION_SECRET: "SAFE_ENTERPRISE_HMAC_SHA256_SESSION_KEY_2026"
+    ports:
+      - "3001:3001"
+
+volumes:
+  safe_pgdata:
+  safe_redisdata:

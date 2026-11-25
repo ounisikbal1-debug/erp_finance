@@ -1,0 +1,42 @@
+﻿===============================================================
+   DÃ‰MONSTRATION PAS Ã€ PAS DU MODULE DE MIGRATION SAFE ERP    
+===============================================================
+
+ðŸ”¹ Ã‰TAPE 1 : RÃ©ception des donnÃ©es brutes (Export CSV / SAP)
+Extrait du fichier reÃ§u :
+KUNNR;NAME1;ORT01;LAND1;STCEG
+CUST-SAP-001;SOCIETE GENERALE TUNISIE;Tunis;TN;1234567/A/M/000
+CUST-SAP-002;MEDITERRANEAN TRADING;Sousse;TN;9876543/B/P/000
+CUST-SAP-003;MAGHREB DISTRIB;Sfax;TN;1122334/C/M/000
+---------------------------------------------------------------
+
+ðŸ”¹ Ã‰TAPE 2 : DÃ©tection automatique du format et du systÃ¨me source
+- SÃ©parateur dÃ©tectÃ© : ";"
+- En-tÃªtes identifiÃ©s : [KUNNR, NAME1, ORT01, LAND1, STCEG]
+- SystÃ¨me ERP source dÃ©tectÃ© : ðŸ‘‰ [SAP] ðŸ‘ˆ
+
+ðŸ”¹ Ã‰TAPE 3 : Ã‰tablissement automatique du Mapping (Champs Source -> SAFE)
+Correspondances calculÃ©es :
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ (index) â”‚ sourceColumn â”‚ targetField â”‚ confidence â”‚ matchedBy â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ 0       â”‚ 'KUNNR'      â”‚ 'code'      â”‚ 100        â”‚ 'PRESET'  â”‚
+â”‚ 1       â”‚ 'NAME1'      â”‚ 'name'      â”‚ 100        â”‚ 'PRESET'  â”‚
+â”‚ 2       â”‚ 'ORT01'      â”‚ null        â”‚ 0          â”‚ 'NONE'    â”‚
+â”‚ 3       â”‚ 'LAND1'      â”‚ null        â”‚ 0          â”‚ 'NONE'    â”‚
+â”‚ 4       â”‚ 'STCEG'      â”‚ 'fiscalId'  â”‚ 100        â”‚ 'PRESET'  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+---------------------------------------------------------------
+
+ðŸ”¹ Ã‰TAPE 4 : Lancement d'une simulation Ã  blanc (Dry-Run)
+- Lignes analysÃ©es : 3
+- Lignes valides   : 0 âœ…
+- Erreurs bloquantes: 3 âŒ
+---------------------------------------------------------------
+
+ðŸ”¹ Ã‰TAPE 5 : Injection rÃ©elle dans la base de donnÃ©es SAFE
+- EntitÃ© cible : SAFE AFRIQUE TUNISIE SARL (77f3cca0-fbd1-4ac6-b0df-ae1989064834)
+Error: Impossible d'exÃ©cuter la migration : 3 ligne(s) contiennent des erreurs bloquantes. Activez l'option 'Ignorer les erreurs' pour forcer l'importation partielle.
+    at executeMigration (C:\Users\USER\OneDrive\Desktop\SAFE_ERP_DRAFT 4\SAFE_Grandes_Entreprises\src\core\services\migration\universal-migration.service.ts:935:11)
+    at runStepByStepDemo (C:\Users\USER\OneDrive\Desktop\SAFE_ERP_DRAFT 4\SAFE_Grandes_Entreprises\scripts\demo-step-by-step-migration.ts:93:40)
+

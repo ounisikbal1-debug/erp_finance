@@ -5,7 +5,7 @@
 )
 
 $ErrorActionPreference = 'Stop'
-$CoreErpDir = "C:\Users\USER\OneDrive\Desktop\SAFE_ERP_DRAFT 4\SAFE_ERP_DRAFT 3"
+$CoreErpDir = "C:\Users\USER\OneDrive\Desktop\SAFE_ERP_DRAFT 4\SAFE_Grandes_Entreprises"
 
 if (-not (Test-Path -LiteralPath $CoreErpDir -PathType Container)) {
   Write-Host "[ERREUR] Le noyau SAFE ERP est introuvable a l'adresse : $CoreErpDir" -ForegroundColor Red
@@ -28,3 +28,4 @@ if (-not (Test-Path -LiteralPath $LauncherScript -PathType Leaf)) {
 }
 
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $LauncherScript -Port $Port -App "facturation"
+

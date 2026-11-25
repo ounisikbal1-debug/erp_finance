@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sqlite3
 import hashlib
 import hmac
@@ -17,7 +17,7 @@ import uvicorn
 SECRET_SALT = b"SAFE_ERP_TUNISIE_2026_MASTER_HMAC_KEY_#991"
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "safe_crm_licenses.db")
 
-app = FastAPI(title="SAFE ERP - CRM Éditeur & Gestionnaire de Licences")
+app = FastAPI(title="SAFE ERP - CRM Ã‰diteur & Gestionnaire de Licences")
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -134,7 +134,7 @@ def create_license(data: LicenseCreate):
     ))
     conn.commit()
     conn.close()
-    return {"message": "Licence générée et enregistrée", "license_key": key}
+    return {"message": "Licence gÃ©nÃ©rÃ©e et enregistrÃ©e", "license_key": key}
 
 @app.post("/api/licenses/{lic_id}/renew")
 def renew_license(lic_id: int, data: LicenseRenew):
@@ -152,7 +152,7 @@ def renew_license(lic_id: int, data: LicenseRenew):
     """, (data.new_expiration_date, new_key, round(fee, 3), lic_id))
     conn.commit()
     conn.close()
-    return {"message": "Abonnement renouvelé", "license_key": new_key}
+    return {"message": "Abonnement renouvelÃ©", "license_key": new_key}
 
 @app.post("/api/licenses/{lic_id}/revoke")
 def revoke_license(lic_id: int):
@@ -160,7 +160,7 @@ def revoke_license(lic_id: int):
     conn.execute("UPDATE client_licenses SET status = 'REVOKED' WHERE id = ?", (lic_id,))
     conn.commit()
     conn.close()
-    return {"message": "Licence révoquée dans le CRM"}
+    return {"message": "Licence rÃ©voquÃ©e dans le CRM"}
 
 @app.get("/safe-logo.png")
 def serve_logo():
@@ -173,7 +173,7 @@ def dashboard_ui():
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>SAFE ERP - CRM Éditeur & Administration des Licences</title>
+<title>SAFE ERP - CRM Ã‰diteur & Administration des Licences</title>
 <style>
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 24px; }
   .container { max-width: 1280px; margin: auto; }
@@ -205,31 +205,31 @@ def dashboard_ui():
 <div class="container">
   <div class="header">
     <div>
-      <h1>SAFE ERP — CRM Éditeur & Administration des Licences Matérielles</h1>
-      <small style="color:#94a3b8">Suivi du parc clients Tunisie, Hardware IDs, Clés HMAC-SHA256 et Renouvellements</small>
+      <h1>SAFE ERP â€” CRM Ã‰diteur & Administration des Licences MatÃ©rielles</h1>
+      <small style="color:#94a3b8">Suivi du parc clients Tunisie, Hardware IDs, ClÃ©s HMAC-SHA256 et Renouvellements</small>
     </div>
-    <div style="text-align:right; font-size:12px; color:#38bdf8">Serveur Local Éditeur : http://localhost:8090</div>
+    <div style="text-align:right; font-size:12px; color:#38bdf8">Serveur Local Ã‰diteur : http://localhost:8090</div>
   </div>
 
   <div class="kpis">
-    <div class="card"><div class="card-title">Clients Enregistrés</div><div class="card-val" id="kpi-total">0</div></div>
+    <div class="card"><div class="card-title">Clients EnregistrÃ©s</div><div class="card-val" id="kpi-total">0</div></div>
     <div class="card"><div class="card-title">Licences Actives</div><div class="card-val" id="kpi-active" style="color:#34d399">0</div></div>
-    <div class="card"><div class="card-title">Échéances &lt; 30 jours</div><div class="card-val" id="kpi-expiring" style="color:#fbbf24">0</div></div>
-    <div class="card"><div class="card-title">Revenu Récurrent (TND)</div><div class="card-val" id="kpi-arr" style="color:#38bdf8">0.000</div></div>
+    <div class="card"><div class="card-title">Ã‰chÃ©ances &lt; 30 jours</div><div class="card-val" id="kpi-expiring" style="color:#fbbf24">0</div></div>
+    <div class="card"><div class="card-title">Revenu RÃ©current (TND)</div><div class="card-val" id="kpi-arr" style="color:#38bdf8">0.000</div></div>
   </div>
 
   <div class="grid-main">
     <div class="card">
       <h3 style="margin-top:0; color:#38bdf8">Nouvelle Licence Client</h3>
       <label>Raison Sociale / Client *</label>
-      <input id="client_name" placeholder="Ex: Sté Tunisienne de Distribution SARL">
+      <input id="client_name" placeholder="Ex: StÃ© Tunisienne de Distribution SARL">
       <label>Matricule Fiscal (MF)</label>
       <input id="matricule_fiscal" placeholder="Ex: 1234567/A/M/000">
-      <label>Email / Téléphone Contact</label>
+      <label>Email / TÃ©lÃ©phone Contact</label>
       <input id="contact_email" placeholder="contact@client.tn | +216 71 000 000">
       <label>Progiciel SAFE ERP *</label>
       <select id="module_code">
-        <option value="NEGOCE">01 - SAFE Négoce & Distribution</option>
+        <option value="NEGOCE">01 - SAFE NÃ©goce & Distribution</option>
         <option value="SERVICES">02 - SAFE Services & Cabinets</option>
         <option value="INDUSTRIE">03 - SAFE Industrie & Production</option>
         <option value="RESTAURATION">04 - SAFE Restauration & POS</option>
@@ -240,7 +240,7 @@ def dashboard_ui():
       <input id="expiration_date" type="date" value="2027-12-31">
       <label>Redevance Annuelle (TND HT)</label>
       <input id="annual_fee_tnd" type="number" step="0.001" value="1200.000">
-      <button onclick="createLicense()">Générer & Enregistrer la Clé</button>
+      <button onclick="createLicense()">GÃ©nÃ©rer & Enregistrer la ClÃ©</button>
       <div id="generated_msg" style="margin-top:12px; font-size:12px; color:#34d399; word-break:break-all;"></div>
     </div>
 
@@ -253,7 +253,7 @@ def dashboard_ui():
             <th>Progiciel</th>
             <th>Hardware ID</th>
             <th>Expiration</th>
-            <th>Clé d'Activation</th>
+            <th>ClÃ© d'Activation</th>
             <th>Statut</th>
             <th>Actions</th>
           </tr>
@@ -286,7 +286,7 @@ async function loadLicenses() {
       <td>
         <button class="btn-sm" onclick="copyKey('${l.license_key}')">Copier</button>
         <button class="btn-sm btn-warn" onclick="renewLic(${l.id})">+1 An</button>
-        <button class="btn-sm btn-danger" onclick="revokeLic(${l.id})">Révoquer</button>
+        <button class="btn-sm btn-danger" onclick="revokeLic(${l.id})">RÃ©voquer</button>
       </td>
     </tr>`;
   });
@@ -308,7 +308,7 @@ async function createLicense() {
   });
   const data = await res.json();
   if(res.ok) {
-    document.getElementById('generated_msg').innerText = "Clé générée : " + data.license_key;
+    document.getElementById('generated_msg').innerText = "ClÃ© gÃ©nÃ©rÃ©e : " + data.license_key;
     loadLicenses();
   } else {
     alert(data.detail || "Erreur");
@@ -317,7 +317,7 @@ async function createLicense() {
 
 function copyKey(k) {
   navigator.clipboard.writeText(k);
-  alert("Clé copiée : " + k);
+  alert("ClÃ© copiÃ©e : " + k);
 }
 
 async function renewLic(id) {
@@ -334,7 +334,7 @@ async function renewLic(id) {
 }
 
 async function revokeLic(id) {
-  if(!confirm("Confirmer la révocation de cette licence dans votre registre CRM ?")) return;
+  if(!confirm("Confirmer la rÃ©vocation de cette licence dans votre registre CRM ?")) return;
   await fetch(`/api/licenses/${id}/revoke`, {method: 'POST'});
   loadLicenses();
 }

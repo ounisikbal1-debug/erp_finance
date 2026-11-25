@@ -1,4 +1,4 @@
-CREATE TABLE "SupplierCreditNote" (
+﻿CREATE TABLE "SupplierCreditNote" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "entityId" TEXT NOT NULL,
     "vendorId" TEXT NOT NULL,

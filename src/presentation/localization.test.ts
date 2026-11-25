@@ -81,9 +81,9 @@ describe('interface localization', () => {
 
   it('translates anomaly-screen labels while retaining French fallback', () => {
     assert.equal(translateBusinessText('AR', 'Anomalies financières'), 'الاختلالات المالية');
-    assert.equal(translateBusinessText('AR', 'Contrôles exécutés'), 'الفحوصات المنفذة');
+    assert.equal(translateBusinessText('AR', 'Contrôles exécutés'), 'الÙحوصات المنÙذة');
     assert.equal(translateBusinessText('AR', 'Critique'), 'حرج');
-    assert.equal(translateBusinessText('AR', 'Aucune anomalie détectée dans les contrôles exécutés'), 'لم يتم اكتشاف اختلالات في الفحوصات المنفذة');
+    assert.equal(translateBusinessText('AR', 'Aucune anomalie détectée dans les contrôles exécutés'), 'لم يتم اكتشاÙ اختلالات Ùي الÙحوصات المنÙذة');
     assert.equal(translateBusinessText('FR', 'Contrôles exécutés'), 'Contrôles exécutés');
   });
 

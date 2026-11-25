@@ -1,4 +1,4 @@
-ALTER TABLE "CountryProfile" ADD COLUMN "unrealizedFxGainAccountCode" TEXT;
+﻿ALTER TABLE "CountryProfile" ADD COLUMN "unrealizedFxGainAccountCode" TEXT;
 ALTER TABLE "CountryProfile" ADD COLUMN "unrealizedFxLossAccountCode" TEXT;
 
 CREATE TABLE "FxRevaluationRun" (

@@ -1,4 +1,4 @@
-ALTER TABLE "IntercompanyTransaction" ADD COLUMN "transactionNature" TEXT NOT NULL DEFAULT 'OTHER';
+﻿ALTER TABLE "IntercompanyTransaction" ADD COLUMN "transactionNature" TEXT NOT NULL DEFAULT 'OTHER';
 ALTER TABLE "IntercompanyTransaction" ADD COLUMN "agreementReference" TEXT;
 ALTER TABLE "IntercompanyTransaction" ADD COLUMN "supportingDocumentReference" TEXT;
 ALTER TABLE "IntercompanyTransaction" ADD COLUMN "taxRateCode" TEXT;

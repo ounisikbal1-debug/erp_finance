@@ -1,4 +1,4 @@
-CREATE TABLE "CustomsDutyRegime" (
+﻿CREATE TABLE "CustomsDutyRegime" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "entityId" TEXT NOT NULL,
   "regimeType" TEXT NOT NULL,

@@ -1,4 +1,4 @@
-import { HrService } from '../src/application/modules/hr/service';
+﻿import { HrService } from '../src/application/modules/hr/service';
 
 async function main() {
   try {

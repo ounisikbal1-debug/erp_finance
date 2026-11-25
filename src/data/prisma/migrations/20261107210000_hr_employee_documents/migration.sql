@@ -1,4 +1,4 @@
-CREATE TABLE "EmployeeDocument" (
+﻿CREATE TABLE "EmployeeDocument" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT NOT NULL,
     "category" TEXT NOT NULL,

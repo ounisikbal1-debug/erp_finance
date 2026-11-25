@@ -1,4 +1,4 @@
-CREATE TABLE "EmployeeExpenseClaim" (
+﻿CREATE TABLE "EmployeeExpenseClaim" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "employeeId" TEXT NOT NULL,
     "category" TEXT NOT NULL,

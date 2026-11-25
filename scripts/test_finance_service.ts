@@ -1,4 +1,4 @@
-import prisma from '../src/data/prisma/client';
+﻿import prisma from '../src/data/prisma/client';
 import FinanceService from '../src/application/modules/finance/service';
 
 async function test() {

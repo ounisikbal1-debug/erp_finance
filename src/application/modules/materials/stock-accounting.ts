@@ -37,7 +37,7 @@ export function getStockPostingConfigurationIssues(
       ['compte de stock', 'Asset', mapping.stockAssetAccountCode],
       ['compte de production en cours', 'Asset', mapping.productionWipAccountCode],
       ...(productionCosts.labor
-        ? [['compte de contrepartie de main-d’œuvre', 'Expense', mapping.productionLaborAccountCode ?? null] as [string, string, string | null]]
+        ? [['compte de contrepartie de main-d’Å“uvre', 'Expense', mapping.productionLaborAccountCode ?? null] as [string, string, string | null]]
         : []),
       ...(productionCosts.overhead
         ? [['compte de contrepartie des frais indirects', 'Expense', mapping.productionOverheadAccountCode ?? null] as [string, string, string | null]]

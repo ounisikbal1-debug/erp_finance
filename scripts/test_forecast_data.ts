@@ -1,4 +1,4 @@
-import { prisma } from '../src/data/prisma/client';
+﻿import { prisma } from '../src/data/prisma/client';
 import { CashflowForecastService } from '../src/application/modules/cashflow/forecast-service';
 
 async function test() {

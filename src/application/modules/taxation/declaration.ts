@@ -439,20 +439,16 @@ export function calculateTaxDeclaration(
       break;
     }
   }
-  // Calcul robuste de la TVA collectée (sur factures ou grand livre 4367)
-  const ledgerCollectedMillimes = collectedVatLines.reduce((sum, line) => {
-    const d = Math.round((line.debit || 0) * 1000);
-    const c = Math.round((line.credit || 0) * 1000);
-    return sum + (c - d);
-  }, 0);
+  const collectedVatIsAvailable = hasSalesVatAccountCode
+    && !hasInvalidCollectedVatLine
+    && invalidInvoices.length === 0
+    && !hasImpossibleVatAllocation
+    && !hasUnmatchedLedgerLine
+    && invoiceVatIsReconciled;
 
-  const finalCollectedMillimes = collectedVatTotalMillimes > 0
-    ? collectedVatTotalMillimes
-    : Math.max(0, ledgerCollectedMillimes);
+  const tvaCollectedGlobal = collectedVatIsAvailable ? collectedVatTotalMillimes / 1000 : null;
 
-  const tvaCollectedGlobal = finalCollectedMillimes / 1000;
-
-  const tvaDetailsCollected = rates.size > 0
+  const tvaDetailsCollected = collectedVatIsAvailable
     ? [...rates.entries()]
         .sort(([rateA], [rateB]) => rateA - rateB)
         .map(([rate, totals]) => ({
@@ -461,23 +457,32 @@ export function calculateTaxDeclaration(
           tvaAmount: totals.tvaMillimes / 1000,
           label: rate === 0 ? 'TVA 0% Exonérée / Export' : `TVA ${rate}%`,
         }))
-    : [{ rate: 19, baseHT: Math.round((tvaCollectedGlobal / 0.19) * 1000) / 1000, tvaAmount: tvaCollectedGlobal, label: 'TVA 19%' }];
+    : [];
 
-  // Calcul robuste de la TVA déductible (sur factures ou grand livre 4366)
-  const ledgerDeductibleMillimes = deductibleLines.reduce((sum, line) => {
-    const d = Math.round((line.debit || 0) * 1000);
-    const c = Math.round((line.credit || 0) * 1000);
-    return sum + (d - c);
-  }, 0);
+  const deductibleDebitMillimes = getJournalSideTotalMillimes(deductibleLines, 'debit');
+  const deductibleCreditMillimes = getJournalSideTotalMillimes(deductibleLines, 'credit');
+  const hasInvalidDeductibleAggregate = deductibleDebitMillimes === null
+    || deductibleCreditMillimes === null
+    || !Number.isSafeInteger(deductibleDebitMillimes - deductibleCreditMillimes);
 
-  const finalDeductibleMillimes = Math.max(0, ledgerDeductibleMillimes);
-  const tvaDeductibleGlobal = finalDeductibleMillimes / 1000;
+  const deductibleAvailable = hasPurchaseVatAccountCode
+    && !hasInvalidDeductibleVatLine
+    && !hasInvalidDeductibleAggregate
+    && invalidPurchaseDocuments.length === 0
+    && !hasUnmatchedDeductibleLine
+    && !hasDeductibleMismatch
+    && (deductibleLines.length > 0 || purchaseInvoices.length > 0 || supplierCreditNotes.length > 0);
 
-  const tvaDue = Math.max(0, roundToMillimes(tvaCollectedGlobal - tvaDeductibleGlobal));
-  const tvaCredit = Math.max(0, roundToMillimes(tvaDeductibleGlobal - tvaCollectedGlobal));
-  const collectedVatIsAvailable = !hasInvalidCollectedVatLine && invalidInvoices.length === 0;
-  const hasInvalidDeductibleAggregate = false;
-  const deductibleAvailable = !hasInvalidDeductibleVatLine && invalidPurchaseDocuments.length === 0;
+  const tvaDeductibleGlobal = deductibleAvailable
+    ? (deductibleDebitMillimes! - deductibleCreditMillimes!) / 1000
+    : null;
+
+  const tvaDue = tvaCollectedGlobal !== null && tvaDeductibleGlobal !== null
+    ? Math.max(0, roundToMillimes(tvaCollectedGlobal - tvaDeductibleGlobal))
+    : null;
+  const tvaCredit = tvaCollectedGlobal !== null && tvaDeductibleGlobal !== null
+    ? Math.max(0, roundToMillimes(tvaDeductibleGlobal - tvaCollectedGlobal))
+    : null;
   const unavailableSections: string[] = [
     ...(invalidInvoices.length > 0
       ? [`Factures TVA : données invalides (${invalidInvoices.join(', ')})`]
@@ -613,22 +618,26 @@ export function calculateTaxDeclaration(
     currency,
     tvaCollectedGlobal,
     tvaDeductibleGlobal,
-    tvaDue: tvaDue === null ? null : Math.max(0, tvaDue),
+    tvaDue,
     tvaCredit,
-    rsWithholdingGlobal: sourceConfiguration?.rsWithholdingAmount ?? 0,
-    isCorporateTaxGlobal: sourceConfiguration?.corporateTaxAmount ?? 0,
-    totalTaxToPay: Math.max(0, (tvaDue || 0)) + (sourceConfiguration?.rsWithholdingAmount || 0),
-    complianceStatus: 'CONFORME — Déclaration G50 mensuelle pré-remplie aux normes DGI Tunisie',
+    rsWithholdingGlobal: hasReviewedRsAmount ? sourceConfiguration!.rsWithholdingAmount! : null,
+    isCorporateTaxGlobal: hasReviewedCorporateTaxAmount ? sourceConfiguration!.corporateTaxAmount! : null,
+    totalTaxToPay: null,
+    complianceStatus: unavailableSections.length > 0
+      ? 'INCOMPLET — Données fiscales partielles ou rapprochement requis avant dépôt G50'
+      : 'CONFORME — Déclaration G50 mensuelle pré-remplie aux normes DGI Tunisie',
     unavailableSections,
     correctionActions,
     tvaDetailsCollected,
-    tvaDetailsDeductible: [
-      {
-        category: 'TVA déductible (comptes 4366)',
-        baseHT: Math.round((tvaDeductibleGlobal / 0.19) * 1000) / 1000,
-        tvaAmount: tvaDeductibleGlobal,
-      },
-    ],
+    tvaDetailsDeductible: deductibleAvailable && tvaDeductibleGlobal !== null
+      ? [
+          {
+            category: 'TVA déductible (comptes 4366)',
+            baseHT: Math.round((tvaDeductibleGlobal / 0.19) * 1000) / 1000,
+            tvaAmount: tvaDeductibleGlobal,
+          },
+        ]
+      : [],
     tvaDetailsDeductibleByRate: deductibleAvailable
       ? [...deductibleVatByRate.entries()]
         .sort(([rateA], [rateB]) => rateA - rateB)

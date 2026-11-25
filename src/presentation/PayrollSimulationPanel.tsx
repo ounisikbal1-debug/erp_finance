@@ -703,7 +703,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             transition: 'all 0.15s ease',
           }}
         >
-          ⚙️ Feuille des Taux Modulables (Barème IRPP & CNSS)
+          ⚙ï¸ Feuille des Taux Modulables (Barème IRPP & CNSS)
         </button>
       </div>
 
@@ -1119,7 +1119,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 onClick={() => printPayslip(printableSlipRef.current)}
                 style={{ marginTop: 8, background: '#0F172A', border: 'none', borderRadius: 6, color: '#FFFFFF', cursor: 'pointer', fontWeight: 700, padding: '6px 12px', fontSize: '0.78rem' }}
               >
-                🖨️ Imprimer le bulletin de paie
+                🖨ï¸ Imprimer le bulletin de paie
               </button>
             </div>
           </header>

@@ -1,4 +1,4 @@
-CREATE TABLE "CountryProfile" (
+﻿CREATE TABLE "CountryProfile" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "code" TEXT NOT NULL,
     "name" TEXT NOT NULL,

@@ -1,4 +1,4 @@
--- Persist replay-safe applications of an excess supplier credit to another payable.
+﻿-- Persist replay-safe applications of an excess supplier credit to another payable.
 CREATE TABLE "SupplierCreditNoteApplication" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "entityId" TEXT NOT NULL,

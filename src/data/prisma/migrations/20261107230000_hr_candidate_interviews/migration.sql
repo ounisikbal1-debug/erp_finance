@@ -1,4 +1,4 @@
-CREATE TABLE "CandidateInterview" (
+﻿CREATE TABLE "CandidateInterview" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "applicationId" TEXT NOT NULL,
     "scheduledAt" DATETIME NOT NULL,

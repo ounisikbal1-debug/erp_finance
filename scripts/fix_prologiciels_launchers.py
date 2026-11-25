@@ -1,7 +1,7 @@
-import os, sys
+﻿import os, sys
 
 BASE_DIR = r"C:\Users\USER\OneDrive\Desktop\SAFE_ERP_DRAFT 4"
-CORE_ERP_DIR = os.path.join(BASE_DIR, "SAFE_ERP_DRAFT 3")
+CORE_ERP_DIR = os.path.join(BASE_DIR, "SAFE_Grandes_Entreprises")
 
 PROLOGICIELS = [
     {
@@ -71,9 +71,9 @@ echo ===========================================================================
 echo.
 echo Initialisation du service en local...
 
-set "CORE_DIR=%~dp0..\\SAFE_ERP_DRAFT 3"
+set "CORE_DIR=%~dp0..\\SAFE_Grandes_Entreprises"
 if not exist "%CORE_DIR%\\LANCER_SAFE_ERP_LOCAL.ps1" (
-    set "CORE_DIR=C:\\Users\\USER\\OneDrive\\Desktop\\SAFE_ERP_DRAFT 4\\SAFE_ERP_DRAFT 3"
+    set "CORE_DIR=C:\\Users\\USER\\OneDrive\\Desktop\\SAFE_ERP_DRAFT 4\\SAFE_Grandes_Entreprises"
 )
 
 if not exist "%CORE_DIR%\\LANCER_SAFE_ERP_LOCAL.ps1" (
@@ -103,7 +103,7 @@ def make_bulletproof_ps1(prolog):
 )
 
 $ErrorActionPreference = 'Stop'
-$CoreErpDir = "C:\\Users\\USER\\OneDrive\\Desktop\\SAFE_ERP_DRAFT 4\\SAFE_ERP_DRAFT 3"
+$CoreErpDir = "C:\\Users\\USER\\OneDrive\\Desktop\\SAFE_ERP_DRAFT 4\\SAFE_Grandes_Entreprises"
 
 if (-not (Test-Path -LiteralPath $CoreErpDir -PathType Container)) {{
   Write-Host "[ERREUR] Le noyau SAFE ERP est introuvable a l'adresse : $CoreErpDir" -ForegroundColor Red
@@ -141,8 +141,9 @@ def update_all_launchers():
         with open(ps1_path, "w", encoding="utf-8-sig") as f:
             f.write(make_bulletproof_ps1(prolog))
 
-        print(f"✔ Cleaned launchers for {prolog['folder']}")
+        print(f"âœ” Cleaned launchers for {prolog['folder']}")
 
 if __name__ == "__main__":
     update_all_launchers()
     print("All launchers successfully updated and secured without cmd escape errors!")
+

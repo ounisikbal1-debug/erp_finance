@@ -1,4 +1,4 @@
-ALTER TABLE "JournalEntry" ADD COLUMN "reversesEntryId" TEXT;
+﻿ALTER TABLE "JournalEntry" ADD COLUMN "reversesEntryId" TEXT;
 
 CREATE UNIQUE INDEX "JournalEntry_reversesEntryId_key"
 ON "JournalEntry"("reversesEntryId");

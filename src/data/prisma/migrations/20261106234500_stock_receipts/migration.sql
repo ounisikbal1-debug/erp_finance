@@ -1,4 +1,4 @@
-CREATE TABLE "StockReceipt" (
+﻿CREATE TABLE "StockReceipt" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "entityId" TEXT NOT NULL,
     "materialId" TEXT NOT NULL,

@@ -30,7 +30,7 @@ before(async () => {
           { code: 'STOCK', description: 'Stock fictif', classNumber: 3, type: 'Asset' },
           { code: 'ADJ', description: 'Ajustement fictif', classNumber: 6, type: 'Expense' },
           { code: 'WIP', description: 'Production fictive', classNumber: 3, type: 'Asset' },
-          { code: 'LAB', description: 'Main-d’œuvre fictive', classNumber: 6, type: 'Expense' },
+          { code: 'LAB', description: 'Main-d’Å“uvre fictive', classNumber: 6, type: 'Expense' },
           { code: 'OVERHEAD', description: 'Frais indirects fictifs', classNumber: 6, type: 'Expense' },
         ],
       },
@@ -47,7 +47,7 @@ before(async () => {
     { code: 'CHARGES-GROUP', description: 'Groupe charges de test', classNumber: 6, type: 'Expense', isPostingAllowed: false },
     { code: 'STOCK', description: 'Stock fictif', classNumber: 3, type: 'Asset', parentCode: 'STOCK-GROUP' },
     { code: 'ADJ', description: 'Ajustement fictif', classNumber: 6, type: 'Expense', parentCode: 'CHARGES-GROUP' },
-    { code: 'LAB', description: 'Main-d’œuvre fictive', classNumber: 6, type: 'Expense', parentCode: 'CHARGES-GROUP' },
+    { code: 'LAB', description: 'Main-d’Å“uvre fictive', classNumber: 6, type: 'Expense', parentCode: 'CHARGES-GROUP' },
     { code: 'OVERHEAD', description: 'Frais indirects fictifs', classNumber: 6, type: 'Expense', parentCode: 'CHARGES-GROUP' },
     { code: 'WIP', description: 'Production fictive', classNumber: 3, type: 'Asset', parentCode: 'STOCK-GROUP' },
   ]);

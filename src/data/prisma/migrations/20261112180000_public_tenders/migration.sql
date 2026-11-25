@@ -1,4 +1,4 @@
-CREATE TABLE "TenderBid" (
+﻿CREATE TABLE "TenderBid" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "entityId" TEXT NOT NULL,
   "tenderReference" TEXT NOT NULL,

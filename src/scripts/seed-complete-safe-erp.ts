@@ -499,7 +499,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error('❌ Erreur lors de l’initialisation :', e);
+    console.error('âŒ Erreur lors de l’initialisation :', e);
     process.exit(1);
   })
   .finally(async () => {

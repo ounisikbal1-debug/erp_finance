@@ -1,4 +1,4 @@
-# Regenerer le client Prisma
+﻿# Regenerer le client Prisma
 
 Le dossier de reference du projet est `SAFE_ERP-DRAFT 1`. Depuis ce projet, utilisez toujours la commande npm fournie:
 

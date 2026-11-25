@@ -109,10 +109,11 @@ export class HrService {
     // 4. Retenue CNSS (9.68% du Salaire Brut)
     const employeeCnss = Math.round((grossSalary * (cfg.employeeCnssRate / 100)) * 1000) / 1000;
 
-    // 5. Brut imposable = Salaire Brut - CNSS (9.68%)
+    // 5. Brut imposable = Salaire Brut - CNSS (9.68%) - Indemnité de transport exonérée (à partir de 2026-01)
+    const exemptTransport = payrollPeriod >= '2026-01' ? transportBonus : 0;
     const taxableGross = Math.max(
       0,
-      Math.round((grossSalary - employeeCnss) * 1000) / 1000,
+      Math.round((grossSalary - employeeCnss - exemptTransport) * 1000) / 1000,
     );
 
     // Base annuelle pour les abattements

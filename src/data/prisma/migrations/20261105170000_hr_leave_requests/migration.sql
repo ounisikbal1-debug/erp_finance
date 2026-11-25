@@ -1,4 +1,4 @@
-CREATE TABLE "HrLeaveRequest" (
+﻿CREATE TABLE "HrLeaveRequest" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "entityId" TEXT NOT NULL,
     "employeeId" TEXT NOT NULL,

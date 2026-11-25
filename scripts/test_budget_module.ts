@@ -1,4 +1,4 @@
-import { BudgetService } from '../src/application/modules/budget/service';
+﻿import { BudgetService } from '../src/application/modules/budget/service';
 import defaultPrisma from '../src/data/prisma/client';
 
 async function test() {

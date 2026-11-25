@@ -514,7 +514,7 @@ export default function CountryConfigurationPanel({
                 ['stockAssetAccountCode', 'Compte de stock (actif)', 'text'],
                 ['stockAdjustmentAccountCode', 'Compte d’ajustement de stock (charge)', 'text'],
                 ['productionWipAccountCode', 'Compte production en cours (actif)', 'text'],
-                ['productionLaborAccountCode', 'Compte de contrepartie main-d’œuvre (charge)', 'text'],
+                ['productionLaborAccountCode', 'Compte de contrepartie main-d’Å“uvre (charge)', 'text'],
                 ['productionOverheadAccountCode', 'Compte de contrepartie frais indirects (charge)', 'text'],
                 ['purchaseExpenseAccountCode', 'Compte de charges achats', 'text'],
                 ['purchaseVatAccountCode', 'Compte TVA déductible achats', 'text'],

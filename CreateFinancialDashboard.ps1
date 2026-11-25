@@ -1,6 +1,6 @@
-# CreateFinancialDashboard.ps1
+﻿# CreateFinancialDashboard.ps1
 # This script creates an Excel workbook with all required worksheets and formulas.
-# It uses the built‑in COM automation (Excel.Application), so no external PowerShell modules are needed.
+# It uses the builtâ€‘in COM automation (Excel.Application), so no external PowerShell modules are needed.
 # The workbook is saved to C:\Users\USER\AppData\Roaming\safe\FinancialDashboard.xlsx
 
 $excelPath = "C:\Users\USER\AppData\Roaming\safe\FinancialDashboard.xlsx"
@@ -72,7 +72,7 @@ foreach ($r in $rows) {
     $rowIndex++
 }
 
-# Auto‑fit columns for readability
+# Autoâ€‘fit columns for readability
 $formulasSheet.Columns.AutoFit()
 
 # Save the workbook

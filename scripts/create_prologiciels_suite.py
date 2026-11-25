@@ -1,204 +1,204 @@
-import os, sys, json
+﻿import os, sys, json
 
 BASE_DIR = r"C:\Users\USER\OneDrive\Desktop\SAFE_ERP_DRAFT 4"
-CORE_ERP_DIR = os.path.join(BASE_DIR, "SAFE_ERP_DRAFT 3")
+CORE_ERP_DIR = os.path.join(BASE_DIR, "SAFE_Grandes_Entreprises")
 
 PROLOGICIELS = [
     {
         "folder": "SAFE_Facturation",
         "app_id": "facturation",
         "name": "SAFE Facturation (Achat & Vente)",
-        "tagline": "Facturation achats/ventes, conformité TTN El Fatoora, retenues à la source RS, créances & dettes",
+        "tagline": "Facturation achats/ventes, conformitÃ© TTN El Fatoora, retenues Ã  la source RS, crÃ©ances & dettes",
         "badge": "TTN & TVA Tunisienne",
-        "icon": "🧾",
+        "icon": "ðŸ§¾",
         "version": "1.0.0",
         "accent": "#E11D48",
         "modules": ["sales", "purchases", "tunisianEInvoices", "agedReceivables", "agedPayables", "taxation", "reportsExport"],
         "default_module": "sales",
         "legislation": [
-            "Décret n° 2016-1098 et Décret-loi n° 2021-21 (Facturation Électronique Nationale El Fatoora / TTN)",
-            "Code de la Taxe sur la Valeur Ajoutée (TVA) : Taux de 19 %, 13 %, 7 % et 0 %",
-            "Droit de Timbre Fiscal légal de 1,000 DT par facture client (Article 432)",
-            "Article 52 du Code de l'IRPP et de l'IS : Retenue à la Source (RS) de 1.5 % sur marchés et achats >= 1000 DT TTC, 0.5 % et 15 % sur honoraires",
-            "Système Comptable des Entreprises (SCE) - Norme NCT 03 (Revenus des activités ordinaires)"
+            "DÃ©cret nÂ° 2016-1098 et DÃ©cret-loi nÂ° 2021-21 (Facturation Ã‰lectronique Nationale El Fatoora / TTN)",
+            "Code de la Taxe sur la Valeur AjoutÃ©e (TVA) : Taux de 19 %, 13 %, 7 % et 0 %",
+            "Droit de Timbre Fiscal lÃ©gal de 1,000 DT par facture client (Article 432)",
+            "Article 52 du Code de l'IRPP et de l'IS : Retenue Ã  la Source (RS) de 1.5 % sur marchÃ©s et achats >= 1000 DT TTC, 0.5 % et 15 % sur honoraires",
+            "SystÃ¨me Comptable des Entreprises (SCE) - Norme NCT 03 (Revenus des activitÃ©s ordinaires)"
         ],
         "features": [
-            "Émission de devis et bons de commande clients convertibles en factures en un clic",
+            "Ã‰mission de devis et bons de commande clients convertibles en factures en un clic",
             "Facturation des ventes avec ventilation automatique des taux de TVA tunisiens (19%, 13%, 7%, 0%)",
-            "Facturation des achats et lettrage 3-way matching avec bons de commande et réceptions",
-            "Module Facturation Électronique Tunisienne (El Fatoora) homologué Tunisie TradeNet (TTN)",
-            "Génération de flux XML conformes au standard international OASIS UBL 2.1 Invoice",
-            "Signature électronique qualifiée TunTrust PKI (certificat X.509 délivré par l'ANCE)",
-            "Cachet Électronique Visible (CEV / 2D-Doc) avec QR Code haute densité pour contrôle DGI",
-            "Génération et émission automatique des certificats de Retenue à la Source (RS) pour les fournisseurs",
-            "Suivi rigoureux du délai moyen de paiement (DSO) et balance âgée des créances clients",
-            "Gestion des échéanciers fournisseurs et évitement des pénalités de retard"
+            "Facturation des achats et lettrage 3-way matching avec bons de commande et rÃ©ceptions",
+            "Module Facturation Ã‰lectronique Tunisienne (El Fatoora) homologuÃ© Tunisie TradeNet (TTN)",
+            "GÃ©nÃ©ration de flux XML conformes au standard international OASIS UBL 2.1 Invoice",
+            "Signature Ã©lectronique qualifiÃ©e TunTrust PKI (certificat X.509 dÃ©livrÃ© par l'ANCE)",
+            "Cachet Ã‰lectronique Visible (CEV / 2D-Doc) avec QR Code haute densitÃ© pour contrÃ´le DGI",
+            "GÃ©nÃ©ration et Ã©mission automatique des certificats de Retenue Ã  la Source (RS) pour les fournisseurs",
+            "Suivi rigoureux du dÃ©lai moyen de paiement (DSO) et balance Ã¢gÃ©e des crÃ©ances clients",
+            "Gestion des Ã©chÃ©anciers fournisseurs et Ã©vitement des pÃ©nalitÃ©s de retard"
         ]
     },
     {
         "folder": "SAFE_Gestion_des_Stocks",
         "app_id": "stocks",
-        "name": "SAFE Gestion des Stocks & Entrepôts (MM)",
-        "tagline": "Entrepôts multi-dépôts, mouvements, inventaires, valorisation PUMP, régimes douaniers AT/ACT",
+        "name": "SAFE Gestion des Stocks & EntrepÃ´ts (MM)",
+        "tagline": "EntrepÃ´ts multi-dÃ©pÃ´ts, mouvements, inventaires, valorisation PUMP, rÃ©gimes douaniers AT/ACT",
         "badge": "PUMP & Douane AT/ACT",
-        "icon": "📦",
+        "icon": "ðŸ“¦",
         "version": "1.0.0",
         "accent": "#0D9488",
         "modules": ["stocks", "mrpPlanning", "customsRegimes", "purchases", "reportsExport"],
         "default_module": "stocks",
         "legislation": [
-            "Norme Comptable Tunisienne NCT 04 : Évaluation des stocks au Coût Moyen Unitaire Pondéré (PUMP / CMP)",
-            "Code des Douanes Tunisien : Régimes suspensifs d'Admission Temporaire (AT) et d'Amélioration Active (ACT)",
-            "Loi de Finances : Règles de traçabilité des flux de marchandises et inventaire physique annuel obligatoire",
-            "Arrêtés ministériels relatifs aux cautions et garanties bancaires douanières"
+            "Norme Comptable Tunisienne NCT 04 : Ã‰valuation des stocks au CoÃ»t Moyen Unitaire PondÃ©rÃ© (PUMP / CMP)",
+            "Code des Douanes Tunisien : RÃ©gimes suspensifs d'Admission Temporaire (AT) et d'AmÃ©lioration Active (ACT)",
+            "Loi de Finances : RÃ¨gles de traÃ§abilitÃ© des flux de marchandises et inventaire physique annuel obligatoire",
+            "ArrÃªtÃ©s ministÃ©riels relatifs aux cautions et garanties bancaires douaniÃ¨res"
         ],
         "features": [
-            "Gestion multi-magasins, dépôts régionaux et plateformes logistiques tunisiennes",
-            "Fichier articles avec références internes, codes-barres EAN13 et unités de conditionnement",
-            "Enregistrement atomique des mouvements : Réceptions achats, Sorties fabrication, Retours et Transferts inter-dépôts",
-            "Calcul automatisé en temps réel du Prix Unitaire Moyen Pondéré (PUMP / CMP) au millime",
-            "Gestion des inventaires tournants et annuels avec calcul et justification des écarts d'inventaire",
-            "Registre réglementaire d'Admission Temporaire (AT / ACT) sous contrôle des services douaniers tunisiens",
-            "Suivi des cautions douanières bancaires et comptes d'apurement à l'exportation",
-            "Planification des Besoins Matières (MRP) et alertes automatiques de réapprovisionnement sur seuils minimaux"
+            "Gestion multi-magasins, dÃ©pÃ´ts rÃ©gionaux et plateformes logistiques tunisiennes",
+            "Fichier articles avec rÃ©fÃ©rences internes, codes-barres EAN13 et unitÃ©s de conditionnement",
+            "Enregistrement atomique des mouvements : RÃ©ceptions achats, Sorties fabrication, Retours et Transferts inter-dÃ©pÃ´ts",
+            "Calcul automatisÃ© en temps rÃ©el du Prix Unitaire Moyen PondÃ©rÃ© (PUMP / CMP) au millime",
+            "Gestion des inventaires tournants et annuels avec calcul et justification des Ã©carts d'inventaire",
+            "Registre rÃ©glementaire d'Admission Temporaire (AT / ACT) sous contrÃ´le des services douaniers tunisiens",
+            "Suivi des cautions douaniÃ¨res bancaires et comptes d'apurement Ã  l'exportation",
+            "Planification des Besoins MatiÃ¨res (MRP) et alertes automatiques de rÃ©approvisionnement sur seuils minimaux"
         ]
     },
     {
         "folder": "SAFE_Paie",
         "app_id": "paie",
-        "name": "SAFE Paie Tunisienne & Déclarations Sociales",
-        "tagline": "Moteur de paie tunisien, barème IRPP 8 tranches, CNSS 9.68%, FOPROLOS, CSS & fiches de paie",
+        "name": "SAFE Paie Tunisienne & DÃ©clarations Sociales",
+        "tagline": "Moteur de paie tunisien, barÃ¨me IRPP 8 tranches, CNSS 9.68%, FOPROLOS, CSS & fiches de paie",
         "badge": "IRPP & CNSS 2026",
-        "icon": "💵",
+        "icon": "ðŸ’µ",
         "version": "1.0.0",
         "accent": "#16A34A",
         "modules": ["payrollEngine", "hrDeep", "hrWorkflows", "reportsExport"],
         "default_module": "payrollEngine",
         "legislation": [
-            "Loi de Finances : Barème progressif légal de l'IRPP à 8 tranches",
-            "Déductions familiales légales : 300 DT pour chef de famille, 100 DT par enfant à charge (jusqu'à 4 enfants)",
-            "Législation de Sécurité Sociale : Cotisation CNSS salariale à 9.68 % et part patronale à 16.57 % (secteur non-agricole)",
-            "Loi n° 77-54 créant le Fonds de Promotion du Logement pour les Salariés (FOPROLOS) : Taux de 1 %",
-            "Loi de Finances : Contribution Sociale de Solidarité (CSS) à 0.5 % pour le financement des caisses de retraite",
+            "Loi de Finances : BarÃ¨me progressif lÃ©gal de l'IRPP Ã  8 tranches",
+            "DÃ©ductions familiales lÃ©gales : 300 DT pour chef de famille, 100 DT par enfant Ã  charge (jusqu'Ã  4 enfants)",
+            "LÃ©gislation de SÃ©curitÃ© Sociale : Cotisation CNSS salariale Ã  9.68 % et part patronale Ã  16.57 % (secteur non-agricole)",
+            "Loi nÂ° 77-54 crÃ©ant le Fonds de Promotion du Logement pour les SalariÃ©s (FOPROLOS) : Taux de 1 %",
+            "Loi de Finances : Contribution Sociale de SolidaritÃ© (CSS) Ã  0.5 % pour le financement des caisses de retraite",
             "Accords paritaires et conventions collectives sectorielles tunisiennes (grilles de salaires minima)"
         ],
         "features": [
-            "Moteur de calcul de paie haute précision au millime tunisien (3 décimales)",
-            "Génération en un clic des bulletins de paie mensuels normalisés",
-            "Calcul instantané du salaire brut au salaire net et simulation inverse (Net vers Brut)",
-            "Calcul automatisé des heures supplémentaires bonifiées selon le Code du travail tunisien (25%, 50%, 100%)",
-            "Édition du Livre de Paie mensuel conforme aux obligations de l'Inspection du Travail",
-            "Préparation et télétransmission de la Déclaration Trimestrielle des Salaires CNSS (DS)",
-            "Gestion des avances sur salaires, acomptes et prêts entreprise avec retenue sur paie",
-            "Comptabilisation automatique des écritures de paie (Salaires 641, CNSS 434, IRPP 432)"
+            "Moteur de calcul de paie haute prÃ©cision au millime tunisien (3 dÃ©cimales)",
+            "GÃ©nÃ©ration en un clic des bulletins de paie mensuels normalisÃ©s",
+            "Calcul instantanÃ© du salaire brut au salaire net et simulation inverse (Net vers Brut)",
+            "Calcul automatisÃ© des heures supplÃ©mentaires bonifiÃ©es selon le Code du travail tunisien (25%, 50%, 100%)",
+            "Ã‰dition du Livre de Paie mensuel conforme aux obligations de l'Inspection du Travail",
+            "PrÃ©paration et tÃ©lÃ©transmission de la DÃ©claration Trimestrielle des Salaires CNSS (DS)",
+            "Gestion des avances sur salaires, acomptes et prÃªts entreprise avec retenue sur paie",
+            "Comptabilisation automatique des Ã©critures de paie (Salaires 641, CNSS 434, IRPP 432)"
         ]
     },
     {
         "folder": "SAFE_Gestion_RH",
         "app_id": "rh",
         "name": "SAFE Gestion des Ressources Humaines & Talents",
-        "tagline": "Dossiers collaborateurs, contrats CDI/CDD/CIVP, suivi congés légaux, médecine du travail & GPEC",
+        "tagline": "Dossiers collaborateurs, contrats CDI/CDD/CIVP, suivi congÃ©s lÃ©gaux, mÃ©decine du travail & GPEC",
         "badge": "Code du Travail Tunisien",
-        "icon": "👔",
+        "icon": "ðŸ‘”",
         "version": "1.0.0",
         "accent": "#6366F1",
         "modules": ["hrDeep", "hrWorkflows", "hrTraining", "quality", "reportsExport"],
         "default_module": "hrDeep",
         "legislation": [
-            "Code du Travail Tunisien (Loi n° 66-27 modifiée) régissant les contrats et conditions de travail",
-            "Réglementation ANETI pour les contrats d'insertion professionnelle (CIVP / SIVP, CAIP, Contrat Karama)",
-            "Articles 112 et suivants du Code du Travail : Droit au congé payé (1 jour par mois + bonifications d'ancienneté)",
-            "Décrets fixant la liste officielle des jours fériés chômés et payés en République Tunisienne",
-            "Réglementation relative à la Médecine du Travail et à la Prévention des Risques Professionnels"
+            "Code du Travail Tunisien (Loi nÂ° 66-27 modifiÃ©e) rÃ©gissant les contrats et conditions de travail",
+            "RÃ©glementation ANETI pour les contrats d'insertion professionnelle (CIVP / SIVP, CAIP, Contrat Karama)",
+            "Articles 112 et suivants du Code du Travail : Droit au congÃ© payÃ© (1 jour par mois + bonifications d'anciennetÃ©)",
+            "DÃ©crets fixant la liste officielle des jours fÃ©riÃ©s chÃ´mÃ©s et payÃ©s en RÃ©publique Tunisienne",
+            "RÃ©glementation relative Ã  la MÃ©decine du Travail et Ã  la PrÃ©vention des Risques Professionnels"
         ],
         "features": [
-            "Dossier collaborateur dématérialisé (Identité, CIN, Matricule CNSS, Diplômes, Pièces jointes)",
-            "Gestion du cycle de vie des contrats de travail : Période d'essai, CDI, CDD et conventions ANETI (CIVP)",
-            "Module de demande et validation dématérialisée des congés payés avec calcul automatique des droits",
-            "Calendrier officiel des jours fériés nationaux et religieux tunisiens avec calcul des ponts",
-            "Suivi de la Médecine du Travail (visites d'embauche, visites périodiques, attestations d'aptitude)",
-            "Cartographie des compétences, évaluation annuelle des performances et plans de formation (GPEC)",
-            "Édition automatique d'attestations de travail, certificats d'emploi et soldes de tout compte",
-            "Registre du personnel légal et archivage sécurisé des sanctions, promotions et avenants"
+            "Dossier collaborateur dÃ©matÃ©rialisÃ© (IdentitÃ©, CIN, Matricule CNSS, DiplÃ´mes, PiÃ¨ces jointes)",
+            "Gestion du cycle de vie des contrats de travail : PÃ©riode d'essai, CDI, CDD et conventions ANETI (CIVP)",
+            "Module de demande et validation dÃ©matÃ©rialisÃ©e des congÃ©s payÃ©s avec calcul automatique des droits",
+            "Calendrier officiel des jours fÃ©riÃ©s nationaux et religieux tunisiens avec calcul des ponts",
+            "Suivi de la MÃ©decine du Travail (visites d'embauche, visites pÃ©riodiques, attestations d'aptitude)",
+            "Cartographie des compÃ©tences, Ã©valuation annuelle des performances et plans de formation (GPEC)",
+            "Ã‰dition automatique d'attestations de travail, certificats d'emploi et soldes de tout compte",
+            "Registre du personnel lÃ©gal et archivage sÃ©curisÃ© des sanctions, promotions et avenants"
         ]
     },
     {
         "folder": "SAFE_Comptabilite_Fiscalite",
         "app_id": "comptabilite",
-        "name": "SAFE Comptabilité Générale & Fiscalité Tunisienne",
-        "tagline": "Système Comptable des Entreprises (SCE), Grand Livre, Balance 8 colonnes, Déclarations G50, Rapprochement bancaire",
+        "name": "SAFE ComptabilitÃ© GÃ©nÃ©rale & FiscalitÃ© Tunisienne",
+        "tagline": "SystÃ¨me Comptable des Entreprises (SCE), Grand Livre, Balance 8 colonnes, DÃ©clarations G50, Rapprochement bancaire",
         "badge": "SCE & Liasse Fiscale G50",
-        "icon": "⚖️",
+        "icon": "âš–ï¸",
         "version": "1.0.0",
         "accent": "#1E3A8A",
         "modules": ["generalBalance", "generalLedger", "accountingEntry", "taxation", "financialStatements", "bankReconciliation", "assetsManagement", "cashflow", "monthlyClose", "controlling", "anomalies", "incomeStatement", "reportsExport"],
         "default_module": "generalBalance",
         "legislation": [
-            "Loi n° 96-112 relative au Système Comptable des Entreprises (SCE) et normes comptables tunisiennes (NCT)",
-            "Plan de comptes officiel tunisien (Classes 1 à 7) avec tenue des écritures en partie double",
-            "Code des Droits et Procédures Fiscaux (CDPF) : Déclaration mensuelle d'impôt G50 avant le 28 de chaque mois",
-            "Code de l'IRPP et de l'IS : Taux normal d'Impôt sur les Sociétés de 20 % (Loi de Finances)",
-            "Normes internationales d'audit (ISA) : Piste d'audit immuable et irréversibilité des écritures closes"
+            "Loi nÂ° 96-112 relative au SystÃ¨me Comptable des Entreprises (SCE) et normes comptables tunisiennes (NCT)",
+            "Plan de comptes officiel tunisien (Classes 1 Ã  7) avec tenue des Ã©critures en partie double",
+            "Code des Droits et ProcÃ©dures Fiscaux (CDPF) : DÃ©claration mensuelle d'impÃ´t G50 avant le 28 de chaque mois",
+            "Code de l'IRPP et de l'IS : Taux normal d'ImpÃ´t sur les SociÃ©tÃ©s de 20 % (Loi de Finances)",
+            "Normes internationales d'audit (ISA) : Piste d'audit immuable et irrÃ©versibilitÃ© des Ã©critures closes"
         ],
         "features": [
             "Saisie comptable horizontale ergonomique et journaux auxiliaires (Achats, Ventes, Banque, Caisse, OD)",
-            "Balance Générale des Comptes à 8 colonnes (Balances d'ouverture, Mouvements débit/crédit, Soldes de clôture)",
-            "Grand Livre Général (GL) dynamique avec filtrage par compte, période, lettrage et devise",
+            "Balance GÃ©nÃ©rale des Comptes Ã  8 colonnes (Balances d'ouverture, Mouvements dÃ©bit/crÃ©dit, Soldes de clÃ´ture)",
+            "Grand Livre GÃ©nÃ©ral (GL) dynamique avec filtrage par compte, pÃ©riode, lettrage et devise",
             "Rapprochement bancaire multi-banques tunisiennes (STB, BIAT, BH Bank, BNA, Attijariwafa, UIB)",
-            "Génération automatique des liasses fiscales mensuelles Déclaration G50 (TVA, Timbre, RS)",
-            "Calcul et déclaration de l'Impôt sur les Sociétés (IS) au taux légal de 20 % avec acomptes provisionnels",
-            "Immutabilité et protection des périodes clôturées (interdiction absolue d'écritures antidatées)",
-            "Piste d'audit cryptographique continue scellée par hachage SHA-256 (JournalEntryAuditChainHead)"
+            "GÃ©nÃ©ration automatique des liasses fiscales mensuelles DÃ©claration G50 (TVA, Timbre, RS)",
+            "Calcul et dÃ©claration de l'ImpÃ´t sur les SociÃ©tÃ©s (IS) au taux lÃ©gal de 20 % avec acomptes provisionnels",
+            "ImmutabilitÃ© et protection des pÃ©riodes clÃ´turÃ©es (interdiction absolue d'Ã©critures antidatÃ©es)",
+            "Piste d'audit cryptographique continue scellÃ©e par hachage SHA-256 (JournalEntryAuditChainHead)"
         ]
     },
     {
         "folder": "SAFE_Production_GPAO",
         "app_id": "production",
         "name": "SAFE Production Industrielle & GPAO",
-        "tagline": "Nomenclatures BOM, Ordres de Fabrication (OF), Planification MRP & Maintenance des équipements",
+        "tagline": "Nomenclatures BOM, Ordres de Fabrication (OF), Planification MRP & Maintenance des Ã©quipements",
         "badge": "Industrie & GPAO",
-        "icon": "⚙️",
+        "icon": "âš™ï¸",
         "version": "1.0.0",
         "accent": "#D97706",
         "modules": ["activities", "mrpPlanning", "stocks", "maintenance", "quality", "reportsExport"],
         "default_module": "activities",
         "legislation": [
-            "Normes Tunisiennes homologuées (INNORPI) relatives aux procédés industriels et à la traçabilité de production",
-            "Norme Comptable Tunisienne NCT 04 : Évaluation et valorisation des produits en cours et des produits finis",
-            "Réglementation de la sécurité des équipements industriels et registres de maintenance obligatoire"
+            "Normes Tunisiennes homologuÃ©es (INNORPI) relatives aux procÃ©dÃ©s industriels et Ã  la traÃ§abilitÃ© de production",
+            "Norme Comptable Tunisienne NCT 04 : Ã‰valuation et valorisation des produits en cours et des produits finis",
+            "RÃ©glementation de la sÃ©curitÃ© des Ã©quipements industriels et registres de maintenance obligatoire"
         ],
         "features": [
             "Gestion des nomenclatures de fabrication multi-niveaux (Bill of Materials - BOM)",
-            "Création, ordonnancement et suivi d'avancement des Ordres de Fabrication (OF)",
-            "Calcul des Besoins Nets (MRP) synchronisé avec les stocks de composants et les commandes clients",
-            "Imputation précise des temps machines, coûts de main-d'œuvre et frais généraux d'atelier",
-            "Gestion de la maintenance assistée par ordinateur (GMAO) : Parc machines, compteurs, interventions préventives/curatives",
-            "Module Qualité & CAPA : Déclaration de non-conformités, fiches de rebuts et plans d'actions correctives"
+            "CrÃ©ation, ordonnancement et suivi d'avancement des Ordres de Fabrication (OF)",
+            "Calcul des Besoins Nets (MRP) synchronisÃ© avec les stocks de composants et les commandes clients",
+            "Imputation prÃ©cise des temps machines, coÃ»ts de main-d'Å“uvre et frais gÃ©nÃ©raux d'atelier",
+            "Gestion de la maintenance assistÃ©e par ordinateur (GMAO) : Parc machines, compteurs, interventions prÃ©ventives/curatives",
+            "Module QualitÃ© & CAPA : DÃ©claration de non-conformitÃ©s, fiches de rebuts et plans d'actions correctives"
         ]
     },
     {
         "folder": "SAFE_Immobilisations",
         "app_id": "comptabilite",
         "name": "SAFE Immobilisations & Amortissements",
-        "tagline": "Gestion des actifs corporels/incorporels, tableaux d'amortissement linéaire/dégressif, écritures d'inventaire",
-        "badge": "Barèmes Fiscaux DGI",
-        "icon": "🏢",
+        "tagline": "Gestion des actifs corporels/incorporels, tableaux d'amortissement linÃ©aire/dÃ©gressif, Ã©critures d'inventaire",
+        "badge": "BarÃ¨mes Fiscaux DGI",
+        "icon": "ðŸ¢",
         "version": "1.0.0",
         "accent": "#7C3AED",
         "modules": ["assetsManagement", "generalBalance", "generalLedger", "financialStatements", "reportsExport"],
         "default_module": "assetsManagement",
         "legislation": [
             "Norme Comptable Tunisienne NCT 05 relative aux immobilisations corporelles",
-            "Barèmes des taux d'amortissement fiscalement admis par la Direction Générale des Impôts (DGI tunisienne)",
-            "Règles d'amortissement linéaire (constat constant prorata temporis) et dégressif prévu par le Code de l'IRPP/IS"
+            "BarÃ¨mes des taux d'amortissement fiscalement admis par la Direction GÃ©nÃ©rale des ImpÃ´ts (DGI tunisienne)",
+            "RÃ¨gles d'amortissement linÃ©aire (constat constant prorata temporis) et dÃ©gressif prÃ©vu par le Code de l'IRPP/IS"
         ],
         "features": [
-            "Fichier exhaustif des immobilisations avec code barre d'inventaire, localisation et centre de coût",
-            "Plans d'amortissement prévisionnels automatiques calculés au prorata temporis exact",
-            "Application des taux d'amortissement légaux : Bâtiments (5%), Matériel industriel (10%-20%), Informatique (33.3%)",
-            "Génération en un clic des écritures comptables annuelles de dotation aux amortissements (681 / 28x)",
+            "Fichier exhaustif des immobilisations avec code barre d'inventaire, localisation et centre de coÃ»t",
+            "Plans d'amortissement prÃ©visionnels automatiques calculÃ©s au prorata temporis exact",
+            "Application des taux d'amortissement lÃ©gaux : BÃ¢timents (5%), MatÃ©riel industriel (10%-20%), Informatique (33.3%)",
+            "GÃ©nÃ©ration en un clic des Ã©critures comptables annuelles de dotation aux amortissements (681 / 28x)",
             "Gestion des cessions, mises au rebut et calcul des plus-values ou moins-values fiscales de cession",
-            "Édition du tableau d'inventaire physique des immobilisations conforme aux exigences des commissaires aux comptes"
+            "Ã‰dition du tableau d'inventaire physique des immobilisations conforme aux exigences des commissaires aux comptes"
         ]
     }
 ]
@@ -263,43 +263,43 @@ def make_readme_md(prolog):
     feats = "\\n".join([f"- {f}" for f in prolog["features"]])
     return f"""# {prolog['icon']} {prolog['name']}
 > **{prolog['tagline']}**
-> *Conformité certifiée : {prolog['badge']} • Version {prolog['version']}*
+> *ConformitÃ© certifiÃ©e : {prolog['badge']} â€¢ Version {prolog['version']}*
 
 ---
 
-## 1. Présentation du Prologiciel
+## 1. PrÃ©sentation du Prologiciel
 
-**{prolog['name']}** est un progiciel vertical dédié, conçu pour répondre avec une précision absolue aux exigences opérationnelles, comptables et fiscales des entreprises établies en **République Tunisienne**.
+**{prolog['name']}** est un progiciel vertical dÃ©diÃ©, conÃ§u pour rÃ©pondre avec une prÃ©cision absolue aux exigences opÃ©rationnelles, comptables et fiscales des entreprises Ã©tablies en **RÃ©publique Tunisienne**.
 
-Il fonctionne de manière entièrement autonome pour les équipes opérationnelles tout en restant nativement synchronisé avec le noyau sécurisé **SAFE ERP**, garantissant l'intégrité transactionnelle globale de l'organisation.
+Il fonctionne de maniÃ¨re entiÃ¨rement autonome pour les Ã©quipes opÃ©rationnelles tout en restant nativement synchronisÃ© avec le noyau sÃ©curisÃ© **SAFE ERP**, garantissant l'intÃ©gritÃ© transactionnelle globale de l'organisation.
 
 ---
 
-## 2. Cadre Réglementaire & Fiscal Tunisien
+## 2. Cadre RÃ©glementaire & Fiscal Tunisien
 
 {legs}
 
 ---
 
-## 3. Fonctionnalités Clés Livrées
+## 3. FonctionnalitÃ©s ClÃ©s LivrÃ©es
 
 {feats}
 
 ---
 
-## 4. Démarrage Rapide
+## 4. DÃ©marrage Rapide
 
-Double-cliquez simplement sur le fichier exécutable suivant situé dans ce répertoire :
+Double-cliquez simplement sur le fichier exÃ©cutable suivant situÃ© dans ce rÃ©pertoire :
 
 ```bat
 Lancer_{prolog['folder']}.cmd
 ```
 
-Le progiciel démarre immédiatement en local sur votre poste et ouvre votre navigateur Web directement dans votre environnement de travail dédié.
+Le progiciel dÃ©marre immÃ©diatement en local sur votre poste et ouvre votre navigateur Web directement dans votre environnement de travail dÃ©diÃ©.
 
 ---
 
-*SAFE Suite Tunisie • Système d'Analyse Financière des Entreprises • Normes Tunisiennes & Internationales*
+*SAFE Suite Tunisie â€¢ SystÃ¨me d'Analyse FinanciÃ¨re des Entreprises â€¢ Normes Tunisiennes & Internationales*
 """
 
 def create_suite():
@@ -346,16 +346,16 @@ echo ===========================================================================
 echo.
 echo   Choisissez le Prologiciel Metier a lancer :
 echo.
-echo   [1] 🧾 SAFE Facturation           (Achats, Ventes, E-Facture TTN, Retenue RS)
-echo   [2] 📦 SAFE Gestion des Stocks    (Multi-Depots, Valorisation PUMP, Douanes AT)
-echo   [3] 💵 SAFE Paie Tunisie          (Moteur IRPP 8 tranches, CNSS 9.68%%, CSS)
-echo   [4] 👔 SAFE Gestion RH            (Contrats CDI/CDD/CIVP, Conges Legaux, GPEC)
-echo   [5] ⚖️ SAFE Comptabilite          (SCE, Balance 8 col, Declarations G50, IS)
-echo   [6] ⚙️ SAFE Production GPAO       (Nomenclatures BOM, Ordres OF, MRP)
-echo   [7] 🏢 SAFE Immobilisations       (Amortissements Lineaires & Degressifs DGI)
+echo   [1] ðŸ§¾ SAFE Facturation           (Achats, Ventes, E-Facture TTN, Retenue RS)
+echo   [2] ðŸ“¦ SAFE Gestion des Stocks    (Multi-Depots, Valorisation PUMP, Douanes AT)
+echo   [3] ðŸ’µ SAFE Paie Tunisie          (Moteur IRPP 8 tranches, CNSS 9.68%%, CSS)
+echo   [4] ðŸ‘” SAFE Gestion RH            (Contrats CDI/CDD/CIVP, Conges Legaux, GPEC)
+echo   [5] âš–ï¸ SAFE Comptabilite          (SCE, Balance 8 col, Declarations G50, IS)
+echo   [6] âš™ï¸ SAFE Production GPAO       (Nomenclatures BOM, Ordres OF, MRP)
+echo   [7] ðŸ¢ SAFE Immobilisations       (Amortissements Lineaires & Degressifs DGI)
 echo.
-echo   [8] 🌐 SAFE ERP Global            (Suite Complete Integree - 28 Modules)
-echo   [0] ❌ Quitter
+echo   [8] ðŸŒ SAFE ERP Global            (Suite Complete Integree - 28 Modules)
+echo   [0] âŒ Quitter
 echo.
 echo ===============================================================================
 set /p CHOIX="Entrez votre numero (1-8 ou 0) : "
@@ -399,46 +399,47 @@ goto MENU
     # 6. Create Master Documentation in SAFE_ERP_DRAFT 4 root
     master_readme = os.path.join(BASE_DIR, "CATALOGUE_SUITE_PROLOGICIELS_SAFE_TUNISIE.md")
     with open(master_readme, "w", encoding="utf-8") as f:
-        f.write("""# 🇹🇳 SAFE SUITE TUNISIE — CATALOGUE OFFICIEL DES PROLOGICIELS MÉTIERS
-> **Architecture Best-of-Breed Métier • Conforme aux Normes SCE, Fiscales & Sociales Tunisiennes**
+        f.write("""# ðŸ‡¹ðŸ‡³ SAFE SUITE TUNISIE â€” CATALOGUE OFFICIEL DES PROLOGICIELS MÃ‰TIERS
+> **Architecture Best-of-Breed MÃ©tier â€¢ Conforme aux Normes SCE, Fiscales & Sociales Tunisiennes**
 > *Emplacement : `C:\\Users\\USER\\OneDrive\\Desktop\\SAFE_ERP_DRAFT 4`*
 
 ---
 
 ## 1. Vision et Architecture Produit
 
-La suite **SAFE Tunisie** est structurée en une gamme de **Prologiciels Métiers Spécialisés** qui peuvent être déployés :
-1. **De façon autonome** par département ou métier (Facturation, Paie, RH, Stocks, Comptabilité).
-2. **De façon intégrée** partageant le même socle de données transactionnel temps réel (PostgreSQL / SQLite).
+La suite **SAFE Tunisie** est structurÃ©e en une gamme de **Prologiciels MÃ©tiers SpÃ©cialisÃ©s** qui peuvent Ãªtre dÃ©ployÃ©s :
+1. **De faÃ§on autonome** par dÃ©partement ou mÃ©tier (Facturation, Paie, RH, Stocks, ComptabilitÃ©).
+2. **De faÃ§on intÃ©grÃ©e** partageant le mÃªme socle de donnÃ©es transactionnel temps rÃ©el (PostgreSQL / SQLite).
 
-Chaque prologiciel dispose de son propre répertoire dédié dans `SAFE_ERP_DRAFT 4`, avec son lanceur Windows 1-clic et sa documentation complète.
+Chaque prologiciel dispose de son propre rÃ©pertoire dÃ©diÃ© dans `SAFE_ERP_DRAFT 4`, avec son lanceur Windows 1-clic et sa documentation complÃ¨te.
 
 ---
 
-## 2. Répertoire des Prologiciels Créés
+## 2. RÃ©pertoire des Prologiciels CrÃ©Ã©s
 
-| Répertoire | Prologiciel Métier | Domaine Clé | Réglementation Tunisienne Principale |
+| RÃ©pertoire | Prologiciel MÃ©tier | Domaine ClÃ© | RÃ©glementation Tunisienne Principale |
 | :--- | :--- | :--- | :--- |
-| `SAFE_Facturation` | **SAFE Facturation (Achat & Vente)** | Devis, Commandes, Factures, Retenue RS, E-Facture TTN | Décret 2016-1098, Décret-loi 2021-21, TVA 19/13/7%, RS 1.5% |
-| `SAFE_Gestion_des_Stocks` | **SAFE Gestion des Stocks (MM)** | Dépôts, Mouvements, PUMP, Inventaires, Douanes | NCT 04, Code des Douanes (AT / ACT) |
-| `SAFE_Paie` | **SAFE Paie & Salaires** | Fiches de paie, IRPP, CNSS, FOPROLOS, CSS, DS | Barème IRPP 8 tranches, CNSS 9.68%, Déductions familiales |
-| `SAFE_Gestion_RH` | **SAFE Gestion des Ressources Humaines** | Collaborateurs, Contrats CIVP/CDI, Congés légaux | Code du Travail (Loi 66-27), Décrets ANETI |
-| `SAFE_Comptabilite_Fiscalite` | **SAFE Comptabilité & Fiscalité** | Grand Livre, Balance 8 col, G50, IS 20%, Banques | Loi 96-112 (SCE), G50 mensuel, IS 20% |
+| `SAFE_Facturation` | **SAFE Facturation (Achat & Vente)** | Devis, Commandes, Factures, Retenue RS, E-Facture TTN | DÃ©cret 2016-1098, DÃ©cret-loi 2021-21, TVA 19/13/7%, RS 1.5% |
+| `SAFE_Gestion_des_Stocks` | **SAFE Gestion des Stocks (MM)** | DÃ©pÃ´ts, Mouvements, PUMP, Inventaires, Douanes | NCT 04, Code des Douanes (AT / ACT) |
+| `SAFE_Paie` | **SAFE Paie & Salaires** | Fiches de paie, IRPP, CNSS, FOPROLOS, CSS, DS | BarÃ¨me IRPP 8 tranches, CNSS 9.68%, DÃ©ductions familiales |
+| `SAFE_Gestion_RH` | **SAFE Gestion des Ressources Humaines** | Collaborateurs, Contrats CIVP/CDI, CongÃ©s lÃ©gaux | Code du Travail (Loi 66-27), DÃ©crets ANETI |
+| `SAFE_Comptabilite_Fiscalite` | **SAFE ComptabilitÃ© & FiscalitÃ©** | Grand Livre, Balance 8 col, G50, IS 20%, Banques | Loi 96-112 (SCE), G50 mensuel, IS 20% |
 | `SAFE_Production_GPAO` | **SAFE Production & GPAO** | Nomenclatures BOM, Ordres de fabrication, MRP | Normes INNORPI, NCT 04 |
-| `SAFE_Immobilisations` | **SAFE Immobilisations** | Actifs, Amortissements linéaire/dégressif | NCT 05, Barèmes DGI |
+| `SAFE_Immobilisations` | **SAFE Immobilisations** | Actifs, Amortissements linÃ©aire/dÃ©gressif | NCT 05, BarÃ¨mes DGI |
 
 ---
 
-## 3. Modalités d'Utilisation
+## 3. ModalitÃ©s d'Utilisation
 
 1. **Lancement via le Menu Central** : Double-cliquez sur `MENU_PROLOGICIELS_SAFE.cmd` pour choisir votre prologiciel en un clic.
-2. **Lancement direct par métier** : Rendez-vous dans le dossier du prologiciel (ex: `SAFE_Facturation`) et lancez `Lancer_SAFE_Facturation.cmd`.
+2. **Lancement direct par mÃ©tier** : Rendez-vous dans le dossier du prologiciel (ex: `SAFE_Facturation`) et lancez `Lancer_SAFE_Facturation.cmd`.
 
 ---
-*SAFE Suite Tunisie • Version Entreprise 2026*
+*SAFE Suite Tunisie â€¢ Version Entreprise 2026*
 """)
 
-    print("✔ All 7 standalone business prologiciels successfully initialized!")
+    print("âœ” All 7 standalone business prologiciels successfully initialized!")
 
 if __name__ == "__main__":
     create_suite()
+

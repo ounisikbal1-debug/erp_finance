@@ -84,7 +84,7 @@ export const DEFAULT_TUNISIAN_PROJECTS: Project[] = [
     id: 'prj-tn-btp-01',
     projectCode: 'PRJ-BTP-2026-01',
     name: 'Chantier Siège Tertiaire R+5 (Berges du Lac 2, Tunis)',
-    description: 'Construction gros œuvre béton armé B25, menuiserie aluminium double vitrage, sécurité incendie & VRD selon CCAG tunisien.',
+    description: 'Construction gros Å“uvre béton armé B25, menuiserie aluminium double vitrage, sécurité incendie & VRD selon CCAG tunisien.',
     status: 'ACTIVE',
     budgetAmount: 4800000,
     contractAmount: 5450000,
@@ -92,18 +92,18 @@ export const DEFAULT_TUNISIAN_PROJECTS: Project[] = [
     endAt: '2026-12-31',
     tasks: [
       { id: 'tsk-01', title: 'Terrassement et fondations spéciales (Pieux forés CTC)', description: null, status: 'COMPLETED', dueAt: '2025-11-30', completedAt: '2025-11-28' },
-      { id: 'tsk-02', title: 'Gros œuvre poteaux / dalles RDC à R+3', description: null, status: 'IN_PROGRESS', dueAt: '2026-05-15', completedAt: null },
+      { id: 'tsk-02', title: 'Gros Å“uvre poteaux / dalles RDC à R+3', description: null, status: 'IN_PROGRESS', dueAt: '2026-05-15', completedAt: null },
       { id: 'tsk-03', title: 'Lots techniques : Climatisation VRV, plomberie & électricité CFO/CFA', description: null, status: 'PLANNED', dueAt: '2026-09-30', completedAt: null },
     ],
     milestones: [
       { id: 'mls-01', title: 'Obtention Permis de Bâtir & PV Implantation Géomètre', description: null, dueAt: '2025-08-15', completedAt: '2025-08-10' },
       { id: 'mls-02', title: 'Réception Technique Fondations CTC & Coulage Radiers', description: null, dueAt: '2025-11-15', completedAt: '2025-11-12' },
-      { id: 'mls-03', title: 'Hors d’Eau / Hors d’Air & Début Second Œuvre', description: null, dueAt: '2026-06-30', completedAt: null },
+      { id: 'mls-03', title: 'Hors d’Eau / Hors d’Air & Début Second Å’uvre', description: null, dueAt: '2026-06-30', completedAt: null },
       { id: 'mls-04', title: 'Réception Provisoire des Travaux & Décompte DGD', description: null, dueAt: '2026-12-15', completedAt: null },
     ],
     costs: [
       { id: 'cst-01', category: 'MATERIAL', description: 'Ciment HRS, fer à béton Fe500 et agrégats carrière Djebel Ressas', amount: 485000, occurredAt: '2025-12-10', sourceReference: 'FAC-FOURN-2025-88' },
-      { id: 'cst-02', category: 'LABOR', description: 'Main-d’œuvre ferrailleurs, coffreurs et chefs d’équipe chantier', amount: 165000, occurredAt: '2026-01-20', sourceReference: 'PAIE-CHANTIER-01' },
+      { id: 'cst-02', category: 'LABOR', description: 'Main-d’Å“uvre ferrailleurs, coffreurs et chefs d’équipe chantier', amount: 165000, occurredAt: '2026-01-20', sourceReference: 'PAIE-CHANTIER-01' },
       { id: 'cst-03', category: 'OVERHEAD', description: 'Location grues à tour Potain et centrale à béton mobile', amount: 72000, occurredAt: '2026-02-05', sourceReference: 'LOC-ENGINS-41' },
     ],
   },
@@ -455,7 +455,7 @@ export default function ProjectManagementPanel({
     : `${value.toLocaleString(getHtmlLanguage(language), { minimumFractionDigits: 3, maximumFractionDigits: 3 })} ${currency}`;
   const costCategoryLabel = (category: CostCategory) => text({
     MATERIAL: 'Matières',
-    LABOR: 'Main-d’œuvre',
+    LABOR: 'Main-d’Å“uvre',
     OVERHEAD: 'Frais généraux',
     OTHER: 'Autre',
   }[category]);
@@ -539,7 +539,7 @@ export default function ProjectManagementPanel({
               onClick={() => void deleteProject(selectedProject.id)}
               style={{ background: '#DC2626', color: '#FFFFFF', border: 0, borderRadius: 6, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}
             >
-              🗑️ Supprimer ce projet
+              🗑ï¸ Supprimer ce projet
             </button>
           )}
         </div>
@@ -567,7 +567,7 @@ export default function ProjectManagementPanel({
               <div><strong>{text('Écart budget − coûts saisis')}</strong><div>{formatMoney(selectedProject.summary?.budgetVariance)}</div></div>
               <div><strong>{text('Contrat − coûts saisis')}</strong><div>{formatMoney(selectedProject.summary?.contractLessRecordedCosts)}</div></div>
             </div>
-            <small style={{ color: '#64748B' }}>{text('Ces écarts ne comprennent pas les achats ni la main-d’œuvre tant qu’ils ne sont pas saisis ici; aucune marge comptable officielle n’est calculée.')}</small>
+            <small style={{ color: '#64748B' }}>{text('Ces écarts ne comprennent pas les achats ni la main-d’Å“uvre tant qu’ils ne sont pas saisis ici; aucune marge comptable officielle n’est calculée.')}</small>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
               <form onSubmit={(event) => void submit(event, `/api/projects/${encodeURIComponent(selectedProject.id)}/tasks`, {
                 title: taskTitle,
@@ -596,7 +596,7 @@ export default function ProjectManagementPanel({
               }, 'Coût saisi.')} style={formStyle}>
                 <h3 style={{ gridColumn: '1 / -1', margin: 0 }}>{text('Saisir un coût')}</h3>
                 <label>{text('Catégorie')}<select value={costCategory} onChange={(event) => setCostCategory(event.target.value as CostCategory)} style={inputStyle}>
-                  <option value="MATERIAL">{text('Matières')}</option><option value="LABOR">{text('Main-d’œuvre')}</option>
+                  <option value="MATERIAL">{text('Matières')}</option><option value="LABOR">{text('Main-d’Å“uvre')}</option>
                   <option value="OVERHEAD">{text('Frais généraux')}</option><option value="OTHER">{text('Autre')}</option>
                 </select></label>
                 <label>{text('Description')}<input required maxLength={300} value={costDescription} onChange={(event) => setCostDescription(event.target.value)} style={inputStyle} /></label>

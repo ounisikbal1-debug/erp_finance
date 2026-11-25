@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 import json
 import pathlib
 import sqlite3
@@ -9,9 +9,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 DATA_DIR = (ROOT / "src" / "data").resolve()
 COUNTRIES = [
     {"code": "TN", "name": "Tunisie", "currency": "TND", "symbol": "DT", "stamp": 1.0, "corporate": 20.0},
-    {"code": "FR", "name": "France", "currency": "EUR", "symbol": "€"},
-    {"code": "US", "name": "États-Unis", "currency": "USD", "symbol": "$"},
-    {"code": "AE", "name": "Émirats arabes unis", "currency": "AED", "symbol": "AED"},
+    {"code": "FR", "name": "France", "currency": "EUR", "symbol": "â‚¬"},
+    {"code": "US", "name": "Ã‰tats-Unis", "currency": "USD", "symbol": "$"},
+    {"code": "AE", "name": "Ã‰mirats arabes unis", "currency": "AED", "symbol": "AED"},
 ]
 ENTITIES = [
     {"code": "SAFE-TN-001", "name": "SAFE AFRIQUE TUNISIE", "country": "TN"},
@@ -28,7 +28,7 @@ def new_id():
 def seed_database(database_path):
     database_path = pathlib.Path(database_path).resolve()
     if DATA_DIR not in database_path.parents or not database_path.is_file():
-        raise ValueError("La base cible doit être un fichier SQLite existant dans src/data de DRAFT2.")
+        raise ValueError("La base cible doit Ãªtre un fichier SQLite existant dans src/data de DRAFT2.")
 
     db = sqlite3.connect(database_path)
     db.row_factory = sqlite3.Row
@@ -45,7 +45,7 @@ def seed_database(database_path):
         for table, expected_columns in required.items():
             columns = {row["name"] for row in db.execute(f'PRAGMA table_info("{table}")')}
             if not expected_columns.issubset(columns):
-                raise ValueError(f"Schéma {table} incomplet; déployez d’abord la migration DRAFT2.")
+                raise ValueError(f"SchÃ©ma {table} incomplet; dÃ©ployez dâ€™abord la migration DRAFT2.")
             if table == "Entity":
                 entity_columns = columns
 
@@ -85,7 +85,7 @@ def seed_database(database_path):
             expected_country = country_ids[entity["country"]]
             if existing:
                 if existing["name"] != entity["name"] or existing["countryId"] != expected_country:
-                    raise ValueError(f"Le code société {entity['code']} existe avec une identité différente.")
+                    raise ValueError(f"Le code sociÃ©tÃ© {entity['code']} existe avec une identitÃ© diffÃ©rente.")
                 entity_ids[entity["code"]] = existing["id"]
                 continue
             entity_id = new_id()
@@ -110,7 +110,7 @@ def seed_database(database_path):
         ).fetchone()
         if group:
             if group["ownerEntityId"] != owner_id or group["reportingCurrencyCode"] != "TND":
-                raise ValueError("Le groupe SAFE Groupe existe avec une configuration différente.")
+                raise ValueError("Le groupe SAFE Groupe existe avec une configuration diffÃ©rente.")
             group_id = group["id"]
         else:
             group_id = new_id()
@@ -129,7 +129,7 @@ def seed_database(database_path):
             ).fetchone()
             if membership:
                 if membership["ownershipPercentage"] != 100 or membership["consolidationMethod"] != "PROPORTIONAL":
-                    raise ValueError(f"Le rattachement de {entity['name']} a une configuration différente.")
+                    raise ValueError(f"Le rattachement de {entity['name']} a une configuration diffÃ©rente.")
                 continue
             db.execute(
                 '''INSERT INTO "ConsolidationGroupEntity"
@@ -145,7 +145,7 @@ def seed_database(database_path):
             ).fetchone()
             if existing:
                 if existing["name"] != name or existing["parentId"] != parent_id:
-                    raise ValueError(f"La juridiction {code} existe avec une identité différente.")
+                    raise ValueError(f"La juridiction {code} existe avec une identitÃ© diffÃ©rente.")
                 return existing["id"]
             jurisdiction_id = new_id()
             db.execute(
@@ -174,7 +174,7 @@ def seed_database(database_path):
             ).fetchone()[0],
         }
         if result != {"countries": 4, "entities": 4, "groups": 1, "memberships": 4, "us_local_jurisdictions": 4}:
-            raise ValueError(f"Vérification de la population SAFE Groupe échouée : {result}")
+            raise ValueError(f"VÃ©rification de la population SAFE Groupe Ã©chouÃ©e : {result}")
         db.commit()
         return result
     except Exception:
@@ -190,7 +190,7 @@ def main():
     parser.add_argument("--confirm", required=True)
     args = parser.parse_args()
     if args.confirm != "YES":
-        raise SystemExit("Refusé : --confirm YES est nécessaire.")
+        raise SystemExit("RefusÃ© : --confirm YES est nÃ©cessaire.")
     print(json.dumps(seed_database(args.database), ensure_ascii=False))
 
 

@@ -1,4 +1,4 @@
-import sqlite3, hashlib, datetime, uuid
+﻿import sqlite3, hashlib, datetime, uuid
 
 conn = sqlite3.connect('src/data/data.db')
 c = conn.cursor()
@@ -90,4 +90,4 @@ for inv in invoices:
     count += 1
 
 conn.commit()
-print(f'✔ Successfully created {count} Tunisian e-invoices with TTN approval & TunTrust PKI signature!')
+print(f'âœ” Successfully created {count} Tunisian e-invoices with TTN approval & TunTrust PKI signature!')

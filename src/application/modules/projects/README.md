@@ -1,7 +1,7 @@
-# Projets et chantiers
+﻿# Projets et chantiers
 
-Le module conserve des projets cloisonnés par entité avec budget, montant contractuel, tâches, jalons et coûts saisis par l’utilisateur. Le résumé compare le budget aux coûts enregistrés et affiche le montant contractuel moins ces coûts; il ne s’agit pas d’une marge comptable officielle.
+Le module conserve des projets cloisonnÃ©s par entitÃ© avec budget, montant contractuel, tÃ¢ches, jalons et coÃ»ts saisis par lâ€™utilisateur. Le rÃ©sumÃ© compare le budget aux coÃ»ts enregistrÃ©s et affiche le montant contractuel moins ces coÃ»ts; il ne sâ€™agit pas dâ€™une marge comptable officielle.
 
-Les catégories de coûts sont Matières, Main-d’œuvre, Frais généraux et Autre. Elles ne sont pas automatiquement imputées depuis les achats, les ordres de production ou la paie. Les rapprochements automatisés et la facturation à l’avancement restent à traiter.
+Les catÃ©gories de coÃ»ts sont MatiÃ¨res, Main-dâ€™Å“uvre, Frais gÃ©nÃ©raux et Autre. Elles ne sont pas automatiquement imputÃ©es depuis les achats, les ordres de production ou la paie. Les rapprochements automatisÃ©s et la facturation Ã  lâ€™avancement restent Ã  traiter.
 
-Les routes sont exposées sous `/api/projects`; l’accès est réservé aux rôles administrateur et responsable financier. Tests ciblés: `npm run test:projects`.
+Les routes sont exposÃ©es sous `/api/projects`; lâ€™accÃ¨s est rÃ©servÃ© aux rÃ´les administrateur et responsable financier. Tests ciblÃ©s: `npm run test:projects`.

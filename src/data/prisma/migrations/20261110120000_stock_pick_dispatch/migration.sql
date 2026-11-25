@@ -1,4 +1,4 @@
-CREATE TABLE "StockPick" (
+﻿CREATE TABLE "StockPick" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "entityId" TEXT NOT NULL,
   "reference" TEXT NOT NULL,

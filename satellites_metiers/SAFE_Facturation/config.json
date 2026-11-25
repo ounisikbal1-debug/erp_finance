@@ -2,7 +2,7 @@
     "folder": "SAFE_Facturation",
     "app_id": "facturation",
     "name": "SAFE Facturation (Achat & Vente)",
-    "tagline": "Facturation achats/ventes, conformité TTN El Fatoora, retenues à la source RS, créances & dettes",
+    "tagline": "Facturation achats/ventes, conformitÃ© TTN El Fatoora, retenues Ã  la source RS, crÃ©ances & dettes",
     "badge": "TTN & TVA Tunisienne",
     "icon": "/icons/facturation.png",
     "version": "1.0.0",
@@ -18,33 +18,33 @@
     ],
     "default_module": "sales",
     "legislation": [
-        "Décret n° 2016-1098 et Décret-loi n° 2021-21 (Facturation Électronique Nationale El Fatoora / TTN)",
-        "Code de la Taxe sur la Valeur Ajoutée (TVA) : Taux de 19 %, 13 %, 7 % et 0 %",
-        "Droit de Timbre Fiscal légal de 1,000 DT par facture client (Article 432)",
-        "Article 52 du Code de l'IRPP et de l'IS : Retenue à la Source (RS) de 1.5 % sur marchés et achats >= 1000 DT TTC, 0.5 % et 15 % sur honoraires",
-        "Système Comptable des Entreprises (SCE) - Norme NCT 03 (Revenus des activités ordinaires)"
+        "DÃ©cret nÂ° 2016-1098 et DÃ©cret-loi nÂ° 2021-21 (Facturation Ã‰lectronique Nationale El Fatoora / TTN)",
+        "Code de la Taxe sur la Valeur AjoutÃ©e (TVA) : Taux de 19 %, 13 %, 7 % et 0 %",
+        "Droit de Timbre Fiscal lÃ©gal de 1,000 DT par facture client (Article 432)",
+        "Article 52 du Code de l'IRPP et de l'IS : Retenue Ã  la Source (RS) de 1.5 % sur marchÃ©s et achats >= 1000 DT TTC, 0.5 % et 15 % sur honoraires",
+        "SystÃ¨me Comptable des Entreprises (SCE) - Norme NCT 03 (Revenus des activitÃ©s ordinaires)"
     ],
     "features": [
-        "Émission de devis et bons de commande clients convertibles en factures en un clic",
+        "Ã‰mission de devis et bons de commande clients convertibles en factures en un clic",
         "Facturation des ventes avec ventilation automatique des taux de TVA tunisiens (19%, 13%, 7%, 0%)",
-        "Facturation des achats et lettrage 3-way matching avec bons de commande et réceptions",
-        "Module Facturation Électronique Tunisienne (El Fatoora) homologué Tunisie TradeNet (TTN)",
-        "Génération de flux XML conformes au standard international OASIS UBL 2.1 Invoice",
-        "Signature électronique qualifiée TunTrust PKI (certificat X.509 délivré par l'ANCE)",
-        "Cachet Électronique Visible (CEV / 2D-Doc) avec QR Code haute densité pour contrôle DGI",
-        "Génération et émission automatique des certificats de Retenue à la Source (RS) pour les fournisseurs",
-        "Suivi rigoureux du délai moyen de paiement (DSO) et balance âgée des créances clients",
-        "Gestion des échéanciers fournisseurs et évitement des pénalités de retard"
+        "Facturation des achats et lettrage 3-way matching avec bons de commande et rÃ©ceptions",
+        "Module Facturation Ã‰lectronique Tunisienne (El Fatoora) homologuÃ© Tunisie TradeNet (TTN)",
+        "GÃ©nÃ©ration de flux XML conformes au standard international OASIS UBL 2.1 Invoice",
+        "Signature Ã©lectronique qualifiÃ©e TunTrust PKI (certificat X.509 dÃ©livrÃ© par l'ANCE)",
+        "Cachet Ã‰lectronique Visible (CEV / 2D-Doc) avec QR Code haute densitÃ© pour contrÃ´le DGI",
+        "GÃ©nÃ©ration et Ã©mission automatique des certificats de Retenue Ã  la Source (RS) pour les fournisseurs",
+        "Suivi rigoureux du dÃ©lai moyen de paiement (DSO) et balance Ã¢gÃ©e des crÃ©ances clients",
+        "Gestion des Ã©chÃ©anciers fournisseurs et Ã©vitement des pÃ©nalitÃ©s de retard"
     ],
     "security": {
         "key_format": "SAFE-YYYYMMDD-XXXX-XXXX-XXXX-XXXX",
-        "hardware_lock": "HW-XXXXXXXXXXXX (MAC + Carte Mère)",
+        "hardware_lock": "HW-XXXXXXXXXXXX (MAC + Carte MÃ¨re)",
         "crypto_algorithm": "HMAC-SHA256"
     },
     "fiscal_compliance_tunisia": {
-        "currency": "TND (Dinar Tunisien à 3 décimales)",
+        "currency": "TND (Dinar Tunisien Ã  3 dÃ©cimales)",
         "timbre_fiscal": "1.000 DT",
-        "accounting_standard": "Système Comptable des Entreprises (SCE NC 01)",
+        "accounting_standard": "SystÃ¨me Comptable des Entreprises (SCE NC 01)",
         "vat_rates": [
             19,
             13,
@@ -57,3 +57,4 @@
     },
     "icon_image": "/icons/facturation.png"
 }
+

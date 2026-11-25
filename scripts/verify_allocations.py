@@ -1,4 +1,4 @@
-import sqlite3
+﻿import sqlite3
 
 conn = sqlite3.connect('src/data/data.db')
 cur = conn.cursor()

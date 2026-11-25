@@ -1,4 +1,4 @@
-CREATE TABLE "PurchaseInvoiceLine" (
+﻿CREATE TABLE "PurchaseInvoiceLine" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "purchaseInvoiceId" TEXT NOT NULL,
     "entityId" TEXT NOT NULL,

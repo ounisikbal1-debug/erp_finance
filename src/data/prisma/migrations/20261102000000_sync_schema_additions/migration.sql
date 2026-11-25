@@ -1,4 +1,4 @@
--- AlterTable
+﻿-- AlterTable
 ALTER TABLE "CountryProfile" ADD COLUMN "productionWipAccountCode" TEXT;
 ALTER TABLE "CountryProfile" ADD COLUMN "salesReceivableAccountCode" TEXT;
 ALTER TABLE "CountryProfile" ADD COLUMN "salesRevenueAccountCode" TEXT;

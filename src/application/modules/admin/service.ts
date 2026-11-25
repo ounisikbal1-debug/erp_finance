@@ -143,10 +143,10 @@ export class AdminLocalizationService {
           if (productionCostAccountCodes.some((accountCode) => !accounts.some((account) => (
             account.code === accountCode && account.type === 'Expense' && account.isPostingAllowed
           )))) {
-            throw new CountryConfigurationValidationError('Les comptes de main-d’œuvre et de frais indirects doivent être des charges comptabilisables du plan pays.');
+            throw new CountryConfigurationValidationError('Les comptes de main-d’Å“uvre et de frais indirects doivent être des charges comptabilisables du plan pays.');
           }
           if (new Set(productionCostAccountCodes).size !== productionCostAccountCodes.length) {
-            throw new CountryConfigurationValidationError('Les comptes de main-d’œuvre et de frais indirects doivent être distincts.');
+            throw new CountryConfigurationValidationError('Les comptes de main-d’Å“uvre et de frais indirects doivent être distincts.');
           }
         }
       }

@@ -153,7 +153,7 @@ export default function TunisianInvoicePrintModal({ invoice, onClose, entityName
                 cursor: 'pointer',
               }}
             >
-              🖨️ Imprimer la Facture
+              🖨ï¸ Imprimer la Facture
             </button>
             <button
               type="button"
@@ -222,15 +222,15 @@ export default function TunisianInvoicePrintModal({ invoice, onClose, entityName
               </div>
 
               <div style={{ width: '22%', textAlign: 'right', direction: 'rtl', fontSize: '9.5px', fontFamily: 'Arial, sans-serif' }}>
-                <div>العنوان : نهج بحيرة مالارن، ضفاف البحيرة، تونس</div>
-                <div>رقم الهاتف : 71 86 17 12 • الفاكس : 71 86 11 41</div>
+                <div>العنوان : نهج بحيرة مالارن، ضÙاÙ البحيرة، تونس</div>
+                <div>رقم الهاتÙ : 71 86 17 12 • الÙاكس : 71 86 11 41</div>
                 <div>موقع الويب : www.tradenet.com.tn</div>
               </div>
             </div>
 
             {/* Invoice Meta Strip */}
             <div style={{ display: 'flex', justifyContent: 'space-between', margin: '8px 0', fontSize: '10px', fontWeight: 700 }}>
-              <div>Facture N° : <span style={{ fontWeight: 900, fontSize: '12px' }}>{invoice.invoiceNumber}</span> / فاتورة رقم</div>
+              <div>Facture N° : <span style={{ fontWeight: 900, fontSize: '12px' }}>{invoice.invoiceNumber}</span> / Ùاتورة رقم</div>
               <div>Date : <span>{new Date(invoice.createdAt).toLocaleDateString('fr-TN')}</span> / التاريخ</div>
               <div>Période : du 01/{new Date(invoice.createdAt).getMonth() + 1}/2026 Au 30/{new Date(invoice.createdAt).getMonth() + 1}/2026 / المدة</div>
               <div>Réf. Unique : <span style={{ fontFamily: 'monospace' }}>{ttnRef}</span> / المرجع</div>

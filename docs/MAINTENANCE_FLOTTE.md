@@ -1,7 +1,7 @@
-# Suivi des coûts d’entretien de flotte
+﻿# Suivi des coÃ»ts dâ€™entretien de flotte
 
-À la clôture d’une intervention véhicule, l’utilisateur peut saisir le coût réellement constaté dans la devise fonctionnelle de l’entité et le kilométrage du compteur. Les deux valeurs sont facultatives, mais doivent être saisies ensemble; le kilométrage enregistré ne peut pas diminuer le compteur déjà connu. Les interventions sur les équipements non-véhicules ne prennent pas ces données.
+Ã€ la clÃ´ture dâ€™une intervention vÃ©hicule, lâ€™utilisateur peut saisir le coÃ»t rÃ©ellement constatÃ© dans la devise fonctionnelle de lâ€™entitÃ© et le kilomÃ©trage du compteur. Les deux valeurs sont facultatives, mais doivent Ãªtre saisies ensemble; le kilomÃ©trage enregistrÃ© ne peut pas diminuer le compteur dÃ©jÃ  connu. Les interventions sur les Ã©quipements non-vÃ©hicules ne prennent pas ces donnÃ©es.
 
-Le coût moyen par kilomètre n’est affiché que si toutes les interventions clôturées du véhicule disposent d’un coût, d’une devise et d’un relevé kilométrique, si plusieurs relevés sont disponibles et si la distance entre le premier et le dernier est positive. Le premier relevé sert de référence; seuls les coûts des interventions suivantes sont rapportés à la distance parcourue depuis cette référence. Le résultat est un indicateur basé sur les coûts saisis, pas un coût complet de possession: le carburant et les dépenses non saisies en sont exclus. Aucune valeur n’est estimée en cas de données manquantes.
+Le coÃ»t moyen par kilomÃ¨tre nâ€™est affichÃ© que si toutes les interventions clÃ´turÃ©es du vÃ©hicule disposent dâ€™un coÃ»t, dâ€™une devise et dâ€™un relevÃ© kilomÃ©trique, si plusieurs relevÃ©s sont disponibles et si la distance entre le premier et le dernier est positive. Le premier relevÃ© sert de rÃ©fÃ©rence; seuls les coÃ»ts des interventions suivantes sont rapportÃ©s Ã  la distance parcourue depuis cette rÃ©fÃ©rence. Le rÃ©sultat est un indicateur basÃ© sur les coÃ»ts saisis, pas un coÃ»t complet de possession: le carburant et les dÃ©penses non saisies en sont exclus. Aucune valeur nâ€™est estimÃ©e en cas de donnÃ©es manquantes.
 
-Ces enregistrements restent un suivi opérationnel et ne créent aucune écriture comptable.
+Ces enregistrements restent un suivi opÃ©rationnel et ne crÃ©ent aucune Ã©criture comptable.

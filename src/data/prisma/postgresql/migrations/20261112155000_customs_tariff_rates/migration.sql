@@ -1,4 +1,4 @@
-CREATE TABLE "CustomsTariffRate" (
+﻿CREATE TABLE "CustomsTariffRate" (
   "id" TEXT NOT NULL,
   "countryId" TEXT NOT NULL,
   "tariffCode" TEXT NOT NULL,

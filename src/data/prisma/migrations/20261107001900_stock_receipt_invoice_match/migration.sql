@@ -1,4 +1,4 @@
-CREATE UNIQUE INDEX "PurchaseInvoice_id_entityId_key" ON "PurchaseInvoice"("id", "entityId");
+﻿CREATE UNIQUE INDEX "PurchaseInvoice_id_entityId_key" ON "PurchaseInvoice"("id", "entityId");
 
 CREATE TABLE "StockReceipt_new" (
     "id" TEXT NOT NULL PRIMARY KEY,

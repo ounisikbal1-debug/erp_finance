@@ -10,7 +10,7 @@ const filePath = 'C:/Users/USER/AppData/Roaming/safe/FinancialDashboard.xlsx';
     await wb.xlsx.readFile(filePath);
     console.log('✅ Loaded existing workbook');
   } else {
-    console.log('⚠️ No existing file, creating new workbook');
+    console.log('⚠ï¸ No existing file, creating new workbook');
   }
 
   // Create / replace Formulas sheet

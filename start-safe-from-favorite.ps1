@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 
 $projectRoot = $PSScriptRoot
 $uiUrl = 'http://127.0.0.1:5176/'
@@ -27,7 +27,7 @@ try {
     $mutexAcquired = $true
   }
   if (-not $mutexAcquired) {
-    throw 'Une autre demande de démarrage SAFE est en cours depuis plus de 90 secondes.'
+    throw 'Une autre demande de dÃ©marrage SAFE est en cours depuis plus de 90 secondes.'
   }
 
   if (Test-SafeReady) {
@@ -38,12 +38,12 @@ try {
   $listeners = @(Get-NetTCPConnection -LocalPort @(3000, 5176) -State Listen -ErrorAction SilentlyContinue)
   if ($listeners.Count -gt 0) {
     $busyPorts = ($listeners | Select-Object -ExpandProperty LocalPort -Unique) -join ', '
-    throw "Le ou les ports $busyPorts sont utilisés mais SAFE n’est pas prêt. Aucun processus existant n’a été arrêté."
+    throw "Le ou les ports $busyPorts sont utilisÃ©s mais SAFE nâ€™est pas prÃªt. Aucun processus existant nâ€™a Ã©tÃ© arrÃªtÃ©."
   }
 
   $runScript = Join-Path $projectRoot 'run-safe.ps1'
   if (-not (Test-Path -LiteralPath $runScript -PathType Leaf)) {
-    throw "Le script de démarrage SAFE est introuvable : $runScript"
+    throw "Le script de dÃ©marrage SAFE est introuvable : $runScript"
   }
 
   $powerShell = (Get-Command powershell.exe -ErrorAction Stop).Source
@@ -57,7 +57,7 @@ try {
   for ($attempt = 0; $attempt -lt 90; $attempt += 1) {
     Start-Sleep -Seconds 1
     if ($serverProcess.HasExited) {
-      throw "Le processus de démarrage SAFE s’est arrêté (code $($serverProcess.ExitCode)). Consultez sa fenêtre PowerShell."
+      throw "Le processus de dÃ©marrage SAFE sâ€™est arrÃªtÃ© (code $($serverProcess.ExitCode)). Consultez sa fenÃªtre PowerShell."
     }
     if (Test-SafeReady) {
       Start-Process -FilePath $uiUrl
@@ -65,7 +65,7 @@ try {
     }
   }
 
-  throw 'SAFE n’a pas répondu sur les ports locaux après 90 secondes. Vérifiez la fenêtre PowerShell de démarrage.'
+  throw 'SAFE nâ€™a pas rÃ©pondu sur les ports locaux aprÃ¨s 90 secondes. VÃ©rifiez la fenÃªtre PowerShell de dÃ©marrage.'
 } finally {
   if ($mutexAcquired) {
     $mutex.ReleaseMutex()

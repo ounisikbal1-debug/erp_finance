@@ -1,4 +1,4 @@
-CREATE TABLE "JournalEntryAuditChainHead" (
+﻿CREATE TABLE "JournalEntryAuditChainHead" (
   "entityId" TEXT NOT NULL PRIMARY KEY,
   "lastSequence" INTEGER NOT NULL DEFAULT 0,
   "lastHash" TEXT,

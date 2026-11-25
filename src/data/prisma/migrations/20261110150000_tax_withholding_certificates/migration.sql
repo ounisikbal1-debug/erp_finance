@@ -1,4 +1,4 @@
-CREATE TABLE "WithholdingCertificate" (
+﻿CREATE TABLE "WithholdingCertificate" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "entityId" TEXT NOT NULL,
   "purchaseInvoiceId" TEXT,

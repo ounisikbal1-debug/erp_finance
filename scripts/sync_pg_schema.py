@@ -1,4 +1,4 @@
-import os
+﻿import os
 
 with open('src/data/prisma/schema.prisma', 'r', encoding='utf-8') as f:
     sqlite_content = f.read()

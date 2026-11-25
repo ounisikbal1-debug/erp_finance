@@ -1,4 +1,4 @@
-CREATE TABLE "SalesQuoteConversion" (
+﻿CREATE TABLE "SalesQuoteConversion" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "quoteId" TEXT NOT NULL,
     "invoiceId" TEXT NOT NULL,

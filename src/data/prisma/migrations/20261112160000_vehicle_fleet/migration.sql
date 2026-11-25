@@ -1,4 +1,4 @@
-ALTER TABLE "Equipment" ADD COLUMN "isVehicle" BOOLEAN NOT NULL DEFAULT false;
+﻿ALTER TABLE "Equipment" ADD COLUMN "isVehicle" BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE "Equipment" ADD COLUMN "vehicleRegistrationNumber" TEXT;
 ALTER TABLE "Equipment" ADD COLUMN "vehicleOdometerKm" INTEGER;
 ALTER TABLE "Equipment" ADD COLUMN "vehicleFuelType" TEXT;

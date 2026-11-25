@@ -442,7 +442,7 @@ export default function SalesOrdersPanel({ accessToken, entityId }: SalesOrdersP
                         {text('Taux TVA')} — {line.material.sku}
                         <select
                           aria-label={language === 'AR'
-                            ? `نسبة ضريبة القيمة المضافة للمادة ${line.material.sku} من الطلب ${order.orderNumber}`
+                            ? `نسبة ضريبة القيمة المضاÙة للمادة ${line.material.sku} من الطلب ${order.orderNumber}`
                             : `Taux TVA pour ${line.material.sku} de la commande ${order.orderNumber}`}
                           value={taxRateByLine[`${order.id}:${line.id}`] ?? ''}
                           onChange={(event) => setTaxRateByLine((previous) => ({

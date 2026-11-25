@@ -1,4 +1,4 @@
-DROP INDEX "JournalEntry_reversesEntryId_key";
+﻿DROP INDEX "JournalEntry_reversesEntryId_key";
 
 CREATE UNIQUE INDEX "JournalEntry_one_active_reversal_per_original_key"
 ON "JournalEntry"("reversesEntryId")

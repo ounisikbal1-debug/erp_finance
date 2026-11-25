@@ -1,4 +1,4 @@
-ALTER TABLE "ChartOfAccount"
+﻿ALTER TABLE "ChartOfAccount"
 ADD COLUMN "parentId" TEXT REFERENCES "ChartOfAccount" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE "ChartOfAccount"

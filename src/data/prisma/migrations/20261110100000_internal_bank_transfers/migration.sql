@@ -1,4 +1,4 @@
-CREATE TABLE "BankTransfer" (
+﻿CREATE TABLE "BankTransfer" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "entityId" TEXT NOT NULL,
   "sourceBankAccountId" TEXT NOT NULL,

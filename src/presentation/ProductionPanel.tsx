@@ -422,7 +422,7 @@ export default function ProductionPanel({
       <section aria-labelledby="production-cost-summary-title" style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 10, padding: 14 }}>
         <h3 id="production-cost-summary-title" style={{ margin: '0 0 6px' }}>Écart unitaire indicatif</h3>
         <p style={{ margin: '0 0 10px', color: '#64748B', fontSize: 13 }}>
-          Prix de vente saisi moins coût unitaire moyen enregistré. Pour les produits fabriqués, le coût moyen inclut les consommations, la main-d’œuvre et les frais indirects saisis dans les ordres confirmés; ce n’est pas une marge comptable complète.
+          Prix de vente saisi moins coût unitaire moyen enregistré. Pour les produits fabriqués, le coût moyen inclut les consommations, la main-d’Å“uvre et les frais indirects saisis dans les ordres confirmés; ce n’est pas une marge comptable complète.
         </p>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -479,7 +479,7 @@ export default function ProductionPanel({
             <input required type="number" min="0.001" step={['EA', 'BOX', 'PACK'].includes(data?.materials.find((material) => material.id === outputMaterialId)?.unitCode ?? '') ? '1' : '0.001'} value={outputQuantity} onChange={(event) => setOutputQuantity(event.target.value)} style={inputStyle} />
           </label>
           <label>
-              Main-d’œuvre ({data?.currencyCode ?? '—'})
+              Main-d’Å“uvre ({data?.currencyCode ?? '—'})
               <input required type="number" min="0" step="0.001" value={laborCost} onChange={(event) => setLaborCost(event.target.value)} style={inputStyle} />
             </label>
             <label>
@@ -605,7 +605,7 @@ export default function ProductionPanel({
                   <td style={{ padding: 9 }}>{order.outputMaterial.sku} — {order.outputMaterial.name}<br />Bonne production : {order.outputQuantity}</td>
                   <td style={{ padding: 9 }}>{order.warehouse ? `${order.warehouse.code} — ${order.warehouse.name}` : 'Non précisé (ancien ordre)'}</td>
                   <td style={{ padding: 9 }}>
-                    Main-d’œuvre : {order.laborCost} {data.currencyCode}<br />
+                    Main-d’Å“uvre : {order.laborCost} {data.currencyCode}<br />
                     Frais indirects : {order.overheadCost} {data.currencyCode}<br />
                     Rebut : {order.scrapQuantity}{order.scrapReason ? <><br />Motif : {order.scrapReason}</> : ''}
                   </td>

@@ -1,4 +1,4 @@
-ALTER TABLE "StockReceipt"
+﻿ALTER TABLE "StockReceipt"
 ADD COLUMN "returnedQuantity" INTEGER NOT NULL DEFAULT 0;
 
 CREATE TABLE "StockSupplierReturn" (

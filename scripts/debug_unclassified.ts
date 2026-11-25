@@ -1,4 +1,4 @@
-import defaultPrisma from '../src/data/prisma/client';
+﻿import defaultPrisma from '../src/data/prisma/client';
 import { isFinancialAccountCategory, financialCategoryMatchesAccountType } from '../src/application/modules/advanced-finance/financial-categories';
 
 async function test() {

@@ -1,4 +1,4 @@
-CREATE TABLE "ConsolidationGroup" (
+﻿CREATE TABLE "ConsolidationGroup" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "ownerEntityId" TEXT NOT NULL,
   "name" TEXT NOT NULL,

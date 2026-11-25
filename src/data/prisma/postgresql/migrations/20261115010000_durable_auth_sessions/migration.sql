@@ -1,4 +1,4 @@
-CREATE TABLE "AuthSession" (
+﻿CREATE TABLE "AuthSession" (
   "id" TEXT NOT NULL,
   "userId" TEXT NOT NULL,
   "entityId" TEXT,

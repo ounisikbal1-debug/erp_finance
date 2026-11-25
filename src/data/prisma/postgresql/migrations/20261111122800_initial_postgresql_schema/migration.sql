@@ -1,4 +1,4 @@
--- CreateTable
+﻿-- CreateTable
 CREATE TABLE "IntercompanyTransaction" (
     "id" TEXT NOT NULL,
     "reference" TEXT NOT NULL,

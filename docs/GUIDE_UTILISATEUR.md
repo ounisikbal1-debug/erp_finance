@@ -1,210 +1,210 @@
-# Guide utilisateur — SAFE
+﻿# Guide utilisateur â€” SAFE
 
-Ce guide décrit les gestes quotidiens d'un **Financial Manager** et d'un **Contrôleur de gestion** dans l'application, puis détaille chaque module.
+Ce guide dÃ©crit les gestes quotidiens d'un **Financial Manager** et d'un **ContrÃ´leur de gestion** dans l'application, puis dÃ©taille chaque module.
 
 ---
 
 ## 1. Se connecter
 
 1. Ouvrir l'URL de l'application.
-2. Saisir un identifiant de démonstration (`admin`, `cfo`, `controller`, `auditor`) — le mot de passe est identique à l'identifiant.
-3. Choisir la langue (FR / EN / AR) en haut à droite ; l'arabe bascule toute l'interface en RTL.
+2. Saisir un identifiant de dÃ©monstration (`admin`, `cfo`, `controller`, `auditor`) â€” le mot de passe est identique Ã  l'identifiant.
+3. Choisir la langue (FR / EN / AR) en haut Ã  droite ; l'arabe bascule toute l'interface en RTL.
 
-Le profil détermine les modules visibles et le droit d'écriture. Un auditeur ne voit ni les utilisateurs ni les paramètres, et ne peut pas modifier les données.
+Le profil dÃ©termine les modules visibles et le droit d'Ã©criture. Un auditeur ne voit ni les utilisateurs ni les paramÃ¨tres, et ne peut pas modifier les donnÃ©es.
 
 ---
 
 ## 2. Les filtres globaux
 
-Ils s'appliquent à tous les modules et sont mémorisés sur le poste :
+Ils s'appliquent Ã  tous les modules et sont mÃ©morisÃ©s sur le poste :
 
 | Filtre | Emplacement | Effet |
 |---|---|---|
-| **Périmètre** | Sélecteur en haut de la barre latérale | Groupe consolidé ou une entité (Tunisie, France, Émirats, Maroc) |
-| **Période** | Barre supérieure | Cumul annuel, S1, S2, T1…T4, décembre |
-| **Devise** | Profil / Paramètres | Conversion d'affichage TND, EUR, USD, AED, MAD |
-| **Norme** | Badge de la barre supérieure / profil | NC 01 ou IFRS |
+| **PÃ©rimÃ¨tre** | SÃ©lecteur en haut de la barre latÃ©rale | Groupe consolidÃ© ou une entitÃ© (Tunisie, France, Ã‰mirats, Maroc) |
+| **PÃ©riode** | Barre supÃ©rieure | Cumul annuel, S1, S2, T1â€¦T4, dÃ©cembre |
+| **Devise** | Profil / ParamÃ¨tres | Conversion d'affichage TND, EUR, USD, AED, MAD |
+| **Norme** | Badge de la barre supÃ©rieure / profil | NC 01 ou IFRS |
 
-Le périmètre et la période filtrent les KPI, les tableaux et les exports. Les graphiques mensuels affichent toujours les 12 mois pour conserver la vision annuelle.
+Le pÃ©rimÃ¨tre et la pÃ©riode filtrent les KPI, les tableaux et les exports. Les graphiques mensuels affichent toujours les 12 mois pour conserver la vision annuelle.
 
 ---
 
-## 3. Routine quotidienne — Financial Manager
+## 3. Routine quotidienne â€” Financial Manager
 
-### 3.1 Ouvrir la journée
-- **Tableau de bord** : vérifier CA, marge, EBITDA, résultat, trésorerie et cash-flow opérationnel.
-- Lire les **notifications** (cloche) : TVA à déposer, flux interco non rapprochés, dépassements budgétaires, tâches de clôture.
-- Contrôler le **runway** (mois de trésorerie disponibles) et la conversion cash.
+### 3.1 Ouvrir la journÃ©e
+- **Tableau de bord** : vÃ©rifier CA, marge, EBITDA, rÃ©sultat, trÃ©sorerie et cash-flow opÃ©rationnel.
+- Lire les **notifications** (cloche) : TVA Ã  dÃ©poser, flux interco non rapprochÃ©s, dÃ©passements budgÃ©taires, tÃ¢ches de clÃ´ture.
+- ContrÃ´ler le **runway** (mois de trÃ©sorerie disponibles) et la conversion cash.
 
-### 3.2 Trésorerie
-- **Trésorerie & BFR** : soldes par banque et par devise, BFR, DSO/DPO, balance âgée.
-- Identifier les factures échues (> 90 jours) et déclencher les relances.
-- Vérifier le rapprochement bancaire (statut rapproché / écart à justifier).
-- Les relevés bancaires acceptent CSV/XLSX, OFX/QFX et MT940 après aperçu; le contenu importé ne crée pas d’écriture comptable. Pour MT940, les années sur deux chiffres suivent le pivot documenté à l’écran (70–99 = 19xx, 00–69 = 20xx), et la devise du fichier est contrôlée lorsqu’elle est fournie.
+### 3.2 TrÃ©sorerie
+- **TrÃ©sorerie & BFR** : soldes par banque et par devise, BFR, DSO/DPO, balance Ã¢gÃ©e.
+- Identifier les factures Ã©chues (> 90 jours) et dÃ©clencher les relances.
+- VÃ©rifier le rapprochement bancaire (statut rapprochÃ© / Ã©cart Ã  justifier).
+- Les relevÃ©s bancaires acceptent CSV/XLSX, OFX/QFX et MT940 aprÃ¨s aperÃ§u; le contenu importÃ© ne crÃ©e pas dâ€™Ã©criture comptable. Pour MT940, les annÃ©es sur deux chiffres suivent le pivot documentÃ© Ã  lâ€™Ã©cran (70â€“99 = 19xx, 00â€“69 = 20xx), et la devise du fichier est contrÃ´lÃ©e lorsquâ€™elle est fournie.
 
-### 3.3 Écritures
-- **Comptabilité & Grand Livre** → **Saisir une écriture**.
-- Choisir la date, le journal, l'entité, le compte et la contrepartie ; saisir le libellé et le montant.
-- L'écriture est automatiquement équilibrée (débit = crédit) et visible dans le grand livre et la balance.
-- Le contrôle **Balance équilibrée** doit rester vert.
+### 3.3 Ã‰critures
+- **ComptabilitÃ© & Grand Livre** â†’ **Saisir une Ã©criture**.
+- Choisir la date, le journal, l'entitÃ©, le compte et la contrepartie ; saisir le libellÃ© et le montant.
+- L'Ã©criture est automatiquement Ã©quilibrÃ©e (dÃ©bit = crÃ©dit) et visible dans le grand livre et la balance.
+- Le contrÃ´le **Balance Ã©quilibrÃ©e** doit rester vert.
 
 ### 3.4 Paiements
-- Le cash-flow présente les décaissements fournisseurs, salaires, impôts et intérêts.
-- En cas de tension, utiliser le **scénario pessimiste** pour mesurer l'impact d'un retard de règlement client.
+- Le cash-flow prÃ©sente les dÃ©caissements fournisseurs, salaires, impÃ´ts et intÃ©rÃªts.
+- En cas de tension, utiliser le **scÃ©nario pessimiste** pour mesurer l'impact d'un retard de rÃ¨glement client.
 
 ---
 
-## 4. Routine hebdomadaire — Contrôleur de gestion
+## 4. Routine hebdomadaire â€” ContrÃ´leur de gestion
 
 ### 4.1 Chiffre d'affaires
-- **Chiffre d'affaires** : mix produit, répartition par entité, top clients, factures en retard.
-- Comparer le CA au budget ; analyser l'écart (+1,7 % dans la démo).
-- Surveiller les **revenus récurrents** (licences + maintenance) et le DSO.
+- **Chiffre d'affaires** : mix produit, rÃ©partition par entitÃ©, top clients, factures en retard.
+- Comparer le CA au budget ; analyser l'Ã©cart (+1,7 % dans la dÃ©mo).
+- Surveiller les **revenus rÃ©currents** (licences + maintenance) et le DSO.
 
 ### 4.2 Charges
-- **Charges** : structure de coûts, budget vs réel par nature, principaux fournisseurs.
-- Repérer les postes en dépassement (rouge) et préparer les actions correctives.
-- Vérifier le poids des charges sur le CA et le coût par salarié.
+- **Charges** : structure de coÃ»ts, budget vs rÃ©el par nature, principaux fournisseurs.
+- RepÃ©rer les postes en dÃ©passement (rouge) et prÃ©parer les actions correctives.
+- VÃ©rifier le poids des charges sur le CA et le coÃ»t par salariÃ©.
 
 ### 4.3 Budget
-- **Budget & Forecast** : sélectionner Produits ou Charges.
-- Tabuler sur **Par ligne** pour le détail budget / réalisé / écart / atteinte.
-- **Ajuster le budget** applique un pourcentage à toutes les lignes du périmètre (ex. +5 %), avec journalisation.
-- **Réinitialiser** restaure le budget de démonstration.
+- **Budget & Forecast** : sÃ©lectionner Produits ou Charges.
+- Tabuler sur **Par ligne** pour le dÃ©tail budget / rÃ©alisÃ© / Ã©cart / atteinte.
+- **Ajuster le budget** applique un pourcentage Ã  toutes les lignes du pÃ©rimÃ¨tre (ex. +5 %), avec journalisation.
+- **RÃ©initialiser** restaure le budget de dÃ©monstration.
 
 ### 4.4 Intercompagnies
-- **Multinationale & Interco** : vérifier les flux rapprochés (87,4 % dans la démo).
-- La matrice entité × entité identifie les flux croisés.
-- Les écarts (IC-2026-004/006/009) doivent être justifiés avant la consolidation.
+- **Multinationale & Interco** : vÃ©rifier les flux rapprochÃ©s (87,4 % dans la dÃ©mo).
+- La matrice entitÃ© Ã— entitÃ© identifie les flux croisÃ©s.
+- Les Ã©carts (IC-2026-004/006/009) doivent Ãªtre justifiÃ©s avant la consolidation.
 
 ---
 
-## 5. Routine mensuelle — Clôture
+## 5. Routine mensuelle â€” ClÃ´ture
 
-1. **Clôture & Audit** : cocher les tâches au fur et à mesure.
-   - Cut-off (FNP, produits à recevoir).
+1. **ClÃ´ture & Audit** : cocher les tÃ¢ches au fur et Ã  mesure.
+   - Cut-off (FNP, produits Ã  recevoir).
    - Rapprochements bancaires et interco.
-   - Balance âgée et provisions.
+   - Balance Ã¢gÃ©e et provisions.
    - Paie, CNSS, IRPP.
    - TVA et retenues.
    - Reporting groupe.
-2. **Fiscalité** : contrôler la TVA collectée / déductible / à payer, l'IS et le calendrier. L'aperçu RS est un calcul distinct de l'IS : aucun taux RS n'est déduit du taux d'IS.
-   - Les paramètres fiscaux tunisiens renseignés dans SAFE sont ceux documentés et validés par le spécialiste métier. Cette validation des règles ne prouve pas, à elle seule, que chaque calcul, chaque correspondance de formulaire et chaque cas limite est correctement implémenté.
-   - Un aperçu manuel RS n'alimente pas la déclaration G50. L'export G50 disponible est un état de travail, pas le formulaire officiel DGI; les fichiers exportés portent la mention « préparation consultative — non déposable ».
-   - Le workflow de certificat rapproche une facture fournisseur comptabilisée, un paiement fournisseur lié ou une autre pièce en TND. La préparation et l'émission sont des traces internes, pas une certification réglementaire ni un dépôt fiscal.
-   - Le dossier de justification RS permet d'approuver la complétude d'une période : son montant est calculé uniquement depuis les certificats émis en TND. Un certificat préparé bloque l'approbation; toute modification ultérieure d'un certificat rend le rapprochement périmé.
-   - Le dossier IS conserve une base et un montant saisis depuis un dossier fiscal externe, avec référence, note, acteur, date et version. SAFE ne recalcule ni la base ni l'IS; le taux pays est conservé comme instantané de contrôle. Une référence saisie n'est pas une pièce jointe ni une validation automatique.
-   - Le total légal à payer reste indisponible : les règles officielles de cumul et de crédits ne sont pas implémentées. Ces dossiers améliorent le rapprochement interne, mais ne rendent pas l'export G50 déposable.
-   - **Paie / CNSS / IRPP** : chaque fiche nouvellement générée conserve la version du calcul, la période, le pays, la devise, les paramètres, les tranches et les montants calculés. Le registre mensuel additionne uniquement les fiches enregistrées et signale les fiches manquantes ou anciennes sans instantané. Il ne prouve pas l'effectif réel (les dates de sortie ne sont pas gérées), ne produit pas les formulaires officiels CNSS/DGI et ne déclenche aucun dépôt ni paiement. Son CSV est un export interne de préparation.
-3. **Comptabilité** : balance générale équilibrée ; consulter la piste d'audit.
-4. **Rapports & Export** : consulter les vues de rapports calculés disponibles selon le profil; certains rapports et modules proposent des exports de travail. Aucun pack réglementaire certifié n'est fourni.
-5. Mettre à jour le **forecast** de trésorerie et commenter les écarts.
+2. **FiscalitÃ©** : contrÃ´ler la TVA collectÃ©e / dÃ©ductible / Ã  payer, l'IS et le calendrier. L'aperÃ§u RS est un calcul distinct de l'IS : aucun taux RS n'est dÃ©duit du taux d'IS.
+   - Les paramÃ¨tres fiscaux tunisiens renseignÃ©s dans SAFE sont ceux documentÃ©s et validÃ©s par le spÃ©cialiste mÃ©tier. Cette validation des rÃ¨gles ne prouve pas, Ã  elle seule, que chaque calcul, chaque correspondance de formulaire et chaque cas limite est correctement implÃ©mentÃ©.
+   - Un aperÃ§u manuel RS n'alimente pas la dÃ©claration G50. L'export G50 disponible est un Ã©tat de travail, pas le formulaire officiel DGI; les fichiers exportÃ©s portent la mention Â« prÃ©paration consultative â€” non dÃ©posable Â».
+   - Le workflow de certificat rapproche une facture fournisseur comptabilisÃ©e, un paiement fournisseur liÃ© ou une autre piÃ¨ce en TND. La prÃ©paration et l'Ã©mission sont des traces internes, pas une certification rÃ©glementaire ni un dÃ©pÃ´t fiscal.
+   - Le dossier de justification RS permet d'approuver la complÃ©tude d'une pÃ©riode : son montant est calculÃ© uniquement depuis les certificats Ã©mis en TND. Un certificat prÃ©parÃ© bloque l'approbation; toute modification ultÃ©rieure d'un certificat rend le rapprochement pÃ©rimÃ©.
+   - Le dossier IS conserve une base et un montant saisis depuis un dossier fiscal externe, avec rÃ©fÃ©rence, note, acteur, date et version. SAFE ne recalcule ni la base ni l'IS; le taux pays est conservÃ© comme instantanÃ© de contrÃ´le. Une rÃ©fÃ©rence saisie n'est pas une piÃ¨ce jointe ni une validation automatique.
+   - Le total lÃ©gal Ã  payer reste indisponible : les rÃ¨gles officielles de cumul et de crÃ©dits ne sont pas implÃ©mentÃ©es. Ces dossiers amÃ©liorent le rapprochement interne, mais ne rendent pas l'export G50 dÃ©posable.
+   - **Paie / CNSS / IRPP** : chaque fiche nouvellement gÃ©nÃ©rÃ©e conserve la version du calcul, la pÃ©riode, le pays, la devise, les paramÃ¨tres, les tranches et les montants calculÃ©s. Le registre mensuel additionne uniquement les fiches enregistrÃ©es et signale les fiches manquantes ou anciennes sans instantanÃ©. Il ne prouve pas l'effectif rÃ©el (les dates de sortie ne sont pas gÃ©rÃ©es), ne produit pas les formulaires officiels CNSS/DGI et ne dÃ©clenche aucun dÃ©pÃ´t ni paiement. Son CSV est un export interne de prÃ©paration.
+3. **ComptabilitÃ©** : balance gÃ©nÃ©rale Ã©quilibrÃ©e ; consulter la piste d'audit.
+4. **Rapports & Export** : consulter les vues de rapports calculÃ©s disponibles selon le profil; certains rapports et modules proposent des exports de travail. Aucun pack rÃ©glementaire certifiÃ© n'est fourni.
+5. Mettre Ã  jour le **forecast** de trÃ©sorerie et commenter les Ã©carts.
 
 ---
 
 ## 6. Routine annuelle
 
-- **Budget & Forecast** : construire le budget N+1 par entité et par ligne.
-- **Compte de résultat** : arrêter les comptes, analyser les marges, calculer l'IS.
-- **Clôture annuelle** : inventaire, liasse fiscale, dossier de révision, validation.
-- **Interco** : éliminer les flux intragroupe et produire les comptes consolidés.
-- **Paramètres** : mettre à jour les taux de change, l'auditeur et les entités.
+- **Budget & Forecast** : construire le budget N+1 par entitÃ© et par ligne.
+- **Compte de rÃ©sultat** : arrÃªter les comptes, analyser les marges, calculer l'IS.
+- **ClÃ´ture annuelle** : inventaire, liasse fiscale, dossier de rÃ©vision, validation.
+- **Interco** : Ã©liminer les flux intragroupe et produire les comptes consolidÃ©s.
+- **ParamÃ¨tres** : mettre Ã  jour les taux de change, l'auditeur et les entitÃ©s.
 
 ---
 
-## 7. Détail des modules
+## 7. DÃ©tail des modules
 
 ### Tableau de bord
-Six KPI : CA, marge brute, EBITDA, résultat net, trésorerie, cash-flow opérationnel. Graphique produits/charges/résultat, principaux postes de charges, derniers mouvements, repères (produits, charges, valeur ajoutée, EBITDA, BFR, DSO, runway) et contrôle de consolidation.
+Six KPI : CA, marge brute, EBITDA, rÃ©sultat net, trÃ©sorerie, cash-flow opÃ©rationnel. Graphique produits/charges/rÃ©sultat, principaux postes de charges, derniers mouvements, repÃ¨res (produits, charges, valeur ajoutÃ©e, EBITDA, BFR, DSO, runway) et contrÃ´le de consolidation.
 
 ### Cash-flow
-- Trois scénarios : base, optimiste (DSO −14 %, DPO +10 %), pessimiste (DSO +16 %, DPO −7 %).
-- Pont de trésorerie : ouverture → CFO → CFI → CFF → clôture.
-- Tableau mensuel direct : encaissements, fournisseurs, salaires, impôts, intérêts, investissements, dette, variation nette.
+- Trois scÃ©narios : base, optimiste (DSO âˆ’14 %, DPO +10 %), pessimiste (DSO +16 %, DPO âˆ’7 %).
+- Pont de trÃ©sorerie : ouverture â†’ CFO â†’ CFI â†’ CFF â†’ clÃ´ture.
+- Tableau mensuel direct : encaissements, fournisseurs, salaires, impÃ´ts, intÃ©rÃªts, investissements, dette, variation nette.
 - Free cash-flow, burn mensuel, runway.
 
 ### Chiffre d'affaires
-CA par produit (5 lignes), par entité, top clients, factures, encours, DSO, revenus récurrents. Donut par entité et barres empilées par produit.
+CA par produit (5 lignes), par entitÃ©, top clients, factures, encours, DSO, revenus rÃ©currents. Donut par entitÃ© et barres empilÃ©es par produit.
 
-Dans le module Ventes, le répertoire clients est propre à la société authentifiée. Les coordonnées modifiées sont historisées avec l’auteur et la date. Les devis sont uniquement des brouillons; ils ne créent pas de facture ni d’écriture et ne remplacent pas le processus normal d’approbation/émission. La balance âgée peut préparer un texte de relance modifiable seulement pour les créances émises, échues et fiables à la date du jour; l’envoi reste manuel.
+Dans le module Ventes, le rÃ©pertoire clients est propre Ã  la sociÃ©tÃ© authentifiÃ©e. Les coordonnÃ©es modifiÃ©es sont historisÃ©es avec lâ€™auteur et la date. Les devis sont uniquement des brouillons; ils ne crÃ©ent pas de facture ni dâ€™Ã©criture et ne remplacent pas le processus normal dâ€™approbation/Ã©mission. La balance Ã¢gÃ©e peut prÃ©parer un texte de relance modifiable seulement pour les crÃ©ances Ã©mises, Ã©chues et fiables Ã  la date du jour; lâ€™envoi reste manuel.
 
 ### Charges
-Structure de coûts par nature, budget vs réel mensuel, tableau des écarts, fournisseurs, ratio de coûts.
+Structure de coÃ»ts par nature, budget vs rÃ©el mensuel, tableau des Ã©carts, fournisseurs, ratio de coÃ»ts.
 
 ### Stocks & articles
-Le stock global conserve le champ historique `Material.quantity`. Les quantités existantes restent non affectées à un dépôt; un transfert peut les affecter à un entrepôt ou déplacer un solde d'un entrepôt à un autre sans changer le stock global ni créer d'écriture. Les articles acceptent un code-barres, une unité et un seuil d'alerte sur le stock global. L'historique affiche les entrées initiales, ajustements manuels, mouvements de production validés et deux côtés de chaque transfert.
+Le stock global conserve le champ historique `Material.quantity`. Les quantitÃ©s existantes restent non affectÃ©es Ã  un dÃ©pÃ´t; un transfert peut les affecter Ã  un entrepÃ´t ou dÃ©placer un solde d'un entrepÃ´t Ã  un autre sans changer le stock global ni crÃ©er d'Ã©criture. Les articles acceptent un code-barres, une unitÃ© et un seuil d'alerte sur le stock global. L'historique affiche les entrÃ©es initiales, ajustements manuels, mouvements de production validÃ©s et deux cÃ´tÃ©s de chaque transfert.
 
-Un ajustement manuel demande un motif et l'utilisateur authentifié; la variation de quantité, l'écriture comptable et la trace d'audit sont validées ensemble. Un transfert est scoppé à la société, protégé par une clé d'idempotence et non comptable. Une réception fournisseur exige une facture approuvée pour la même société; si elle porte sur une ligne de commande approuvée, le système contrôle aussi le fournisseur, l'article, le prix et le reliquat. La facture peut être préparée et approuvée avant la réception, mais sa comptabilisation est bloquée tant que chaque ligne matérielle n'est pas réceptionnée nette des retours. La réception actualise le stock du dépôt et le coût moyen global, et crée un mouvement idempotent sans écriture comptable; l'écriture intervient avec la comptabilisation de la facture. Les anciennes factures sans détail de lignes restent rapprochables au niveau du HT. Le picking multi-lignes réserve atomiquement le stock disponible sans modifier la quantité physique. La confirmation idempotente de l'expédition consomme cette réservation et décrémente le stock global et du dépôt, puis crée un mouvement `DISPATCH`; l'annulation avant expédition libère la réservation.
+Un ajustement manuel demande un motif et l'utilisateur authentifiÃ©; la variation de quantitÃ©, l'Ã©criture comptable et la trace d'audit sont validÃ©es ensemble. Un transfert est scoppÃ© Ã  la sociÃ©tÃ©, protÃ©gÃ© par une clÃ© d'idempotence et non comptable. Une rÃ©ception fournisseur exige une facture approuvÃ©e pour la mÃªme sociÃ©tÃ©; si elle porte sur une ligne de commande approuvÃ©e, le systÃ¨me contrÃ´le aussi le fournisseur, l'article, le prix et le reliquat. La facture peut Ãªtre prÃ©parÃ©e et approuvÃ©e avant la rÃ©ception, mais sa comptabilisation est bloquÃ©e tant que chaque ligne matÃ©rielle n'est pas rÃ©ceptionnÃ©e nette des retours. La rÃ©ception actualise le stock du dÃ©pÃ´t et le coÃ»t moyen global, et crÃ©e un mouvement idempotent sans Ã©criture comptable; l'Ã©criture intervient avec la comptabilisation de la facture. Les anciennes factures sans dÃ©tail de lignes restent rapprochables au niveau du HT. Le picking multi-lignes rÃ©serve atomiquement le stock disponible sans modifier la quantitÃ© physique. La confirmation idempotente de l'expÃ©dition consomme cette rÃ©servation et dÃ©crÃ©mente le stock global et du dÃ©pÃ´t, puis crÃ©e un mouvement `DISPATCH`; l'annulation avant expÃ©dition libÃ¨re la rÃ©servation.
 
 ### Production
-Le tableau de production compare le prix de vente saisi au coût unitaire moyen courant. L'écart affiché est indicatif, par unité, et ne tient pas compte des taxes, remises ou frais non saisis; pour les produits fabriqués, le coût moyen reprend les matières, la main-d'œuvre et les frais indirects saisis dans les ordres confirmés. Ce n'est pas une marge comptable complète.
+Le tableau de production compare le prix de vente saisi au coÃ»t unitaire moyen courant. L'Ã©cart affichÃ© est indicatif, par unitÃ©, et ne tient pas compte des taxes, remises ou frais non saisis; pour les produits fabriquÃ©s, le coÃ»t moyen reprend les matiÃ¨res, la main-d'Å“uvre et les frais indirects saisis dans les ordres confirmÃ©s. Ce n'est pas une marge comptable complÃ¨te.
 
-### Compte de résultat
-Rapport de période en lecture seule : mouvements nets des comptes de produits et charges issus des écritures POSTED, couverture de données et repères déterministes SAFE. La période peut être comparée descriptivement à la même période N-1 et exportée dans un classeur consultatif avec les lignes budgétaires approuvées des seuls mois civils complets. Une projection annuelle indicative peut être présentée pour une période depuis le 1er janvier si les comparatifs N/N-1 et l’année complète N-1 sont disponibles et leur couverture complète; elle applique mécaniquement la variation observée à la base N-1, sans saisonnalité. Ce rapport n’est pas un état réglementaire certifié, ne calcule pas les marges/EBITDA/IS et ne déclenche aucune action. Le classeur ne reprend pas les scénarios de trésorerie.
+### Compte de rÃ©sultat
+Rapport de pÃ©riode en lecture seule : mouvements nets des comptes de produits et charges issus des Ã©critures POSTED, couverture de donnÃ©es et repÃ¨res dÃ©terministes SAFE. La pÃ©riode peut Ãªtre comparÃ©e descriptivement Ã  la mÃªme pÃ©riode N-1 et exportÃ©e dans un classeur consultatif avec les lignes budgÃ©taires approuvÃ©es des seuls mois civils complets. Une projection annuelle indicative peut Ãªtre prÃ©sentÃ©e pour une pÃ©riode depuis le 1er janvier si les comparatifs N/N-1 et lâ€™annÃ©e complÃ¨te N-1 sont disponibles et leur couverture complÃ¨te; elle applique mÃ©caniquement la variation observÃ©e Ã  la base N-1, sans saisonnalitÃ©. Ce rapport nâ€™est pas un Ã©tat rÃ©glementaire certifiÃ©, ne calcule pas les marges/EBITDA/IS et ne dÃ©clenche aucune action. Le classeur ne reprend pas les scÃ©narios de trÃ©sorerie.
 
-### Trésorerie & BFR
-Position, BFR, DSO/DPO, ratio de liquidité. Courbe trésorerie/BFR, comptes bancaires (équivalent dans la devise du compte), balance âgée clients/fournisseurs (non échu, 0-30, 31-60, 61-90, > 90).
+### TrÃ©sorerie & BFR
+Position, BFR, DSO/DPO, ratio de liquiditÃ©. Courbe trÃ©sorerie/BFR, comptes bancaires (Ã©quivalent dans la devise du compte), balance Ã¢gÃ©e clients/fournisseurs (non Ã©chu, 0-30, 31-60, 61-90, > 90).
 
-### Comptabilité & Grand Livre
-Grand livre filtrable (recherche, journal), balance générale, saisie d'écritures, total débit/crédit et contrôle d'équilibre.
+### ComptabilitÃ© & Grand Livre
+Grand livre filtrable (recherche, journal), balance gÃ©nÃ©rale, saisie d'Ã©critures, total dÃ©bit/crÃ©dit et contrÃ´le d'Ã©quilibre.
 
-### Fiscalité
-TVA mensuelle (collectée, déductible, due), IS, taux par pays (15 % Tunisie, 25 % France, 9 % Émirats, 20 % Maroc), calendrier déclaratif, taux effectif.
+### FiscalitÃ©
+TVA mensuelle (collectÃ©e, dÃ©ductible, due), IS, taux par pays (15 % Tunisie, 25 % France, 9 % Ã‰mirats, 20 % Maroc), calendrier dÃ©claratif, taux effectif.
 
 ### Paie & effectifs
-Masse salariale, effectif, coût moyen, charges patronales, répartition par entité, détail par salarié (brut, CNSS, IRPP, net, charges patronales), prime de décembre.
+Masse salariale, effectif, coÃ»t moyen, charges patronales, rÃ©partition par entitÃ©, dÃ©tail par salariÃ© (brut, CNSS, IRPP, net, charges patronales), prime de dÃ©cembre.
 
-La simulation n'enregistre pas de fiche. Lorsqu'une fiche est générée, SAFE conserve les montants calculés et un instantané détaillé du moteur, des paramètres, des tranches, des entrées et des résultats employés. Le moteur de calcul n'est disponible que pour la Tunisie; il utilise par défaut 4 % et un plafond annuel de déduction partagé avec les autres avantages fiscaux, actuellement limité à 10 000. Les fiches antérieures à l'instantané détaillé restent identifiées comme historiques. Le registre mensuel CNSS/IRPP est une préparation interne non déposable et reste à revoir; il ne remplace ni les formulaires officiels ni la preuve d'un dépôt.
+La simulation n'enregistre pas de fiche. Lorsqu'une fiche est gÃ©nÃ©rÃ©e, SAFE conserve les montants calculÃ©s et un instantanÃ© dÃ©taillÃ© du moteur, des paramÃ¨tres, des tranches, des entrÃ©es et des rÃ©sultats employÃ©s. Le moteur de calcul n'est disponible que pour la Tunisie; il utilise par dÃ©faut 4 % et un plafond annuel de dÃ©duction partagÃ© avec les autres avantages fiscaux, actuellement limitÃ© Ã  10 000. Les fiches antÃ©rieures Ã  l'instantanÃ© dÃ©taillÃ© restent identifiÃ©es comme historiques. Le registre mensuel CNSS/IRPP est une prÃ©paration interne non dÃ©posable et reste Ã  revoir; il ne remplace ni les formulaires officiels ni la preuve d'un dÃ©pÃ´t.
 
 ### Documents RH
-Les métadonnées des documents du personnel peuvent recevoir un fichier PDF, JPEG ou PNG (8 Mio maximum, un fichier par document). L’activation exige la migration RH additive correspondante, à appliquer par l’administrateur selon la procédure de sauvegarde et de changement de schéma de l’installation. Les fichiers sont stockés sous une référence opaque dans `data/private/hr-documents` ou dans le chemin absolu défini par `SAFE_ERP_PRIVATE_STORAGE_DIR`; le serveur refuse un répertoire situé dans `public`, `dist` ou le dossier de l’interface. L’API RH exige le rôle autorisé et vérifie l’entité à chaque consultation/téléchargement. Les chemins de stockage ne sont pas transmis à l’interface; les téléchargements sont en pièce jointe et vérifiés par empreinte SHA-256. L’accès direct au dossier doit aussi être limité par les permissions du compte de service et les sauvegardes du système d’exploitation; SAFE ne chiffre pas ces fichiers au repos et ne réalise pas d’analyse antivirus. La migration RH ajoute uniquement les métadonnées de stockage et ne déplace ni ne supprime de fichiers existants. Aucune durée légale de conservation ni purge automatique n’est définie: faites valider la politique de conservation avant toute suppression.
+Les mÃ©tadonnÃ©es des documents du personnel peuvent recevoir un fichier PDF, JPEG ou PNG (8 Mio maximum, un fichier par document). Lâ€™activation exige la migration RH additive correspondante, Ã  appliquer par lâ€™administrateur selon la procÃ©dure de sauvegarde et de changement de schÃ©ma de lâ€™installation. Les fichiers sont stockÃ©s sous une rÃ©fÃ©rence opaque dans `data/private/hr-documents` ou dans le chemin absolu dÃ©fini par `SAFE_ERP_PRIVATE_STORAGE_DIR`; le serveur refuse un rÃ©pertoire situÃ© dans `public`, `dist` ou le dossier de lâ€™interface. Lâ€™API RH exige le rÃ´le autorisÃ© et vÃ©rifie lâ€™entitÃ© Ã  chaque consultation/tÃ©lÃ©chargement. Les chemins de stockage ne sont pas transmis Ã  lâ€™interface; les tÃ©lÃ©chargements sont en piÃ¨ce jointe et vÃ©rifiÃ©s par empreinte SHA-256. Lâ€™accÃ¨s direct au dossier doit aussi Ãªtre limitÃ© par les permissions du compte de service et les sauvegardes du systÃ¨me dâ€™exploitation; SAFE ne chiffre pas ces fichiers au repos et ne rÃ©alise pas dâ€™analyse antivirus. La migration RH ajoute uniquement les mÃ©tadonnÃ©es de stockage et ne dÃ©place ni ne supprime de fichiers existants. Aucune durÃ©e lÃ©gale de conservation ni purge automatique nâ€™est dÃ©finie: faites valider la politique de conservation avant toute suppression.
 
 ### Multinationale & Interco
-Flux intragroupe, statuts, matrice des flux, écarts, éliminations, taux de rapprochement.
+Flux intragroupe, statuts, matrice des flux, Ã©carts, Ã©liminations, taux de rapprochement.
 
-### Clôture & Audit
-Checklist par périodicité, progression, validation des tâches (horodatée), piste d'audit, dossier de révision.
+### ClÃ´ture & Audit
+Checklist par pÃ©riodicitÃ©, progression, validation des tÃ¢ches (horodatÃ©e), piste d'audit, dossier de rÃ©vision.
 
 ### Rapports & Export
-La vue présente les rapports calculés disponibles selon le profil : compte de résultat, synthèse comptable et bilan, balance générale, grand livre, budget et réel, prévision annuelle, trésorerie, balances âgées clients et fournisseurs, et fiscalité. Les vues reposent sur les données de la société authentifiée; certains rapports proposent des exports. Aucun catalogue fixe de 12 rapports, pack complet de 28 onglets ou pack réglementaire certifié n'est fourni. Les rapports et exports de travail ne remplacent pas des documents de conformité.
+La vue prÃ©sente les rapports calculÃ©s disponibles selon le profil : compte de rÃ©sultat, synthÃ¨se comptable et bilan, balance gÃ©nÃ©rale, grand livre, budget et rÃ©el, prÃ©vision annuelle, trÃ©sorerie, balances Ã¢gÃ©es clients et fournisseurs, et fiscalitÃ©. Les vues reposent sur les donnÃ©es de la sociÃ©tÃ© authentifiÃ©e; certains rapports proposent des exports. Aucun catalogue fixe de 12 rapports, pack complet de 28 onglets ou pack rÃ©glementaire certifiÃ© n'est fourni. Les rapports et exports de travail ne remplacent pas des documents de conformitÃ©.
 
-### Utilisateurs & rôles
-Création / modification / suppression, rôle, périmètre d'entités, activation, matrice de permissions.
+### Utilisateurs & rÃ´les
+CrÃ©ation / modification / suppression, rÃ´le, pÃ©rimÃ¨tre d'entitÃ©s, activation, matrice de permissions.
 
-### Paramètres
-Identité du groupe, exercice, devise de consolidation, norme, TVA, auditeur, délai de reporting, méthode de consolidation, taux de change, entités, apparence, export JSON, réinitialisation.
+### ParamÃ¨tres
+IdentitÃ© du groupe, exercice, devise de consolidation, norme, TVA, auditeur, dÃ©lai de reporting, mÃ©thode de consolidation, taux de change, entitÃ©s, apparence, export JSON, rÃ©initialisation.
 
 ---
 
 ## 8. Raccourcis et confort
 
-- **⌘K / Ctrl+K** : palette de recherche (modules, comptes, entités, clients).
-- **Échap** : fermer une modale.
-- Bascule **sombre / clair** dans la barre supérieure.
+- **âŒ˜K / Ctrl+K** : palette de recherche (modules, comptes, entitÃ©s, clients).
+- **Ã‰chap** : fermer une modale.
+- Bascule **sombre / clair** dans la barre supÃ©rieure.
 - Langue et devise dans le menu profil (avatar).
-- La barre latérale est repliable (icône en haut à droite) et devient un tiroir sur mobile.
+- La barre latÃ©rale est repliable (icÃ´ne en haut Ã  droite) et devient un tiroir sur mobile.
 
 ---
 
-## 9. Données et sauvegarde
+## 9. DonnÃ©es et sauvegarde
 
-Dans la version serveur de SAFE de ce dépôt, les données métier sont stockées dans la base SQLite configurée par `SAFE_ERP_DATABASE_URL` (par défaut `src/data/data.db`), et non dans le navigateur. Il n’existe pas de fonction utilisateur d’export ou de restauration dans l’interface : les opérations de sauvegarde et de restauration de la base sont réservées à l’exploitant et décrites dans [`docs/DEPLOIEMENT_WEB.md`](DEPLOIEMENT_WEB.md#7-sauvegarde-et-restauration-sqlite). Une restauration nécessite l’arrêt préalable du service.
+Dans la version serveur de SAFE de ce dÃ©pÃ´t, les donnÃ©es mÃ©tier sont stockÃ©es dans la base SQLite configurÃ©e par `SAFE_ERP_DATABASE_URL` (par dÃ©faut `src/data/data.db`), et non dans le navigateur. Il nâ€™existe pas de fonction utilisateur dâ€™export ou de restauration dans lâ€™interface : les opÃ©rations de sauvegarde et de restauration de la base sont rÃ©servÃ©es Ã  lâ€™exploitant et dÃ©crites dans [`docs/DEPLOIEMENT_WEB.md`](DEPLOIEMENT_WEB.md#7-sauvegarde-et-restauration-sqlite). Une restauration nÃ©cessite lâ€™arrÃªt prÃ©alable du service.
 
 ---
 
-## 10. Questions fréquentes
+## 10. Questions frÃ©quentes
 
 **Pourquoi les montants changent-ils quand je change de devise ?**
-Les données sont stockées en dinars tunisiens consolidés, puis converties au taux de clôture pour l'affichage et l'export.
+Les donnÃ©es sont stockÃ©es en dinars tunisiens consolidÃ©s, puis converties au taux de clÃ´ture pour l'affichage et l'export.
 
-**Pourquoi le DSO est-il plus élevé que le délai contractuel ?**
-Le DSO est calculé sur l'encours de fin d'année, dans un mois de décembre à forte activité ; il reflète donc le pic de facturation.
+**Pourquoi le DSO est-il plus Ã©levÃ© que le dÃ©lai contractuel ?**
+Le DSO est calculÃ© sur l'encours de fin d'annÃ©e, dans un mois de dÃ©cembre Ã  forte activitÃ© ; il reflÃ¨te donc le pic de facturation.
 
-**Puis-je travailler sur une seule entité ?**
-Oui : sélectionner l'entité dans la barre latérale ; tous les KPI, tableaux et exports sont restreints à son périmètre.
+**Puis-je travailler sur une seule entitÃ© ?**
+Oui : sÃ©lectionner l'entitÃ© dans la barre latÃ©rale ; tous les KPI, tableaux et exports sont restreints Ã  son pÃ©rimÃ¨tre.
 
 **L'export Excel est-il modifiable ?**
-Oui, c'est un vrai fichier `.xlsx` avec des valeurs numériques, des filtres et des totaux ; il peut être retravaillé dans Excel.
+Oui, c'est un vrai fichier `.xlsx` avec des valeurs numÃ©riques, des filtres et des totaux ; il peut Ãªtre retravaillÃ© dans Excel.
 
-**Les mots de passe sont-ils sécurisés ?**
-Non dans cette démonstration : ils sont stockés localement en clair. Une authentification SSO et un hachage Argon2 sont prévus pour la version production.
+**Les mots de passe sont-ils sÃ©curisÃ©s ?**
+Non dans cette dÃ©monstration : ils sont stockÃ©s localement en clair. Une authentification SSO et un hachage Argon2 sont prÃ©vus pour la version production.

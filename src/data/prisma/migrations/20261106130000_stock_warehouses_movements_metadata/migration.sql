@@ -1,4 +1,4 @@
-ALTER TABLE "Material" ADD COLUMN "barcode" TEXT;
+﻿ALTER TABLE "Material" ADD COLUMN "barcode" TEXT;
 ALTER TABLE "Material" ADD COLUMN "unitCode" TEXT NOT NULL DEFAULT 'EA';
 ALTER TABLE "Material" ADD COLUMN "minimumStock" INTEGER;
 

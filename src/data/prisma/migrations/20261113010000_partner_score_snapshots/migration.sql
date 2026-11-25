@@ -1,4 +1,4 @@
-CREATE TABLE "PartnerScoreSnapshot" (
+﻿CREATE TABLE "PartnerScoreSnapshot" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "entityId" TEXT NOT NULL,
   "scoreType" TEXT NOT NULL,

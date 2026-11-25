@@ -1,8 +1,8 @@
 {
     "folder": "SAFE_Comptabilite_Fiscalite",
     "app_id": "comptabilite",
-    "name": "SAFE Comptabilité Générale & Fiscalité Tunisienne",
-    "tagline": "Système Comptable des Entreprises (SCE), Grand Livre, Balance 8 colonnes, Déclarations G50, Rapprochement bancaire",
+    "name": "SAFE ComptabilitÃ© GÃ©nÃ©rale & FiscalitÃ© Tunisienne",
+    "tagline": "SystÃ¨me Comptable des Entreprises (SCE), Grand Livre, Balance 8 colonnes, DÃ©clarations G50, Rapprochement bancaire",
     "badge": "SCE & Liasse Fiscale G50",
     "icon": "/icons/comptabilite.png",
     "version": "1.0.0",
@@ -24,31 +24,31 @@
     ],
     "default_module": "generalBalance",
     "legislation": [
-        "Loi n° 96-112 relative au Système Comptable des Entreprises (SCE) et normes comptables tunisiennes (NCT)",
-        "Plan de comptes officiel tunisien (Classes 1 à 7) avec tenue des écritures en partie double",
-        "Code des Droits et Procédures Fiscaux (CDPF) : Déclaration mensuelle d'impôt G50 avant le 28 de chaque mois",
-        "Code de l'IRPP et de l'IS : Taux normal d'Impôt sur les Sociétés de 20 % (Loi de Finances)",
-        "Normes internationales d'audit (ISA) : Piste d'audit immuable et irréversibilité des écritures closes"
+        "Loi nÂ° 96-112 relative au SystÃ¨me Comptable des Entreprises (SCE) et normes comptables tunisiennes (NCT)",
+        "Plan de comptes officiel tunisien (Classes 1 Ã  7) avec tenue des Ã©critures en partie double",
+        "Code des Droits et ProcÃ©dures Fiscaux (CDPF) : DÃ©claration mensuelle d'impÃ´t G50 avant le 28 de chaque mois",
+        "Code de l'IRPP et de l'IS : Taux normal d'ImpÃ´t sur les SociÃ©tÃ©s de 20 % (Loi de Finances)",
+        "Normes internationales d'audit (ISA) : Piste d'audit immuable et irrÃ©versibilitÃ© des Ã©critures closes"
     ],
     "features": [
         "Saisie comptable horizontale ergonomique et journaux auxiliaires (Achats, Ventes, Banque, Caisse, OD)",
-        "Balance Générale des Comptes à 8 colonnes (Balances d'ouverture, Mouvements débit/crédit, Soldes de clôture)",
-        "Grand Livre Général (GL) dynamique avec filtrage par compte, période, lettrage et devise",
+        "Balance GÃ©nÃ©rale des Comptes Ã  8 colonnes (Balances d'ouverture, Mouvements dÃ©bit/crÃ©dit, Soldes de clÃ´ture)",
+        "Grand Livre GÃ©nÃ©ral (GL) dynamique avec filtrage par compte, pÃ©riode, lettrage et devise",
         "Rapprochement bancaire multi-banques tunisiennes (STB, BIAT, BH Bank, BNA, Attijariwafa, UIB)",
-        "Génération automatique des liasses fiscales mensuelles Déclaration G50 (TVA, Timbre, RS)",
-        "Calcul et déclaration de l'Impôt sur les Sociétés (IS) au taux légal de 20 % avec acomptes provisionnels",
-        "Immutabilité et protection des périodes clôturées (interdiction absolue d'écritures antidatées)",
-        "Piste d'audit cryptographique continue scellée par hachage SHA-256 (JournalEntryAuditChainHead)"
+        "GÃ©nÃ©ration automatique des liasses fiscales mensuelles DÃ©claration G50 (TVA, Timbre, RS)",
+        "Calcul et dÃ©claration de l'ImpÃ´t sur les SociÃ©tÃ©s (IS) au taux lÃ©gal de 20 % avec acomptes provisionnels",
+        "ImmutabilitÃ© et protection des pÃ©riodes clÃ´turÃ©es (interdiction absolue d'Ã©critures antidatÃ©es)",
+        "Piste d'audit cryptographique continue scellÃ©e par hachage SHA-256 (JournalEntryAuditChainHead)"
     ],
     "security": {
         "key_format": "SAFE-YYYYMMDD-XXXX-XXXX-XXXX-XXXX",
-        "hardware_lock": "HW-XXXXXXXXXXXX (MAC + Carte Mère)",
+        "hardware_lock": "HW-XXXXXXXXXXXX (MAC + Carte MÃ¨re)",
         "crypto_algorithm": "HMAC-SHA256"
     },
     "fiscal_compliance_tunisia": {
-        "currency": "TND (Dinar Tunisien à 3 décimales)",
+        "currency": "TND (Dinar Tunisien Ã  3 dÃ©cimales)",
         "timbre_fiscal": "1.000 DT",
-        "accounting_standard": "Système Comptable des Entreprises (SCE NC 01)",
+        "accounting_standard": "SystÃ¨me Comptable des Entreprises (SCE NC 01)",
         "vat_rates": [
             19,
             13,
@@ -61,3 +61,4 @@
     },
     "icon_image": "/icons/comptabilite.png"
 }
+

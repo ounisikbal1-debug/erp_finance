@@ -1,93 +1,93 @@
+﻿
+SAFE ERP â€¢ SUITE MÃ‰TIER TUNISIE
+Normes Comptables SCE & RÃ©glementation Fiscale Tunisienne
+ArrÃªtÃ© de validation : 18 Novembre 2026
 
-SAFE ERP • SUITE MÉTIER TUNISIE
-Normes Comptables SCE & Réglementation Fiscale Tunisienne
-Arrêté de validation : 18 Novembre 2026
 
-
-PROLOGICIEL MÉTIER • GPAO, MRP & MAINTENANCE D'USINE
+PROLOGICIEL MÃ‰TIER â€¢ GPAO, MRP & MAINTENANCE D'USINE
 SAFE Production Industrielle & GPAO
 Dossier Complet : Architecture, Cahier des Charges & Guide d'Utilisation Nomenclatures, OF & MRP
 
 
-| VALIDATION OFFICIELLE EXPERT-COMPTABLE — Dossier technique, fonctionnel et opérationnel exhaustif regroupant l'Architecture logicielle, le Cahier des charges conforme à la législation tunisienne et le Manuel d'utilisation pas-à-pas. |
+| VALIDATION OFFICIELLE EXPERT-COMPTABLE â€” Dossier technique, fonctionnel et opÃ©rationnel exhaustif regroupant l'Architecture logicielle, le Cahier des charges conforme Ã  la lÃ©gislation tunisienne et le Manuel d'utilisation pas-Ã -pas. |
 | --- |
 
 
 
-# Partie I : Architecture Technique & Logicielle Détaillée
+# Partie I : Architecture Technique & Logicielle DÃ©taillÃ©e
 
 
-Le prologiciel SAFE Production Industrielle & GPAO repose sur une architecture découplée, performante et sécurisée, conçue pour un déploiement autonome ou en synergie directe avec le socle central SAFE ERP. Cette architecture garantit une parfaite étanchéité des données tout en maintenant l'intégrité transactionnelle globale.
+Le prologiciel SAFE Production Industrielle & GPAO repose sur une architecture dÃ©couplÃ©e, performante et sÃ©curisÃ©e, conÃ§ue pour un dÃ©ploiement autonome ou en synergie directe avec le socle central SAFE ERP. Cette architecture garantit une parfaite Ã©tanchÃ©itÃ© des donnÃ©es tout en maintenant l'intÃ©gritÃ© transactionnelle globale.
 
 
-| Composant | Technologie | Rôle & Détails Techniques |
+| Composant | Technologie | RÃ´le & DÃ©tails Techniques |
 | --- | --- | --- |
 | Frontend UI | React 19, Gestion visuelle d'ateliers | Suivi des ordres de fabrication (OF), arbres de nomenclature BOM, planning MRP |
 | Backend API | Node.js Express, Service Production & MRP | Endpoints /api/production, /api/mrp, calcul des besoins nets et valorisation des en-cours |
-| Base de Données | Prisma ORM, SQLite / PostgreSQL | Tables : ProductionOrder, BillOfMaterial, BillOfMaterialItem, EquipmentMaintenance |
-| Normes Industrielles | Normes INNORPI & NCT 04 | Évaluation des produits en-cours et valorisation au coût de production standard/réel |
-| Intégration Stocks | Décrémentation Atomique des Composants | Déstockage automatique des matières premières lors de la déclaration d'achèvement OF |
+| Base de DonnÃ©es | Prisma ORM, SQLite / PostgreSQL | Tables : ProductionOrder, BillOfMaterial, BillOfMaterialItem, EquipmentMaintenance |
+| Normes Industrielles | Normes INNORPI & NCT 04 | Ã‰valuation des produits en-cours et valorisation au coÃ»t de production standard/rÃ©el |
+| IntÃ©gration Stocks | DÃ©crÃ©mentation Atomique des Composants | DÃ©stockage automatique des matiÃ¨res premiÃ¨res lors de la dÃ©claration d'achÃ¨vement OF |
 
 
 
-## 1.1 Sécurité, Contrôle d'Accès & Inviolabilité
+## 1.1 SÃ©curitÃ©, ContrÃ´le d'AccÃ¨s & InviolabilitÃ©
 
 
-L'accès au prologiciel est gouverné par une matrice de contrôle RBAC (Role-Based Access Control) stricte. Chaque opération d'écriture, de validation ou d'émission est horodatée et attribuée à un acteur certifié. Les données sensibles (salaires, données personnelles, coordonnées bancaires) sont cloisonnées au niveau applicatif.
+L'accÃ¨s au prologiciel est gouvernÃ© par une matrice de contrÃ´le RBAC (Role-Based Access Control) stricte. Chaque opÃ©ration d'Ã©criture, de validation ou d'Ã©mission est horodatÃ©e et attribuÃ©e Ã  un acteur certifiÃ©. Les donnÃ©es sensibles (salaires, donnÃ©es personnelles, coordonnÃ©es bancaires) sont cloisonnÃ©es au niveau applicatif.
 
 
-# Partie II : Cahier des Charges Fonctionnel & Législation Tunisienne
+# Partie II : Cahier des Charges Fonctionnel & LÃ©gislation Tunisienne
 
 
-Ce prologiciel a été conçu et paramétré pour respecter à 100 % le corpus juridique, fiscal et comptable en vigueur en République Tunisienne. L'ensemble des règles et formules de calcul a été audité et validé par l'expert-comptable du projet :
+Ce prologiciel a Ã©tÃ© conÃ§u et paramÃ©trÃ© pour respecter Ã  100 % le corpus juridique, fiscal et comptable en vigueur en RÃ©publique Tunisienne. L'ensemble des rÃ¨gles et formules de calcul a Ã©tÃ© auditÃ© et validÃ© par l'expert-comptable du projet :
 
 
-• Gestion des nomenclatures de fabrication multi-niveaux (Bill of Materials - BOM) avec coefficients de pertes.
+â€¢ Gestion des nomenclatures de fabrication multi-niveaux (Bill of Materials - BOM) avec coefficients de pertes.
 
 
-• Traçabilité ascendante et descendante des lots de fabrication conformément aux exigences de certification ISO 9001.
+â€¢ TraÃ§abilitÃ© ascendante et descendante des lots de fabrication conformÃ©ment aux exigences de certification ISO 9001.
 
 
-• Calcul des Besoins Nets (MRP) synchronisé avec les commandes clients et les délais fournisseurs.
+â€¢ Calcul des Besoins Nets (MRP) synchronisÃ© avec les commandes clients et les dÃ©lais fournisseurs.
 
 
-• Régularisation comptable obligatoire de la variation des en-cours de production (compte 713).
+â€¢ RÃ©gularisation comptable obligatoire de la variation des en-cours de production (compte 713).
 
 
-• Suivi de la maintenance préventive et curative des machines de production pour éviter les arrêts d'atelier.
+â€¢ Suivi de la maintenance prÃ©ventive et curative des machines de production pour Ã©viter les arrÃªts d'atelier.
 
 
-# Partie III : Mode de Fonctionnement & Guide Utilisateur Pas-à-Pas
+# Partie III : Mode de Fonctionnement & Guide Utilisateur Pas-Ã -Pas
 
 
-Ce guide opératoire détaille les flux de travail standard et les bonnes pratiques d'exploitation au quotidien :
+Ce guide opÃ©ratoire dÃ©taille les flux de travail standard et les bonnes pratiques d'exploitation au quotidien :
 
 
-## 1. Création des Nomenclatures (BOM)
+## 1. CrÃ©ation des Nomenclatures (BOM)
 
 
-Définir la fiche du produit fini et ajouter les composants requis (matières premières, consommables, emballages) avec les quantités unitaires et pourcentages de pertes tolérés.
+DÃ©finir la fiche du produit fini et ajouter les composants requis (matiÃ¨res premiÃ¨res, consommables, emballages) avec les quantitÃ©s unitaires et pourcentages de pertes tolÃ©rÃ©s.
 
 
 ## 2. Lancement des Ordres de Fabrication (OF)
 
 
-Générer un ordre de fabrication pour une quantité donnée. Le système vérifie la disponibilité des matières en stock et réserve les composants.
+GÃ©nÃ©rer un ordre de fabrication pour une quantitÃ© donnÃ©e. Le systÃ¨me vÃ©rifie la disponibilitÃ© des matiÃ¨res en stock et rÃ©serve les composants.
 
 
-## 3. Suivi d'Atelier & Gammes Opératoires
+## 3. Suivi d'Atelier & Gammes OpÃ©ratoires
 
 
-Pointer les heures machines et les heures de main-d'œuvre directe sur chaque poste de charge (découpe, assemblage, conditionnement).
+Pointer les heures machines et les heures de main-d'Å“uvre directe sur chaque poste de charge (dÃ©coupe, assemblage, conditionnement).
 
 
-## 4. Clôture de l'OF & Entrée en Stock Produits Finis
+## 4. ClÃ´ture de l'OF & EntrÃ©e en Stock Produits Finis
 
 
-À l'achèvement du lot, valider la déclaration de production. Le stock de produits finis est automatiquement incrémenté au coût de revient réel, et les stocks de matières sont décrémentés.
+Ã€ l'achÃ¨vement du lot, valider la dÃ©claration de production. Le stock de produits finis est automatiquement incrÃ©mentÃ© au coÃ»t de revient rÃ©el, et les stocks de matiÃ¨res sont dÃ©crÃ©mentÃ©s.
 
 
-## 5. Maintenance Préventive des Équipements
+## 5. Maintenance PrÃ©ventive des Ã‰quipements
 
 
-Programmer les entretiens périodiques des machines selon les compteurs d'heures ou le calendrier, et consigner les interventions curatives.
+Programmer les entretiens pÃ©riodiques des machines selon les compteurs d'heures ou le calendrier, et consigner les interventions curatives.

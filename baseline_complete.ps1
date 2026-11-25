@@ -1,4 +1,4 @@
-# Set project root
+﻿# Set project root
 Set-Location -Path "C:\Users\USER\AppData\Roaming\safe"
 
 # Ensure migrations folder exists

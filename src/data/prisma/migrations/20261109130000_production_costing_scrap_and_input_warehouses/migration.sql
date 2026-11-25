@@ -1,4 +1,4 @@
-ALTER TABLE "CountryProfile" ADD COLUMN "productionLaborAccountCode" TEXT;
+﻿ALTER TABLE "CountryProfile" ADD COLUMN "productionLaborAccountCode" TEXT;
 ALTER TABLE "CountryProfile" ADD COLUMN "productionOverheadAccountCode" TEXT;
 
 ALTER TABLE "ProductionOrder" ADD COLUMN "laborCost" REAL NOT NULL DEFAULT 0;

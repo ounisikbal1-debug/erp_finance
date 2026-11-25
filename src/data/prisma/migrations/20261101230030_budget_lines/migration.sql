@@ -1,4 +1,4 @@
-CREATE TABLE "BudgetLine" (
+﻿CREATE TABLE "BudgetLine" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "entityId" TEXT NOT NULL,
     "period" TEXT NOT NULL,

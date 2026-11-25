@@ -1,4 +1,4 @@
-CREATE TABLE "AdminUserEvent" (
+﻿CREATE TABLE "AdminUserEvent" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "actorUserId" TEXT NOT NULL,
     "actorUsername" TEXT NOT NULL,

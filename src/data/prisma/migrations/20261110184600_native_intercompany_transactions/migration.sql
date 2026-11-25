@@ -1,4 +1,4 @@
--- Persist linked seller/buyer entries, FX terms and two-sided reconciliation state.
+﻿-- Persist linked seller/buyer entries, FX terms and two-sided reconciliation state.
 CREATE TABLE "IntercompanyTransaction" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "reference" TEXT NOT NULL,

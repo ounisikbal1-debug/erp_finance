@@ -1,4 +1,4 @@
-CREATE TABLE "PurchaseOrder" (
+﻿CREATE TABLE "PurchaseOrder" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "entityId" TEXT NOT NULL,
     "orderNumber" TEXT NOT NULL,

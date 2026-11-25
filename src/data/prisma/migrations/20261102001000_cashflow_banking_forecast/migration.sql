@@ -1,4 +1,4 @@
-CREATE TABLE "BankAccount" (
+﻿CREATE TABLE "BankAccount" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "entityId" TEXT NOT NULL,
   "name" TEXT NOT NULL,

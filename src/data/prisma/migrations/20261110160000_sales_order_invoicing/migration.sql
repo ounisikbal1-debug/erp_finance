@@ -1,4 +1,4 @@
-CREATE UNIQUE INDEX "Invoice_id_entityId_key" ON "Invoice"("id", "entityId");
+﻿CREATE UNIQUE INDEX "Invoice_id_entityId_key" ON "Invoice"("id", "entityId");
 
 CREATE TABLE "SalesOrderInvoiceLink" (
   "id" TEXT NOT NULL PRIMARY KEY,

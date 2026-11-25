@@ -1,4 +1,4 @@
-CREATE TABLE "WorkbookConnectorSecret" (
+﻿CREATE TABLE "WorkbookConnectorSecret" (
   "id" TEXT NOT NULL,
   "entityId" TEXT NOT NULL,
   "featureKey" TEXT NOT NULL,

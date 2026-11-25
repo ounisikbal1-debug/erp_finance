@@ -81,7 +81,7 @@ export function validateProductionOrderInput(value: unknown): ProductionOrderInp
     outputMaterialId: input.outputMaterialId,
     warehouseId: input.warehouseId,
     outputQuantity: requireQuantity(input.outputQuantity, 'La quantité produite'),
-    laborCost: input.laborCost === undefined ? 0 : requireCost(input.laborCost, 'Le coût de main-d’œuvre'),
+    laborCost: input.laborCost === undefined ? 0 : requireCost(input.laborCost, 'Le coût de main-d’Å“uvre'),
     overheadCost: input.overheadCost === undefined ? 0 : requireCost(input.overheadCost, 'Les frais indirects'),
     scrapQuantity: input.scrapQuantity === undefined
       ? 0

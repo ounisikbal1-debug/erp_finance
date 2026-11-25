@@ -1,4 +1,4 @@
-const CACHE_NAME = 'safe-app-shell-v1';
+﻿const CACHE_NAME = 'safe-app-shell-v1';
 const SHELL_URL = '/';
 
 self.addEventListener('install', (event) => {
@@ -36,7 +36,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(async () => {
           const cachedShell = await caches.match(SHELL_URL);
-          if (!cachedShell) throw new Error('SAFE hors ligne : la page doit d’abord être chargée en ligne.');
+          if (!cachedShell) throw new Error('SAFE hors ligne : la page doit dâ€™abord Ãªtre chargÃ©e en ligne.');
           return cachedShell;
         }),
     );

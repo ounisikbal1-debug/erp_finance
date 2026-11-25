@@ -1,4 +1,4 @@
-ALTER TABLE "Invoice" ADD COLUMN "createdByUserId" TEXT;
+﻿ALTER TABLE "Invoice" ADD COLUMN "createdByUserId" TEXT;
 ALTER TABLE "Invoice" ADD COLUMN "createdByUsername" TEXT;
 ALTER TABLE "Invoice" ADD COLUMN "approvedByUserId" TEXT;
 ALTER TABLE "Invoice" ADD COLUMN "approvedByUsername" TEXT;

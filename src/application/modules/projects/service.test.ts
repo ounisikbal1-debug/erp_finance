@@ -91,7 +91,7 @@ describe('ProjectService', () => {
     }, 'entity-a', 'user-a');
     await service.createCost(project.id, {
       category: 'LABOR',
-      description: 'Main-d’œuvre saisie',
+      description: 'Main-d’Å“uvre saisie',
       amount: 125.25,
       occurredAt: '2026-11-12',
     }, 'entity-a', 'user-a');

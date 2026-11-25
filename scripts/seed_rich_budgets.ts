@@ -1,4 +1,4 @@
-import defaultPrisma from '../src/data/prisma/client';
+﻿import defaultPrisma from '../src/data/prisma/client';
 
 async function main() {
   const entities = await defaultPrisma.entity.findMany({
@@ -8,28 +8,28 @@ async function main() {
   if (!adminUser) return;
 
   const budgetTemplates = [
-    // Charges d'exploitation approuvées & comptabilisées
-    { accountCode: '601', amount: 320000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Budget initial approuvé en conseil' },
+    // Charges d'exploitation approuvÃ©es & comptabilisÃ©es
+    { accountCode: '601', amount: 320000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Budget initial approuvÃ© en conseil' },
     { accountCode: '602', amount: 45000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Budget annuel consommables' },
-    { accountCode: '607', amount: 180000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Achats marchandises négoce' },
+    { accountCode: '607', amount: 180000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Achats marchandises nÃ©goce' },
     { accountCode: '624', amount: 28000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Transports et logistique de distribution' },
-    { accountCode: '640', amount: 215000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Rémunérations et salaires bruts' },
+    { accountCode: '640', amount: 215000.0, status: 'APPROVED', revisionNumber: 1, reason: 'RÃ©munÃ©rations et salaires bruts' },
     { accountCode: '647', amount: 38500.0, status: 'APPROVED', revisionNumber: 1, reason: 'Charges sociales patronales CNSS/Foprolos' },
-    { accountCode: '661', amount: 12000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Intérêts bancaires et frais de financement' },
+    { accountCode: '661', amount: 12000.0, status: 'APPROVED', revisionNumber: 1, reason: 'IntÃ©rÃªts bancaires et frais de financement' },
     { accountCode: '68112', amount: 22000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Dotations aux amortissements industriels' },
-    { accountCode: '6815', amount: 8500.0, status: 'APPROVED', revisionNumber: 1, reason: 'Dotations aux provisions d’exploitation' },
-    { accountCode: '656', amount: 5000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Pertes de change prévues' },
+    { accountCode: '6815', amount: 8500.0, status: 'APPROVED', revisionNumber: 1, reason: 'Dotations aux provisions dâ€™exploitation' },
+    { accountCode: '656', amount: 5000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Pertes de change prÃ©vues' },
     // Lignes Produits
-    { accountCode: '701', amount: 890000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Ventes produits finis marché local' },
-    { accountCode: '707', amount: 260000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Ventes négoce & revente' },
-    { accountCode: '716', amount: 140000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Prestations de services et études techniques' },
-    { accountCode: '756', amount: 15000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Gains de change estimés' },
+    { accountCode: '701', amount: 890000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Ventes produits finis marchÃ© local' },
+    { accountCode: '707', amount: 260000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Ventes nÃ©goce & revente' },
+    { accountCode: '716', amount: 140000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Prestations de services et Ã©tudes techniques' },
+    { accountCode: '756', amount: 15000.0, status: 'APPROVED', revisionNumber: 1, reason: 'Gains de change estimÃ©s' },
 
-    // Versions révisées et brouillons pour tester les états
-    { accountCode: '613000', amount: 18500.0, status: 'REVISED', revisionNumber: 2, reason: 'Avenant bail entrepôt logistique' },
-    { accountCode: '615000', amount: 16000.0, status: 'REVISED', revisionNumber: 2, reason: 'Plan de maintenance préventive renforcé' },
+    // Versions rÃ©visÃ©es et brouillons pour tester les Ã©tats
+    { accountCode: '613000', amount: 18500.0, status: 'REVISED', revisionNumber: 2, reason: 'Avenant bail entrepÃ´t logistique' },
+    { accountCode: '615000', amount: 16000.0, status: 'REVISED', revisionNumber: 2, reason: 'Plan de maintenance prÃ©ventive renforcÃ©' },
     { accountCode: '622000', amount: 14500.0, status: 'DRAFT', revisionNumber: 1, reason: 'Campagne marketing digital Q4' },
-    { accountCode: '626000', amount: 7200.0, status: 'DRAFT', revisionNumber: 1, reason: 'Télécoms et liaisons fibre optique' },
+    { accountCode: '626000', amount: 7200.0, status: 'DRAFT', revisionNumber: 1, reason: 'TÃ©lÃ©coms et liaisons fibre optique' },
   ];
 
   for (const ent of entities) {

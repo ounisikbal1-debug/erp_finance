@@ -1,4 +1,4 @@
-CREATE TABLE "QualityFinding" (
+﻿CREATE TABLE "QualityFinding" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "entityId" TEXT NOT NULL,
     "equipmentId" TEXT,

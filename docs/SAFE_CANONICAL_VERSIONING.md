@@ -1,4 +1,4 @@
-# SAFE ERP canonical source and versioning
+﻿# SAFE ERP canonical source and versioning
 
 ## Canonical source
 

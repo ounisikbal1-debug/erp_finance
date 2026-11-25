@@ -421,7 +421,7 @@ export class ProductionService {
             accountCode: country.country.productionLaborAccountCode!,
             debit: 0,
             credit: laborCostMillimes / 1000,
-            description: `Main-d’œuvre incorporée — ${order.orderNumber}`,
+            description: `Main-d’Å“uvre incorporée — ${order.orderNumber}`,
           }]
           : []),
         ...(overheadCostMillimes > 0

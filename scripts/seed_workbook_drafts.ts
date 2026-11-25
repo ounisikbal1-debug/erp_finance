@@ -1,4 +1,4 @@
-import defaultPrisma from '../src/data/prisma/client';
+﻿import defaultPrisma from '../src/data/prisma/client';
 
 async function main() {
   const entities = await defaultPrisma.entity.findMany({
@@ -142,19 +142,19 @@ async function main() {
           enabled: false,
           confirmedAt: new Date(),
           confirmedBy: actor,
-          confirmationNote: 'Brouillon certifié conforme configuré par le système SAFE_ERP.',
+          confirmationNote: 'Brouillon certifiÃ© conforme configurÃ© par le systÃ¨me SAFE_ERP.',
           sourceReference: 'REF-SAFE-2026-CONF',
         },
         update: {
           configurationJson: confJson,
-          confirmationNote: 'Brouillon certifié conforme configuré par le système SAFE_ERP.',
+          confirmationNote: 'Brouillon certifiÃ© conforme configurÃ© par le systÃ¨me SAFE_ERP.',
           sourceReference: 'REF-SAFE-2026-CONF',
         },
       });
     }
   }
 
-  console.log('Successfully configured 20 fictitious JSON drafts per entity in Préparation du classeur.');
+  console.log('Successfully configured 20 fictitious JSON drafts per entity in PrÃ©paration du classeur.');
 }
 
 main().catch(console.error).finally(() => defaultPrisma.$disconnect());

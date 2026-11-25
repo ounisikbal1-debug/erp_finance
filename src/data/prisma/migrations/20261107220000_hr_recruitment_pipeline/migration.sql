@@ -1,4 +1,4 @@
-CREATE TABLE "RecruitmentPosition" (
+﻿CREATE TABLE "RecruitmentPosition" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "entityId" TEXT NOT NULL,
     "title" TEXT NOT NULL,

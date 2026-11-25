@@ -1,4 +1,4 @@
-CREATE TABLE "WorkbookFeatureConfigurationRevision" (
+﻿CREATE TABLE "WorkbookFeatureConfigurationRevision" (
   "id" TEXT NOT NULL,
   "entityId" TEXT NOT NULL,
   "featureKey" TEXT NOT NULL,

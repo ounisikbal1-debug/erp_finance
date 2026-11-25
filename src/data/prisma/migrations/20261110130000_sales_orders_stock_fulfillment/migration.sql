@@ -1,4 +1,4 @@
-ALTER TABLE "SalesOrder" ADD COLUMN "currencyCode" TEXT NOT NULL DEFAULT '';
+﻿ALTER TABLE "SalesOrder" ADD COLUMN "currencyCode" TEXT NOT NULL DEFAULT '';
 ALTER TABLE "SalesOrder" ADD COLUMN "createdByUserId" TEXT NOT NULL DEFAULT 'legacy';
 ALTER TABLE "SalesOrder" ADD COLUMN "createdByUsername" TEXT NOT NULL DEFAULT 'legacy';
 ALTER TABLE "InvoiceItem" ADD COLUMN "materialId" TEXT REFERENCES "Material"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -1,4 +1,4 @@
-PRAGMA foreign_keys = OFF;
+﻿PRAGMA foreign_keys = OFF;
 BEGIN;
 
 CREATE TABLE "__CountryProfile_new" (

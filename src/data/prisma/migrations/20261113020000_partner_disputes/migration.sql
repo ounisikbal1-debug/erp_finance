@@ -1,4 +1,4 @@
-CREATE TABLE "PartnerDispute" (
+﻿CREATE TABLE "PartnerDispute" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "entityId" TEXT NOT NULL,
   "partnerType" TEXT NOT NULL,

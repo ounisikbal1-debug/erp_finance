@@ -1,1 +1,1 @@
-ALTER TABLE "ChartOfAccount" ADD COLUMN "financialCategory" TEXT;
+﻿ALTER TABLE "ChartOfAccount" ADD COLUMN "financialCategory" TEXT;

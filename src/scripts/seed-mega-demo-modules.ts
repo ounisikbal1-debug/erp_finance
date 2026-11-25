@@ -153,7 +153,7 @@ async function main(): Promise<void> {
           tasks: {
             create: [
               { title: 'Cadrage fictif', status: 'COMPLETED', completedAt: periodDate('2026-02', 20) },
-              { title: 'Mise en œuvre fictive', status: 'IN_PROGRESS', dueAt: periodDate('2026-11', 30) },
+              { title: 'Mise en Å“uvre fictive', status: 'IN_PROGRESS', dueAt: periodDate('2026-11', 30) },
             ],
           },
           milestones: {

@@ -1,105 +1,105 @@
+﻿
+SAFE ERP â€¢ SUITE MÃ‰TIER TUNISIE
+Normes Comptables SCE & RÃ©glementation Fiscale Tunisienne
+ArrÃªtÃ© de validation : 18 Novembre 2026
 
-SAFE ERP • SUITE MÉTIER TUNISIE
-Normes Comptables SCE & Réglementation Fiscale Tunisienne
-Arrêté de validation : 18 Novembre 2026
 
-
-PROLOGICIEL MÉTIER • PAIE & DÉCLARATIONS LÉGALES TUNISIENNES
-SAFE Paie Tunisienne & Déclarations Sociales
+PROLOGICIEL MÃ‰TIER â€¢ PAIE & DÃ‰CLARATIONS LÃ‰GALES TUNISIENNES
+SAFE Paie Tunisienne & DÃ©clarations Sociales
 Dossier Complet : Architecture, Cahier des Charges & Guide d'Utilisation Moteur IRPP, CNSS & Bulletins
 
 
-| VALIDATION OFFICIELLE EXPERT-COMPTABLE — Dossier technique, fonctionnel et opérationnel exhaustif regroupant l'Architecture logicielle, le Cahier des charges conforme à la législation tunisienne et le Manuel d'utilisation pas-à-pas. |
+| VALIDATION OFFICIELLE EXPERT-COMPTABLE â€” Dossier technique, fonctionnel et opÃ©rationnel exhaustif regroupant l'Architecture logicielle, le Cahier des charges conforme Ã  la lÃ©gislation tunisienne et le Manuel d'utilisation pas-Ã -pas. |
 | --- |
 
 
 
-# Partie I : Architecture Technique & Logicielle Détaillée
+# Partie I : Architecture Technique & Logicielle DÃ©taillÃ©e
 
 
-Le prologiciel SAFE Paie Tunisienne & Déclarations Sociales repose sur une architecture découplée, performante et sécurisée, conçue pour un déploiement autonome ou en synergie directe avec le socle central SAFE ERP. Cette architecture garantit une parfaite étanchéité des données tout en maintenant l'intégrité transactionnelle globale.
+Le prologiciel SAFE Paie Tunisienne & DÃ©clarations Sociales repose sur une architecture dÃ©couplÃ©e, performante et sÃ©curisÃ©e, conÃ§ue pour un dÃ©ploiement autonome ou en synergie directe avec le socle central SAFE ERP. Cette architecture garantit une parfaite Ã©tanchÃ©itÃ© des donnÃ©es tout en maintenant l'intÃ©gritÃ© transactionnelle globale.
 
 
-| Composant | Technologie | Rôle & Détails Techniques |
+| Composant | Technologie | RÃ´le & DÃ©tails Techniques |
 | --- | --- | --- |
-| Frontend UI | React 19, TailwindCSS, Éditeur de fiches | Simulateur Net/Brut, livre de paie, bulletins imprimables normalisés en TND |
+| Frontend UI | React 19, TailwindCSS, Ã‰diteur de fiches | Simulateur Net/Brut, livre de paie, bulletins imprimables normalisÃ©s en TND |
 | Backend API | Node.js Express, Service HR Payroll | Moteur de calcul IRPP progressif 8 tranches, plafonds CNSS, FOPROLOS, CSS |
-| Base de Données | Prisma ORM, SQLite / PostgreSQL | Tables : Employee, Payslip, PayrollConfig, PayrollRubrique, PayrollTaxBracket |
-| Précision Monétaire | Millièmes de Dinar Tunisien (TND) | Calcul exact à 3 décimales, aucun arrondi intermédiaire déviant |
-| Sécurité RH | Chiffrement & RBAC Strict | Données salariales strictement restreintes aux rôles HR_MANAGER et ADMIN |
+| Base de DonnÃ©es | Prisma ORM, SQLite / PostgreSQL | Tables : Employee, Payslip, PayrollConfig, PayrollRubrique, PayrollTaxBracket |
+| PrÃ©cision MonÃ©taire | MilliÃ¨mes de Dinar Tunisien (TND) | Calcul exact Ã  3 dÃ©cimales, aucun arrondi intermÃ©diaire dÃ©viant |
+| SÃ©curitÃ© RH | Chiffrement & RBAC Strict | DonnÃ©es salariales strictement restreintes aux rÃ´les HR_MANAGER et ADMIN |
 
 
 
-## 1.1 Sécurité, Contrôle d'Accès & Inviolabilité
+## 1.1 SÃ©curitÃ©, ContrÃ´le d'AccÃ¨s & InviolabilitÃ©
 
 
-L'accès au prologiciel est gouverné par une matrice de contrôle RBAC (Role-Based Access Control) stricte. Chaque opération d'écriture, de validation ou d'émission est horodatée et attribuée à un acteur certifié. Les données sensibles (salaires, données personnelles, coordonnées bancaires) sont cloisonnées au niveau applicatif.
+L'accÃ¨s au prologiciel est gouvernÃ© par une matrice de contrÃ´le RBAC (Role-Based Access Control) stricte. Chaque opÃ©ration d'Ã©criture, de validation ou d'Ã©mission est horodatÃ©e et attribuÃ©e Ã  un acteur certifiÃ©. Les donnÃ©es sensibles (salaires, donnÃ©es personnelles, coordonnÃ©es bancaires) sont cloisonnÃ©es au niveau applicatif.
 
 
-# Partie II : Cahier des Charges Fonctionnel & Législation Tunisienne
+# Partie II : Cahier des Charges Fonctionnel & LÃ©gislation Tunisienne
 
 
-Ce prologiciel a été conçu et paramétré pour respecter à 100 % le corpus juridique, fiscal et comptable en vigueur en République Tunisienne. L'ensemble des règles et formules de calcul a été audité et validé par l'expert-comptable du projet :
+Ce prologiciel a Ã©tÃ© conÃ§u et paramÃ©trÃ© pour respecter Ã  100 % le corpus juridique, fiscal et comptable en vigueur en RÃ©publique Tunisienne. L'ensemble des rÃ¨gles et formules de calcul a Ã©tÃ© auditÃ© et validÃ© par l'expert-comptable du projet :
 
 
-• Barème IRPP Progressif à 8 tranches conforme à la Loi de Finances tunisienne en vigueur.
+â€¢ BarÃ¨me IRPP Progressif Ã  8 tranches conforme Ã  la Loi de Finances tunisienne en vigueur.
 
 
-• Déductions familiales légales déductibles de l'assiette imposable : 300 DT / an pour le chef de famille, 100 DT / an par enfant à charge.
+â€¢ DÃ©ductions familiales lÃ©gales dÃ©ductibles de l'assiette imposable : 300 DT / an pour le chef de famille, 100 DT / an par enfant Ã  charge.
 
 
-• Cotisation CNSS obligatoire : 9,18 % part salariale régime général + 0,5 % maladie/complémentaire = 9,68 % total salarial.
+â€¢ Cotisation CNSS obligatoire : 9,18 % part salariale rÃ©gime gÃ©nÃ©ral + 0,5 % maladie/complÃ©mentaire = 9,68 % total salarial.
 
 
-• Cotisation patronale CNSS : 16,57 % pour le secteur non-agricole, incluant les prestations familiales et les accidents de travail.
+â€¢ Cotisation patronale CNSS : 16,57 % pour le secteur non-agricole, incluant les prestations familiales et les accidents de travail.
 
 
-• FOPROLOS : Taxe patronale de 1 % sur la masse salariale brute pour le Fonds de Promotion du Logement.
+â€¢ FOPROLOS : Taxe patronale de 1 % sur la masse salariale brute pour le Fonds de Promotion du Logement.
 
 
-• Contribution Sociale de Solidarité (CSS) : 0,5 % applicable sur le revenu imposable pour le redressement des caisses de retraite.
+â€¢ Contribution Sociale de SolidaritÃ© (CSS) : 0,5 % applicable sur le revenu imposable pour le redressement des caisses de retraite.
 
 
-• Déclaration Trimestrielle des Salaires CNSS (DS) obligatoire avant le 15 du mois suivant le trimestre échu.
+â€¢ DÃ©claration Trimestrielle des Salaires CNSS (DS) obligatoire avant le 15 du mois suivant le trimestre Ã©chu.
 
 
-# Partie III : Mode de Fonctionnement & Guide Utilisateur Pas-à-Pas
+# Partie III : Mode de Fonctionnement & Guide Utilisateur Pas-Ã -Pas
 
 
-Ce guide opératoire détaille les flux de travail standard et les bonnes pratiques d'exploitation au quotidien :
+Ce guide opÃ©ratoire dÃ©taille les flux de travail standard et les bonnes pratiques d'exploitation au quotidien :
 
 
-## 1. Configuration des Rubriques de Paie & Barèmes
+## 1. Configuration des Rubriques de Paie & BarÃ¨mes
 
 
-Accéder aux paramètres de paie. Vérifier l'activation du barème IRPP à 8 tranches, du taux CNSS (9.68%), du FOPROLOS (1%) et de la CSS (0.5%).
+AccÃ©der aux paramÃ¨tres de paie. VÃ©rifier l'activation du barÃ¨me IRPP Ã  8 tranches, du taux CNSS (9.68%), du FOPROLOS (1%) et de la CSS (0.5%).
 
 
-## 2. Fiche Salarié & Données Fiscales / Familiales
+## 2. Fiche SalariÃ© & DonnÃ©es Fiscales / Familiales
 
 
-Pour chaque employé, renseigner le statut familial (Marié / Célibataire), le nombre d'enfants à charge, le matricule CNSS et le salaire de base contractuel en TND.
+Pour chaque employÃ©, renseigner le statut familial (MariÃ© / CÃ©libataire), le nombre d'enfants Ã  charge, le matricule CNSS et le salaire de base contractuel en TND.
 
 
-## 3. Saisie des Éléments Variables du Mois
+## 3. Saisie des Ã‰lÃ©ments Variables du Mois
 
 
-Renseigner les heures supplémentaires effectuées (bonifiées à 25%, 50% ou 100%), les primes de rendement, indemnités de transport et retenues sur absences ou acomptes.
+Renseigner les heures supplÃ©mentaires effectuÃ©es (bonifiÃ©es Ã  25%, 50% ou 100%), les primes de rendement, indemnitÃ©s de transport et retenues sur absences ou acomptes.
 
 
 ## 4. Lancement du Calcul de la Paie
 
 
-Cliquer sur 'Calculer la Paie du Mois'. Le moteur déroule séquentiellement : Brut -> Déduction CNSS 9.68% -> Salaire Imposable -> Déductions familiales -> IRPP progressif -> CSS 0.5% -> Salaire Net à payer au millime.
+Cliquer sur 'Calculer la Paie du Mois'. Le moteur dÃ©roule sÃ©quentiellement : Brut -> DÃ©duction CNSS 9.68% -> Salaire Imposable -> DÃ©ductions familiales -> IRPP progressif -> CSS 0.5% -> Salaire Net Ã  payer au millime.
 
 
 ## 5. Impression des Bulletins & Livre de Paie
 
 
-Générer les bulletins de paie individuels au format officiel et exporter le Livre de Paie mensuel pour transmission à l'expert-comptable et à l'inspection du travail.
+GÃ©nÃ©rer les bulletins de paie individuels au format officiel et exporter le Livre de Paie mensuel pour transmission Ã  l'expert-comptable et Ã  l'inspection du travail.
 
 
-## 6. Édition de la Déclaration Trimestrielle CNSS (DS)
+## 6. Ã‰dition de la DÃ©claration Trimestrielle CNSS (DS)
 
 
-À la fin de chaque trimestre (mars, juin, septembre, décembre), générer l'état récapitulatif CNSS avec ventilation des salaires plafonnés et cotisations dues.
+Ã€ la fin de chaque trimestre (mars, juin, septembre, dÃ©cembre), gÃ©nÃ©rer l'Ã©tat rÃ©capitulatif CNSS avec ventilation des salaires plafonnÃ©s et cotisations dues.

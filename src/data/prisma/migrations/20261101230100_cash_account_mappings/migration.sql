@@ -1,4 +1,4 @@
-CREATE TABLE "CashAccountMapping" (
+﻿CREATE TABLE "CashAccountMapping" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "entityId" TEXT NOT NULL,
     "accountCode" TEXT NOT NULL,

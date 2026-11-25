@@ -1,4 +1,4 @@
-CREATE TABLE "Equipment" (
+﻿CREATE TABLE "Equipment" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "entityId" TEXT NOT NULL,
     "assetTag" TEXT NOT NULL,

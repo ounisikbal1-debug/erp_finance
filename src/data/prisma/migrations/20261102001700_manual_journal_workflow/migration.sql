@@ -1,4 +1,4 @@
-ALTER TABLE "JournalEntry" ADD COLUMN "createdByUserId" TEXT;
+﻿ALTER TABLE "JournalEntry" ADD COLUMN "createdByUserId" TEXT;
 ALTER TABLE "JournalEntry" ADD COLUMN "createdByUsername" TEXT;
 ALTER TABLE "JournalEntry" ADD COLUMN "approvedByUserId" TEXT;
 ALTER TABLE "JournalEntry" ADD COLUMN "approvedByUsername" TEXT;

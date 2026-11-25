@@ -136,7 +136,7 @@ export default function MrpPlanningPanel({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827' }}>
-            ⚙️ Planification des Besoins Nets - MRP I / II (Planification SAFE)
+            ⚙ï¸ Planification des Besoins Nets - MRP I / II (Planification SAFE)
           </h1>
           <p style={{ margin: 0, color: '#6B7280', fontSize: '14px' }}>
             Explosion des nomenclatures (BOM), alignement stocks / demandes fermes et réapprovisionnement automatique.
@@ -220,7 +220,7 @@ export default function MrpPlanningPanel({
                       fontSize: '11px',
                       fontWeight: 700,
                     }}>
-                      {hasDeficit ? '⚠️ RUPTURE IMMINENTE' : '✅ COUVERT'}
+                      {hasDeficit ? '⚠ï¸ RUPTURE IMMINENTE' : '✅ COUVERT'}
                     </span>
                   </td>
                 </tr>
@@ -272,7 +272,7 @@ export default function MrpPlanningPanel({
                         fontSize: '12px',
                         fontWeight: 600,
                       }}>
-                        {o.type === 'PRODUCTION_ORDER' ? '🏭 Ordre Fabrication (OF)' : '🛒 Demande Achat (DA)'}
+                        {o.type === 'PRODUCTION_ORDER' ? 'ðŸ­ Ordre Fabrication (OF)' : '🛒 Demande Achat (DA)'}
                       </span>
                     </td>
                     <td style={{ padding: '10px 16px', fontWeight: 500 }}>

@@ -1,4 +1,4 @@
-CREATE TABLE "ConsolidationGroupUserAccess" (
+﻿CREATE TABLE "ConsolidationGroupUserAccess" (
   "id" TEXT NOT NULL,
   "userId" TEXT NOT NULL,
   "groupId" TEXT NOT NULL,

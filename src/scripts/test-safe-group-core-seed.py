@@ -1,4 +1,4 @@
-import importlib.util
+﻿import importlib.util
 import pathlib
 import sqlite3
 import tempfile
@@ -63,13 +63,13 @@ class SafeGroupSeedTests(unittest.TestCase):
     def test_seed_is_additive_and_idempotent(self):
         first = SEED.seed_database(self.database)
         db = sqlite3.connect(self.database)
-        db.execute('UPDATE "CountryProfile" SET "name" = ? WHERE "code" = ?', ("Nom tunisien préexistant", "TN"))
+        db.execute('UPDATE "CountryProfile" SET "name" = ? WHERE "code" = ?', ("Nom tunisien prÃ©existant", "TN"))
         db.commit()
         second = SEED.seed_database(self.database)
         name = db.execute('SELECT "name" FROM "CountryProfile" WHERE "code" = "TN"').fetchone()[0]
         self.assertEqual(first, {"countries": 4, "entities": 4, "groups": 1, "memberships": 4, "us_local_jurisdictions": 4})
         self.assertEqual(second, first)
-        self.assertEqual(name, "Nom tunisien préexistant")
+        self.assertEqual(name, "Nom tunisien prÃ©existant")
         self.assertEqual(db.execute('PRAGMA foreign_key_check').fetchall(), [])
         db.close()
 
@@ -82,11 +82,11 @@ class SafeGroupSeedTests(unittest.TestCase):
         )
         db.execute(
             'INSERT INTO "Entity" ("id","code","name","countryId") VALUES (?,?,?,?)',
-            (str(uuid.uuid4()), "SAFE-TN-001", "Autre société", country_id),
+            (str(uuid.uuid4()), "SAFE-TN-001", "Autre sociÃ©tÃ©", country_id),
         )
         db.commit()
         db.close()
-        with self.assertRaisesRegex(ValueError, "identité différente"):
+        with self.assertRaisesRegex(ValueError, "identitÃ© diffÃ©rente"):
             SEED.seed_database(self.database)
         db = sqlite3.connect(self.database)
         self.assertEqual(db.execute('SELECT COUNT(*) FROM "Entity"').fetchone()[0], 1)

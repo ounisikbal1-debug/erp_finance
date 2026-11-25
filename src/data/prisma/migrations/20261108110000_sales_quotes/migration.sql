@@ -1,4 +1,4 @@
-CREATE TABLE "SalesQuote" (
+﻿CREATE TABLE "SalesQuote" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "quoteNumber" TEXT NOT NULL,
     "entityId" TEXT NOT NULL,

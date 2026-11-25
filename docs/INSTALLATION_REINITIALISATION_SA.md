@@ -1,20 +1,20 @@
-# Réinitialisation sûre du mot de passe administrateur SAFE
+﻿# RÃ©initialisation sÃ»re du mot de passe administrateur SAFE
 
 ## Contenu
 
-Ce paquet contient uniquement l’outil de réinitialisation de mot de passe et ses éléments nécessaires :
+Ce paquet contient uniquement lâ€™outil de rÃ©initialisation de mot de passe et ses Ã©lÃ©ments nÃ©cessaires :
 
-- `src/scripts/reset-admin-password.ts` : commande, saisie masquée, validation, sauvegarde SQLite puis mise à jour du seul `passwordHash` ciblé ;
-- `src/application/security/passwords.ts` : hachage scrypt compatible avec l’authentification SAFE ;
-- `src/scripts/reset-admin-password.test.ts` : test automatisé sur une base SQLite temporaire synthétique.
+- `src/scripts/reset-admin-password.ts` : commande, saisie masquÃ©e, validation, sauvegarde SQLite puis mise Ã  jour du seul `passwordHash` ciblÃ© ;
+- `src/application/security/passwords.ts` : hachage scrypt compatible avec lâ€™authentification SAFE ;
+- `src/scripts/reset-admin-password.test.ts` : test automatisÃ© sur une base SQLite temporaire synthÃ©tique.
 
-Il ne contient ni base de données, ni compte, ni secret, ni dépendances préinstallées.
+Il ne contient ni base de donnÃ©es, ni compte, ni secret, ni dÃ©pendances prÃ©installÃ©es.
 
 ## Installation dans un checkout SAFE
 
-1. Décompresser le ZIP dans un emplacement temporaire et copier les trois fichiers en conservant exactement leurs chemins relatifs à la racine du projet SAFE.
-2. Vérifier que le projet possède les dépendances `@prisma/client`, `sqlite3` et `ts-node`, ainsi que le client Prisma généré pour `src/data/prisma/schema.prisma`. Dans le checkout source complet, elles sont déclarées dans `package.json`.
-3. Vérifier que les scripts `reset-admin-password` et `test:password-reset` existent dans `package.json`. Dans le cas contraire, les ajouter sans remplacer les autres scripts :
+1. DÃ©compresser le ZIP dans un emplacement temporaire et copier les trois fichiers en conservant exactement leurs chemins relatifs Ã  la racine du projet SAFE.
+2. VÃ©rifier que le projet possÃ¨de les dÃ©pendances `@prisma/client`, `sqlite3` et `ts-node`, ainsi que le client Prisma gÃ©nÃ©rÃ© pour `src/data/prisma/schema.prisma`. Dans le checkout source complet, elles sont dÃ©clarÃ©es dans `package.json`.
+3. VÃ©rifier que les scripts `reset-admin-password` et `test:password-reset` existent dans `package.json`. Dans le cas contraire, les ajouter sans remplacer les autres scripts :
 
    ```json
    {
@@ -23,17 +23,17 @@ Il ne contient ni base de données, ni compte, ni secret, ni dépendances préin
    }
    ```
 
-4. Depuis la racine du projet, lancer le test synthétique :
+4. Depuis la racine du projet, lancer le test synthÃ©tique :
 
    ```powershell
    npm run test:password-reset
    ```
 
-   Le test fabrique une base jetable sous le répertoire temporaire Windows, vérifie l’isolation du compte ciblé et le contenu de la sauvegarde, puis supprime cette base.
+   Le test fabrique une base jetable sous le rÃ©pertoire temporaire Windows, vÃ©rifie lâ€™isolation du compte ciblÃ© et le contenu de la sauvegarde, puis supprime cette base.
 
-## Utilisation opérationnelle
+## Utilisation opÃ©rationnelle
 
-Cette opération modifie le compte sélectionné dans la base SAFE configurée : ne l’exécuter que pour une réinitialisation autorisée. Ne fournir aucun mot de passe en argument ni dans une variable d’environnement.
+Cette opÃ©ration modifie le compte sÃ©lectionnÃ© dans la base SAFE configurÃ©e : ne lâ€™exÃ©cuter que pour une rÃ©initialisation autorisÃ©e. Ne fournir aucun mot de passe en argument ni dans une variable dâ€™environnement.
 
 Depuis la racine du projet, ouvrir un terminal interactif :
 
@@ -41,16 +41,16 @@ Depuis la racine du projet, ouvrir un terminal interactif :
 npm run reset-admin-password
 ```
 
-Par défaut, le compte ciblé est `admin`; le nouveau mot de passe et sa confirmation sont saisis sans affichage. Un mot de passe de 12 caractères minimum est requis. Pour choisir un autre nom de compte :
+Par dÃ©faut, le compte ciblÃ© est `admin`; le nouveau mot de passe et sa confirmation sont saisis sans affichage. Un mot de passe de 12 caractÃ¨res minimum est requis. Pour choisir un autre nom de compte :
 
 ```powershell
 npm run reset-admin-password -- nom_utilisateur
 ```
 
-La base SQLite par défaut du schéma SAFE est `src/data/data.db`. Avant de lancer l’opération, contrôler que le fichier ciblé est bien celui de l’installation prévue. Pour utiliser explicitement une autre base SQLite, définir `SAFE_ERP_RESET_DATABASE_URL` au format Prisma `file:...` dans le terminal courant. L’outil refuse les bases non-SQLite, absentes ou en mémoire.
+La base SQLite par dÃ©faut du schÃ©ma SAFE est `src/data/data.db`. Avant de lancer lâ€™opÃ©ration, contrÃ´ler que le fichier ciblÃ© est bien celui de lâ€™installation prÃ©vue. Pour utiliser explicitement une autre base SQLite, dÃ©finir `SAFE_ERP_RESET_DATABASE_URL` au format Prisma `file:...` dans le terminal courant. Lâ€™outil refuse les bases non-SQLite, absentes ou en mÃ©moire.
 
-Une sauvegarde SQLite cohérente au nom unique est créée à côté de la base avant toute mise à jour. Conserver cette sauvegarde en lieu sûr. En cas d’échec de la mise à jour, la sauvegarde reste disponible; ne pas relancer à l’aveugle et vérifier d’abord l’état de la base. La commande affiche le chemin de sauvegarde après succès.
+Une sauvegarde SQLite cohÃ©rente au nom unique est crÃ©Ã©e Ã  cÃ´tÃ© de la base avant toute mise Ã  jour. Conserver cette sauvegarde en lieu sÃ»r. En cas dâ€™Ã©chec de la mise Ã  jour, la sauvegarde reste disponible; ne pas relancer Ã  lâ€™aveugle et vÃ©rifier dâ€™abord lâ€™Ã©tat de la base. La commande affiche le chemin de sauvegarde aprÃ¨s succÃ¨s.
 
 ## Limites
 
-L’outil ne réinitialise que le mot de passe d’un utilisateur existant; il ne crée ni compte ni rôle et ne change aucun paramètre métier. Il requiert une console interactive pour saisir les mots de passe et une base SQLite accessible en écriture pour la mise à jour. Ne jamais valider son fonctionnement sur une vraie base ou un vrai compte : utiliser `npm run test:password-reset`.
+Lâ€™outil ne rÃ©initialise que le mot de passe dâ€™un utilisateur existant; il ne crÃ©e ni compte ni rÃ´le et ne change aucun paramÃ¨tre mÃ©tier. Il requiert une console interactive pour saisir les mots de passe et une base SQLite accessible en Ã©criture pour la mise Ã  jour. Ne jamais valider son fonctionnement sur une vraie base ou un vrai compte : utiliser `npm run test:password-reset`.

@@ -1,4 +1,4 @@
-import prisma from '../src/data/prisma/client';
+﻿import prisma from '../src/data/prisma/client';
 import { OperationalInsightsService } from '../src/application/modules/ai/operational-insights';
 
 async function test() {

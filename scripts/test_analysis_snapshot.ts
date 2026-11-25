@@ -1,4 +1,4 @@
-import { AdvancedFinanceService } from '../src/application/modules/advanced-finance/service';
+﻿import { AdvancedFinanceService } from '../src/application/modules/advanced-finance/service';
 import defaultPrisma from '../src/data/prisma/client';
 
 async function test() {

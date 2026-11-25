@@ -1,4 +1,4 @@
-ALTER TABLE "Employee" ADD COLUMN "terminatedAt" DATETIME;
+﻿ALTER TABLE "Employee" ADD COLUMN "terminatedAt" DATETIME;
 
 CREATE TABLE "EmployeeEmploymentEvent" (
     "id" TEXT NOT NULL PRIMARY KEY,

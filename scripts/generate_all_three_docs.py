@@ -1,4 +1,4 @@
-import os, sys, datetime, docx
+﻿import os, sys, datetime, docx
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
@@ -91,12 +91,12 @@ def add_callout(doc, text, title="NOTE OFFICIELLE"):
     table = doc.add_table(rows=1, cols=1)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     cell = table.cell(0, 0)
-    set_cell_background(cell, 'F0FDF4' if 'VALIDÉ' in title or 'CONFORME' in title else 'EFF6FF')
+    set_cell_background(cell, 'F0FDF4' if 'VALIDÃ‰' in title or 'CONFORME' in title else 'EFF6FF')
     set_cell_margins(cell, top=120, bottom=120, left=180, right=180)
     p = cell.paragraphs[0]
-    r_title = p.add_run(f"📌 {title} : ")
+    r_title = p.add_run(f"ðŸ“Œ {title} : ")
     r_title.bold = True
-    r_title.font.color.rgb = RGBColor(22, 101, 52) if 'VALIDÉ' in title or 'CONFORME' in title else RGBColor(30, 58, 138)
+    r_title.font.color.rgb = RGBColor(22, 101, 52) if 'VALIDÃ‰' in title or 'CONFORME' in title else RGBColor(30, 58, 138)
     r_title.font.size = Pt(10)
     r_text = p.add_run(text)
     r_text.font.size = Pt(9.5)
@@ -106,7 +106,7 @@ def add_callout(doc, text, title="NOTE OFFICIELLE"):
 def build_cover_page(doc, title, subtitle, document_type):
     p_meta = doc.add_paragraph()
     p_meta.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    r_corp = p_meta.add_run("SAFE ERP • SYSTÈME D’ANALYSE FINANCIÈRE DES ENTREPRISES\nVersion 2.0 • Normes Tunisiennes & Multi-Pays\nDate d’arrêté : 18 Novembre 2026")
+    r_corp = p_meta.add_run("SAFE ERP â€¢ SYSTÃˆME Dâ€™ANALYSE FINANCIÃˆRE DES ENTREPRISES\nVersion 2.0 â€¢ Normes Tunisiennes & Multi-Pays\nDate dâ€™arrÃªtÃ© : 18 Novembre 2026")
     r_corp.font.size = Pt(9)
     r_corp.font.color.rgb = RGBColor(100, 116, 139)
 
@@ -131,100 +131,100 @@ def build_cover_page(doc, title, subtitle, document_type):
     doc.add_paragraph("\n")
 
     add_callout(doc, 
-        "Ce document atteste de la validation rigoureuse des règles fiscales, comptables (SCE), sociales, de facturation électronique (TTN El Fatoora / TunTrust) et des flux bancaires de SAFE ERP, validés conformément à la législation tunisienne par l’expert-comptable du projet.",
+        "Ce document atteste de la validation rigoureuse des rÃ¨gles fiscales, comptables (SCE), sociales, de facturation Ã©lectronique (TTN El Fatoora / TunTrust) et des flux bancaires de SAFE ERP, validÃ©s conformÃ©ment Ã  la lÃ©gislation tunisienne par lâ€™expert-comptable du projet.",
         "VALIDATION OFFICIELLE EXPERT-COMPTABLE"
     )
 
     doc.add_page_break()
 
 # ==============================================================================
-# 1. SYNTHÈSE OPÉRATIONNELLE
+# 1. SYNTHÃˆSE OPÃ‰RATIONNELLE
 # ==============================================================================
 def generate_synthese_doc():
     doc = docx.Document()
     build_cover_page(
         doc,
-        "Rapport de Synthèse Opérationnelle & Certification d'Intégrité",
-        "Audit fonctionnel complet, données réelles, réconciliation bancaire, G50 et E-Facture TTN Tunisie",
-        "Document de Synthèse & Audit Exécutif"
+        "Rapport de SynthÃ¨se OpÃ©rationnelle & Certification d'IntÃ©gritÃ©",
+        "Audit fonctionnel complet, donnÃ©es rÃ©elles, rÃ©conciliation bancaire, G50 et E-Facture TTN Tunisie",
+        "Document de SynthÃ¨se & Audit ExÃ©cutif"
     )
 
-    add_header_styled(doc, "1. Synthèse Exécutive & Verdict Opérationnel", 1)
+    add_header_styled(doc, "1. SynthÃ¨se ExÃ©cutive & Verdict OpÃ©rationnel", 1)
     doc.add_paragraph(
-        "Le projet SAFE ERP (« Système d’Analyse Financière des Entreprises ») est un progiciel de gestion intégré de classe entreprise "
-        "spécifiquement adapté aux normes tunisiennes (Système Comptable des Entreprises - SCE, TVA, IRPP, CNSS, Retenue à la Source, "
-        "et Facturation Électronique TTN El Fatoora) et doté d'un moteur multi-pays et multi-devises (IAS 21). "
-        "Suite à l'audit approfondi, aux travaux d'automatisation, de rapprochement bancaire et d'implémentation de la facturation électronique légale, "
-        "le système est désormais déclaré 100 % OPÉRATIONNEL sur l'ensemble de son socle technique, comptable, bancaire et réglementaire."
+        "Le projet SAFE ERP (Â« SystÃ¨me dâ€™Analyse FinanciÃ¨re des Entreprises Â») est un progiciel de gestion intÃ©grÃ© de classe entreprise "
+        "spÃ©cifiquement adaptÃ© aux normes tunisiennes (SystÃ¨me Comptable des Entreprises - SCE, TVA, IRPP, CNSS, Retenue Ã  la Source, "
+        "et Facturation Ã‰lectronique TTN El Fatoora) et dotÃ© d'un moteur multi-pays et multi-devises (IAS 21). "
+        "Suite Ã  l'audit approfondi, aux travaux d'automatisation, de rapprochement bancaire et d'implÃ©mentation de la facturation Ã©lectronique lÃ©gale, "
+        "le systÃ¨me est dÃ©sormais dÃ©clarÃ© 100 % OPÃ‰RATIONNEL sur l'ensemble de son socle technique, comptable, bancaire et rÃ©glementaire."
     )
 
     data_kpi = [
-        ["Composant Applicatif", "Métrique Réelle Constatée", "Statut Opérationnel", "Conformité"],
-        ["Frontend Utilisateur (React 19 / Vite)", "132 modules transformés, 46 panneaux UI", "Build Production OK (1.14s)", "100 % Conforme"],
-        ["Backend API (Node.js / Express / TS)", "28 micro-modules REST, routeur sécurisé", "Compilation tsc OK (0 erreur)", "100 % Conforme"],
-        ["Base de Données (Prisma / SQLite / PG)", "131 tables relationnelles, 81 migrations", "Intégrité vérifiée, 0 erreur FK", "100 % Conforme"],
-        ["Sécurité & Séparation des Tâches", "SoD à 3 identités distinctes (Préparateur/Réviseur/Poster)", "Inviolabilité cryptographique SHA-256", "100 % Conforme"],
-        ["Facturation Ventes & Clients", "230 factures clients, créances 375 395,350 DT", "100 % Encaissées & lettrées au statut PAID", "100 % Conforme"],
-        ["Facturation Achats & Fournisseurs", "230 factures fournisseurs, dettes 349 010,960 DT", "100 % Réglées & lettrées au statut POSTED", "100 % Conforme"],
-        ["Comptabilité Générale (Grand Livre)", "1 387 écritures postées (927 opérationnelles + 460 bancaires)", "Débit = Crédit au millime (0 écart)", "100 % Conforme"],
-        ["Rapprochement Bancaire", "460 opérations bancaires rapprochées 1-à-1", "BH Bank & BIAT équilibrées, solde +26 384,390 DT", "100 % Conforme"],
-        ["Retenue à la Source (RS)", "186 certificats RS émis (achats >= 1000 DT)", "Statut ISSUED, taux légaux 1.5% / 0.5% / 15%", "100 % Conforme"],
-        ["Déclarations Fiscales G50", "89 workpapers mensuels (TVA Coll/Déd, Timbre, RS, IS)", "Statut APPROVED, visé Expert-Comptable", "100 % Conforme"],
-        ["Facturation Électronique TTN (El Fatoora)", "230 e-factures UBL 2.1, CEV 2D-Doc & TunTrust PKI", "100 % Agréées TTN (Statut ACCEPTED_TTN)", "100 % Conforme"],
-        ["Moteur de Paie Tunisien", "Barème IRPP 8 tranches, CNSS 9.68%, FOPROLOS 1%, CSS 0.5%", "Calcul automatique au millime", "100 % Conforme"],
-        ["Localisation Multilingue", "Français, Anglais et Arabe avec inversion RTL native", "10/10 tests réussis, 0 libellé manquant", "100 % Conforme"],
+        ["Composant Applicatif", "MÃ©trique RÃ©elle ConstatÃ©e", "Statut OpÃ©rationnel", "ConformitÃ©"],
+        ["Frontend Utilisateur (React 19 / Vite)", "132 modules transformÃ©s, 46 panneaux UI", "Build Production OK (1.14s)", "100 % Conforme"],
+        ["Backend API (Node.js / Express / TS)", "28 micro-modules REST, routeur sÃ©curisÃ©", "Compilation tsc OK (0 erreur)", "100 % Conforme"],
+        ["Base de DonnÃ©es (Prisma / SQLite / PG)", "131 tables relationnelles, 81 migrations", "IntÃ©gritÃ© vÃ©rifiÃ©e, 0 erreur FK", "100 % Conforme"],
+        ["SÃ©curitÃ© & SÃ©paration des TÃ¢ches", "SoD Ã  3 identitÃ©s distinctes (PrÃ©parateur/RÃ©viseur/Poster)", "InviolabilitÃ© cryptographique SHA-256", "100 % Conforme"],
+        ["Facturation Ventes & Clients", "230 factures clients, crÃ©ances 375 395,350 DT", "100 % EncaissÃ©es & lettrÃ©es au statut PAID", "100 % Conforme"],
+        ["Facturation Achats & Fournisseurs", "230 factures fournisseurs, dettes 349 010,960 DT", "100 % RÃ©glÃ©es & lettrÃ©es au statut POSTED", "100 % Conforme"],
+        ["ComptabilitÃ© GÃ©nÃ©rale (Grand Livre)", "1 387 Ã©critures postÃ©es (927 opÃ©rationnelles + 460 bancaires)", "DÃ©bit = CrÃ©dit au millime (0 Ã©cart)", "100 % Conforme"],
+        ["Rapprochement Bancaire", "460 opÃ©rations bancaires rapprochÃ©es 1-Ã -1", "BH Bank & BIAT Ã©quilibrÃ©es, solde +26 384,390 DT", "100 % Conforme"],
+        ["Retenue Ã  la Source (RS)", "186 certificats RS Ã©mis (achats >= 1000 DT)", "Statut ISSUED, taux lÃ©gaux 1.5% / 0.5% / 15%", "100 % Conforme"],
+        ["DÃ©clarations Fiscales G50", "89 workpapers mensuels (TVA Coll/DÃ©d, Timbre, RS, IS)", "Statut APPROVED, visÃ© Expert-Comptable", "100 % Conforme"],
+        ["Facturation Ã‰lectronique TTN (El Fatoora)", "230 e-factures UBL 2.1, CEV 2D-Doc & TunTrust PKI", "100 % AgrÃ©Ã©es TTN (Statut ACCEPTED_TTN)", "100 % Conforme"],
+        ["Moteur de Paie Tunisien", "BarÃ¨me IRPP 8 tranches, CNSS 9.68%, FOPROLOS 1%, CSS 0.5%", "Calcul automatique au millime", "100 % Conforme"],
+        ["Localisation Multilingue", "FranÃ§ais, Anglais et Arabe avec inversion RTL native", "10/10 tests rÃ©ussis, 0 libellÃ© manquant", "100 % Conforme"],
     ]
     create_styled_table(doc, data_kpi[0], data_kpi[1:], [2.1, 2.4, 1.8, 1.2])
 
-    add_header_styled(doc, "2. Rapprochement Bancaire & Trésorerie Comptabilisée", 1)
+    add_header_styled(doc, "2. Rapprochement Bancaire & TrÃ©sorerie ComptabilisÃ©e", 1)
     doc.add_paragraph(
-        "L'ensemble des flux d'encaissement et de décaissement a été formellement injecté, lettré et comptabilisé au Grand Livre. "
-        "Le solde de trésorerie net dégagé par l'exploitation s'établit à +26 384,390 DT."
+        "L'ensemble des flux d'encaissement et de dÃ©caissement a Ã©tÃ© formellement injectÃ©, lettrÃ© et comptabilisÃ© au Grand Livre. "
+        "Le solde de trÃ©sorerie net dÃ©gagÃ© par l'exploitation s'Ã©tablit Ã  +26 384,390 DT."
     )
 
     data_bank = [
-        ["Compte Général", "Intitulé du Compte", "Nombre de Lignes", "Mouvements Débit (DT)", "Mouvements Crédit (DT)", "Solde Net (DT)"],
-        ["532001", "BH Bank - Compte Encaissements Clients", "230 écritures", "375 395,350", "0,000", "+375 395,350 (Débiteur)"],
-        ["532002", "BIAT - Compte Décaissements Fournisseurs", "230 écritures", "0,000", "349 010,960", "-349 010,960 (Créditeur)"],
-        ["411000", "Clients - Créances d'exploitation", "230 écritures", "0,000", "375 395,350", "0,000 (Soldé 100%)"],
-        ["401001", "Fournisseurs d'exploitation", "230 écritures", "349 010,960", "0,000", "0,000 (Soldé 100%)"],
-        ["TOTAL", "Flux de Trésorerie Réconciliés", "920 lignes", "724 406,310", "724 406,310", "+26 384,390 DT"]
+        ["Compte GÃ©nÃ©ral", "IntitulÃ© du Compte", "Nombre de Lignes", "Mouvements DÃ©bit (DT)", "Mouvements CrÃ©dit (DT)", "Solde Net (DT)"],
+        ["532001", "BH Bank - Compte Encaissements Clients", "230 Ã©critures", "375 395,350", "0,000", "+375 395,350 (DÃ©biteur)"],
+        ["532002", "BIAT - Compte DÃ©caissements Fournisseurs", "230 Ã©critures", "0,000", "349 010,960", "-349 010,960 (CrÃ©diteur)"],
+        ["411000", "Clients - CrÃ©ances d'exploitation", "230 Ã©critures", "0,000", "375 395,350", "0,000 (SoldÃ© 100%)"],
+        ["401001", "Fournisseurs d'exploitation", "230 Ã©critures", "349 010,960", "0,000", "0,000 (SoldÃ© 100%)"],
+        ["TOTAL", "Flux de TrÃ©sorerie RÃ©conciliÃ©s", "920 lignes", "724 406,310", "724 406,310", "+26 384,390 DT"]
     ]
     create_styled_table(doc, data_bank[0], data_bank[1:], [1.1, 2.5, 1.1, 1.3, 1.3, 1.2])
 
-    add_header_styled(doc, "3. Fiscalité Tunisienne & Déclarations G50 Réelles", 1)
+    add_header_styled(doc, "3. FiscalitÃ© Tunisienne & DÃ©clarations G50 RÃ©elles", 1)
     doc.add_paragraph(
-        "Conformément aux instructions et à la validation de l'expert-comptable, les règles fiscales ont été intégralement modélisées et appliquées :"
+        "ConformÃ©ment aux instructions et Ã  la validation de l'expert-comptable, les rÃ¨gles fiscales ont Ã©tÃ© intÃ©gralement modÃ©lisÃ©es et appliquÃ©es :"
     )
-    doc.add_paragraph("• TVA Tunisienne : Taux de 19 % (taux normal biens et services), 13 % (prestations spécifiques), 7 % (matières et équipements prioritaires) et 0 % (exportations et régimes suspensifs).")
-    doc.add_paragraph("• Droit de Timbre Fiscal : Application systématique de 1,000 DT par facture client émise (compte 432).")
-    doc.add_paragraph("• Retenue à la Source (RS) : 186 certificats individuels générés pour les factures d'achat supérieures ou égales à 1 000 DT TTC, avec taux de 1,5 % (achats généraux), 0,5 % et 15 % (honoraires professionnels).")
-    doc.add_paragraph("• Déclaration G50 Mensuelle : 88 liasses mensuelles (périodes 2025-01 à 2026-10) enregistrées au statut APPROVED avec rapprochement exact TVA collectée / TVA déductible / RS.")
-    doc.add_paragraph("• Impôt sur les Sociétés (IS) : Liasse annuelle 2025 enregistrée sur une base imposable de 77 400,000 DT au taux de 20 %, soit un IS net calculé de 15 480,000 DT.")
+    doc.add_paragraph("â€¢ TVA Tunisienne : Taux de 19 % (taux normal biens et services), 13 % (prestations spÃ©cifiques), 7 % (matiÃ¨res et Ã©quipements prioritaires) et 0 % (exportations et rÃ©gimes suspensifs).")
+    doc.add_paragraph("â€¢ Droit de Timbre Fiscal : Application systÃ©matique de 1,000 DT par facture client Ã©mise (compte 432).")
+    doc.add_paragraph("â€¢ Retenue Ã  la Source (RS) : 186 certificats individuels gÃ©nÃ©rÃ©s pour les factures d'achat supÃ©rieures ou Ã©gales Ã  1 000 DT TTC, avec taux de 1,5 % (achats gÃ©nÃ©raux), 0,5 % et 15 % (honoraires professionnels).")
+    doc.add_paragraph("â€¢ DÃ©claration G50 Mensuelle : 88 liasses mensuelles (pÃ©riodes 2025-01 Ã  2026-10) enregistrÃ©es au statut APPROVED avec rapprochement exact TVA collectÃ©e / TVA dÃ©ductible / RS.")
+    doc.add_paragraph("â€¢ ImpÃ´t sur les SociÃ©tÃ©s (IS) : Liasse annuelle 2025 enregistrÃ©e sur une base imposable de 77 400,000 DT au taux de 20 %, soit un IS net calculÃ© de 15 480,000 DT.")
 
-    add_header_styled(doc, "4. Facturation Électronique Tunisienne (El Fatoora - TTN & TunTrust PKI)", 1)
+    add_header_styled(doc, "4. Facturation Ã‰lectronique Tunisienne (El Fatoora - TTN & TunTrust PKI)", 1)
     doc.add_paragraph(
-        "Afin de garantir une conformité totale au Décret n° 2016-1098 et au Décret-loi n° 2021-21, SAFE ERP intègre nativement le système national de facturation électronique « El Fatoora » :"
+        "Afin de garantir une conformitÃ© totale au DÃ©cret nÂ° 2016-1098 et au DÃ©cret-loi nÂ° 2021-21, SAFE ERP intÃ¨gre nativement le systÃ¨me national de facturation Ã©lectronique Â« El Fatoora Â» :"
     )
-    doc.add_paragraph("1. Standard UBL 2.1 TTN : Chaque facture client émise par la filiale tunisienne génère automatiquement un flux XML normé conforme aux spécifications d'interopérabilité de Tunisie TradeNet (TTN).")
-    doc.add_paragraph("2. Empreinte Cryptographique SHA-256 : Calcul d'un condensat SHA-256 scellant l'intégrité du document XML et rendant toute falsification impossible.")
-    doc.add_paragraph("3. Signature Électronique TunTrust (X.509) : Signature électronique qualifiée délivrée par l'Agence Nationale de Certification Électronique (TunTrust / ANCE), conférant à la facture électronique une valeur probante pleine et entière devant l'administration fiscale.")
-    doc.add_paragraph("4. Cachet Électronique Visible (CEV / QR Code 2D-Doc) : Insertion obligatoire du QR Code 2D-Doc haute densité intégrant l'en-tête fiscal, les matricules émetteur/acheteur, la date, les montants ventilés et l'empreinte de sécurité pour contrôle immédiat par la Direction Générale des Impôts (DGI).")
-    doc.add_paragraph("5. Télétransmission & Enregistrement TTN : 230 factures clients ont été transmises avec succès, dotées d'un identifiant d'homologation unique (format TTN-2026-XXXXXX) et archivées avec leur payload XML complet.")
+    doc.add_paragraph("1. Standard UBL 2.1 TTN : Chaque facture client Ã©mise par la filiale tunisienne gÃ©nÃ¨re automatiquement un flux XML normÃ© conforme aux spÃ©cifications d'interopÃ©rabilitÃ© de Tunisie TradeNet (TTN).")
+    doc.add_paragraph("2. Empreinte Cryptographique SHA-256 : Calcul d'un condensat SHA-256 scellant l'intÃ©gritÃ© du document XML et rendant toute falsification impossible.")
+    doc.add_paragraph("3. Signature Ã‰lectronique TunTrust (X.509) : Signature Ã©lectronique qualifiÃ©e dÃ©livrÃ©e par l'Agence Nationale de Certification Ã‰lectronique (TunTrust / ANCE), confÃ©rant Ã  la facture Ã©lectronique une valeur probante pleine et entiÃ¨re devant l'administration fiscale.")
+    doc.add_paragraph("4. Cachet Ã‰lectronique Visible (CEV / QR Code 2D-Doc) : Insertion obligatoire du QR Code 2D-Doc haute densitÃ© intÃ©grant l'en-tÃªte fiscal, les matricules Ã©metteur/acheteur, la date, les montants ventilÃ©s et l'empreinte de sÃ©curitÃ© pour contrÃ´le immÃ©diat par la Direction GÃ©nÃ©rale des ImpÃ´ts (DGI).")
+    doc.add_paragraph("5. TÃ©lÃ©transmission & Enregistrement TTN : 230 factures clients ont Ã©tÃ© transmises avec succÃ¨s, dotÃ©es d'un identifiant d'homologation unique (format TTN-2026-XXXXXX) et archivÃ©es avec leur payload XML complet.")
 
-    add_header_styled(doc, "5. Gouvernance, Traçabilité & Séparation des Tâches", 1)
+    add_header_styled(doc, "5. Gouvernance, TraÃ§abilitÃ© & SÃ©paration des TÃ¢ches", 1)
     doc.add_paragraph(
-        "Le progiciel garantit le respect le plus strict des normes internationales d'audit (ISA) et de contrôle interne (COSO) :"
+        "Le progiciel garantit le respect le plus strict des normes internationales d'audit (ISA) et de contrÃ´le interne (COSO) :"
     )
-    doc.add_paragraph("1. Séparation des Tâches (SoD) : Impossibilité pour un utilisateur de valider ou poster une écriture ou facture dont il est l'auteur.")
-    doc.add_paragraph("2. Règle d'or de clôture : Toute période clôturée mensuellement ou annuellement est hermétiquement verrouillée. Aucune écriture antidatée ne peut être enregistrée.")
-    doc.add_paragraph("3. Piste d'audit cryptographique : Chaque écriture comptable est horodatée et chaînée par signature SHA-256 (table JournalEntryAuditChainHead).")
+    doc.add_paragraph("1. SÃ©paration des TÃ¢ches (SoD) : ImpossibilitÃ© pour un utilisateur de valider ou poster une Ã©criture ou facture dont il est l'auteur.")
+    doc.add_paragraph("2. RÃ¨gle d'or de clÃ´ture : Toute pÃ©riode clÃ´turÃ©e mensuellement ou annuellement est hermÃ©tiquement verrouillÃ©e. Aucune Ã©criture antidatÃ©e ne peut Ãªtre enregistrÃ©e.")
+    doc.add_paragraph("3. Piste d'audit cryptographique : Chaque Ã©criture comptable est horodatÃ©e et chaÃ®nÃ©e par signature SHA-256 (table JournalEntryAuditChainHead).")
 
     path_desktop = os.path.join(DESKTOP_DIR, "SYNTHESE_OPERATIONNELLE_SAFE_ERP.docx")
     path_proj = os.path.join(PROJECT_DIR, "SYNTHESE_OPERATIONNELLE_SAFE_ERP.docx")
     doc.save(path_desktop)
     doc.save(path_proj)
-    print(f"✔ SYNTHESE_OPERATIONNELLE_SAFE_ERP.docx written to {path_desktop}")
+    print(f"âœ” SYNTHESE_OPERATIONNELLE_SAFE_ERP.docx written to {path_desktop}")
 
 # ==============================================================================
 # 2. ARCHITECTURE TECHNIQUE
@@ -234,66 +234,66 @@ def generate_architecture_doc():
     build_cover_page(
         doc,
         "Dossier d'Architecture Technique & Logicielle",
-        "Stack TypeScript, Express, React 19, Prisma, E-Facture TTN, Sécurité RBAC & Normes SCE",
+        "Stack TypeScript, Express, React 19, Prisma, E-Facture TTN, SÃ©curitÃ© RBAC & Normes SCE",
         "Document d'Architecture Technique (DAT)"
     )
 
-    add_header_styled(doc, "1. Architecture Globale du Système", 1)
+    add_header_styled(doc, "1. Architecture Globale du SystÃ¨me", 1)
     doc.add_paragraph(
-        "SAFE ERP repose sur une architecture 3-tiers modulaire, hautement découplée et sécurisée, "
-        "conçue pour garantir une performance optimale, une intégrité transactionnelle absolue et une conformité rigoureuse aux standards financiers."
+        "SAFE ERP repose sur une architecture 3-tiers modulaire, hautement dÃ©couplÃ©e et sÃ©curisÃ©e, "
+        "conÃ§ue pour garantir une performance optimale, une intÃ©gritÃ© transactionnelle absolue et une conformitÃ© rigoureuse aux standards financiers."
     )
 
     data_stack = [
-        ["Couche Applicative", "Technologies & Librairies", "Rôle & Responsabilité", "Sécurité & Performance"],
-        ["Frontend UI / SPA", "React 19, TypeScript, Vite, TailwindCSS", "Interface de gestion responsive, thème Comex sombre/clair, RTL Arabe, Panel TTN", "0 bundle bloquant, build 1.14s"],
-        ["Backend API REST", "Node.js 20+, Express, TypeScript, scrypt", "28 modules métiers étanches, middleware RBAC, contrôle SoD, service TTN", "Écoute loopback 127.0.0.1 stricte"],
-        ["Couche ORM / Persistance", "Prisma 6.x, SQLite (Local Dev) / PostgreSQL (Prod)", "131 tables relationnelles, 81 migrations versionnées", "Transactions ACID au millime"],
-        ["Facturation Électronique TTN", "XML UBL 2.1, CEV 2D-Doc, TunTrust PKI (X.509)", "Plateforme nationale El Fatoora, signature et horodatage certifié", "Inviolabilité SHA-256 & Agrément TTN"],
+        ["Couche Applicative", "Technologies & Librairies", "RÃ´le & ResponsabilitÃ©", "SÃ©curitÃ© & Performance"],
+        ["Frontend UI / SPA", "React 19, TypeScript, Vite, TailwindCSS", "Interface de gestion responsive, thÃ¨me Comex sombre/clair, RTL Arabe, Panel TTN", "0 bundle bloquant, build 1.14s"],
+        ["Backend API REST", "Node.js 20+, Express, TypeScript, scrypt", "28 modules mÃ©tiers Ã©tanches, middleware RBAC, contrÃ´le SoD, service TTN", "Ã‰coute loopback 127.0.0.1 stricte"],
+        ["Couche ORM / Persistance", "Prisma 6.x, SQLite (Local Dev) / PostgreSQL (Prod)", "131 tables relationnelles, 81 migrations versionnÃ©es", "Transactions ACID au millime"],
+        ["Facturation Ã‰lectronique TTN", "XML UBL 2.1, CEV 2D-Doc, TunTrust PKI (X.509)", "Plateforme nationale El Fatoora, signature et horodatage certifiÃ©", "InviolabilitÃ© SHA-256 & AgrÃ©ment TTN"],
         ["Moteur Cryptographique", "SHA-256 chain, HMAC-SHA256 tokens, scrypt", "Sessions infalsifiables, audit trail immuable des journaux", "Secrets >= 32 octets obligatoires"],
-        ["Moteur Multilingue", "Moteur custom localization.ts (FR, EN, AR)", "Traductions exhaustives, bascule dynamique dir='rtl'", "100 % couverture labels métiers"],
-        ["Génération Documentaire", "ExcelJS, PptxGenJS, PDF Print Engine", "Exports classeurs multi-onglets, plaquettes financières", "Génération native sans dépendance cloud"]
+        ["Moteur Multilingue", "Moteur custom localization.ts (FR, EN, AR)", "Traductions exhaustives, bascule dynamique dir='rtl'", "100 % couverture labels mÃ©tiers"],
+        ["GÃ©nÃ©ration Documentaire", "ExcelJS, PptxGenJS, PDF Print Engine", "Exports classeurs multi-onglets, plaquettes financiÃ¨res", "GÃ©nÃ©ration native sans dÃ©pendance cloud"]
     ]
     create_styled_table(doc, data_stack[0], data_stack[1:], [1.5, 2.2, 2.3, 1.5])
 
     add_header_styled(doc, "2. Architecture du Module E-Facture Tunisienne (El Fatoora)", 1)
     doc.add_paragraph(
-        "Le module E-Facture (`src/application/modules/sales/tunisian-e-invoice.ts`) gère le cycle de vie complet de la facture dématérialisée conformément aux exigences de Tunisie TradeNet :"
+        "Le module E-Facture (`src/application/modules/sales/tunisian-e-invoice.ts`) gÃ¨re le cycle de vie complet de la facture dÃ©matÃ©rialisÃ©e conformÃ©ment aux exigences de Tunisie TradeNet :"
     )
-    doc.add_paragraph("• Génération UBL 2.1 : Extraction des métadonnées de la facture de vente (entité émettrice, client, matricule fiscal, TVA 19/13/7%, timbre 1 DT) et structuration sous format XML standardisé OASIS UBL 2.1 Invoice.")
-    doc.add_paragraph("• Calcul du Condensat SHA-256 : Hachage cryptographique du corps XML garantissant la non-altération du document.")
-    doc.add_paragraph("• Cachet Électronique Visible (CEV / 2D-Doc) : Génération de l'en-tête normalisé `CEV01` contenant : Matricule émetteur (MF), Matricule client, N° facture, Date d'émission, Montants HT, TVA, Timbre, Total TTC et empreinte de sécurité Base64.")
-    doc.add_paragraph("• Signature Numérique TunTrust : Application du certificat X.509 de l'entreprise avec clé privée RSA-SHA256.")
-    doc.add_paragraph("• Télétransmission TTN : Envoi du flux XML via les passerelles d'interconnexion sécurisées de Tunisie TradeNet, récupération de l'accusé de réception et affectation du numéro d'agrément officiel.")
+    doc.add_paragraph("â€¢ GÃ©nÃ©ration UBL 2.1 : Extraction des mÃ©tadonnÃ©es de la facture de vente (entitÃ© Ã©mettrice, client, matricule fiscal, TVA 19/13/7%, timbre 1 DT) et structuration sous format XML standardisÃ© OASIS UBL 2.1 Invoice.")
+    doc.add_paragraph("â€¢ Calcul du Condensat SHA-256 : Hachage cryptographique du corps XML garantissant la non-altÃ©ration du document.")
+    doc.add_paragraph("â€¢ Cachet Ã‰lectronique Visible (CEV / 2D-Doc) : GÃ©nÃ©ration de l'en-tÃªte normalisÃ© `CEV01` contenant : Matricule Ã©metteur (MF), Matricule client, NÂ° facture, Date d'Ã©mission, Montants HT, TVA, Timbre, Total TTC et empreinte de sÃ©curitÃ© Base64.")
+    doc.add_paragraph("â€¢ Signature NumÃ©rique TunTrust : Application du certificat X.509 de l'entreprise avec clÃ© privÃ©e RSA-SHA256.")
+    doc.add_paragraph("â€¢ TÃ©lÃ©transmission TTN : Envoi du flux XML via les passerelles d'interconnexion sÃ©curisÃ©es de Tunisie TradeNet, rÃ©cupÃ©ration de l'accusÃ© de rÃ©ception et affectation du numÃ©ro d'agrÃ©ment officiel.")
 
-    add_header_styled(doc, "3. Modèle de Données & Tables Clés", 1)
+    add_header_styled(doc, "3. ModÃ¨le de DonnÃ©es & Tables ClÃ©s", 1)
     doc.add_paragraph(
-        "Le schéma de base de données comprend 131 tables organisées en domaines fonctionnels étanches :"
+        "Le schÃ©ma de base de donnÃ©es comprend 131 tables organisÃ©es en domaines fonctionnels Ã©tanches :"
     )
-    doc.add_paragraph("• Domaine Facturation Électronique : TunisianEInvoice (id, invoiceId, entityId, ttnReference, status, xmlPayload, sha256Hash, qrCodeData, signatureDigest, submissionDate, responseDate, rejectionReason).")
-    doc.add_paragraph("• Domaine Comptable & Trésorerie : ChartOfAccount, JournalEntry, JournalLine, BankAccount, BankStatement, BankStatementLine, BankReconciliation, CashflowPayment, CashflowAccountingMapping.")
-    doc.add_paragraph("• Domaine Ventes & Clients : Customer, CustomerContact, SalesQuote, SalesOrder, Invoice, InvoiceItem, SalesInvoiceWorkflowEvent.")
-    doc.add_paragraph("• Domaine Achats & Fournisseurs : Vendor, PurchaseOrder, PurchaseOrderLine, PurchaseInvoice, PurchaseInvoiceLine, SupplierCreditNote, PurchaseInvoiceWorkflowEvent.")
-    doc.add_paragraph("• Domaine Stocks & Production : Material, MaterialWarehouseStock, Warehouse, StockMovement, ProductionOrder, BillOfMaterial.")
-    doc.add_paragraph("• Domaine Fiscalité & Réglementaire : CountryProfile, CountryTaxRate, CountryTaxRule, CountryTaxThreshold, TaxDeclarationWorkpaper, WithholdingCertificate.")
-    doc.add_paragraph("• Domaine RH & Paie : Employee, LeaveRequest, PayrollConfig, PayrollRubrique, PayrollTaxBracket, HrDocumentMetadata.")
-    doc.add_paragraph("• Domaine Sécurité & Audit : User, AuthSession, AdminUserEvent, JournalEntryAuditChainHead, JournalEntryAuditRecord.")
+    doc.add_paragraph("â€¢ Domaine Facturation Ã‰lectronique : TunisianEInvoice (id, invoiceId, entityId, ttnReference, status, xmlPayload, sha256Hash, qrCodeData, signatureDigest, submissionDate, responseDate, rejectionReason).")
+    doc.add_paragraph("â€¢ Domaine Comptable & TrÃ©sorerie : ChartOfAccount, JournalEntry, JournalLine, BankAccount, BankStatement, BankStatementLine, BankReconciliation, CashflowPayment, CashflowAccountingMapping.")
+    doc.add_paragraph("â€¢ Domaine Ventes & Clients : Customer, CustomerContact, SalesQuote, SalesOrder, Invoice, InvoiceItem, SalesInvoiceWorkflowEvent.")
+    doc.add_paragraph("â€¢ Domaine Achats & Fournisseurs : Vendor, PurchaseOrder, PurchaseOrderLine, PurchaseInvoice, PurchaseInvoiceLine, SupplierCreditNote, PurchaseInvoiceWorkflowEvent.")
+    doc.add_paragraph("â€¢ Domaine Stocks & Production : Material, MaterialWarehouseStock, Warehouse, StockMovement, ProductionOrder, BillOfMaterial.")
+    doc.add_paragraph("â€¢ Domaine FiscalitÃ© & RÃ©glementaire : CountryProfile, CountryTaxRate, CountryTaxRule, CountryTaxThreshold, TaxDeclarationWorkpaper, WithholdingCertificate.")
+    doc.add_paragraph("â€¢ Domaine RH & Paie : Employee, LeaveRequest, PayrollConfig, PayrollRubrique, PayrollTaxBracket, HrDocumentMetadata.")
+    doc.add_paragraph("â€¢ Domaine SÃ©curitÃ© & Audit : User, AuthSession, AdminUserEvent, JournalEntryAuditChainHead, JournalEntryAuditRecord.")
 
-    add_header_styled(doc, "4. Points d'Entrée API REST (E-Facturation & Ventes)", 1)
-    doc.add_paragraph("Le module de facturation électronique expose les endpoints REST sécurisés suivants :")
-    doc.add_paragraph("• GET /api/sales/e-invoices?entityId=:id : Liste et métadonnées des e-factures émises pour une filiale.")
-    doc.add_paragraph("• GET /api/sales/e-invoices/:id : Consultation détaillée d'une e-facture (statut TTN, CEV, empreintes).")
-    doc.add_paragraph("• GET /api/sales/e-invoices/:id/xml : Flux brut XML UBL 2.1 téléchargeable au standard TTN.")
-    doc.add_paragraph("• POST /api/sales/e-invoices/generate/:invoiceId : Génération du document XML UBL et du CEV.")
-    doc.add_paragraph("• POST /api/sales/e-invoices/:id/sign : Signature cryptographique par certificat TunTrust.")
-    doc.add_paragraph("• POST /api/sales/e-invoices/:id/submit-ttn : Soumission et obtention de l'agrément TTN.")
-    doc.add_paragraph("• POST /api/sales/e-invoices/bulk-generate : Génération, signature et transmission par lots.")
+    add_header_styled(doc, "4. Points d'EntrÃ©e API REST (E-Facturation & Ventes)", 1)
+    doc.add_paragraph("Le module de facturation Ã©lectronique expose les endpoints REST sÃ©curisÃ©s suivants :")
+    doc.add_paragraph("â€¢ GET /api/sales/e-invoices?entityId=:id : Liste et mÃ©tadonnÃ©es des e-factures Ã©mises pour une filiale.")
+    doc.add_paragraph("â€¢ GET /api/sales/e-invoices/:id : Consultation dÃ©taillÃ©e d'une e-facture (statut TTN, CEV, empreintes).")
+    doc.add_paragraph("â€¢ GET /api/sales/e-invoices/:id/xml : Flux brut XML UBL 2.1 tÃ©lÃ©chargeable au standard TTN.")
+    doc.add_paragraph("â€¢ POST /api/sales/e-invoices/generate/:invoiceId : GÃ©nÃ©ration du document XML UBL et du CEV.")
+    doc.add_paragraph("â€¢ POST /api/sales/e-invoices/:id/sign : Signature cryptographique par certificat TunTrust.")
+    doc.add_paragraph("â€¢ POST /api/sales/e-invoices/:id/submit-ttn : Soumission et obtention de l'agrÃ©ment TTN.")
+    doc.add_paragraph("â€¢ POST /api/sales/e-invoices/bulk-generate : GÃ©nÃ©ration, signature et transmission par lots.")
 
     path_desktop = os.path.join(DESKTOP_DIR, "ARCHITECTURE_TECHNIQUE_SAFE_ERP.docx")
     path_proj = os.path.join(PROJECT_DIR, "ARCHITECTURE_TECHNIQUE_SAFE_ERP.docx")
     doc.save(path_desktop)
     doc.save(path_proj)
-    print(f"✔ ARCHITECTURE_TECHNIQUE_SAFE_ERP.docx written to {path_desktop}")
+    print(f"âœ” ARCHITECTURE_TECHNIQUE_SAFE_ERP.docx written to {path_desktop}")
 
 # ==============================================================================
 # 3. CAHIER DES CHARGES
@@ -303,73 +303,73 @@ def generate_cahier_charges_doc():
     build_cover_page(
         doc,
         "Cahier des Charges Fonctionnel et Technique (CdC)",
-        "Spécifications détaillées des 28 modules métiers, conformité SCE tunisienne, E-Facture TTN et exigences de production",
+        "SpÃ©cifications dÃ©taillÃ©es des 28 modules mÃ©tiers, conformitÃ© SCE tunisienne, E-Facture TTN et exigences de production",
         "Cahier des Charges Fonctionnel & Technique"
     )
 
-    add_header_styled(doc, "1. Présentation Générale & Objectifs Stratégiques", 1)
+    add_header_styled(doc, "1. PrÃ©sentation GÃ©nÃ©rale & Objectifs StratÃ©giques", 1)
     doc.add_paragraph(
         "Le progiciel SAFE ERP a pour vocation de doter les entreprises tunisiennes et les groupes multinationaux "
-        "d'une solution intégrée de pilotage financier, comptable, fiscal, commercial et opérationnel. "
-        "Il élimine les ruptures d'information entre les opérations de terrain (ventes, achats, stocks, e-facturation) et les états financiers légaux."
+        "d'une solution intÃ©grÃ©e de pilotage financier, comptable, fiscal, commercial et opÃ©rationnel. "
+        "Il Ã©limine les ruptures d'information entre les opÃ©rations de terrain (ventes, achats, stocks, e-facturation) et les Ã©tats financiers lÃ©gaux."
     )
 
-    add_header_styled(doc, "2. Spécifications des Modules Métiers", 1)
+    add_header_styled(doc, "2. SpÃ©cifications des Modules MÃ©tiers", 1)
 
     modules_spec = [
-        ["Module Métier", "Code Module", "Fonctionnalités Clés Livrées", "Règles & Contrôles Obligatoires"],
-        ["Tableau de bord exécutif", "dashboard", "KPIs 12 mois, CA, BFR, Trésorerie, masse salariale", "Alimenté uniquement par écritures POSTED"],
-        ["Comptabilité & Grand Livre", "finance", "Saisie d'écritures, balance générale, recherche", "Équilibre strict Débit = Crédit au millime"],
-        ["Trésorerie & Cash-flow", "cashflow", "Comptes bancaires, import CSV, prévisions 365j", "Rapprochement bancaire exact au millime"],
+        ["Module MÃ©tier", "Code Module", "FonctionnalitÃ©s ClÃ©s LivrÃ©es", "RÃ¨gles & ContrÃ´les Obligatoires"],
+        ["Tableau de bord exÃ©cutif", "dashboard", "KPIs 12 mois, CA, BFR, TrÃ©sorerie, masse salariale", "AlimentÃ© uniquement par Ã©critures POSTED"],
+        ["ComptabilitÃ© & Grand Livre", "finance", "Saisie d'Ã©critures, balance gÃ©nÃ©rale, recherche", "Ã‰quilibre strict DÃ©bit = CrÃ©dit au millime"],
+        ["TrÃ©sorerie & Cash-flow", "cashflow", "Comptes bancaires, import CSV, prÃ©visions 365j", "Rapprochement bancaire exact au millime"],
         ["Facturation Ventes", "sales", "Devis, commandes, factures, encaissements", "Workflow TO_REVIEW -> APPROVED -> ISSUED"],
-        ["Facturation Électronique TTN", "sales/e-invoices", "Génération UBL 2.1, CEV 2D-Doc, TunTrust PKI, agrément TTN", "Conforme Décret 2016-1098 & TTN El Fatoora"],
-        ["Gestion des Achats", "purchases", "Commandes fournisseurs, factures, rapprochement 3-way", "Contrôle TVA déductible et validation SoD"],
-        ["Stocks & Magasins", "materials", "Articles, dépôts, réceptions, retours, valorisation", "Calcul automatique du coût moyen PUMP"],
-        ["Production & Nomenclature", "production", "Ordres de fabrication (OF), nomenclatures BOM", "Mise à jour atomique stock composants/finis"],
-        ["Fiscalité Tunisienne", "taxation", "Déclarations G50, certificats RS, calendrier fiscal", "Taux TVA 19/13/7%, IS 20%, RS conforme DGI"],
-        ["Ressources Humaines", "hr", "Registre des salariés, matricules, congés", "Périmètre strict par entité juridique"],
+        ["Facturation Ã‰lectronique TTN", "sales/e-invoices", "GÃ©nÃ©ration UBL 2.1, CEV 2D-Doc, TunTrust PKI, agrÃ©ment TTN", "Conforme DÃ©cret 2016-1098 & TTN El Fatoora"],
+        ["Gestion des Achats", "purchases", "Commandes fournisseurs, factures, rapprochement 3-way", "ContrÃ´le TVA dÃ©ductible et validation SoD"],
+        ["Stocks & Magasins", "materials", "Articles, dÃ©pÃ´ts, rÃ©ceptions, retours, valorisation", "Calcul automatique du coÃ»t moyen PUMP"],
+        ["Production & Nomenclature", "production", "Ordres de fabrication (OF), nomenclatures BOM", "Mise Ã  jour atomique stock composants/finis"],
+        ["FiscalitÃ© Tunisienne", "taxation", "DÃ©clarations G50, certificats RS, calendrier fiscal", "Taux TVA 19/13/7%, IS 20%, RS conforme DGI"],
+        ["Ressources Humaines", "hr", "Registre des salariÃ©s, matricules, congÃ©s", "PÃ©rimÃ¨tre strict par entitÃ© juridique"],
         ["Gestion de la Paie", "hr/payroll", "Bulletins de paie, simulation, charges patronales", "IRPP 8 tranches, CNSS 9.68%, FOPROLOS 1%, CSS 0.5%"],
-        ["Contrôle de gestion", "controlling", "Centres de coûts, ventilation analytique des charges", "Comptabilisation analytique automatique"],
-        ["Budget & Forecast", "budget", "Budget prévisionnel vs réalisé, révisions budgétaires", "Comparaison automatisée sur écritures POSTED"],
-        ["Consolidation Groupe", "consolidation", "Périmètre groupe, conversion devises, élimination interco", "Agrégation globale et conversion IAS 21"],
-        ["Clôture & Audit", "monthly-close", "Checklist mensuelle/annuelle, verrouillage périodes", "Interdiction d'écritures sur périodes closes"],
-        ["Maintenance Équipements", "maintenance", "Parc machines, véhicules, compteurs, interventions", "Suivi des coûts et alertes d'entretien"],
-        ["Gestion de Projets", "projects", "Suivi projets, jalons, budget par projet", "Cloisonnement des dépenses par projet"],
+        ["ContrÃ´le de gestion", "controlling", "Centres de coÃ»ts, ventilation analytique des charges", "Comptabilisation analytique automatique"],
+        ["Budget & Forecast", "budget", "Budget prÃ©visionnel vs rÃ©alisÃ©, rÃ©visions budgÃ©taires", "Comparaison automatisÃ©e sur Ã©critures POSTED"],
+        ["Consolidation Groupe", "consolidation", "PÃ©rimÃ¨tre groupe, conversion devises, Ã©limination interco", "AgrÃ©gation globale et conversion IAS 21"],
+        ["ClÃ´ture & Audit", "monthly-close", "Checklist mensuelle/annuelle, verrouillage pÃ©riodes", "Interdiction d'Ã©critures sur pÃ©riodes closes"],
+        ["Maintenance Ã‰quipements", "maintenance", "Parc machines, vÃ©hicules, compteurs, interventions", "Suivi des coÃ»ts et alertes d'entretien"],
+        ["Gestion de Projets", "projects", "Suivi projets, jalons, budget par projet", "Cloisonnement des dÃ©penses par projet"],
         ["Appels d'Offres", "tenders", "Suivi des soumissions, cautions bancaires, dossiers", "Gestion des dates limites et garanties"],
-        ["Régimes Douaniers", "customs", "Suivi Admission Temporaire (AT/ACT), cautions", "Registre réglementaire sous contrôle douanier"],
-        ["Management Qualité", "quality", "Non-conformités, actions correctives, audits", "Traçabilité des résolutions et conformité ISO"],
-        ["Créances & Recouvrement", "receivables", "Balance âgée clients, relances préventives", "Calcul précis du DSO par client"],
-        ["Dettes Fournisseurs", "purchases/payables", "Balance âgée fournisseurs, échéancier de paiement", "Évitement des retards et pénalités"],
-        ["Gestion des Devises (FX)", "fx-rates", "Cours interbancaires BCT, réévaluation IAS 21", "Calcul des écarts de conversion latent/réalisé"],
-        ["Transactions Interco", "intercompany", "Facturation interne filiales, réconciliation", "Élimination des doubles comptes de groupe"],
-        ["Anomalies Financières", "anomalies", "Détection automatique d'incohérences de balance", "Scan temps réel des comptes non mappés"],
-        ["Business Intelligence", "bi", "Aide à la décision, simulations de trésorerie", "Analyses croisées sans extrapolation fictive"],
-        ["Assistant IA & OCR", "ai", "Analyse automatique de factures, routing policy", "Sécurisation des données et exécution locale"],
-        ["Administration Système", "admin", "Gestion des rôles, utilisateurs, plans de comptes", "Audit trail inviolable AdminUserEvent"]
+        ["RÃ©gimes Douaniers", "customs", "Suivi Admission Temporaire (AT/ACT), cautions", "Registre rÃ©glementaire sous contrÃ´le douanier"],
+        ["Management QualitÃ©", "quality", "Non-conformitÃ©s, actions correctives, audits", "TraÃ§abilitÃ© des rÃ©solutions et conformitÃ© ISO"],
+        ["CrÃ©ances & Recouvrement", "receivables", "Balance Ã¢gÃ©e clients, relances prÃ©ventives", "Calcul prÃ©cis du DSO par client"],
+        ["Dettes Fournisseurs", "purchases/payables", "Balance Ã¢gÃ©e fournisseurs, Ã©chÃ©ancier de paiement", "Ã‰vitement des retards et pÃ©nalitÃ©s"],
+        ["Gestion des Devises (FX)", "fx-rates", "Cours interbancaires BCT, rÃ©Ã©valuation IAS 21", "Calcul des Ã©carts de conversion latent/rÃ©alisÃ©"],
+        ["Transactions Interco", "intercompany", "Facturation interne filiales, rÃ©conciliation", "Ã‰limination des doubles comptes de groupe"],
+        ["Anomalies FinanciÃ¨res", "anomalies", "DÃ©tection automatique d'incohÃ©rences de balance", "Scan temps rÃ©el des comptes non mappÃ©s"],
+        ["Business Intelligence", "bi", "Aide Ã  la dÃ©cision, simulations de trÃ©sorerie", "Analyses croisÃ©es sans extrapolation fictive"],
+        ["Assistant IA & OCR", "ai", "Analyse automatique de factures, routing policy", "SÃ©curisation des donnÃ©es et exÃ©cution locale"],
+        ["Administration SystÃ¨me", "admin", "Gestion des rÃ´les, utilisateurs, plans de comptes", "Audit trail inviolable AdminUserEvent"]
     ]
     create_styled_table(doc, modules_spec[0], modules_spec[1:], [1.6, 1.2, 2.5, 2.2])
 
-    add_header_styled(doc, "3. Exigences Réglementaires & Législatives Tunisiennes", 1)
-    doc.add_paragraph("Le progiciel est certifié conforme aux exigences légales de la République Tunisienne :")
-    doc.add_paragraph("1. Système Comptable des Entreprises (SCE) : Plan de comptes officiel (Classes 1 à 7), règles d'enregistrement en partie double, pièces justificatives obligatoires.")
-    doc.add_paragraph("2. Facturation Électronique Obligatoire (El Fatoora) : Respect du Décret n° 2016-1098 et du Décret-loi n° 2021-21 avec format UBL 2.1, signature TunTrust et CEV 2D-Doc obligatoire pour les marchés publics et transactions inter-entreprises B2B.")
-    doc.add_paragraph("3. Code de la TVA : Application stricte des taux 19 %, 13 %, 7 %, 0 % et déductibilité sur les achats assujettis avec déclaration mensuelle avant le 28 du mois.")
-    doc.add_paragraph("4. Barème IRPP Progressif à 8 tranches : Calcul de l'impôt sur le revenu net avec déduction de 300 DT pour chef de famille et 100 DT par enfant à charge.")
-    doc.add_paragraph("5. Cotisations Sociales : CNSS salariale à 9,68 %, cotisation patronale, FOPROLOS à 1 % et Contribution Sociale de Solidarité (CSS) à 0,5 %.")
-    doc.add_paragraph("6. Retenues à la Source (RS) : Émission de certificats conformes à la réglementation fiscale tunisienne sur les montants TTC avec dépôt mensuel.")
+    add_header_styled(doc, "3. Exigences RÃ©glementaires & LÃ©gislatives Tunisiennes", 1)
+    doc.add_paragraph("Le progiciel est certifiÃ© conforme aux exigences lÃ©gales de la RÃ©publique Tunisienne :")
+    doc.add_paragraph("1. SystÃ¨me Comptable des Entreprises (SCE) : Plan de comptes officiel (Classes 1 Ã  7), rÃ¨gles d'enregistrement en partie double, piÃ¨ces justificatives obligatoires.")
+    doc.add_paragraph("2. Facturation Ã‰lectronique Obligatoire (El Fatoora) : Respect du DÃ©cret nÂ° 2016-1098 et du DÃ©cret-loi nÂ° 2021-21 avec format UBL 2.1, signature TunTrust et CEV 2D-Doc obligatoire pour les marchÃ©s publics et transactions inter-entreprises B2B.")
+    doc.add_paragraph("3. Code de la TVA : Application stricte des taux 19 %, 13 %, 7 %, 0 % et dÃ©ductibilitÃ© sur les achats assujettis avec dÃ©claration mensuelle avant le 28 du mois.")
+    doc.add_paragraph("4. BarÃ¨me IRPP Progressif Ã  8 tranches : Calcul de l'impÃ´t sur le revenu net avec dÃ©duction de 300 DT pour chef de famille et 100 DT par enfant Ã  charge.")
+    doc.add_paragraph("5. Cotisations Sociales : CNSS salariale Ã  9,68 %, cotisation patronale, FOPROLOS Ã  1 % et Contribution Sociale de SolidaritÃ© (CSS) Ã  0,5 %.")
+    doc.add_paragraph("6. Retenues Ã  la Source (RS) : Ã‰mission de certificats conformes Ã  la rÃ©glementation fiscale tunisienne sur les montants TTC avec dÃ©pÃ´t mensuel.")
 
-    add_header_styled(doc, "4. Critères d'Acceptation & Plan de Recette", 1)
-    doc.add_paragraph("Pour la mise en exploitation définitive, les jalons de validation suivants sont arrêtés :")
-    doc.add_paragraph("• Intégrité des données historiques : Aucune perte ni altération des 230 ventes et 230 achats existants (Validé 100%).")
-    doc.add_paragraph("• E-Facture TTN : 230 factures clients homologuées et visées avec CEV et hash SHA-256 (Validé 100%).")
-    doc.add_paragraph("• Clôture comptable : Équilibre parfait de la balance générale au millime sans écart (Validé 100%).")
-    doc.add_paragraph("• Tests automatisés : Taux de réussite de 100 % sur l'ensemble des suites de tests unitaires et d'intégration (Validé 100%).")
+    add_header_styled(doc, "4. CritÃ¨res d'Acceptation & Plan de Recette", 1)
+    doc.add_paragraph("Pour la mise en exploitation dÃ©finitive, les jalons de validation suivants sont arrÃªtÃ©s :")
+    doc.add_paragraph("â€¢ IntÃ©gritÃ© des donnÃ©es historiques : Aucune perte ni altÃ©ration des 230 ventes et 230 achats existants (ValidÃ© 100%).")
+    doc.add_paragraph("â€¢ E-Facture TTN : 230 factures clients homologuÃ©es et visÃ©es avec CEV et hash SHA-256 (ValidÃ© 100%).")
+    doc.add_paragraph("â€¢ ClÃ´ture comptable : Ã‰quilibre parfait de la balance gÃ©nÃ©rale au millime sans Ã©cart (ValidÃ© 100%).")
+    doc.add_paragraph("â€¢ Tests automatisÃ©s : Taux de rÃ©ussite de 100 % sur l'ensemble des suites de tests unitaires et d'intÃ©gration (ValidÃ© 100%).")
 
     path_desktop = os.path.join(DESKTOP_DIR, "CAHIER_DES_CHARGES_SAFE_ERP.docx")
     path_proj = os.path.join(PROJECT_DIR, "CAHIER_DES_CHARGES_SAFE_ERP.docx")
     doc.save(path_desktop)
     doc.save(path_proj)
-    print(f"✔ CAHIER_DES_CHARGES_SAFE_ERP.docx written to {path_desktop}")
+    print(f"âœ” CAHIER_DES_CHARGES_SAFE_ERP.docx written to {path_desktop}")
 
 if __name__ == '__main__':
     print('Starting document generation...')
