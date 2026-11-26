@@ -128,7 +128,7 @@ export function renderStatusBadge(status: string) {
           whiteSpace: 'nowrap',
         }}
       >
-        <span>â³</span>
+        <span>⏳</span>
         <span>{status}</span>
       </span>
     );
@@ -3183,7 +3183,7 @@ export const App: React.FC = () => {
                 cursor: 'pointer',
               }}
             >
-              â» {text('logout')}
+              ⏻ {text('logout')}
             </button>
           </div>
         </div>

@@ -25,6 +25,9 @@ interface PayrollSimulationResult {
   cssBeforeRetirementGain: number;
   gainIrpp: number;
   gainCss: number;
+  assuranceDeces: number;
+  assuranceInvalidite: number;
+  assuranceMaladie: number;
   totalImpots: number;
   totalGain: number;
   totalImpotsApresGains: number;
@@ -71,6 +74,9 @@ const RESULT_NUMBER_FIELDS: Array<keyof PayrollSimulationResult> = [
   'cssBeforeRetirementGain',
   'gainIrpp',
   'gainCss',
+  'assuranceDeces',
+  'assuranceInvalidite',
+  'assuranceMaladie',
   'totalImpots',
   'totalGain',
   'totalImpotsApresGains',
@@ -106,6 +112,9 @@ interface CustomPayrollRates {
   cssRate: number;
   employerInsuranceRate: number;
   employeeInsuranceRate: number;
+  assuranceDecesRate: number;
+  assuranceInvaliditeRate: number;
+  assuranceMaladieRate: number;
   irppBrackets: Array<{ min: number; max: number; rate: number }>;
 }
 
@@ -124,6 +133,9 @@ const DEFAULT_CUSTOM_RATES: CustomPayrollRates = {
   cssRate: 0.5,
   employerInsuranceRate: 6.0,
   employeeInsuranceRate: 0.0,
+  assuranceDecesRate: 0.5,
+  assuranceInvaliditeRate: 0.78400752510838,
+  assuranceMaladieRate: 0.48212520380679,
   irppBrackets: [
     { min: 0, max: 5000, rate: 0 },
     { min: 5000, max: 10000, rate: 15 },
@@ -148,7 +160,14 @@ function loadSavedCustomRates(): CustomPayrollRates {
           rate: Number(b.rate) || 0,
         }))
       : DEFAULT_CUSTOM_RATES.irppBrackets;
-    return { ...DEFAULT_CUSTOM_RATES, ...parsed, irppBrackets: brackets };
+    return {
+      ...DEFAULT_CUSTOM_RATES,
+      ...parsed,
+      assuranceDecesRate: typeof parsed.assuranceDecesRate === 'number' ? parsed.assuranceDecesRate : DEFAULT_CUSTOM_RATES.assuranceDecesRate,
+      assuranceInvaliditeRate: typeof parsed.assuranceInvaliditeRate === 'number' ? parsed.assuranceInvaliditeRate : DEFAULT_CUSTOM_RATES.assuranceInvaliditeRate,
+      assuranceMaladieRate: typeof parsed.assuranceMaladieRate === 'number' ? parsed.assuranceMaladieRate : DEFAULT_CUSTOM_RATES.assuranceMaladieRate,
+      irppBrackets: brackets,
+    };
   } catch {
     return DEFAULT_CUSTOM_RATES;
   }
@@ -204,10 +223,18 @@ function computePayslipFromCustomRates(
   const totalGain = round3(gainIrpp + gainCss);
   const totalImpotsApresGains = round3(irpp + css);
 
+  // 1- Assurance Décès = 0.5% * Total brut
+  const assuranceDeces = round3(grossSalary * (rates.assuranceDecesRate / 100));
+  // 2- Assurance Invalidité = 0.78400752510838% * Total Brut
+  const assuranceInvalidite = round3(grossSalary * (rates.assuranceInvaliditeRate / 100));
+  // 3- Assurance Maladie = 0.0048212520380679 * Total Brut (gère % ou proportion décimale)
+  const effectiveMaladieRate = rates.assuranceMaladieRate < 0.01 ? rates.assuranceMaladieRate * 100 : rates.assuranceMaladieRate;
+  const assuranceMaladie = round3(grossSalary * (effectiveMaladieRate / 100));
+
   const employeeInsurance = round3(grossSalary * (rates.employeeInsuranceRate / 100));
   const parentACharge = round3(((Number(inputs.dependentParents) || 0) * rates.parentDeduction) / 12);
   const intermediateNet = round3(grossSalary - employeeCnss - irpp - css);
-  const totalRetenue = round3(employeeCnss + irpp + css + employeeInsurance + parentACharge);
+  const totalRetenue = round3(employeeCnss + irpp + css + employeeInsurance + assuranceDeces + assuranceInvalidite + assuranceMaladie + parentACharge);
   const netSalary = round3(grossSalary - totalRetenue);
 
   return {
@@ -228,6 +255,9 @@ function computePayslipFromCustomRates(
     cssBeforeRetirementGain,
     gainIrpp,
     gainCss,
+    assuranceDeces,
+    assuranceInvalidite,
+    assuranceMaladie,
     totalImpots,
     totalGain,
     totalImpotsApresGains,
@@ -435,8 +465,13 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   const modularMonthlyFoprolos = Math.round((modularGross * (customRates.foprolosRate / 100)) * 1000) / 1000;
   const modularMonthlyEmployerInsurance = Math.round((modularGross * (customRates.employerInsuranceRate / 100)) * 1000) / 1000;
   const modularMonthlyEmployeeInsurance = Math.round((modularGross * (customRates.employeeInsuranceRate / 100)) * 1000) / 1000;
+  const modularMonthlyAssuranceDeces = Math.round((modularGross * (customRates.assuranceDecesRate / 100)) * 1000) / 1000;
+  const modularMonthlyAssuranceInvalidite = Math.round((modularGross * (customRates.assuranceInvaliditeRate / 100)) * 1000) / 1000;
+  const effectiveMaladieRateRealtime = customRates.assuranceMaladieRate < 0.01 ? customRates.assuranceMaladieRate * 100 : customRates.assuranceMaladieRate;
+  const modularMonthlyAssuranceMaladie = Math.round((modularGross * (effectiveMaladieRateRealtime / 100)) * 1000) / 1000;
+  const modularMonthlyTotalAssurances = Math.round((modularMonthlyAssuranceDeces + modularMonthlyAssuranceInvalidite + modularMonthlyAssuranceMaladie) * 1000) / 1000;
   const modularTotalEmployer = Math.round((modularMonthlyEmployerCnss + modularMonthlyWorkAccident + modularMonthlyFoprolos + modularMonthlyEmployerInsurance) * 1000) / 1000;
-  const modularTotalDeductions = Math.round((modularCnss + modularMonthlyIrpp + modularMonthlyCss + modularMonthlyEmployeeInsurance) * 1000) / 1000;
+  const modularTotalDeductions = Math.round((modularCnss + modularMonthlyIrpp + modularMonthlyCss + modularMonthlyEmployeeInsurance + modularMonthlyTotalAssurances) * 1000) / 1000;
   const modularNet = Math.round((modularGross - modularTotalDeductions) * 1000) / 1000;
 
   // Calculs détaillés Tranche par Tranche : AVANT GAINS et APRÈS GAINS (8 tranches SAFE & CSS 0.5%)
@@ -506,6 +541,9 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
     ['Impôts avant gains', result.totalImpots],
     ['Impôts après gains', result.totalImpotsApresGains],
     ['Net intermédiaire', result.intermediateNet],
+    ['Assurance Décès (0.5%)', -result.assuranceDeces],
+    ['Assurance Invalidité (0.784%)', -result.assuranceInvalidite],
+    ['Assurance Maladie (0.482%)', -result.assuranceMaladie],
     ['Déduction parents à charge', result.parentACharge],
     ['Total retenues', result.totalRetenue],
   ] : [];
@@ -922,11 +960,135 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 <option value="LIFE_INSURANCE">Assurance-vie — gains calculés</option>
               </select>
             </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+              1. Assurance Décès (%) — {modularMonthlyAssuranceDeces.toFixed(3)} DT/mois
+              <input
+                type="number"
+                step="0.001"
+                value={customRates.assuranceDecesRate}
+                onChange={(e) => setCustomRates({ ...customRates, assuranceDecesRate: Number(e.target.value) })}
+                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+              />
+              <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 500 }}>0.5% × Total Brut</span>
+            </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+              2. Assurance Invalidité (%) — {modularMonthlyAssuranceInvalidite.toFixed(3)} DT/mois
+              <input
+                type="number"
+                step="0.000001"
+                value={customRates.assuranceInvaliditeRate}
+                onChange={(e) => setCustomRates({ ...customRates, assuranceInvaliditeRate: Number(e.target.value) })}
+                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+              />
+              <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 500 }}>0.78400752510838% × Total Brut</span>
+            </label>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+              3. Assurance Maladie (%) — {modularMonthlyAssuranceMaladie.toFixed(3)} DT/mois
+              <input
+                type="number"
+                step="0.000001"
+                value={customRates.assuranceMaladieRate}
+                onChange={(e) => setCustomRates({ ...customRates, assuranceMaladieRate: Number(e.target.value) })}
+                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+              />
+              <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 500 }}>0,0048212520380679 × Total Brut (0.4821%)</span>
+            </label>
+          </div>
+
+          {/* DÉTAIL DU CALCUL DU NET IMPOSABLE */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '8px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <h3 style={{ margin: '0 0 12px', fontSize: '0.98rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>📑</span>
+              <span>Détail du Calcul du Net Imposable (Assiette Fiscale IRPP &amp; CSS)</span>
+              <span style={{ fontSize: '0.75rem', background: '#E0F2FE', color: '#0369A1', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                Barème Fiscal Officiel Tunisien
+              </span>
+            </h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ background: '#F1F5F9', borderBottom: '2px solid #CBD5E1', color: '#334155' }}>
+                    <th style={{ padding: '8px 10px', textAlign: 'left' }}>Élément de Détermination de l’Assiette Fiscale</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'center' }}>Règle / Taux / Plafond</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'right' }}>Montant Annuel (DT/an)</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'right' }}>Montant Mensuel (DT/mois)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ borderBottom: '1px solid #E2E8F0', fontWeight: 700, color: '#0F172A' }}>
+                    <td style={{ padding: '7px 10px' }}>1. Salaire Brut Total (Base + Primes)</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'center', color: '#64748B' }}>Assiette de départ</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>{(modularGross * 12).toFixed(3)} DT</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>{modularGross.toFixed(3)} DT</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#B91C1C' }}>
+                    <td style={{ padding: '7px 10px' }}>− Cotisation CNSS Salariée Déductible</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'center' }}>{customRates.cnssEmployeeRate}% du Brut</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{(modularCnss * 12).toFixed(3)} DT</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{modularCnss.toFixed(3)} DT</td>
+                  </tr>
+                  <tr style={{ borderBottom: '2px solid #CBD5E1', background: '#F8FAFC', fontWeight: 800, color: '#0369A1' }}>
+                    <td style={{ padding: '7px 10px' }}>= Salaire Brut Imposable (Brut − CNSS)</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'center' }}>Formule légale</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>{modularAnnualTaxableGross.toFixed(3)} DT</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>{modularTaxableGross.toFixed(3)} DT</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#B45309' }}>
+                    <td style={{ padding: '7px 10px' }}>− Déduction Frais Professionnels</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'center' }}>{customRates.profExpensesRate}% (plafonné à {customRates.profExpensesMaxCap.toFixed(0)} DT/an)</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{modularAnnualProfExpenses.toFixed(3)} DT</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{(modularAnnualProfExpenses / 12).toFixed(3)} DT</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#475569' }}>
+                    <td style={{ padding: '7px 10px' }}>− Déduction Chef de Famille</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'center' }}>{inputs.isHeadOfFamily ? `${customRates.headOfFamilyDeduction.toFixed(0)} DT/an (Applicable)` : 'Non applicable (0 DT)'}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{(inputs.isHeadOfFamily ? customRates.headOfFamilyDeduction : 0).toFixed(3)} DT</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{((inputs.isHeadOfFamily ? customRates.headOfFamilyDeduction : 0) / 12).toFixed(3)} DT</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#475569' }}>
+                    <td style={{ padding: '7px 10px' }}>− Déduction Enfants à Charge ({inputs.childrenCount})</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'center' }}>{customRates.childDeduction.toFixed(0)} DT/an par enfant</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{(inputs.childrenCount * customRates.childDeduction).toFixed(3)} DT</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{((inputs.childrenCount * customRates.childDeduction) / 12).toFixed(3)} DT</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#475569' }}>
+                    <td style={{ padding: '7px 10px' }}>− Déduction Parents à Charge ({inputs.dependentParents})</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'center' }}>{customRates.parentDeduction.toFixed(0)} DT/an par parent</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{(inputs.dependentParents * customRates.parentDeduction).toFixed(3)} DT</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{((inputs.dependentParents * customRates.parentDeduction) / 12).toFixed(3)} DT</td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#15803D' }}>
+                    <td style={{ padding: '7px 10px' }}>− Dispositif d’Avantage Fiscal ({inputs.fiscalBenefitType === 'COMPLEMENTARY_RETIREMENT' ? 'Retraite compl.' : inputs.fiscalBenefitType === 'RETIREMENT_SAVINGS' ? 'Épargne retraite' : 'Assurance-vie'})</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'center' }}>Taux appliqué {modularBenefitRate > 0 ? `${modularBenefitRate}%` : 'Standard'}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{(modularMonthlyBenefitDeduction * 12).toFixed(3)} DT</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{modularMonthlyBenefitDeduction.toFixed(3)} DT</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr style={{ background: '#0F172A', color: '#FFFFFF', fontWeight: 800 }}>
+                    <td style={{ padding: '9px 10px' }} colSpan={2}>
+                      = REVENU NET IMPOSABLE RETENU (ASSIETTE SOUMISE AU BARÈME IRPP ET CSS)
+                    </td>
+                    <td style={{ padding: '9px 10px', textAlign: 'right', color: '#38BDF8', fontSize: '0.92rem' }}>
+                      {modularAnnualNetTaxable.toFixed(3)} DT
+                    </td>
+                    <td style={{ padding: '9px 10px', textAlign: 'right', color: '#38BDF8', fontSize: '0.92rem' }}>
+                      {(modularAnnualNetTaxable / 12).toFixed(3)} DT
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
 
           {/* Tableau Modulable des Tranches IRPP */}
           <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '14px', overflowX: 'auto' }}>
-            <h3 style={{ margin: '0 0 10px', fontSize: '0.95rem', color: '#0F172A' }}>Barème Progressif de l’IRPP (Tranches modulables &amp; Calcul par tranche)</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', margin: '0 0 10px' }}>
+              <h3 style={{ margin: 0, fontSize: '0.95rem', color: '#0F172A' }}>Barème Progressif de l’IRPP (Tranches modulables &amp; Calcul par tranche)</h3>
+              <span style={{ fontSize: '0.74rem', background: '#ECFDF5', color: '#065F46', padding: '3px 8px', borderRadius: '4px', fontWeight: 700, border: '1px solid #A7F3D0' }}>
+                ✓ Tranche 6 vérifiée : 40 000 DT – 50 000 DT (36%, assiette 10 000 DT) conforme loi tunisienne
+              </span>
+            </div>
             <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#EDF2F7', borderBottom: '2px solid #CBD5E1' }}>
@@ -1276,6 +1438,16 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                 </tr>
+                <tr style={{ borderBottom: '1px solid #E2E8F0', background: '#F0FDF4' }}>
+                  <td style={{ padding: '6px' }}>9050</td>
+                  <td style={{ padding: '6px', color: '#166534', fontWeight: 600 }}>Gain / IRPP (Avantage fiscal)</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{result.retirementBonusDeduction.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>Économie</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#166534', fontWeight: 700 }}>+{result.gainIrpp.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                </tr>
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                   <td style={{ padding: '6px' }}>9400</td>
                   <td style={{ padding: '6px' }}>Contrib° Sociale de Solidarité (CSS)</td>
@@ -1283,6 +1455,16 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                   <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.cssRate.toFixed(3)} %</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.css.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #E2E8F0', background: '#F0FDF4' }}>
+                  <td style={{ padding: '6px' }}>9450</td>
+                  <td style={{ padding: '6px', color: '#166534', fontWeight: 600 }}>Gain / CSS (Avantage fiscal)</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{result.retirementBonusDeduction.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>Économie</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#166534', fontWeight: 700 }}>+{result.gainCss.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                 </tr>
@@ -1296,12 +1478,42 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                   <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.employerInsuranceRate.toFixed(3)} %</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>{(Math.round(result.grossSalary * (customRates.employerInsuranceRate / 100) * 1000) / 1000).toFixed(3)}</td>
                 </tr>
+                <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
+                  <td style={{ padding: '6px' }}>9920</td>
+                  <td style={{ padding: '6px' }}>1. Assurance Décès (0.5% × Brut)</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.assuranceDecesRate.toFixed(3)} %</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.assuranceDeces.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
+                  <td style={{ padding: '6px' }}>9930</td>
+                  <td style={{ padding: '6px' }}>2. Assurance Invalidité</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.assuranceInvaliditeRate.toFixed(4)} %</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.assuranceInvalidite.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
+                  <td style={{ padding: '6px' }}>9940</td>
+                  <td style={{ padding: '6px' }}>3. Assurance Maladie</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.assuranceMaladieRate.toFixed(4)} %</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.assuranceMaladie.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                </tr>
                 <tr style={{ borderTop: '2px solid #CBD5E1', borderBottom: '2px solid #CBD5E1', background: '#F8FAFC', fontWeight: 800 }}>
                   <td style={{ padding: '6px' }} colSpan={2}>TOTAL COTISATIONS</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(result.employeeCnss + result.irpp + result.css + (Math.round(result.grossSalary * (customRates.employeeInsuranceRate / 100) * 1000) / 1000)).toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(result.employeeCnss + result.irpp + result.css + result.assuranceDeces + result.assuranceInvalidite + result.assuranceMaladie + (Math.round(result.grossSalary * (customRates.employeeInsuranceRate / 100) * 1000) / 1000)).toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right', color: '#334155' }}>
                     {(Math.round((result.grossSalary * ((customRates.cnssEmployerRate + customRates.workAccidentRate + customRates.employerInsuranceRate) / 100)) * 1000) / 1000).toFixed(3)}

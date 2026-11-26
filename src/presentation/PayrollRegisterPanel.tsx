@@ -82,6 +82,9 @@ interface StoredCustomRates {
   headOfFamilyDeduction: number;
   childDeduction: number;
   cssRate: number;
+  assuranceDecesRate?: number;
+  assuranceInvaliditeRate?: number;
+  assuranceMaladieRate?: number;
   irppBrackets: Array<{ min: number; max: number | null; rate: number }>;
 }
 
@@ -95,6 +98,9 @@ const DEFAULT_RATES: StoredCustomRates = {
   headOfFamilyDeduction: 300.0,
   childDeduction: 100.0,
   cssRate: 0.5,
+  assuranceDecesRate: 0.5,
+  assuranceInvaliditeRate: 0.78400752510838,
+  assuranceMaladieRate: 0.48212520380679,
   irppBrackets: [
     { min: 0, max: 5000, rate: 0 },
     { min: 5000, max: 10000, rate: 15 },
@@ -143,7 +149,14 @@ function computeRowFromGross(
   }
   const irpp = r3(annualIrpp / 12);
   const css = r3((annualNet * (rates.cssRate / 100)) / 12);
-  const netSalary = r3(grossSalary - employeeCnss - irpp - css);
+  const decesRate = rates.assuranceDecesRate ?? 0.5;
+  const invRate = rates.assuranceInvaliditeRate ?? 0.78400752510838;
+  const rawMaladie = rates.assuranceMaladieRate ?? 0.48212520380679;
+  const effectiveMaladie = rawMaladie < 0.01 ? rawMaladie * 100 : rawMaladie;
+  const assDeces = r3(grossSalary * (decesRate / 100));
+  const assInv = r3(grossSalary * (invRate / 100));
+  const assMaladie = r3(grossSalary * (effectiveMaladie / 100));
+  const netSalary = r3(grossSalary - employeeCnss - irpp - css - assDeces - assInv - assMaladie);
   return {
     id,
     employeeNumber,
