@@ -171,9 +171,14 @@ function computePayslipFromCustomRates(
   const annualFamilyDeductions = (inputs.isHeadOfFamily ? rates.headOfFamilyDeduction : 0)
     + ((Number(inputs.childrenCount) || 0) * rates.childDeduction);
 
+  const benefitRate = Number(inputs.complementaryRetirementRate) || 0;
   const retirementBonusDeduction = inputs.fiscalBenefitType === 'COMPLEMENTARY_RETIREMENT'
-    ? round3(taxableGross * ((Number(inputs.complementaryRetirementRate) || 0) / 100))
-    : 0;
+    ? round3(taxableGross * (benefitRate / 100))
+    : inputs.fiscalBenefitType === 'RETIREMENT_SAVINGS'
+      ? round3(taxableGross * ((benefitRate > 0 ? benefitRate : 4) / 100))
+      : inputs.fiscalBenefitType === 'LIFE_INSURANCE'
+        ? round3(taxableGross * ((benefitRate > 0 ? benefitRate : 3) / 100))
+        : 0;
 
   const annualNetBeforeGain = Math.max(0, annualTaxableGross - annualProfExpenses - annualFamilyDeductions);
   const annualNetAfterGain = Math.max(0, annualNetBeforeGain - retirementBonusDeduction * 12);
@@ -408,7 +413,13 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   const modularAnnualFamilyDeductions = (inputs.isHeadOfFamily ? customRates.headOfFamilyDeduction : 0)
     + (inputs.childrenCount * customRates.childDeduction)
     + (inputs.dependentParents * (customRates.parentDeduction / 12) * 12);
-  const modularAnnualNetTaxable = Math.max(0, modularAnnualTaxableGross - modularAnnualProfExpenses - modularAnnualFamilyDeductions);
+  const modularBenefitRate = Number(inputs.complementaryRetirementRate) || 0;
+  const modularMonthlyBenefitDeduction = inputs.fiscalBenefitType === 'COMPLEMENTARY_RETIREMENT'
+    ? Math.round(modularTaxableGross * (modularBenefitRate / 100) * 1000) / 1000
+    : inputs.fiscalBenefitType === 'RETIREMENT_SAVINGS'
+      ? Math.round(modularTaxableGross * ((modularBenefitRate > 0 ? modularBenefitRate : 4) / 100) * 1000) / 1000
+      : Math.round(modularTaxableGross * ((modularBenefitRate > 0 ? modularBenefitRate : 3) / 100) * 1000) / 1000;
+  const modularAnnualNetTaxable = Math.max(0, modularAnnualTaxableGross - modularAnnualProfExpenses - modularAnnualFamilyDeductions - modularMonthlyBenefitDeduction * 12);
   
   let modularAnnualIrpp = 0;
   for (const b of customRates.irppBrackets) {
@@ -889,23 +900,27 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             </label>
             <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
               Assurance Mutuelle Patronale (%) — {modularMonthlyEmployerInsurance.toFixed(3)} DT/mois
-              <input
-                type="number"
-                step="0.1"
-                value={customRates.employerInsuranceRate}
-                onChange={(e) => setCustomRates({ ...customRates, employerInsuranceRate: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
+              <select
+                value={inputs.dependentParents}
+                onChange={(e) => updateInputs({ dependentParents: Number(e.target.value) })}
+                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700, background: '#FFFFFF' }}
+              >
+                <option value={0}>Aucun parent à charge (0)</option>
+                <option value={1}>1er parent à charge</option>
+                <option value={2}>2ème parent à charge</option>
+              </select>
             </label>
             <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Assurance Mutuelle Salariale (%) — {modularMonthlyEmployeeInsurance.toFixed(3)} DT/mois
-              <input
-                type="number"
-                step="0.1"
-                value={customRates.employeeInsuranceRate}
-                onChange={(e) => setCustomRates({ ...customRates, employeeInsuranceRate: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
+              Dispositif d’avantage fiscal
+              <select
+                value={inputs.fiscalBenefitType}
+                onChange={(e) => updateInputs({ fiscalBenefitType: e.target.value as PayrollSimulationInputs['fiscalBenefitType'] })}
+                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700, background: '#FFFFFF' }}
+              >
+                <option value="COMPLEMENTARY_RETIREMENT">Retraite complémentaire — gains calculés</option>
+                <option value="RETIREMENT_SAVINGS">Épargne retraite — gains calculés</option>
+                <option value="LIFE_INSURANCE">Assurance-vie — gains calculés</option>
+              </select>
             </label>
           </div>
 
@@ -1036,8 +1051,8 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit' }}
           >
             <option value="COMPLEMENTARY_RETIREMENT">Retraite complémentaire — gains calculés</option>
-            <option value="RETIREMENT_SAVINGS">Épargne retraite — à paramétrer</option>
-            <option value="LIFE_INSURANCE">Assurance-vie — à paramétrer</option>
+            <option value="RETIREMENT_SAVINGS">Épargne retraite — gains calculés</option>
+            <option value="LIFE_INSURANCE">Assurance-vie — gains calculés</option>
           </select>
         </label>
         {fields.map((field) => (
