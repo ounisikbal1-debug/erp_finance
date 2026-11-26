@@ -283,9 +283,22 @@ function computePayslipFromCustomRates(
 }
 
 export default function PayrollSimulationPanel({ accessToken }: { accessToken: string | null }) {
+  const [inputs, setInputs] = useState(INITIAL_INPUTS);
+  const [availability, setAvailability] = useState<PayrollAvailability | null>(null);
+  const [availabilityError, setAvailabilityError] = useState('');
+  const [result, setResult] = useState<PayrollSimulationResult | null>(null);
+
+  // Feuille des Taux & Barèmes Modulables (chargée depuis localStorage)
+  const [customRates, setCustomRates] = useState<CustomPayrollRates>(loadSavedCustomRates);
+  const [savedRatesNotice, setSavedRatesNotice] = useState('');
+  const [calculationError, setCalculationError] = useState('');
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [configVersion, setConfigVersion] = useState(0);
+  const printableSlipRef = useRef<HTMLElement | null>(null);
+
   const [activeTab, setActiveTab] = useState<'payslip' | 'ratesSheet' | 'multiEmployee'>('payslip');
   const [multiEmployees, setMultiEmployees] = useState<MultiEmployeeRecord[]>(() =>
-    calculateAllEmployees(SAMPLE_EMPLOYEES, customRates)
+    calculateAllEmployees(SAMPLE_EMPLOYEES, loadSavedCustomRates())
   );
   const [isImporting, setIsImporting] = useState(false);
   const [importFeedback, setImportFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -332,18 +345,6 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   };
 
   const multiTotals: MultiEmployeeTotals = computeMultiEmployeeTotals(multiEmployees);
-  const [inputs, setInputs] = useState(INITIAL_INPUTS);
-  const [availability, setAvailability] = useState<PayrollAvailability | null>(null);
-  const [availabilityError, setAvailabilityError] = useState('');
-  const [result, setResult] = useState<PayrollSimulationResult | null>(null);
-
-  // Feuille des Taux & Barèmes Modulables (chargée depuis localStorage)
-  const [customRates, setCustomRates] = useState<CustomPayrollRates>(loadSavedCustomRates);
-  const [savedRatesNotice, setSavedRatesNotice] = useState('');
-  const [calculationError, setCalculationError] = useState('');
-  const [isCalculating, setIsCalculating] = useState(false);
-  const [configVersion, setConfigVersion] = useState(0);
-  const printableSlipRef = useRef<HTMLElement | null>(null);
 
   const canCalculate = canUsePayrollCalculator(availability);
 

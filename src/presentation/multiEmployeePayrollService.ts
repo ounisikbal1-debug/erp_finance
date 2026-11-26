@@ -6,8 +6,6 @@
  * la synthèse des charges sociales & fiscales et l'exportation des résultats.
  */
 
-import * as pdfjsLib from 'pdfjs-dist';
-
 export interface PayrollSimulationInputs {
   fiscalBenefitType: 'COMPLEMENTARY_RETIREMENT' | 'RETIREMENT_SAVINGS' | 'LIFE_INSURANCE';
   baseSalary: number;
@@ -511,6 +509,17 @@ function parseCsvContent(text: string): Array<Record<string, unknown>> {
  * Parsing de fichier PDF contenant des fiches de paie ou liste de salariés
  */
 async function parsePdfContent(file: File): Promise<Array<Record<string, unknown>>> {
+  const pdfjsLib = await import('pdfjs-dist');
+  if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    try {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+        'pdfjs-dist/build/pdf.worker.min.mjs',
+        import.meta.url,
+      ).toString();
+    } catch {
+      // ignore
+    }
+  }
   const buffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise;
   const rows: Array<Record<string, unknown>> = [];

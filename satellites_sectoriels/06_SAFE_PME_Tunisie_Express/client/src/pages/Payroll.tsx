@@ -1,3 +1,4 @@
+import * as XLSX from "xlsx";
 import { useMemo, useState } from "react";
 import { trpc } from "@/_core/trpc";
 import { Badge, EmptyState, Field, Loading, Money, Modal, PageHeader, Panel, Stat, Table } from "@/components/primitives";
@@ -45,6 +46,115 @@ const DEFAULT_PME_RATES: CustomPmePayrollRates = {
   assuranceMaladieRate: 0.48212520380679,
 };
 
+
+export interface PmeMultiEmployeeRecord {
+  id: string;
+  matricule: string;
+  employeeName: string;
+  department: string;
+  position: string;
+  baseSalary: number;
+  presenceBonus: number;
+  transportBonus: number;
+  isHeadOfFamily: boolean;
+  childrenCount: number;
+  dependentParents: number;
+  // Calculs
+  grossSalary: number;
+  employeeCnss: number;
+  netImposable: number;
+  irpp: number;
+  css: number;
+  netSalary: number;
+  assuranceDeces: number;
+  assuranceInvalidite: number;
+  assuranceMaladie: number;
+  totalAssurancesPatronales: number;
+  totalEmployerCharges: number;
+  totalCoutGlobal: number;
+}
+
+export function computePmeEmployeeRecord(
+  raw: {
+    id?: string;
+    matricule: string;
+    employeeName: string;
+    department?: string;
+    position?: string;
+    baseSalary: number;
+    presenceBonus?: number;
+    transportBonus?: number;
+    isHeadOfFamily?: boolean;
+    childrenCount?: number;
+    dependentParents?: number;
+  },
+  rates: CustomPmePayrollRates,
+): PmeMultiEmployeeRecord {
+  const gross = Math.round(((raw.baseSalary || 0) + (raw.presenceBonus || 0) + (raw.transportBonus || 0)) * 1000) / 1000;
+  const employeeCnss = Math.round(gross * (rates.cnssEmployeeRate / 100) * 1000) / 1000;
+  const taxableGross = Math.max(0, gross - employeeCnss);
+  const annualTaxable = taxableGross * 12;
+  const annualProf = Math.min(annualTaxable * (rates.profExpensesRate / 100), rates.profExpensesMaxCap);
+  const annualFamily = (raw.isHeadOfFamily ? rates.headOfFamilyDeduction : 0) + ((raw.childrenCount || 0) * rates.childDeduction);
+  const annualNet = Math.max(0, annualTaxable - annualProf - annualFamily);
+
+  let annualIrpp = 0;
+  for (const b of IRPP_BRACKETS) {
+    if (annualNet > b.min) {
+      annualIrpp += Math.max(0, Math.min(annualNet, b.max) - b.min) * (b.rate / 100);
+    }
+  }
+  const monthlyIrpp = Math.round((annualIrpp / 12) * 1000) / 1000;
+  const monthlyCss = Math.round(((annualNet * (rates.cssRate / 100)) / 12) * 1000) / 1000;
+  const parentDeduction = Math.round((((raw.dependentParents || 0) * rates.parentDeduction) / 12) * 1000) / 1000;
+  const netSalary = Math.round((gross - employeeCnss - monthlyIrpp - monthlyCss - parentDeduction) * 1000) / 1000;
+
+  const assDeces = Math.round(gross * (rates.assuranceDecesRate / 100) * 1000) / 1000;
+  const assInv = Math.round(gross * (rates.assuranceInvaliditeRate / 100) * 1000) / 1000;
+  const assMal = Math.round(gross * (rates.assuranceMaladieRate / 100) * 1000) / 1000;
+  const totalAssPat = Math.round((assDeces + assInv + assMal) * 1000) / 1000;
+
+  const employerCnss = Math.round(gross * (rates.cnssEmployerRate / 100) * 1000) / 1000;
+  const workAcc = Math.round(gross * (rates.workAccidentRate / 100) * 1000) / 1000;
+  const foprolos = Math.round(gross * (rates.foprolosRate / 100) * 1000) / 1000;
+  const totalEmployerCharges = Math.round((employerCnss + workAcc + foprolos + totalAssPat) * 1000) / 1000;
+  const totalCoutGlobal = Math.round((gross + totalEmployerCharges) * 1000) / 1000;
+
+  return {
+    id: raw.id || `pme-emp-${Date.now()}-${Math.random()}`,
+    matricule: raw.matricule,
+    employeeName: raw.employeeName,
+    department: raw.department || "Direction Générale",
+    position: raw.position || "Collaborateur",
+    baseSalary: raw.baseSalary,
+    presenceBonus: raw.presenceBonus || 0,
+    transportBonus: raw.transportBonus || 0,
+    isHeadOfFamily: !!raw.isHeadOfFamily,
+    childrenCount: raw.childrenCount || 0,
+    dependentParents: raw.dependentParents || 0,
+    grossSalary: gross,
+    employeeCnss,
+    netImposable: Math.round((annualNet / 12) * 1000) / 1000,
+    irpp: monthlyIrpp,
+    css: monthlyCss,
+    netSalary,
+    assuranceDeces: assDeces,
+    assuranceInvalidite: assInv,
+    assuranceMaladie: assMal,
+    totalAssurancesPatronales: totalAssPat,
+    totalEmployerCharges,
+    totalCoutGlobal,
+  };
+}
+
+const SAMPLE_PME_EMPLOYEES_RAW = [
+  { matricule: "DIR-001", employeeName: "Mohamed Salah Trabelsi", department: "Direction Générale", position: "Directeur Général", baseSalary: 6500, presenceBonus: 250, transportBonus: 150, isHeadOfFamily: true, childrenCount: 3, dependentParents: 1 },
+  { matricule: "FIN-014", employeeName: "Amira Ben Mahmoud", department: "Finance & Comptabilité", position: "Responsable Financier", baseSalary: 4200, presenceBonus: 180, transportBonus: 120, isHeadOfFamily: true, childrenCount: 2, dependentParents: 0 },
+  { matricule: "ENG-022", employeeName: "Karim Jaziri", department: "R&D / Technique", position: "Ingénieur Lead", baseSalary: 3800, presenceBonus: 120, transportBonus: 100, isHeadOfFamily: false, childrenCount: 1, dependentParents: 0 },
+  { matricule: "COM-008", employeeName: "Syrine Chahed", department: "Commercial & Ventes", position: "Chargée d'Affaires", baseSalary: 2900, presenceBonus: 200, transportBonus: 95, isHeadOfFamily: false, childrenCount: 0, dependentParents: 0 },
+  { matricule: "LOG-005", employeeName: "Yassine Gharbi", department: "Logistique & Achats", position: "Superviseur Logistique", baseSalary: 2100, presenceBonus: 150, transportBonus: 80, isHeadOfFamily: true, childrenCount: 2, dependentParents: 1 },
+];
+
 export default function Payroll() {
   const utils = trpc.useUtils();
   const runs = trpc.payroll.list.useQuery();
@@ -58,7 +168,130 @@ export default function Payroll() {
     },
   });
 
-  const [activeTab, setActiveTab] = useState<"cycles" | "ratesSheet">("cycles");
+  const [activeTab, setActiveTab] = useState<"cycles" | "ratesSheet" | "multiEmployee">("cycles");
+  const [multiEmployees, setMultiEmployees] = useState<PmeMultiEmployeeRecord[]>(() =>
+    SAMPLE_PME_EMPLOYEES_RAW.map((r) => computePmeEmployeeRecord(r, DEFAULT_PME_RATES))
+  );
+  const [isImporting, setIsImporting] = useState(false);
+  const [importNotice, setImportNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const fileInputRef = useState<HTMLInputElement | null>(null);
+
+  const multiTotals = useMemo(() => {
+    return multiEmployees.reduce(
+      (acc, e) => ({
+        count: acc.count + 1,
+        gross: Math.round((acc.gross + e.grossSalary) * 1000) / 1000,
+        cnssEmp: Math.round((acc.cnssEmp + e.employeeCnss) * 1000) / 1000,
+        netImp: Math.round((acc.netImp + e.netImposable) * 1000) / 1000,
+        irpp: Math.round((acc.irpp + e.irpp) * 1000) / 1000,
+        css: Math.round((acc.css + e.css) * 1000) / 1000,
+        net: Math.round((acc.net + e.netSalary) * 1000) / 1000,
+        assPat: Math.round((acc.assPat + e.totalAssurancesPatronales) * 1000) / 1000,
+        chargesPat: Math.round((acc.chargesPat + e.totalEmployerCharges) * 1000) / 1000,
+        coutGlobal: Math.round((acc.coutGlobal + e.totalCoutGlobal) * 1000) / 1000,
+      }),
+      { count: 0, gross: 0, cnssEmp: 0, netImp: 0, irpp: 0, css: 0, net: 0, assPat: 0, chargesPat: 0, coutGlobal: 0 }
+    );
+  }, [multiEmployees]);
+
+  const handleRecalculateMulti = () => {
+    setMultiEmployees((prev) => prev.map((e) => computePmeEmployeeRecord(e, customRates)));
+    setImportNotice({ type: "success", message: `Paie recalculée pour ${multiEmployees.length} salarié(s) selon les taux actuels.` });
+  };
+
+  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsImporting(true);
+    setImportNotice(null);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      let records: any[] = [];
+      if (ext === "csv" || ext === "txt") {
+        const text = await file.text();
+        const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+        if (lines.length > 1) {
+          const sep = lines[0].includes(";") ? ";" : lines[0].includes("\t") ? "\t" : ",";
+          const headers = lines[0].split(sep).map((h) => h.replace(/^["']|["']$/g, "").trim().toLowerCase());
+          for (let i = 1; i < lines.length; i++) {
+            const vals = lines[i].split(sep).map((v) => v.replace(/^["']|["']$/g, "").trim());
+            const r: Record<string, any> = {};
+            headers.forEach((h, idx) => { r[h] = vals[idx] || ""; });
+            records.push({
+              matricule: r.matricule || r.mat || r.code || `MAT-${i}`,
+              employeeName: r.nom_prenom || r.salarie || r.nom || `Salarié ${i}`,
+              department: r.departement || r.service || "Direction Générale",
+              position: r.poste || "Collaborateur",
+              baseSalary: parseFloat(String(r.salaire_base || r.base || r.salaire || 2500).replace(",", ".")) || 2500,
+              presenceBonus: parseFloat(String(r.prime_presence || r.presence || 0).replace(",", ".")) || 0,
+              transportBonus: parseFloat(String(r.prime_transport || r.transport || 0).replace(",", ".")) || 0,
+              isHeadOfFamily: ["1", "true", "oui", "vrai"].includes(String(r.chef_famille || "").toLowerCase()),
+              childrenCount: parseInt(String(r.enfants_charge || r.enfants || 0), 10) || 0,
+              dependentParents: parseInt(String(r.parents_charge || r.parents || 0), 10) || 0,
+            });
+          }
+        }
+      } else {
+        const buffer = await file.arrayBuffer();
+        const wb = XLSX.read(buffer, { type: "array" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json<Record<string, any>>(ws);
+        records = json.map((r, i) => ({
+          matricule: String(r.Matricule || r.matricule || r.Code || `MAT-${i + 1}`),
+          employeeName: String(r.Nom_Prenom || r.Salarié || r.nom || r.Nom || `Salarié ${i + 1}`),
+          department: String(r.Departement || r.departement || "Direction"),
+          position: String(r.Poste || r.poste || "Collaborateur"),
+          baseSalary: parseFloat(String(r.Salaire_Base || r.base || 3000).replace(",", ".")) || 3000,
+          presenceBonus: parseFloat(String(r.Prime_Presence || 0).replace(",", ".")) || 0,
+          transportBonus: parseFloat(String(r.Prime_Transport || 0).replace(",", ".")) || 0,
+          isHeadOfFamily: ["oui", "true", "1"].includes(String(r.Chef_Famille || "").toLowerCase()),
+          childrenCount: parseInt(String(r.Enfants_Charge || 0), 10) || 0,
+          dependentParents: parseInt(String(r.Parents_Charge || 0), 10) || 0,
+        }));
+      }
+
+      if (records.length === 0) throw new Error("Aucun enregistrement valide n'a été trouvé.");
+      const computed = records.map((r) => computePmeEmployeeRecord(r, customRates));
+      setMultiEmployees(computed);
+      setActiveTab("multiEmployee");
+      setImportNotice({ type: "success", message: `Import réussi : ${computed.length} salarié(s) importé(s) et calculés.` });
+    } catch (err: any) {
+      setImportNotice({ type: "error", message: err.message || "Erreur d'importation." });
+    } finally {
+      setIsImporting(false);
+      if (e.target) e.target.value = "";
+    }
+  };
+
+  const downloadPmeTemplateExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(SAMPLE_PME_EMPLOYEES_RAW);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Salariés");
+    XLSX.writeFile(wb, "Modele_Import_Paie_SAFE_PME.xlsx");
+  };
+
+  const exportPmeResultsExcel = () => {
+    const exportData = multiEmployees.map((e) => ({
+      Matricule: e.matricule,
+      Salarié: e.employeeName,
+      Département: e.department,
+      Poste: e.position,
+      "Brut Total (DT)": e.grossSalary,
+      "CNSS Salarié (DT)": e.employeeCnss,
+      "Net Imposable (DT)": e.netImposable,
+      "IRPP (DT)": e.irpp,
+      "CSS (DT)": e.css,
+      "Net à Payer (DT)": e.netSalary,
+      "3 Assurances Patronales (DT)": e.totalAssurancesPatronales,
+      "Charges Patronales Totales (DT)": e.totalEmployerCharges,
+      "Coût Global Entreprise (DT)": e.totalCoutGlobal,
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Paie_Multi_Salariés");
+    XLSX.writeFile(wb, `Resultats_Paie_Multi_Salaries_${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [period, setPeriod] = useState(currentPeriod());
@@ -208,7 +441,21 @@ export default function Payroll() {
         title="Gestion de la Paie & Salaires"
         subtitle="Moteur fiscal tunisien harmonisé · IRPP 8 tranches · CNSS 9,68 % / 17,07 % · CSS 0,5 % · 3 Assurances patronales 1,766 % (Décès 0,5 %, Invalidité 0,784 %, Maladie 0,482 %)"
         actions={
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <input
+              type="file"
+              id="pme-file-input"
+              onChange={handleFileImport}
+              accept=".xlsx,.xls,.csv,.pdf,.txt"
+              className="hidden"
+            />
+            <button
+              className="erp-btn-gold"
+              onClick={() => document.getElementById("pme-file-input")?.click()}
+              disabled={isImporting}
+            >
+              📥 {isImporting ? "Import…" : "Import Excel / CSV / PDF"}
+            </button>
             <button
               className={activeTab === "cycles" ? "erp-btn-gold" : "erp-btn-ghost"}
               onClick={() => setActiveTab("cycles")}
@@ -220,6 +467,12 @@ export default function Payroll() {
               onClick={() => setActiveTab("ratesSheet")}
             >
               ⚙️ Feuille des Taux Modulables
+            </button>
+            <button
+              className={activeTab === "multiEmployee" ? "erp-btn-gold" : "erp-btn-ghost"}
+              onClick={() => setActiveTab("multiEmployee")}
+            >
+              👥 Paie Multi-Salariés ({multiEmployees.length})
             </button>
           </div>
         }
