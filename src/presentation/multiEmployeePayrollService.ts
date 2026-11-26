@@ -123,15 +123,9 @@ export function calculateSinglePayslip(
   const annualFamilyDeductions = (inputs.isHeadOfFamily ? rates.headOfFamilyDeduction : 0)
     + ((Number(inputs.childrenCount) || 0) * rates.childDeduction);
 
-  const benefitRate = Number(inputs.complementaryRetirementRate) || 0;
-  // Calcul de l’Avantage fiscal assis sur le Salaire Brut Total (Base + Primes)
-  const retirementBonusDeduction = inputs.fiscalBenefitType === 'COMPLEMENTARY_RETIREMENT'
-    ? round3(grossSalary * (benefitRate / 100))
-    : inputs.fiscalBenefitType === 'RETIREMENT_SAVINGS'
-      ? round3(grossSalary * ((benefitRate > 0 ? benefitRate : 4) / 100))
-      : inputs.fiscalBenefitType === 'LIFE_INSURANCE'
-        ? round3(grossSalary * ((benefitRate > 0 ? benefitRate : 3) / 100))
-        : 0;
+  const benefitRate = Math.max(0, Number(inputs.complementaryRetirementRate) || 0);
+  // Calcul de l’Avantage fiscal assis sur le Salaire Brut Total (Base + Primes) selon le contrat mutuelle spécifique du salarié
+  const retirementBonusDeduction = round3(grossSalary * (benefitRate / 100));
 
   const annualNetBeforeGain = Math.max(0, annualTaxableGross - annualProfExpenses - annualFamilyDeductions);
   const annualNetAfterGain = Math.max(0, annualNetBeforeGain - retirementBonusDeduction * 12);
@@ -165,7 +159,8 @@ export function calculateSinglePayslip(
   const effectiveMaladieRate = rates.assuranceMaladieRate < 0.01 ? rates.assuranceMaladieRate * 100 : rates.assuranceMaladieRate;
   const assuranceMaladie = round3(grossSalary * (effectiveMaladieRate / 100));
 
-  const employeeInsurance = round3(grossSalary * (rates.employeeInsuranceRate / 100));
+  // Assurance Compl. Mutuelle Salariale = Taux de retraite complémentaire (%) * salaire brut (spécifique au salarié)
+  const employeeInsurance = retirementBonusDeduction;
   const parentACharge = round3(((Number(inputs.dependentParents) || 0) * rates.parentDeduction) / 12);
   const intermediateNet = round3(grossSalary - employeeCnss - irpp - css);
   // Retenues salariales : les 3 assurances sont exclusivement patronales
@@ -423,12 +418,16 @@ function rowToMultiEmployeeRecord(row: Record<string, unknown>, index: number): 
     fiscalBenefitType = 'LIFE_INSURANCE';
   }
 
-  const complementaryRetirementRate = parseNumber(
-    normMap.taux_avantage ||
-    normMap.taux_retraite ||
-    normMap.taux_avantage_fiscal ||
-    normMap.benefit_rate,
-    4,
+  const complementaryRetirementRate = Math.max(
+    0,
+    parseNumber(
+      normMap.taux_retraite_complementaire ??
+      normMap.taux_avantage ??
+      normMap.taux_retraite ??
+      normMap.taux_avantage_fiscal ??
+      normMap.benefit_rate,
+      0,
+    ),
   );
 
   return {

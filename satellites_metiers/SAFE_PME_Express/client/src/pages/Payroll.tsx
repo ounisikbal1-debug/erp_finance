@@ -1,18 +1,26 @@
 import * as XLSX from "xlsx";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { trpc } from "@/_core/trpc";
 import { Badge, EmptyState, Field, Loading, Money, Modal, PageHeader, Panel, Stat, Table } from "@/components/primitives";
 import {
   CNSS_EMPLOYEE_RATE,
-  CNSS_EMPLOYER_RATE,
-  CSS_RATE,
   IRPP_BRACKETS,
   computePayslip,
-  computeIrppAnnual,
   currentPeriod,
   fmtTND,
   periodLabel,
 } from "../../../shared/fiscal";
+
+export interface PmePayrollInputs {
+  fiscalBenefitType: "COMPLEMENTARY_RETIREMENT" | "RETIREMENT_SAVINGS" | "LIFE_INSURANCE";
+  baseSalary: number;
+  presenceBonus: number;
+  transportBonus: number;
+  isHeadOfFamily: boolean;
+  childrenCount: number;
+  dependentParents: number;
+  complementaryRetirementRate: number;
+}
 
 export interface CustomPmePayrollRates {
   cnssEmployeeRate: number;
@@ -25,10 +33,23 @@ export interface CustomPmePayrollRates {
   childDeduction: number;
   parentDeduction: number;
   cssRate: number;
+  employerInsuranceRate: number;
   assuranceDecesRate: number;
   assuranceInvaliditeRate: number;
   assuranceMaladieRate: number;
+  irppBrackets: Array<{ min: number; max: number; rate: number }>;
 }
+
+const INITIAL_PME_INPUTS: PmePayrollInputs = {
+  fiscalBenefitType: "COMPLEMENTARY_RETIREMENT",
+  baseSalary: 4580.673,
+  presenceBonus: 18.668,
+  transportBonus: 93.216,
+  isHeadOfFamily: false,
+  childrenCount: 0,
+  dependentParents: 0,
+  complementaryRetirementRate: 4,
+};
 
 const DEFAULT_PME_RATES: CustomPmePayrollRates = {
   cnssEmployeeRate: 9.68,
@@ -41,11 +62,164 @@ const DEFAULT_PME_RATES: CustomPmePayrollRates = {
   childDeduction: 100.0,
   parentDeduction: 1750.0,
   cssRate: 0.5,
+  employerInsuranceRate: 6.0,
   assuranceDecesRate: 0.5,
   assuranceInvaliditeRate: 0.78400752510838,
   assuranceMaladieRate: 0.48212520380679,
+  irppBrackets: IRPP_BRACKETS.map((b) => ({
+    min: b.from,
+    max: b.to === null ? Infinity : b.to,
+    rate: b.rate,
+  })),
 };
 
+function round3(val: number): number {
+  return Math.round(val * 1000) / 1000;
+}
+
+export interface PmePayrollResult {
+  grossSalary: number;
+  employeeCnss: number;
+  taxableGross: number;
+  fraisProfessionnels: number;
+  chefDeFamille: number;
+  enfantACharge: number;
+  retirementBonusDeduction: number;
+  netImposable: number;
+  irpp: number;
+  irppBeforeRetirementGain: number;
+  css: number;
+  cssBeforeRetirementGain: number;
+  gainIrpp: number;
+  gainCss: number;
+  assuranceDeces: number;
+  assuranceInvalidite: number;
+  assuranceMaladie: number;
+  employeeInsurance: number;
+  totalImpots: number;
+  totalGain: number;
+  totalImpotsApresGains: number;
+  intermediateNet: number;
+  parentACharge: number;
+  totalRetenue: number;
+  netSalary: number;
+  employerCnss: number;
+  workAccident: number;
+  foprolos: number;
+  employerInsurance: number;
+  totalAssurancesPatronales: number;
+  totalEmployerCharges: number;
+  totalCoutGlobal: number;
+}
+
+export function computePmePayslipFull(
+  inputs: PmePayrollInputs,
+  rates: CustomPmePayrollRates,
+): PmePayrollResult {
+  const grossSalary = round3(
+    (Number(inputs.baseSalary) || 0) +
+      (Number(inputs.presenceBonus) || 0) +
+      (Number(inputs.transportBonus) || 0),
+  );
+  const employeeCnss = round3(grossSalary * (rates.cnssEmployeeRate / 100));
+  const taxableGross = Math.max(0, round3(grossSalary - employeeCnss));
+  const annualTaxableGross = taxableGross * 12;
+  const annualProfExpenses = Math.min(
+    annualTaxableGross * (rates.profExpensesRate / 100),
+    rates.profExpensesMaxCap,
+  );
+  const annualFamilyDeductions =
+    (inputs.isHeadOfFamily ? rates.headOfFamilyDeduction : 0) +
+    (Number(inputs.childrenCount) || 0) * rates.childDeduction;
+
+  const benefitRate = Math.max(0, Number(inputs.complementaryRetirementRate) || 0);
+  // Calcul de l’Avantage fiscal assis sur le Salaire Brut Total (Base + Primes) selon le contrat spécifique du salarié
+  const retirementBonusDeduction = round3(grossSalary * (benefitRate / 100));
+
+  const annualNetBeforeGain = Math.max(0, annualTaxableGross - annualProfExpenses - annualFamilyDeductions);
+  const annualNetAfterGain = Math.max(0, annualNetBeforeGain - retirementBonusDeduction * 12);
+
+  const calcAnnualIrpp = (annualNet: number) => {
+    let total = 0;
+    for (const b of rates.irppBrackets) {
+      if (annualNet > b.min) {
+        total += Math.max(0, Math.min(annualNet, b.max) - b.min) * (b.rate / 100);
+      }
+    }
+    return total;
+  };
+
+  const irppBeforeRetirementGain = round3(calcAnnualIrpp(annualNetBeforeGain) / 12);
+  const irpp = round3(calcAnnualIrpp(annualNetAfterGain) / 12);
+  const cssBeforeRetirementGain = round3((annualNetBeforeGain * (rates.cssRate / 100)) / 12);
+  const css = round3((annualNetAfterGain * (rates.cssRate / 100)) / 12);
+
+  const gainIrpp = Math.max(0, round3(irppBeforeRetirementGain - irpp));
+  const gainCss = Math.max(0, round3(cssBeforeRetirementGain - css));
+  const totalImpots = round3(irppBeforeRetirementGain + cssBeforeRetirementGain);
+  const totalGain = round3(gainIrpp + gainCss);
+  const totalImpotsApresGains = round3(irpp + css);
+
+  // 3 Assurances exclusivement patronales
+  const assuranceDeces = round3(grossSalary * (rates.assuranceDecesRate / 100));
+  const assuranceInvalidite = round3(grossSalary * (rates.assuranceInvaliditeRate / 100));
+  const effectiveMaladieRate =
+    rates.assuranceMaladieRate < 0.01 ? rates.assuranceMaladieRate * 100 : rates.assuranceMaladieRate;
+  const assuranceMaladie = round3(grossSalary * (effectiveMaladieRate / 100));
+
+  // Rubrique 10200 : Assurance Compl. Mutuelle Salariale = Taux de retraite complémentaire (%) * salaire brut
+  const employeeInsurance = retirementBonusDeduction;
+  const parentACharge = round3(((Number(inputs.dependentParents) || 0) * rates.parentDeduction) / 12);
+  const intermediateNet = round3(grossSalary - employeeCnss - irpp - css);
+  const totalRetenue = round3(employeeCnss + irpp + css + employeeInsurance + parentACharge);
+  const netSalary = round3(grossSalary - totalRetenue);
+
+  // Charges patronales
+  const employerCnss = round3(grossSalary * (rates.cnssEmployerRate / 100));
+  const workAccident = round3(grossSalary * (rates.workAccidentRate / 100));
+  const foprolos = round3(grossSalary * (rates.foprolosRate / 100));
+  const employerInsurance = round3(grossSalary * (rates.employerInsuranceRate / 100));
+  const totalAssurancesPatronales = round3(assuranceDeces + assuranceInvalidite + assuranceMaladie);
+  const totalEmployerCharges = round3(
+    employerCnss + workAccident + foprolos + employerInsurance + totalAssurancesPatronales,
+  );
+  const totalCoutGlobal = round3(grossSalary + totalEmployerCharges);
+
+  return {
+    grossSalary,
+    employeeCnss,
+    taxableGross,
+    fraisProfessionnels: round3(annualProfExpenses / 12),
+    chefDeFamille: round3((inputs.isHeadOfFamily ? rates.headOfFamilyDeduction : 0) / 12),
+    enfantACharge: round3(((Number(inputs.childrenCount) || 0) * rates.childDeduction) / 12),
+    retirementBonusDeduction,
+    netImposable: round3(annualNetAfterGain / 12),
+    irpp,
+    irppBeforeRetirementGain,
+    css,
+    cssBeforeRetirementGain,
+    gainIrpp,
+    gainCss,
+    assuranceDeces,
+    assuranceInvalidite,
+    assuranceMaladie,
+    employeeInsurance,
+    totalImpots,
+    totalGain,
+    totalImpotsApresGains,
+    intermediateNet,
+    parentACharge,
+    totalRetenue,
+    netSalary,
+    employerCnss,
+    workAccident,
+    foprolos,
+    employerInsurance,
+    totalAssurancesPatronales,
+    totalEmployerCharges,
+    totalCoutGlobal,
+  };
+}
 
 export interface PmeMultiEmployeeRecord {
   id: string;
@@ -53,151 +227,208 @@ export interface PmeMultiEmployeeRecord {
   employeeName: string;
   department: string;
   position: string;
-  baseSalary: number;
-  presenceBonus: number;
-  transportBonus: number;
-  isHeadOfFamily: boolean;
-  childrenCount: number;
-  dependentParents: number;
-  // Calculs
-  grossSalary: number;
-  employeeCnss: number;
-  netImposable: number;
-  irpp: number;
-  css: number;
-  netSalary: number;
-  assuranceDeces: number;
-  assuranceInvalidite: number;
-  assuranceMaladie: number;
-  totalAssurancesPatronales: number;
-  totalEmployerCharges: number;
-  totalCoutGlobal: number;
+  inputs: PmePayrollInputs;
+  result: PmePayrollResult;
 }
 
-export function computePmeEmployeeRecord(
-  raw: {
-    id?: string;
-    matricule: string;
-    employeeName: string;
-    department?: string;
-    position?: string;
-    baseSalary: number;
-    presenceBonus?: number;
-    transportBonus?: number;
-    isHeadOfFamily?: boolean;
-    childrenCount?: number;
-    dependentParents?: number;
+const SAMPLE_PME_EMPLOYEES_RAW: Array<{
+  matricule: string;
+  employeeName: string;
+  department: string;
+  position: string;
+  inputs: PmePayrollInputs;
+}> = [
+  {
+    matricule: "MAT-001",
+    employeeName: "Amine Ben Ali",
+    department: "Direction Financière",
+    position: "Directeur Administratif et Financier",
+    inputs: {
+      fiscalBenefitType: "COMPLEMENTARY_RETIREMENT",
+      baseSalary: 4580.673,
+      presenceBonus: 18.668,
+      transportBonus: 93.216,
+      isHeadOfFamily: false,
+      childrenCount: 0,
+      dependentParents: 0,
+      complementaryRetirementRate: 4,
+    },
   },
-  rates: CustomPmePayrollRates,
-): PmeMultiEmployeeRecord {
-  const gross = Math.round(((raw.baseSalary || 0) + (raw.presenceBonus || 0) + (raw.transportBonus || 0)) * 1000) / 1000;
-  const employeeCnss = Math.round(gross * (rates.cnssEmployeeRate / 100) * 1000) / 1000;
-  const taxableGross = Math.max(0, gross - employeeCnss);
-  const annualTaxable = taxableGross * 12;
-  const annualProf = Math.min(annualTaxable * (rates.profExpensesRate / 100), rates.profExpensesMaxCap);
-  const annualFamily = (raw.isHeadOfFamily ? rates.headOfFamilyDeduction : 0) + ((raw.childrenCount || 0) * rates.childDeduction);
-  const annualNet = Math.max(0, annualTaxable - annualProf - annualFamily);
-
-  let annualIrpp = 0;
-  for (const b of IRPP_BRACKETS) {
-    if (annualNet > b.min) {
-      annualIrpp += Math.max(0, Math.min(annualNet, b.max) - b.min) * (b.rate / 100);
-    }
-  }
-  const monthlyIrpp = Math.round((annualIrpp / 12) * 1000) / 1000;
-  const monthlyCss = Math.round(((annualNet * (rates.cssRate / 100)) / 12) * 1000) / 1000;
-  const parentDeduction = Math.round((((raw.dependentParents || 0) * rates.parentDeduction) / 12) * 1000) / 1000;
-  const netSalary = Math.round((gross - employeeCnss - monthlyIrpp - monthlyCss - parentDeduction) * 1000) / 1000;
-
-  const assDeces = Math.round(gross * (rates.assuranceDecesRate / 100) * 1000) / 1000;
-  const assInv = Math.round(gross * (rates.assuranceInvaliditeRate / 100) * 1000) / 1000;
-  const assMal = Math.round(gross * (rates.assuranceMaladieRate / 100) * 1000) / 1000;
-  const totalAssPat = Math.round((assDeces + assInv + assMal) * 1000) / 1000;
-
-  const employerCnss = Math.round(gross * (rates.cnssEmployerRate / 100) * 1000) / 1000;
-  const workAcc = Math.round(gross * (rates.workAccidentRate / 100) * 1000) / 1000;
-  const foprolos = Math.round(gross * (rates.foprolosRate / 100) * 1000) / 1000;
-  const totalEmployerCharges = Math.round((employerCnss + workAcc + foprolos + totalAssPat) * 1000) / 1000;
-  const totalCoutGlobal = Math.round((gross + totalEmployerCharges) * 1000) / 1000;
-
-  return {
-    id: raw.id || `pme-emp-${Date.now()}-${Math.random()}`,
-    matricule: raw.matricule,
-    employeeName: raw.employeeName,
-    department: raw.department || "Direction Générale",
-    position: raw.position || "Collaborateur",
-    baseSalary: raw.baseSalary,
-    presenceBonus: raw.presenceBonus || 0,
-    transportBonus: raw.transportBonus || 0,
-    isHeadOfFamily: !!raw.isHeadOfFamily,
-    childrenCount: raw.childrenCount || 0,
-    dependentParents: raw.dependentParents || 0,
-    grossSalary: gross,
-    employeeCnss,
-    netImposable: Math.round((annualNet / 12) * 1000) / 1000,
-    irpp: monthlyIrpp,
-    css: monthlyCss,
-    netSalary,
-    assuranceDeces: assDeces,
-    assuranceInvalidite: assInv,
-    assuranceMaladie: assMal,
-    totalAssurancesPatronales: totalAssPat,
-    totalEmployerCharges,
-    totalCoutGlobal,
-  };
-}
-
-const SAMPLE_PME_EMPLOYEES_RAW = [
-  { matricule: "DIR-001", employeeName: "Mohamed Salah Trabelsi", department: "Direction Générale", position: "Directeur Général", baseSalary: 6500, presenceBonus: 250, transportBonus: 150, isHeadOfFamily: true, childrenCount: 3, dependentParents: 1 },
-  { matricule: "FIN-014", employeeName: "Amira Ben Mahmoud", department: "Finance & Comptabilité", position: "Responsable Financier", baseSalary: 4200, presenceBonus: 180, transportBonus: 120, isHeadOfFamily: true, childrenCount: 2, dependentParents: 0 },
-  { matricule: "ENG-022", employeeName: "Karim Jaziri", department: "R&D / Technique", position: "Ingénieur Lead", baseSalary: 3800, presenceBonus: 120, transportBonus: 100, isHeadOfFamily: false, childrenCount: 1, dependentParents: 0 },
-  { matricule: "COM-008", employeeName: "Syrine Chahed", department: "Commercial & Ventes", position: "Chargée d'Affaires", baseSalary: 2900, presenceBonus: 200, transportBonus: 95, isHeadOfFamily: false, childrenCount: 0, dependentParents: 0 },
-  { matricule: "LOG-005", employeeName: "Yassine Gharbi", department: "Logistique & Achats", position: "Superviseur Logistique", baseSalary: 2100, presenceBonus: 150, transportBonus: 80, isHeadOfFamily: true, childrenCount: 2, dependentParents: 1 },
+  {
+    matricule: "MAT-002",
+    employeeName: "Salma Trabelsi",
+    department: "Ressources Humaines",
+    position: "Responsable RH",
+    inputs: {
+      fiscalBenefitType: "COMPLEMENTARY_RETIREMENT",
+      baseSalary: 2800.0,
+      presenceBonus: 50.0,
+      transportBonus: 100.0,
+      isHeadOfFamily: true,
+      childrenCount: 2,
+      dependentParents: 0,
+      complementaryRetirementRate: 4,
+    },
+  },
+  {
+    matricule: "MAT-003",
+    employeeName: "Karim Gharbi",
+    department: "Département IT",
+    position: "Ingénieur Logiciel",
+    inputs: {
+      fiscalBenefitType: "RETIREMENT_SAVINGS",
+      baseSalary: 3200.0,
+      presenceBonus: 30.0,
+      transportBonus: 80.0,
+      isHeadOfFamily: false,
+      childrenCount: 0,
+      dependentParents: 1,
+      complementaryRetirementRate: 5,
+    },
+  },
+  {
+    matricule: "MAT-004",
+    employeeName: "Nadia Jaziri",
+    department: "Commercial",
+    position: "Chargée d'Affaires",
+    inputs: {
+      fiscalBenefitType: "COMPLEMENTARY_RETIREMENT",
+      baseSalary: 1950.0,
+      presenceBonus: 20.0,
+      transportBonus: 60.0,
+      isHeadOfFamily: true,
+      childrenCount: 1,
+      dependentParents: 0,
+      complementaryRetirementRate: 0,
+    },
+  },
 ];
+
+function loadSavedPmeRates(): CustomPmePayrollRates {
+  try {
+    const raw = window.localStorage.getItem("safe_pme_custom_rates_v1");
+    if (!raw) return DEFAULT_PME_RATES;
+    const parsed = JSON.parse(raw) as Partial<CustomPmePayrollRates>;
+    const brackets =
+      Array.isArray(parsed.irppBrackets) && parsed.irppBrackets.length > 0
+        ? parsed.irppBrackets.map((b) => ({
+            min: Number(b.min) || 0,
+            max:
+              b.max === null || b.max === undefined || !Number.isFinite(Number(b.max))
+                ? Infinity
+                : Number(b.max),
+            rate: Number(b.rate) || 0,
+          }))
+        : DEFAULT_PME_RATES.irppBrackets;
+    return {
+      ...DEFAULT_PME_RATES,
+      ...parsed,
+      irppBrackets: brackets,
+    };
+  } catch {
+    return DEFAULT_PME_RATES;
+  }
+}
 
 export default function Payroll() {
   const utils = trpc.useUtils();
-  const runs = trpc.payroll.list.useQuery();
+  const runs = trpc.payroll.runs.useQuery();
   const employees = trpc.employees.list.useQuery();
-  const create = trpc.payroll.create.useMutation({
-    onSuccess: () => {
-      utils.payroll.list.invalidate();
-      utils.dashboard.get.invalidate();
+  const create = trpc.payroll.createRun.useMutation({
+    onSuccess: (r) => {
+      utils.payroll.runs.invalidate();
       setOpen(false);
-      setSelected(null);
+      setSelected(r.id);
     },
   });
 
-  const [activeTab, setActiveTab] = useState<"cycles" | "ratesSheet" | "multiEmployee">("cycles");
+  const [activeTab, setActiveTab] = useState<"payslip" | "ratesSheet" | "multiEmployee" | "cycles">("payslip");
+  const [inputs, setInputs] = useState<PmePayrollInputs>(INITIAL_PME_INPUTS);
+  const [customRates, setCustomRates] = useState<CustomPmePayrollRates>(loadSavedPmeRates);
+  const [savedNotice, setSavedNotice] = useState("");
+  const printableSlipRef = useRef<HTMLElement | null>(null);
+
   const [multiEmployees, setMultiEmployees] = useState<PmeMultiEmployeeRecord[]>(() =>
-    SAMPLE_PME_EMPLOYEES_RAW.map((r) => computePmeEmployeeRecord(r, DEFAULT_PME_RATES))
+    SAMPLE_PME_EMPLOYEES_RAW.map((e, idx) => ({
+      id: `pme-emp-${idx}`,
+      ...e,
+      result: computePmePayslipFull(e.inputs, loadSavedPmeRates()),
+    })),
   );
   const [isImporting, setIsImporting] = useState(false);
   const [importNotice, setImportNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const fileInputRef = useState<HTMLInputElement | null>(null);
+  const [multiSearchTerm, setMultiSearchTerm] = useState("");
 
-  const multiTotals = useMemo(() => {
-    return multiEmployees.reduce(
-      (acc, e) => ({
-        count: acc.count + 1,
-        gross: Math.round((acc.gross + e.grossSalary) * 1000) / 1000,
-        cnssEmp: Math.round((acc.cnssEmp + e.employeeCnss) * 1000) / 1000,
-        netImp: Math.round((acc.netImp + e.netImposable) * 1000) / 1000,
-        irpp: Math.round((acc.irpp + e.irpp) * 1000) / 1000,
-        css: Math.round((acc.css + e.css) * 1000) / 1000,
-        net: Math.round((acc.net + e.netSalary) * 1000) / 1000,
-        assPat: Math.round((acc.assPat + e.totalAssurancesPatronales) * 1000) / 1000,
-        chargesPat: Math.round((acc.chargesPat + e.totalEmployerCharges) * 1000) / 1000,
-        coutGlobal: Math.round((acc.coutGlobal + e.totalCoutGlobal) * 1000) / 1000,
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [period, setPeriod] = useState(currentPeriod());
+
+  const result = useMemo(() => computePmePayslipFull(inputs, customRates), [inputs, customRates]);
+
+  const multiTotals = useMemo(
+    () =>
+      multiEmployees.reduce(
+        (acc, e) => {
+          acc.count += 1;
+          acc.totalGross = round3(acc.totalGross + e.result.grossSalary);
+          acc.totalCnss = round3(acc.totalCnss + e.result.employeeCnss);
+          acc.totalInsuranceEmp = round3(acc.totalInsuranceEmp + e.result.employeeInsurance);
+          acc.totalNetImp = round3(acc.totalNetImp + e.result.netImposable);
+          acc.totalIrpp = round3(acc.totalIrpp + e.result.irpp);
+          acc.totalCss = round3(acc.totalCss + e.result.css);
+          acc.totalNet = round3(acc.totalNet + e.result.netSalary);
+          acc.totalAssurances = round3(acc.totalAssurances + e.result.totalAssurancesPatronales);
+          acc.totalEmployer = round3(acc.totalEmployer + e.result.totalEmployerCharges);
+          acc.totalCoutGlobal = round3(acc.totalCoutGlobal + e.result.totalCoutGlobal);
+          return acc;
+        },
+        {
+          count: 0,
+          totalGross: 0,
+          totalCnss: 0,
+          totalInsuranceEmp: 0,
+          totalNetImp: 0,
+          totalIrpp: 0,
+          totalCss: 0,
+          totalNet: 0,
+          totalAssurances: 0,
+          totalEmployer: 0,
+          totalCoutGlobal: 0,
+        },
+      ),
+    [multiEmployees],
+  );
+
+  const handleUpdateMultiEmployee = (empId: string, changes: Partial<PmePayrollInputs>) => {
+    setMultiEmployees((prev) =>
+      prev.map((emp) => {
+        if (emp.id !== empId) return emp;
+        const updatedInputs = { ...emp.inputs, ...changes };
+        return {
+          ...emp,
+          inputs: updatedInputs,
+          result: computePmePayslipFull(updatedInputs, customRates),
+        };
       }),
-      { count: 0, gross: 0, cnssEmp: 0, netImp: 0, irpp: 0, css: 0, net: 0, assPat: 0, chargesPat: 0, coutGlobal: 0 }
     );
-  }, [multiEmployees]);
+  };
 
   const handleRecalculateMulti = () => {
-    setMultiEmployees((prev) => prev.map((e) => computePmeEmployeeRecord(e, customRates)));
-    setImportNotice({ type: "success", message: `Paie recalculée pour ${multiEmployees.length} salarié(s) selon les taux actuels.` });
+    setMultiEmployees((prev) =>
+      prev.map((emp) => ({
+        ...emp,
+        result: computePmePayslipFull(emp.inputs, customRates),
+      })),
+    );
+    setImportNotice({
+      type: "success",
+      message: `Paie recalculée pour ${multiEmployees.length} salarié(s) selon les taux actuels et contrats individuels.`,
+    });
+  };
+
+  const handleSelectEmployeeForPayslip = (emp: PmeMultiEmployeeRecord) => {
+    setInputs({ ...emp.inputs });
+    setActiveTab("payslip");
   };
 
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -207,7 +438,21 @@ export default function Payroll() {
     setImportNotice(null);
     try {
       const ext = file.name.split(".").pop()?.toLowerCase();
-      let records: any[] = [];
+      let records: Array<{
+        matricule: string;
+        employeeName: string;
+        department: string;
+        position: string;
+        inputs: PmePayrollInputs;
+      }> = [];
+
+      const parseBenefitType = (val: unknown): PmePayrollInputs["fiscalBenefitType"] => {
+        const s = String(val ?? "").toUpperCase();
+        if (s.includes("EPARGNE") || s.includes("SAVING")) return "RETIREMENT_SAVINGS";
+        if (s.includes("VIE") || s.includes("LIFE")) return "LIFE_INSURANCE";
+        return "COMPLEMENTARY_RETIREMENT";
+      };
+
       if (ext === "csv" || ext === "txt") {
         const text = await file.text();
         const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
@@ -216,19 +461,26 @@ export default function Payroll() {
           const headers = lines[0].split(sep).map((h) => h.replace(/^["']|["']$/g, "").trim().toLowerCase());
           for (let i = 1; i < lines.length; i++) {
             const vals = lines[i].split(sep).map((v) => v.replace(/^["']|["']$/g, "").trim());
-            const r: Record<string, any> = {};
-            headers.forEach((h, idx) => { r[h] = vals[idx] || ""; });
+            const r: Record<string, string> = {};
+            headers.forEach((h, idx) => {
+              r[h] = vals[idx] || "";
+            });
+            const rawRate = r.taux_retraite_complementaire ?? r.taux_avantage_fiscal ?? r.taux_retraite ?? r.taux_avantage;
             records.push({
               matricule: r.matricule || r.mat || r.code || `MAT-${i}`,
               employeeName: r.nom_prenom || r.salarie || r.nom || `Salarié ${i}`,
               department: r.departement || r.service || "Direction Générale",
               position: r.poste || "Collaborateur",
-              baseSalary: parseFloat(String(r.salaire_base || r.base || r.salaire || 2500).replace(",", ".")) || 2500,
-              presenceBonus: parseFloat(String(r.prime_presence || r.presence || 0).replace(",", ".")) || 0,
-              transportBonus: parseFloat(String(r.prime_transport || r.transport || 0).replace(",", ".")) || 0,
-              isHeadOfFamily: ["1", "true", "oui", "vrai"].includes(String(r.chef_famille || "").toLowerCase()),
-              childrenCount: parseInt(String(r.enfants_charge || r.enfants || 0), 10) || 0,
-              dependentParents: parseInt(String(r.parents_charge || r.parents || 0), 10) || 0,
+              inputs: {
+                fiscalBenefitType: parseBenefitType(r.type_avantage_fiscal || r.avantage_fiscal),
+                baseSalary: parseFloat(String(r.salaire_base || r.base || r.salaire || 2500).replace(",", ".")) || 2500,
+                presenceBonus: parseFloat(String(r.prime_presence || r.presence || 0).replace(",", ".")) || 0,
+                transportBonus: parseFloat(String(r.prime_transport || r.transport || 0).replace(",", ".")) || 0,
+                isHeadOfFamily: ["1", "true", "oui", "vrai"].includes(String(r.chef_famille || "").toLowerCase()),
+                childrenCount: parseInt(String(r.enfants_charge || r.enfants || 0), 10) || 0,
+                dependentParents: Math.min(2, Math.max(0, parseInt(String(r.parents_charge || r.parents || 0), 10) || 0)),
+                complementaryRetirementRate: rawRate !== undefined && rawRate !== "" ? Math.max(0, parseFloat(String(rawRate).replace(",", ".")) || 0) : 0,
+              },
             });
           }
         }
@@ -236,26 +488,40 @@ export default function Payroll() {
         const buffer = await file.arrayBuffer();
         const wb = XLSX.read(buffer, { type: "array" });
         const ws = wb.Sheets[wb.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json<Record<string, any>>(ws);
-        records = json.map((r, i) => ({
-          matricule: String(r.Matricule || r.matricule || r.Code || `MAT-${i + 1}`),
-          employeeName: String(r.Nom_Prenom || r.Salarié || r.nom || r.Nom || `Salarié ${i + 1}`),
-          department: String(r.Departement || r.departement || "Direction"),
-          position: String(r.Poste || r.poste || "Collaborateur"),
-          baseSalary: parseFloat(String(r.Salaire_Base || r.base || 3000).replace(",", ".")) || 3000,
-          presenceBonus: parseFloat(String(r.Prime_Presence || 0).replace(",", ".")) || 0,
-          transportBonus: parseFloat(String(r.Prime_Transport || 0).replace(",", ".")) || 0,
-          isHeadOfFamily: ["oui", "true", "1"].includes(String(r.Chef_Famille || "").toLowerCase()),
-          childrenCount: parseInt(String(r.Enfants_Charge || 0), 10) || 0,
-          dependentParents: parseInt(String(r.Parents_Charge || 0), 10) || 0,
-        }));
+        const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws);
+        records = json.map((r, i) => {
+          const rawRate = r.Taux_Retraite_Complementaire ?? r.Taux_Avantage_Fiscal ?? r.taux_avantage_fiscal ?? r.Taux_Retraite;
+          return {
+            matricule: String(r.Matricule || r.matricule || r.Code || `MAT-${i + 1}`),
+            employeeName: String(r.Nom_Prenom || r.Salarié || r.nom || r.Nom || `Salarié ${i + 1}`),
+            department: String(r.Departement || r.departement || "Direction"),
+            position: String(r.Poste || r.poste || "Collaborateur"),
+            inputs: {
+              fiscalBenefitType: parseBenefitType(r.Type_Avantage_Fiscal || r.Avantage_Fiscal),
+              baseSalary: parseFloat(String(r.Salaire_Base || r.base || 3000).replace(",", ".")) || 3000,
+              presenceBonus: parseFloat(String(r.Prime_Presence || 0).replace(",", ".")) || 0,
+              transportBonus: parseFloat(String(r.Prime_Transport || 0).replace(",", ".")) || 0,
+              isHeadOfFamily: ["oui", "true", "1"].includes(String(r.Chef_Famille || "").toLowerCase()),
+              childrenCount: parseInt(String(r.Enfants_Charge || 0), 10) || 0,
+              dependentParents: Math.min(2, Math.max(0, parseInt(String(r.Parents_Charge || 0), 10) || 0)),
+              complementaryRetirementRate: rawRate !== undefined && rawRate !== "" ? Math.max(0, parseFloat(String(rawRate).replace(",", ".")) || 0) : 0,
+            },
+          };
+        });
       }
 
       if (records.length === 0) throw new Error("Aucun enregistrement valide n'a été trouvé.");
-      const computed = records.map((r) => computePmeEmployeeRecord(r, customRates));
+      const computed: PmeMultiEmployeeRecord[] = records.map((rec, idx) => ({
+        id: `pme-imp-${Date.now()}-${idx}`,
+        ...rec,
+        result: computePmePayslipFull(rec.inputs, customRates),
+      }));
       setMultiEmployees(computed);
       setActiveTab("multiEmployee");
-      setImportNotice({ type: "success", message: `Import réussi : ${computed.length} salarié(s) importé(s) et calculés.` });
+      setImportNotice({
+        type: "success",
+        message: `Import réussi : ${computed.length} salarié(s) importé(s) et calculés individuellement.`,
+      });
     } catch (err: any) {
       setImportNotice({ type: "error", message: err.message || "Erreur d'importation." });
     } finally {
@@ -265,7 +531,21 @@ export default function Payroll() {
   };
 
   const downloadPmeTemplateExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(SAMPLE_PME_EMPLOYEES_RAW);
+    const rows = SAMPLE_PME_EMPLOYEES_RAW.map((emp) => ({
+      Matricule: emp.matricule,
+      Nom_Prenom: emp.employeeName,
+      Departement: emp.department,
+      Poste: emp.position,
+      Salaire_Base: emp.inputs.baseSalary,
+      Prime_Presence: emp.inputs.presenceBonus,
+      Prime_Transport: emp.inputs.transportBonus,
+      Chef_Famille: emp.inputs.isHeadOfFamily ? "OUI" : "NON",
+      Enfants_Charge: emp.inputs.childrenCount,
+      Parents_Charge: emp.inputs.dependentParents,
+      Type_Avantage_Fiscal: emp.inputs.fiscalBenefitType,
+      Taux_Avantage_Fiscal: emp.inputs.complementaryRetirementRate,
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Salariés");
     XLSX.writeFile(wb, "Modele_Import_Paie_SAFE_PME.xlsx");
@@ -277,169 +557,114 @@ export default function Payroll() {
       Salarié: e.employeeName,
       Département: e.department,
       Poste: e.position,
-      "Brut Total (DT)": e.grossSalary,
-      "CNSS Salarié (DT)": e.employeeCnss,
-      "Net Imposable (DT)": e.netImposable,
-      "IRPP (DT)": e.irpp,
-      "CSS (DT)": e.css,
-      "Net à Payer (DT)": e.netSalary,
-      "3 Assurances Patronales (DT)": e.totalAssurancesPatronales,
-      "Charges Patronales Totales (DT)": e.totalEmployerCharges,
-      "Coût Global Entreprise (DT)": e.totalCoutGlobal,
+      "Taux Retraite Compl. (%)": e.inputs.complementaryRetirementRate,
+      "Brut Total (DT)": e.result.grossSalary,
+      "CNSS Salarié (DT)": e.result.employeeCnss,
+      "Mutuelle Sal. 10200 (DT)": e.result.employeeInsurance,
+      "Net Imposable (DT)": e.result.netImposable,
+      "IRPP (DT)": e.result.irpp,
+      "CSS (DT)": e.result.css,
+      "Net à Payer (DT)": e.result.netSalary,
+      "3 Assurances Patronales (DT)": e.result.totalAssurancesPatronales,
+      "Charges Patronales Totales (DT)": e.result.totalEmployerCharges,
+      "Coût Global Entreprise (DT)": e.result.totalCoutGlobal,
     }));
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Paie_Multi_Salariés");
     XLSX.writeFile(wb, `Resultats_Paie_Multi_Salaries_${new Date().toISOString().split("T")[0]}.xlsx`);
   };
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [period, setPeriod] = useState(currentPeriod());
 
-  // Paramètres modulables (alignés sur SAFE Grandes Entreprises)
-  const [customRates, setCustomRates] = useState<CustomPmePayrollRates>(() => {
-    try {
-      const raw = window.localStorage.getItem("safe_pme_custom_rates_v1");
-      return raw ? { ...DEFAULT_PME_RATES, ...JSON.parse(raw) } : DEFAULT_PME_RATES;
-    } catch {
-      return DEFAULT_PME_RATES;
-    }
-  });
-  const [savedNotice, setSavedNotice] = useState("");
+  // Calculs temps réel pour la Feuille des Taux Modulables
+  const annualTaxableGross = round3(result.taxableGross * 12);
+  const annualProfExpenses = round3(result.fraisProfessionnels * 12);
+  const annualFamilyDeductions = round3((result.chefDeFamille + result.enfantACharge) * 12);
+  const annualNetAfterGain = round3(result.netImposable * 12);
 
-  // Simulateur de paie individuel
-  const [simBase, setSimBase] = useState(4580.673);
-  const [simPresence, setSimPresence] = useState(18.668);
-  const [simTransport, setSimTransport] = useState(93.216);
-  const [simHeadOfFamily, setSimHeadOfFamily] = useState(false);
-  const [simChildren, setSimChildren] = useState(0);
-  const [simParents, setSimParents] = useState(0);
-  const [simBenefitType, setSimBenefitType] = useState<"COMPLEMENTARY_RETIREMENT" | "RETIREMENT_SAVINGS" | "LIFE_INSURANCE">("COMPLEMENTARY_RETIREMENT");
-  const [simBenefitRate, setSimBenefitRate] = useState(4);
-
-  const active = useMemo(() => (employees.data ?? []).filter((e) => e.status === "actif"), [employees.data]);
-
-  const preview = useMemo(
-    () =>
-      active.map((e) => {
-        const p = computePayslip({
-          baseSalary: e.baseSalary,
-          allowances: e.allowances,
-          headOfFamily: e.headOfFamily,
-          children: e.children,
-        });
-        return { emp: e, ...p };
-      }),
-    [active],
-  );
-
-  const totals = preview.reduce(
-    (a, p) => ({
-      gross: a.gross + p.gross,
-      cnssE: a.cnssE + p.cnssEmployee,
-      cnssR: a.cnssR + (p.totalEmployerCharges ?? p.cnssEmployer),
-      css: a.css + p.css,
-      irpp: a.irpp + p.irpp,
-      net: a.net + p.net,
-    }),
-    { gross: 0, cnssE: 0, cnssR: 0, css: 0, irpp: 0, net: 0 },
-  );
-
-  function generate() {
-    if (preview.length === 0) return;
-    create.mutate({
-      period,
-      label: `Paie ${periodLabel(period)}`,
-      payslips: preview.map((p) => ({
-        employeeId: p.emp.id,
-        employeeName: `${p.emp.firstName} ${p.emp.lastName}`,
-        matricule: p.emp.matricule,
-        baseSalary: p.emp.baseSalary,
-        allowances: p.emp.allowances,
-        gross: p.gross,
-        cnssEmployee: p.cnssEmployee,
-        cnssEmployer: p.totalEmployerCharges ?? p.cnssEmployer,
-        css: p.css,
-        taxableBase: p.taxableBase,
-        irpp: p.irpp,
-        net: p.net,
-      })),
-    });
-  }
-
-  const detail = trpc.payroll.get.useQuery({ id: selected ?? "00000000-0000-0000-0000-000000000000" }, { enabled: !!selected });
-
-  // ── Calculs instantanés du simulateur modulable (alignés sur SAFE GE) ─────────
-  const simGross = Math.round((simBase + simPresence + simTransport) * 1000) / 1000;
-  const simCnssEmployee = Math.round(simGross * (customRates.cnssEmployeeRate / 100) * 1000) / 1000;
-  const simTaxableGross = Math.max(0, Math.round((simGross - simCnssEmployee) * 1000) / 1000);
-  const simAnnualTaxable = simTaxableGross * 12;
-  const simProfExpenses = Math.min(simAnnualTaxable * (customRates.profExpensesRate / 100), customRates.profExpensesMaxCap);
-  const simFamilyDeductions = (simHeadOfFamily ? customRates.headOfFamilyDeduction : 0)
-    + (simChildren * customRates.childDeduction)
-    + (simParents * customRates.parentDeduction);
-
-  // AVANTAGE FISCAL : assis sur le Salaire Brut Total (Base + Primes)
-  const simBenefitAmount = Math.round(simGross * (simBenefitRate / 100) * 1000) / 1000;
-  const simAnnualNetTaxable = Math.max(0, simAnnualTaxable - simProfExpenses - simFamilyDeductions - simBenefitAmount * 12);
-  const simMonthlyNetTaxable = Math.round((simAnnualNetTaxable / 12) * 1000) / 1000;
-
-  // Calcul IRPP par tranche annuel et mensuel
-  let simAnnualIrpp = 0;
-  const tranchesCalcul = IRPP_BRACKETS.map((b) => {
-    const minVal = b.from;
-    const maxVal = b.to === null ? Infinity : b.to;
+  const tranchesCalcul = customRates.irppBrackets.map((b) => {
     let slice = 0;
-    if (simAnnualNetTaxable > minVal) {
-      slice = Math.max(0, Math.min(simAnnualNetTaxable, maxVal) - minVal);
+    if (annualNetAfterGain > b.min) {
+      slice = Math.max(0, Math.min(annualNetAfterGain, b.max) - b.min);
     }
-    const taxAnnual = Math.round(slice * (b.rate / 100) * 1000) / 1000;
-    simAnnualIrpp += taxAnnual;
+    const taxAnnual = round3(slice * (b.rate / 100));
     return {
-      min: minVal,
-      max: maxVal,
+      min: b.min,
+      max: b.max,
       rate: b.rate,
       slice,
       taxAnnual,
-      taxMonthly: Math.round((taxAnnual / 12) * 1000) / 1000,
+      taxMonthly: round3(taxAnnual / 12),
     };
   });
 
-  const simMonthlyIrpp = Math.round((simAnnualIrpp / 12) * 1000) / 1000;
-  const simMonthlyCss = Math.round(((simAnnualNetTaxable * (customRates.cssRate / 100)) / 12) * 1000) / 1000;
-
-  // 3 Assurances modulables 100% Patronales
-  const simAssuranceDeces = Math.round((simGross * (customRates.assuranceDecesRate / 100)) * 1000) / 1000;
-  const simAssuranceInvalidite = Math.round((simGross * (customRates.assuranceInvaliditeRate / 100)) * 1000) / 1000;
-  const effectiveMaladieRate = customRates.assuranceMaladieRate < 0.01 ? customRates.assuranceMaladieRate * 100 : customRates.assuranceMaladieRate;
-  const simAssuranceMaladie = Math.round((simGross * (effectiveMaladieRate / 100)) * 1000) / 1000;
-  const simTotalAssurancesPatronales = Math.round((simAssuranceDeces + simAssuranceInvalidite + simAssuranceMaladie) * 1000) / 1000;
-
-  // Charges patronales totales
-  const simCnssEmployer = Math.round((simGross * (customRates.cnssEmployerRate / 100)) * 1000) / 1000;
-  const simWorkAccident = Math.round((simGross * (customRates.workAccidentRate / 100)) * 1000) / 1000;
-  const simFoprolos = Math.round((simGross * (customRates.foprolosRate / 100)) * 1000) / 1000;
-  const simTotalEmployerCharges = Math.round((simCnssEmployer + simWorkAccident + simFoprolos + simTotalAssurancesPatronales) * 1000) / 1000;
-
-  // Retenues salariales & Net (les 3 assurances ne sont PAS déduites du salarié)
-  const simTotalDeductions = Math.round((simCnssEmployee + simMonthlyIrpp + simMonthlyCss) * 1000) / 1000;
-  const simNet = Math.round((simGross - simTotalDeductions) * 1000) / 1000;
-
   function saveCustomRates() {
     try {
-      window.localStorage.setItem("safe_pme_custom_rates_v1", JSON.stringify(customRates));
-      setSavedNotice("Taux modulables enregistrés et appliqués avec succès !");
-      setTimeout(() => setSavedNotice(""), 3500);
+      const serializable = {
+        ...customRates,
+        irppBrackets: customRates.irppBrackets.map((b) => ({
+          min: b.min,
+          max: Number.isFinite(b.max) ? b.max : null,
+          rate: b.rate,
+        })),
+      };
+      window.localStorage.setItem("safe_pme_custom_rates_v1", JSON.stringify(serializable));
+      setSavedNotice("Taux modulables enregistrés et appliqués au bulletin officiel et à la paie multi-salariés !");
+      setTimeout(() => setSavedNotice(""), 4000);
     } catch {
       setSavedNotice("Erreur lors de l’enregistrement des taux.");
     }
   }
 
+  // Cycles tRPC
+  const runDetail = trpc.payroll.runDetail.useQuery({ id: selected! }, { enabled: !!selected });
+  const active = useMemo(() => (employees.data ?? []).filter((e) => e.active), [employees.data]);
+  const preview = useMemo(
+    () =>
+      active.map((e) => ({
+        emp: e,
+        ...computePayslip({
+          gross: Number(e.baseSalary),
+          headOfFamily: e.headOfFamily,
+          children: e.children,
+        }),
+      })),
+    [active],
+  );
+  const totals = useMemo(
+    () =>
+      preview.reduce(
+        (acc, p) => ({
+          gross: acc.gross + p.gross,
+          net: acc.net + p.net,
+          cnssR: acc.cnssR + p.cnssEmployer,
+          irpp: acc.irpp + p.irpp,
+        }),
+        { gross: 0, net: 0, cnssR: 0, irpp: 0 },
+      ),
+    [preview],
+  );
+
+  function generate() {
+    create.mutate({
+      period,
+      items: preview.map((p) => ({
+        employeeId: p.emp.id,
+        gross: p.gross,
+        cnssEmployee: p.cnssEmployee,
+        cnssEmployer: p.cnssEmployer,
+        taxable: p.taxable,
+        irpp: p.irpp,
+        css: p.css,
+        net: p.net,
+      })),
+    });
+  }
+
   return (
     <>
       <PageHeader
-        title="Gestion de la Paie & Salaires"
-        subtitle="Moteur fiscal tunisien harmonisé · IRPP 8 tranches · CNSS 9,68 % / 17,07 % · CSS 0,5 % · 3 Assurances patronales 1,766 % (Décès 0,5 %, Invalidité 0,784 %, Maladie 0,482 %)"
+        title="Gestion de la Paie & Charges Sociales"
+        subtitle="Moteur fiscal tunisien harmonisé · IRPP 8 tranches · CNSS 9,68 % / 17,07 % · CSS 0,5 % · Rubrique 10200 Mutuelle Salariale · 3 Assurances patronales 1,766 %"
         actions={
           <div className="flex items-center gap-2 flex-wrap">
             <input
@@ -457,10 +682,10 @@ export default function Payroll() {
               📥 {isImporting ? "Import…" : "Import Excel / CSV / PDF"}
             </button>
             <button
-              className={activeTab === "cycles" ? "erp-btn-gold" : "erp-btn-ghost"}
-              onClick={() => setActiveTab("cycles")}
+              className={activeTab === "payslip" ? "erp-btn-gold" : "erp-btn-ghost"}
+              onClick={() => setActiveTab("payslip")}
             >
-              📑 Cycles & Bulletins
+              📑 Bulletin &amp; Fiche de Paie Officielle
             </button>
             <button
               className={activeTab === "ratesSheet" ? "erp-btn-gold" : "erp-btn-ghost"}
@@ -474,11 +699,879 @@ export default function Payroll() {
             >
               👥 Paie Multi-Salariés ({multiEmployees.length})
             </button>
+            <button
+              className={activeTab === "cycles" ? "erp-btn-gold" : "erp-btn-ghost"}
+              onClick={() => setActiveTab("cycles")}
+            >
+              📋 Cycles &amp; Historique
+            </button>
           </div>
         }
       />
 
-      {activeTab === "cycles" ? (
+      {activeTab === "payslip" ? (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-secondary/40 px-4 py-3">
+            <div className="text-[13px] text-foreground">
+              <span className="mr-2">💡</span>
+              <strong>Bulletin de paie officiel généré automatiquement.</strong> Toutes les rubriques modulables (salaires, primes, situation familiale, taux de retraite complémentaire, barèmes) sont centralisées exclusivement dans la{" "}
+              <strong>Feuille des Taux Modulables</strong>.
+            </div>
+            <div className="flex gap-2">
+              <button className="erp-btn-gold" onClick={() => setActiveTab("ratesSheet")}>
+                ⚙️ Modifier les Rubriques Modulables
+              </button>
+              <button className="erp-btn-ghost" onClick={() => window.print()}>
+                🖨️ Imprimer le bulletin
+              </button>
+            </div>
+          </div>
+
+          <article
+            ref={printableSlipRef}
+            className="rounded-xl border border-border bg-card p-6 text-foreground shadow-sm"
+          >
+            <header className="mb-4 flex flex-wrap justify-between gap-4 border-b-2 border-foreground pb-3">
+              <div>
+                <div className="text-lg font-extrabold tracking-tight">SAFE TUNISIE PME EXPRESS SARL</div>
+                <div className="text-xs text-muted-foreground">Immeuble NIDA Technopole Ghazela, Ariana 2088 • Tunisie</div>
+                <div className="mt-0.5 text-[11px] text-muted-foreground">
+                  CNSS : <strong>00551293-42</strong> • Matricule Fiscal : <strong>1234567/A/M/000</strong>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-base font-black tracking-wider">BULLETIN DE PAIE</div>
+                <div className="text-xs font-semibold text-muted-foreground">
+                  Période du 01/{String(new Date().getMonth() + 1).padStart(2, "0")}/{new Date().getFullYear()} au 30/{String(new Date().getMonth() + 1).padStart(2, "0")}/{new Date().getFullYear()}
+                </div>
+                <div className="text-[11px] text-muted-foreground">Paiement le 30 par Virement bancaire</div>
+              </div>
+            </header>
+
+            <div className="mb-4 grid grid-cols-2 gap-2 rounded-lg border border-border bg-secondary/40 px-4 py-2.5 text-xs sm:grid-cols-3">
+              <div><span className="text-muted-foreground">Matricule :</span> <strong>EMP-5553388</strong></div>
+              <div><span className="text-muted-foreground">Emploi :</span> <strong>Collaborateur Cadre / Senior</strong></div>
+              <div><span className="text-muted-foreground">Situation :</span> <strong>{inputs.isHeadOfFamily ? "Marié(e) (Chef de famille)" : "Célibataire"}</strong></div>
+              <div><span className="text-muted-foreground">Enfant(s) :</span> <strong>{inputs.childrenCount}</strong></div>
+              <div>
+                <span className="text-muted-foreground">Parents à charge :</span>{" "}
+                <strong>
+                  {inputs.dependentParents > 0
+                    ? `${inputs.dependentParents} à charge (${((inputs.dependentParents * customRates.parentDeduction) / 12).toFixed(3)} DT)`
+                    : "0"}
+                </strong>
+              </div>
+              <div><span className="text-muted-foreground">Taux Retraite Compl. :</span> <strong>{(Number(inputs.complementaryRetirementRate) || 0).toFixed(3)} %</strong></div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="erp-table text-[12px]">
+                <thead>
+                  <tr className="border-b-2 border-border bg-secondary/70 font-bold">
+                    <th className="w-14">N°</th>
+                    <th>Désignation de la rubrique</th>
+                    <th className="text-right">Base</th>
+                    <th className="text-right">Taux Sal.</th>
+                    <th className="text-right">Gain Sal.</th>
+                    <th className="text-right">Retenue Sal.</th>
+                    <th className="text-right">Taux Pat.</th>
+                    <th className="text-right">Part Patronale</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1010</td>
+                    <td>Salaire de base mensuel</td>
+                    <td className="text-right">{inputs.baseSalary.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right font-bold">{inputs.baseSalary.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                  </tr>
+                  <tr>
+                    <td>1020</td>
+                    <td>Prime de présence</td>
+                    <td className="text-right">{inputs.presenceBonus.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right font-bold">{inputs.presenceBonus.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                  </tr>
+                  <tr>
+                    <td>1030</td>
+                    <td>Prime de transport</td>
+                    <td className="text-right">{inputs.transportBonus.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right font-bold">{inputs.transportBonus.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                  </tr>
+                  <tr className="border-y-2 border-border bg-secondary/60 font-extrabold">
+                    <td colSpan={2}>TOTAL BRUT</td>
+                    <td className="text-right">{result.grossSalary.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right text-primary">{result.grossSalary.toFixed(3)}</td>
+                    <td className="text-right" colSpan={3}>—</td>
+                  </tr>
+                  <tr>
+                    <td>8000</td>
+                    <td>CNSS Normale</td>
+                    <td className="text-right">{result.grossSalary.toFixed(3)}</td>
+                    <td className="text-right">{customRates.cnssEmployeeRate.toFixed(3)} %</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right text-destructive">{result.employeeCnss.toFixed(3)}</td>
+                    <td className="text-right">{(customRates.cnssEmployerRate + customRates.workAccidentRate).toFixed(3)} %</td>
+                    <td className="text-right">{(result.employerCnss + result.workAccident).toFixed(3)}</td>
+                  </tr>
+                  <tr>
+                    <td>9000</td>
+                    <td>Impôt sur le Revenu (IRPP)</td>
+                    <td className="text-right">{result.netImposable.toFixed(3)}</td>
+                    <td className="text-right">Barème</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right font-bold text-destructive">{result.irpp.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                  </tr>
+                  <tr className="bg-emerald-50/70">
+                    <td>9050</td>
+                    <td className="font-semibold text-emerald-800">Gain / IRPP (Avantage fiscal)</td>
+                    <td className="text-right">{result.retirementBonusDeduction.toFixed(3)}</td>
+                    <td className="text-right">Économie</td>
+                    <td className="text-right font-bold text-emerald-700">+{result.gainIrpp.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                  </tr>
+                  <tr>
+                    <td>9400</td>
+                    <td>Contrib° Sociale de Solidarité (CSS)</td>
+                    <td className="text-right">{result.netImposable.toFixed(3)}</td>
+                    <td className="text-right">{customRates.cssRate.toFixed(3)} %</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right text-destructive">{result.css.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                  </tr>
+                  <tr className="bg-emerald-50/70">
+                    <td>9450</td>
+                    <td className="font-semibold text-emerald-800">Gain / CSS (Avantage fiscal)</td>
+                    <td className="text-right">{result.retirementBonusDeduction.toFixed(3)}</td>
+                    <td className="text-right">Économie</td>
+                    <td className="text-right font-bold text-emerald-700">+{result.gainCss.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                  </tr>
+                  <tr>
+                    <td>9910</td>
+                    <td>Assurance Compl. Mutuelle Patronale</td>
+                    <td className="text-right">{result.grossSalary.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">{customRates.employerInsuranceRate.toFixed(3)} %</td>
+                    <td className="text-right">{result.employerInsurance.toFixed(3)}</td>
+                  </tr>
+                  <tr>
+                    <td>9920</td>
+                    <td>1. Assurance Décès Patronale (0.5% × Brut)</td>
+                    <td className="text-right">{result.grossSalary.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">{customRates.assuranceDecesRate.toFixed(3)} %</td>
+                    <td className="text-right font-semibold">{result.assuranceDeces.toFixed(3)}</td>
+                  </tr>
+                  <tr>
+                    <td>9930</td>
+                    <td>2. Assurance Invalidité Patronale</td>
+                    <td className="text-right">{result.grossSalary.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">{customRates.assuranceInvaliditeRate.toFixed(4)} %</td>
+                    <td className="text-right font-semibold">{result.assuranceInvalidite.toFixed(3)}</td>
+                  </tr>
+                  <tr>
+                    <td>9940</td>
+                    <td>3. Assurance Maladie Patronale</td>
+                    <td className="text-right">{result.grossSalary.toFixed(3)}</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">{customRates.assuranceMaladieRate.toFixed(4)} %</td>
+                    <td className="text-right font-semibold">{result.assuranceMaladie.toFixed(3)}</td>
+                  </tr>
+                  <tr className="border-y-2 border-border bg-secondary/60 font-extrabold">
+                    <td colSpan={2}>TOTAL COTISATIONS</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right text-destructive">
+                      {(result.employeeCnss + result.irpp + result.css + result.employeeInsurance).toFixed(3)}
+                    </td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">
+                      {(result.employerCnss + result.workAccident + result.employerInsurance + result.totalAssurancesPatronales).toFixed(3)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>10000</td>
+                    <td className="font-bold">Salaire Net Intermédiaire</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right font-bold">{result.intermediateNet.toFixed(3)}</td>
+                    <td className="text-right" colSpan={3}>—</td>
+                  </tr>
+                  <tr>
+                    <td>10200</td>
+                    <td>Assurance Compl. Mutuelle Salariale</td>
+                    <td className="text-right">{result.grossSalary.toFixed(3)}</td>
+                    <td className="text-right">{(Number(inputs.complementaryRetirementRate) || 0).toFixed(3)} %</td>
+                    <td className="text-right">—</td>
+                    <td className="text-right font-bold text-destructive">{result.employeeInsurance.toFixed(3)}</td>
+                    <td className="text-right" colSpan={2}>—</td>
+                  </tr>
+                  {inputs.dependentParents >= 1 && (
+                    <tr>
+                      <td>11160</td>
+                      <td>Déduction 1er Parent à Charge</td>
+                      <td className="text-right">1,000</td>
+                      <td className="text-right">—</td>
+                      <td className="text-right">—</td>
+                      <td className="text-right text-destructive">{(customRates.parentDeduction / 12).toFixed(3)}</td>
+                      <td className="text-right" colSpan={2}>—</td>
+                    </tr>
+                  )}
+                  {inputs.dependentParents >= 2 && (
+                    <tr>
+                      <td>11170</td>
+                      <td>Déduction 2ème Parent à Charge</td>
+                      <td className="text-right">1,000</td>
+                      <td className="text-right">—</td>
+                      <td className="text-right">—</td>
+                      <td className="text-right text-destructive">{(customRates.parentDeduction / 12).toFixed(3)}</td>
+                      <td className="text-right" colSpan={2}>—</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between rounded-lg bg-primary px-4 py-3 text-primary-foreground">
+              <div>
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground">80500 Net à payer par virement</div>
+                <div className="text-xs font-medium text-white/80">DINARS TUNISIENS (TND)</div>
+              </div>
+              <div className="text-2xl font-black text-gold">{result.netSalary.toFixed(3)} DT</div>
+            </div>
+          </article>
+        </div>
+      ) : activeTab === "ratesSheet" ? (
+        <div className="space-y-4">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-[13px] text-blue-900">
+            <strong>💡 Feuille interactive des rubriques &amp; taux modulables :</strong> Toutes les rubriques éditables (salaires, primes, situation familiale, taux de retraite complémentaire, barèmes sociaux et fiscaux) sont centralisées uniquement ici. Tout est recalculé en temps réel.
+          </div>
+
+          {/* 1. RUBRIQUES MODULABLES DU SALARIÉ */}
+          <Panel
+            title="👤 Rubriques Modulables du Salarié (Rémunération & Situation Familiale)"
+            subtitle="Impact direct sur le Brut, la Retraite Complémentaire (10200) et l'Assiette Fiscale"
+          >
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <Field label="Salaire de base (DT)">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  className="erp-input font-bold"
+                  value={inputs.baseSalary}
+                  onChange={(e) => setInputs({ ...inputs, baseSalary: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Prime de présence (DT)">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  className="erp-input font-bold"
+                  value={inputs.presenceBonus}
+                  onChange={(e) => setInputs({ ...inputs, presenceBonus: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Avantage transport domicile-travail (DT)">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  className="erp-input font-bold"
+                  value={inputs.transportBonus}
+                  onChange={(e) => setInputs({ ...inputs, transportBonus: Number(e.target.value) })}
+                />
+              </Field>
+              <div>
+                <Field label="Taux de retraite complémentaire (%)">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    className="erp-input font-bold"
+                    value={inputs.complementaryRetirementRate}
+                    onChange={(e) => setInputs({ ...inputs, complementaryRetirementRate: Number(e.target.value) })}
+                  />
+                </Field>
+                <p className="mt-1 text-[11px] font-semibold text-blue-700">Rubrique 10200 = Taux (%) × Salaire Brut</p>
+              </div>
+              <Field label="Dispositif d’avantage fiscal">
+                <select
+                  className="erp-input font-semibold"
+                  value={inputs.fiscalBenefitType}
+                  onChange={(e) => setInputs({ ...inputs, fiscalBenefitType: e.target.value as PmePayrollInputs["fiscalBenefitType"] })}
+                >
+                  <option value="COMPLEMENTARY_RETIREMENT">Retraite complémentaire — gains calculés</option>
+                  <option value="RETIREMENT_SAVINGS">Épargne retraite — gains calculés</option>
+                  <option value="LIFE_INSURANCE">Assurance-vie — gains calculés</option>
+                </select>
+              </Field>
+              <Field label="Enfants à charge">
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  className="erp-input font-bold"
+                  value={inputs.childrenCount}
+                  onChange={(e) => setInputs({ ...inputs, childrenCount: Math.max(0, Number(e.target.value) || 0) })}
+                />
+              </Field>
+              <Field label="Parents à charge">
+                <select
+                  className="erp-input font-semibold"
+                  value={inputs.dependentParents}
+                  onChange={(e) => setInputs({ ...inputs, dependentParents: Number(e.target.value) })}
+                >
+                  <option value={0}>Aucun parent à charge (0)</option>
+                  <option value={1}>1er parent à charge</option>
+                  <option value={2}>2ème parent à charge</option>
+                </select>
+              </Field>
+              <div className="flex items-center pt-5">
+                <label className="flex cursor-pointer items-center gap-2 text-sm font-bold">
+                  <input
+                    type="checkbox"
+                    checked={inputs.isHeadOfFamily}
+                    onChange={(e) => setInputs({ ...inputs, isHeadOfFamily: e.target.checked })}
+                    className="h-4 w-4"
+                  />
+                  Chef de famille
+                </label>
+              </div>
+            </div>
+          </Panel>
+
+          {/* 2. TAUX SOCIAUX, ASSURANCES PATRONALES & DÉDUCTIONS FISCALES */}
+          <Panel
+            title="⚖️ Taux Sociaux, Assurances Patronales & Déductions Fiscales Modulables"
+            subtitle="Paramètres légaux et conventionnels"
+          >
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <Field label="Taux CNSS Salarié (%)">
+                <input
+                  type="number"
+                  step="0.01"
+                  className="erp-input font-bold"
+                  value={customRates.cnssEmployeeRate}
+                  onChange={(e) => setCustomRates({ ...customRates, cnssEmployeeRate: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Taux CNSS Patronale (%)">
+                <input
+                  type="number"
+                  step="0.01"
+                  className="erp-input font-bold"
+                  value={customRates.cnssEmployerRate}
+                  onChange={(e) => setCustomRates({ ...customRates, cnssEmployerRate: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Taux Accident du Travail (%)">
+                <input
+                  type="number"
+                  step="0.01"
+                  className="erp-input font-bold"
+                  value={customRates.workAccidentRate}
+                  onChange={(e) => setCustomRates({ ...customRates, workAccidentRate: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Taux FOPROLOS (%)">
+                <input
+                  type="number"
+                  step="0.01"
+                  className="erp-input font-bold"
+                  value={customRates.foprolosRate}
+                  onChange={(e) => setCustomRates({ ...customRates, foprolosRate: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Assurance Mutuelle Patronale (%)">
+                <input
+                  type="number"
+                  step="0.1"
+                  className="erp-input font-bold"
+                  value={customRates.employerInsuranceRate}
+                  onChange={(e) => setCustomRates({ ...customRates, employerInsuranceRate: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Frais Professionnels (%)">
+                <input
+                  type="number"
+                  step="0.1"
+                  className="erp-input font-bold"
+                  value={customRates.profExpensesRate}
+                  onChange={(e) => setCustomRates({ ...customRates, profExpensesRate: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Plafond Frais Pro (DT/an)">
+                <input
+                  type="number"
+                  step="50"
+                  className="erp-input font-bold"
+                  value={customRates.profExpensesMaxCap}
+                  onChange={(e) => setCustomRates({ ...customRates, profExpensesMaxCap: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Déduction Chef de Famille (DT/an)">
+                <input
+                  type="number"
+                  step="50"
+                  className="erp-input font-bold"
+                  value={customRates.headOfFamilyDeduction}
+                  onChange={(e) => setCustomRates({ ...customRates, headOfFamilyDeduction: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Déduction par Enfant (DT/an)">
+                <input
+                  type="number"
+                  step="25"
+                  className="erp-input font-bold"
+                  value={customRates.childDeduction}
+                  onChange={(e) => setCustomRates({ ...customRates, childDeduction: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Déduction par Parent (DT/an)">
+                <input
+                  type="number"
+                  step="50"
+                  className="erp-input font-bold"
+                  value={customRates.parentDeduction}
+                  onChange={(e) => setCustomRates({ ...customRates, parentDeduction: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Taux CSS (%)">
+                <input
+                  type="number"
+                  step="0.1"
+                  className="erp-input font-bold"
+                  value={customRates.cssRate}
+                  onChange={(e) => setCustomRates({ ...customRates, cssRate: Number(e.target.value) })}
+                />
+              </Field>
+              <div>
+                <Field label="1. Assurance Décès Patronale (%)">
+                  <input
+                    type="number"
+                    step="0.001"
+                    className="erp-input font-bold"
+                    value={customRates.assuranceDecesRate}
+                    onChange={(e) => setCustomRates({ ...customRates, assuranceDecesRate: Number(e.target.value) })}
+                  />
+                </Field>
+                <p className="mt-1 text-[11px] font-semibold text-emerald-800">0.5% × Total Brut (Charge Patronale)</p>
+              </div>
+              <div>
+                <Field label="2. Assurance Invalidité Patronale (%)">
+                  <input
+                    type="number"
+                    step="0.000001"
+                    className="erp-input font-bold"
+                    value={customRates.assuranceInvaliditeRate}
+                    onChange={(e) => setCustomRates({ ...customRates, assuranceInvaliditeRate: Number(e.target.value) })}
+                  />
+                </Field>
+                <p className="mt-1 text-[11px] font-semibold text-emerald-800">0.78400752510838% × Total Brut (Charge Patronale)</p>
+              </div>
+              <div>
+                <Field label="3. Assurance Maladie Patronale (%)">
+                  <input
+                    type="number"
+                    step="0.000001"
+                    className="erp-input font-bold"
+                    value={customRates.assuranceMaladieRate}
+                    onChange={(e) => setCustomRates({ ...customRates, assuranceMaladieRate: Number(e.target.value) })}
+                  />
+                </Field>
+                <p className="mt-1 text-[11px] font-semibold text-emerald-800">0,0048212520380679 × Total Brut (Charge Patronale)</p>
+              </div>
+            </div>
+          </Panel>
+
+          {/* 3. DÉTAIL DU CALCUL DU NET IMPOSABLE */}
+          <Panel title="📑 Détail du Calcul du Net Imposable (Assiette IRPP & CSS)" subtitle="Barème Fiscal Officiel Tunisien" noPad>
+            <div className="overflow-x-auto">
+              <table className="erp-table text-[12.5px]">
+                <thead>
+                  <tr className="bg-secondary/60">
+                    <th>Élément de Détermination de l'Assiette</th>
+                    <th className="text-center">Règle légale / Taux</th>
+                    <th className="text-right">Montant Annuel (DT/an)</th>
+                    <th className="text-right">Montant Mensuel (DT/mois)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="font-bold">
+                    <td>1. Salaire Brut Total (Base + Primes)</td>
+                    <td className="text-center text-muted-foreground">Assiette de départ</td>
+                    <td className="text-right">{(result.grossSalary * 12).toFixed(3)} DT</td>
+                    <td className="text-right">{result.grossSalary.toFixed(3)} DT</td>
+                  </tr>
+                  <tr className="text-destructive">
+                    <td>− Cotisation CNSS Salariée Déductible</td>
+                    <td className="text-center">{customRates.cnssEmployeeRate}% du Brut</td>
+                    <td className="text-right">-{(result.employeeCnss * 12).toFixed(3)} DT</td>
+                    <td className="text-right">-{result.employeeCnss.toFixed(3)} DT</td>
+                  </tr>
+                  <tr className="bg-secondary/40 font-bold text-primary">
+                    <td>= Salaire Brut Imposable (Brut − CNSS)</td>
+                    <td className="text-center">Formule légale</td>
+                    <td className="text-right">{annualTaxableGross.toFixed(3)} DT</td>
+                    <td className="text-right">{result.taxableGross.toFixed(3)} DT</td>
+                  </tr>
+                  <tr className="text-amber-800">
+                    <td>− Déduction Frais Professionnels</td>
+                    <td className="text-center">{customRates.profExpensesRate}% (plafonné à {customRates.profExpensesMaxCap} DT/an)</td>
+                    <td className="text-right">-{annualProfExpenses.toFixed(3)} DT</td>
+                    <td className="text-right">-{result.fraisProfessionnels.toFixed(3)} DT</td>
+                  </tr>
+                  <tr className="text-muted-foreground">
+                    <td>− Déductions Familiales (Chef de famille + Enfants)</td>
+                    <td className="text-center">{customRates.headOfFamilyDeduction} DT / {customRates.childDeduction} DT</td>
+                    <td className="text-right">-{annualFamilyDeductions.toFixed(3)} DT</td>
+                    <td className="text-right">-{(result.chefDeFamille + result.enfantACharge).toFixed(3)} DT</td>
+                  </tr>
+                  <tr className="font-medium text-emerald-700">
+                    <td>− Dispositif d’Avantage Fiscal ({inputs.fiscalBenefitType === "COMPLEMENTARY_RETIREMENT" ? "Retraite compl." : inputs.fiscalBenefitType === "RETIREMENT_SAVINGS" ? "Épargne retraite" : "Assurance-vie"})</td>
+                    <td className="text-center">{inputs.complementaryRetirementRate}% assis sur Salaire Brut Total</td>
+                    <td className="text-right">-{(result.retirementBonusDeduction * 12).toFixed(3)} DT</td>
+                    <td className="text-right">-{result.retirementBonusDeduction.toFixed(3)} DT</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr className="bg-primary font-bold text-primary-foreground">
+                    <td colSpan={2}>= REVENU NET IMPOSABLE RETENU (ASSIETTE BARÈME IRPP ET CSS)</td>
+                    <td className="text-right text-gold">{annualNetAfterGain.toFixed(3)} DT</td>
+                    <td className="text-right text-gold">{result.netImposable.toFixed(3)} DT</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </Panel>
+
+          {/* 4. BARÈME PROGRESSIF DE L'IRPP MODULABLE */}
+          <Panel
+            title="Barème Progressif de l’IRPP (Tranches modulables & Calcul par tranche)"
+            subtitle="Barème fiscal 8 tranches"
+            actions={
+              <span className="rounded border border-emerald-200 bg-emerald-100 px-2 py-1 text-[11px] font-bold text-emerald-800">
+                ✓ Tranche 6 vérifiée : 40 000 DT – 50 000 DT (36%, assiette 10 000 DT) conforme loi tunisienne
+              </span>
+            }
+            noPad
+          >
+            <Table head={["Tranche de revenu net imposable", "Taux IRPP (%)", "Assiette Tranche (DT/an)", "IRPP Annuel", "IRPP Mensuel"]}>
+              {tranchesCalcul.map((t, idx) => (
+                <tr key={idx} className={t.slice > 0 ? "font-semibold" : "text-muted-foreground opacity-75"}>
+                  <td>{t.max === Infinity ? `Plus de ${t.min.toLocaleString("fr-FR")} DT` : `De ${t.min.toLocaleString("fr-FR")} DT à ${t.max.toLocaleString("fr-FR")} DT`}</td>
+                  <td className="text-right">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.5"
+                      className="erp-input w-20 text-right font-bold"
+                      value={t.rate}
+                      onChange={(e) => {
+                        const updated = [...customRates.irppBrackets];
+                        updated[idx] = { ...updated[idx], rate: Number(e.target.value) };
+                        setCustomRates({ ...customRates, irppBrackets: updated });
+                      }}
+                    />{" "}
+                    %
+                  </td>
+                  <td className="text-right">{t.slice.toFixed(3)}</td>
+                  <td className="text-right">{t.taxAnnual.toFixed(3)}</td>
+                  <td className="text-right text-destructive">{t.taxMonthly.toFixed(3)}</td>
+                </tr>
+              ))}
+              <tr className="bg-secondary/70 font-bold">
+                <td colSpan={2}>TOTAL IRPP CALCULÉ</td>
+                <td className="text-right">{annualNetAfterGain.toFixed(3)} DT</td>
+                <td className="text-right">{(result.irpp * 12).toFixed(3)} DT</td>
+                <td className="text-right text-destructive">{result.irpp.toFixed(3)} DT</td>
+              </tr>
+            </Table>
+          </Panel>
+
+          {/* 5. RÉSULTAT EN TEMPS RÉEL & ENREGISTREMENT */}
+          <Panel title="📊 Résultat du Recalcul Instantané en Temps Réel" subtitle="Actualisation immédiate">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="rounded-lg bg-secondary/60 p-3">
+                <div className="text-[11px] font-bold text-muted-foreground">1. SALAIRE BRUT</div>
+                <div className="text-[18px] font-extrabold">{result.grossSalary.toFixed(3)} DT</div>
+              </div>
+              <div className="rounded-lg border border-red-100 bg-red-50 p-3">
+                <div className="text-[11px] font-bold text-red-700">2. CNSS SALARIÉ ({customRates.cnssEmployeeRate}%)</div>
+                <div className="text-[18px] font-extrabold text-destructive">-{result.employeeCnss.toFixed(3)} DT</div>
+              </div>
+              <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-3">
+                <div className="text-[11px] font-bold text-emerald-700">3. BRUT IMPOSABLE</div>
+                <div className="text-[18px] font-extrabold text-emerald-800">{result.taxableGross.toFixed(3)} DT</div>
+              </div>
+              <div className="rounded-lg bg-secondary/60 p-3">
+                <div className="text-[11px] font-bold text-muted-foreground">4. MUTUELLE SAL. (10200)</div>
+                <div className="text-[18px] font-extrabold text-destructive">-{result.employeeInsurance.toFixed(3)} DT</div>
+              </div>
+              <div className="rounded-lg border border-red-100 bg-red-50 p-3">
+                <div className="text-[11px] font-bold text-red-700">5. IRPP RETENU MENSUEL</div>
+                <div className="text-[18px] font-extrabold text-destructive">-{result.irpp.toFixed(3)} DT</div>
+              </div>
+              <div className="rounded-lg border border-red-100 bg-red-50 p-3">
+                <div className="text-[11px] font-bold text-red-700">6. CSS MENSUELLE ({customRates.cssRate}%)</div>
+                <div className="text-[18px] font-extrabold text-destructive">-{result.css.toFixed(3)} DT</div>
+              </div>
+              <div className="rounded-lg bg-primary p-3 text-primary-foreground sm:col-span-2">
+                <div className="text-[11px] font-bold uppercase text-gold">NET À PAYER SALARIÉ</div>
+                <div className="text-[22px] font-black text-white">{result.netSalary.toFixed(3)} TND</div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-secondary/40 p-3">
+              <div className="text-[12.5px]">
+                <span className="font-bold">Charges Patronales Totales : </span>
+                <span className="font-extrabold text-primary">{result.totalEmployerCharges.toFixed(3)} DT</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button className="erp-btn-gold" onClick={saveCustomRates}>
+                  💾 Enregistrer Modification
+                </button>
+                <button className="erp-btn-ghost" onClick={() => setActiveTab("payslip")}>
+                  📑 Voir le Bulletin de Paie Officiel
+                </button>
+              </div>
+            </div>
+            {savedNotice && (
+              <p className="mt-2 rounded bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-800">
+                ✅ {savedNotice}
+              </p>
+            )}
+          </Panel>
+        </div>
+      ) : activeTab === "multiEmployee" ? (
+        <div className="space-y-4">
+          <Panel
+            title="👥 Traitement & Calcul de Paie Multi-Salariés en Simultané"
+            subtitle="Importez un fichier Excel, CSV ou PDF. Chaque salarié conserve ses paramètres spécifiques (contrat mutuelle, retraite complémentaire %, enfants, parents)."
+            actions={
+              <div className="flex flex-wrap gap-2">
+                <button className="erp-btn-gold" onClick={() => document.getElementById("pme-file-input")?.click()} disabled={isImporting}>
+                  📥 {isImporting ? "Import…" : "Importer Fichier"}
+                </button>
+                <button className="erp-btn-ghost" onClick={downloadPmeTemplateExcel}>
+                  📊 Modèle Excel
+                </button>
+                <button className="erp-btn-ghost" onClick={handleRecalculateMulti}>
+                  ⚡ Recalculer ({multiEmployees.length})
+                </button>
+                <button className="erp-btn-ghost" onClick={exportPmeResultsExcel}>
+                  📤 Export Excel
+                </button>
+              </div>
+            }
+          >
+            {importNotice && (
+              <div
+                className={`mb-3 flex items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold ${
+                  importNotice.type === "success"
+                    ? "border border-emerald-200 bg-emerald-50 text-emerald-800"
+                    : "border border-red-200 bg-red-50 text-red-800"
+                }`}
+              >
+                <span>{importNotice.type === "success" ? "✅" : "⚠️"} {importNotice.message}</span>
+                <button onClick={() => setImportNotice(null)} className="font-bold">✕</button>
+              </div>
+            )}
+
+            <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <Stat label="Effectif Importé" value={`${multiTotals.count} Salariés`} hint="Calcul simultané" />
+              <Stat label="Masse Salariale Brute" value={`${multiTotals.totalGross.toFixed(3)} DT`} hint={`CNSS ${customRates.cnssEmployeeRate}%`} />
+              <Stat label="Total Mutuelle Sal. (10200)" value={`${multiTotals.totalInsuranceEmp.toFixed(3)} DT`} hint="Selon contrat individuel" tone="gold" />
+              <Stat label="Total Net à Payer" value={`${multiTotals.totalNet.toFixed(3)} DT`} hint="Net viré global" tone="success" />
+            </div>
+
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <span className="text-xs font-bold text-muted-foreground">
+                Grille détaillée ({multiEmployees.length} salariés)
+              </span>
+              <input
+                type="text"
+                placeholder="🔍 Filtrer par matricule ou salarié…"
+                className="erp-input w-64"
+                value={multiSearchTerm}
+                onChange={(e) => setMultiSearchTerm(e.target.value)}
+              />
+            </div>
+
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <table className="erp-table text-[11.5px]">
+                <thead>
+                  <tr className="bg-primary text-primary-foreground">
+                    <th>Matricule</th>
+                    <th>Salarié</th>
+                    <th>Situation Fam. (Spécifique)</th>
+                    <th>Contrat Mutuelle / Retraite Compl. (%)</th>
+                    <th className="text-right">Salaire Brut</th>
+                    <th className="text-right">CNSS Sal.</th>
+                    <th className="text-right">Mutuelle Sal. (10200)</th>
+                    <th className="text-right">IRPP</th>
+                    <th className="text-right">CSS</th>
+                    <th className="text-right">Net à Payer</th>
+                    <th className="text-right">Charges Pat.</th>
+                    <th className="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {multiEmployees
+                    .filter(
+                      (emp) =>
+                        !multiSearchTerm ||
+                        emp.matricule.toLowerCase().includes(multiSearchTerm.toLowerCase()) ||
+                        emp.employeeName.toLowerCase().includes(multiSearchTerm.toLowerCase()),
+                    )
+                    .map((emp) => (
+                      <tr key={emp.id}>
+                        <td className="font-bold text-primary">{emp.matricule}</td>
+                        <td>
+                          <div className="font-bold">{emp.employeeName}</div>
+                          <div className="text-[10.5px] text-muted-foreground">{emp.department} · {emp.position}</div>
+                        </td>
+                        <td>
+                          <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                            <label className="inline-flex cursor-pointer items-center gap-1 font-semibold">
+                              <input
+                                type="checkbox"
+                                checked={emp.inputs.isHeadOfFamily}
+                                onChange={(e) => handleUpdateMultiEmployee(emp.id, { isHeadOfFamily: e.target.checked })}
+                              />
+                              Chef
+                            </label>
+                            <label className="inline-flex items-center gap-1">
+                              Enf:
+                              <input
+                                type="number"
+                                min="0"
+                                step="1"
+                                className="erp-input w-11 px-1 py-0.5 text-center"
+                                value={emp.inputs.childrenCount}
+                                onChange={(e) =>
+                                  handleUpdateMultiEmployee(emp.id, { childrenCount: Math.max(0, Number(e.target.value) || 0) })
+                                }
+                              />
+                            </label>
+                            <label className="inline-flex items-center gap-1">
+                              Par:
+                              <select
+                                className="erp-input px-1 py-0.5"
+                                value={emp.inputs.dependentParents}
+                                onChange={(e) =>
+                                  handleUpdateMultiEmployee(emp.id, { dependentParents: Number(e.target.value) || 0 })
+                                }
+                              >
+                                <option value={0}>0</option>
+                                <option value={1}>1</option>
+                                <option value={2}>2</option>
+                              </select>
+                            </label>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-1 text-[11px]">
+                            <select
+                              className="erp-input max-w-[125px] px-1 py-0.5"
+                              value={emp.inputs.fiscalBenefitType}
+                              onChange={(e) =>
+                                handleUpdateMultiEmployee(emp.id, {
+                                  fiscalBenefitType: e.target.value as PmePayrollInputs["fiscalBenefitType"],
+                                })
+                              }
+                            >
+                              <option value="COMPLEMENTARY_RETIREMENT">Retraite compl.</option>
+                              <option value="RETIREMENT_SAVINGS">Épargne retraite</option>
+                              <option value="LIFE_INSURANCE">Assurance-vie</option>
+                            </select>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              className="erp-input w-14 px-1 py-0.5 text-right font-bold"
+                              value={emp.inputs.complementaryRetirementRate}
+                              onChange={(e) =>
+                                handleUpdateMultiEmployee(emp.id, {
+                                  complementaryRetirementRate: Math.max(0, Number(e.target.value) || 0),
+                                })
+                              }
+                            />
+                            <span>%</span>
+                          </div>
+                        </td>
+                        <td className="text-right font-bold">{emp.result.grossSalary.toFixed(3)}</td>
+                        <td className="text-right text-destructive">{emp.result.employeeCnss.toFixed(3)}</td>
+                        <td className="text-right font-semibold text-destructive">{emp.result.employeeInsurance.toFixed(3)}</td>
+                        <td className="text-right text-destructive">{emp.result.irpp.toFixed(3)}</td>
+                        <td className="text-right text-destructive">{emp.result.css.toFixed(3)}</td>
+                        <td className="bg-emerald-50 text-right font-black text-emerald-700">{emp.result.netSalary.toFixed(3)} DT</td>
+                        <td className="text-right font-semibold text-primary">{emp.result.totalEmployerCharges.toFixed(3)}</td>
+                        <td className="text-center">
+                          <button
+                            className="erp-btn-ghost px-2 py-1 text-[11px]"
+                            onClick={() => handleSelectEmployeeForPayslip(emp)}
+                            title="Charger dans le bulletin individuel"
+                          >
+                            👁️ Bulletin
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+                <tfoot>
+                  <tr className="bg-secondary/70 font-extrabold">
+                    <td colSpan={4}>TOTAL ({multiTotals.count} Salariés)</td>
+                    <td className="text-right">{multiTotals.totalGross.toFixed(3)} DT</td>
+                    <td className="text-right text-destructive">{multiTotals.totalCnss.toFixed(3)} DT</td>
+                    <td className="text-right text-destructive">{multiTotals.totalInsuranceEmp.toFixed(3)} DT</td>
+                    <td className="text-right text-destructive">{multiTotals.totalIrpp.toFixed(3)} DT</td>
+                    <td className="text-right text-destructive">{multiTotals.totalCss.toFixed(3)} DT</td>
+                    <td className="bg-emerald-100 text-right text-emerald-800">{multiTotals.totalNet.toFixed(3)} DT</td>
+                    <td className="text-right text-primary">{multiTotals.totalEmployer.toFixed(3)} DT</td>
+                    <td className="text-center">—</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </Panel>
+        </div>
+      ) : (
         <>
           <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <Stat label="Salariés actifs" value={String(active.length)} hint="Base de calcul du prochain cycle" />
@@ -518,388 +1611,40 @@ export default function Payroll() {
                     <tr key={r.id} className="cursor-pointer" onClick={() => setSelected(r.id)}>
                       <td className="font-medium">{periodLabel(r.period)}</td>
                       <td>
-                        <Badge tone="success">Validée</Badge>
+                        <Badge tone={r.status === "PAID" ? "success" : "gold"}>{r.status}</Badge>
                       </td>
-                      <td className="text-right"><Money value={r.totalGross} /></td>
-                      <td className="text-right"><Money value={r.totalCnssEmployee} /></td>
-                      <td className="text-right"><Money value={r.totalIrpp} /></td>
-                      <td className="text-right"><Money value={r.totalNet} bold /></td>
+                      <td className="text-right"><Money value={Number(r.totalGross)} /></td>
+                      <td className="text-right"><Money value={Number(r.totalCnssEmp)} /></td>
+                      <td className="text-right"><Money value={Number(r.totalIrpp)} /></td>
+                      <td className="text-right"><Money value={Number(r.totalNet)} bold /></td>
                     </tr>
                   ))}
                 </Table>
               )}
             </Panel>
 
-            <Panel title="Synthèse Légale Tunisienne" subtitle="Taux sociaux & fiscaux en vigueur">
-              <div className="space-y-2 text-[12.5px]">
-                <div className="flex justify-between border-b pb-1">
-                  <span className="text-muted-foreground">CNSS Salarié</span>
-                  <span className="font-semibold">{customRates.cnssEmployeeRate} %</span>
-                </div>
-                <div className="flex justify-between border-b pb-1">
-                  <span className="text-muted-foreground">CNSS Patronale + AT</span>
-                  <span className="font-semibold">{customRates.cnssEmployerRate + customRates.workAccidentRate} %</span>
-                </div>
-                <div className="flex justify-between border-b pb-1">
-                  <span className="text-muted-foreground">FOPROLOS</span>
-                  <span className="font-semibold">{customRates.foprolosRate} %</span>
-                </div>
-                <div className="flex justify-between border-b pb-1">
-                  <span className="text-muted-foreground">CSS (Solidarité)</span>
-                  <span className="font-semibold">{customRates.cssRate} %</span>
-                </div>
-                <div className="rounded-md bg-secondary/50 p-2 text-[11.5px] leading-relaxed">
-                  <p className="font-semibold text-foreground">3 Assurances Patronales (1,766 %) :</p>
-                  <p className="text-muted-foreground mt-0.5">
-                    • Décès : 0,5% × Brut<br />
-                    • Invalidité : 0,784% × Brut<br />
-                    • Maladie : 0,482% × Brut
-                  </p>
-                </div>
-                <div className="rounded-md bg-gold-soft/50 p-2 text-[11px] leading-relaxed text-muted-foreground">
-                  Tranche 6 IRPP vérifiée : 40 000 DT – 50 000 DT à 36 % (assiette 10 000 DT).
-                </div>
-              </div>
+            <Panel title="Détail du cycle" subtitle={selected ? "Ventilation par salarié" : "Sélectionnez un cycle"} noPad>
+              {!selected ? (
+                <EmptyState icon="⌖" title="Aucun cycle sélectionné" description="Cliquez sur une ligne à gauche pour inspecter les bulletins." />
+              ) : runDetail.isLoading ? (
+                <Loading />
+              ) : runDetail.data ? (
+                <Table head={["Salarié", "Brut", "IRPP", "Net"]}>
+                  {runDetail.data.items.map((it) => (
+                    <tr key={it.id}>
+                      <td className="font-medium">
+                        {it.firstName} {it.lastName}
+                      </td>
+                      <td className="text-right"><Money value={Number(it.gross)} /></td>
+                      <td className="text-right"><Money value={Number(it.irpp)} /></td>
+                      <td className="text-right"><Money value={Number(it.net)} bold /></td>
+                    </tr>
+                  ))}
+                </Table>
+              ) : null}
             </Panel>
           </div>
-
-          {/* Bulletins du cycle sélectionné */}
-          {selected && detail.data && (
-            <Panel
-              title={`Bulletins — ${periodLabel(detail.data.period)}`}
-              className="mt-4"
-              noPad
-              actions={
-                <button className="erp-btn-ghost h-8 text-[12px] no-print" onClick={() => window.print()}>
-                  🖨️ Imprimer les bulletins
-                </button>
-              }
-            >
-              <Table
-                head={[
-                  "Salarié",
-                  "Matricule",
-                  "Brut",
-                  "CNSS 9,68 %",
-                  "CSS 0,5 %",
-                  "Base imposable",
-                  "IRPP",
-                  "Net à payer",
-                  "Charges Employeur",
-                ]}
-              >
-                {detail.data.payslips.map((p) => (
-                  <tr key={p.id}>
-                    <td className="font-medium">{p.employeeName}</td>
-                    <td className="font-mono text-[12px] text-muted-foreground">{p.matricule}</td>
-                    <td className="text-right"><Money value={p.gross} /></td>
-                    <td className="text-right text-destructive"><Money value={p.cnssEmployee} /></td>
-                    <td className="text-right text-destructive"><Money value={p.css} /></td>
-                    <td className="text-right font-semibold"><Money value={p.taxableBase} /></td>
-                    <td className="text-right text-destructive"><Money value={p.irpp} /></td>
-                    <td className="text-right text-primary font-bold"><Money value={p.net} bold /></td>
-                    <td className="text-right text-muted-foreground font-semibold"><Money value={p.cnssEmployer} /></td>
-                  </tr>
-                ))}
-                <tr className="bg-gold-soft/40 font-semibold">
-                  <td colSpan={2}>Totaux du cycle</td>
-                  <td className="text-right"><Money value={detail.data.totalGross} bold /></td>
-                  <td className="text-right text-destructive"><Money value={detail.data.totalCnssEmployee} bold /></td>
-                  <td className="text-right text-destructive"><Money value={detail.data.totalCss} bold /></td>
-                  <td />
-                  <td className="text-right text-destructive"><Money value={detail.data.totalIrpp} bold /></td>
-                  <td className="text-right text-primary font-bold"><Money value={detail.data.totalNet} bold /></td>
-                  <td className="text-right font-semibold"><Money value={detail.data.totalCnssEmployer} bold /></td>
-                </tr>
-              </Table>
-            </Panel>
-          )}
         </>
-      ) : (
-        /* ── ONGLET 2 : FEUILLE DES TAUX MODULABLES (ALIGNÉE SUR SAFE GE) ── */
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4">
-            <div>
-              <h2 className="text-[16px] font-bold text-foreground">Paramètres & Barèmes Modulables de Paie</h2>
-              <p className="text-[12.5px] text-muted-foreground">
-                Feuille interactive harmonisée avec SAFE Grandes Entreprises. Les 3 assurances sont 100% patronales. L'avantage fiscal est calculé sur le Salaire Brut Total.
-              </p>
-            </div>
-            <button className="erp-btn-gold" onClick={saveCustomRates}>
-              💾 Enregistrer les Modifications
-            </button>
-          </div>
-
-          {savedNotice && (
-            <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-[13px] font-semibold text-emerald-800">
-              ✅ {savedNotice}
-            </div>
-          )}
-
-          {/* Grille des paramètres modulables */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Field label="Taux CNSS Salarié (%)">
-              <input
-                type="number"
-                step="0.01"
-                className="erp-input font-bold"
-                value={customRates.cnssEmployeeRate}
-                onChange={(e) => setCustomRates({ ...customRates, cnssEmployeeRate: Number(e.target.value) })}
-              />
-            </Field>
-            <Field label="Taux CNSS Patronale (%)">
-              <input
-                type="number"
-                step="0.01"
-                className="erp-input font-bold"
-                value={customRates.cnssEmployerRate}
-                onChange={(e) => setCustomRates({ ...customRates, cnssEmployerRate: Number(e.target.value) })}
-              />
-            </Field>
-            <Field label="Taux Accident du Travail (%)">
-              <input
-                type="number"
-                step="0.01"
-                className="erp-input font-bold"
-                value={customRates.workAccidentRate}
-                onChange={(e) => setCustomRates({ ...customRates, workAccidentRate: Number(e.target.value) })}
-              />
-            </Field>
-            <Field label="Taux CSS (%)">
-              <input
-                type="number"
-                step="0.1"
-                className="erp-input font-bold"
-                value={customRates.cssRate}
-                onChange={(e) => setCustomRates({ ...customRates, cssRate: Number(e.target.value) })}
-              />
-            </Field>
-            <Field label="Frais Professionnels (%)">
-              <input
-                type="number"
-                step="0.5"
-                className="erp-input font-bold"
-                value={customRates.profExpensesRate}
-                onChange={(e) => setCustomRates({ ...customRates, profExpensesRate: Number(e.target.value) })}
-              />
-            </Field>
-            <Field label="Plafond Frais Pro (DT/an)">
-              <input
-                type="number"
-                step="100"
-                className="erp-input font-bold"
-                value={customRates.profExpensesMaxCap}
-                onChange={(e) => setCustomRates({ ...customRates, profExpensesMaxCap: Number(e.target.value) })}
-              />
-            </Field>
-            <Field label="Déduction Chef de Famille (DT/an)">
-              <input
-                type="number"
-                step="50"
-                className="erp-input font-bold"
-                value={customRates.headOfFamilyDeduction}
-                onChange={(e) => setCustomRates({ ...customRates, headOfFamilyDeduction: Number(e.target.value) })}
-              />
-            </Field>
-            <Field label="Déduction par Enfant (DT/an)">
-              <input
-                type="number"
-                step="25"
-                className="erp-input font-bold"
-                value={customRates.childDeduction}
-                onChange={(e) => setCustomRates({ ...customRates, childDeduction: Number(e.target.value) })}
-              />
-            </Field>
-
-            {/* 3 Assurances modulables exclusivement patronales */}
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3">
-              <Field label="1. Assurance Décès Patronale (%)">
-                <input
-                  type="number"
-                  step="0.01"
-                  className="erp-input font-bold"
-                  value={customRates.assuranceDecesRate}
-                  onChange={(e) => setCustomRates({ ...customRates, assuranceDecesRate: Number(e.target.value) })}
-                />
-              </Field>
-              <p className="mt-1 text-[11px] font-semibold text-emerald-800">0.5% × Total Brut (Charge Patronale)</p>
-            </div>
-
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3">
-              <Field label="2. Assurance Invalidité Patronale (%)">
-                <input
-                  type="number"
-                  step="0.000001"
-                  className="erp-input font-bold"
-                  value={customRates.assuranceInvaliditeRate}
-                  onChange={(e) => setCustomRates({ ...customRates, assuranceInvaliditeRate: Number(e.target.value) })}
-                />
-              </Field>
-              <p className="mt-1 text-[11px] font-semibold text-emerald-800">0.78400752510838% × Total Brut (Charge Patronale)</p>
-            </div>
-
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3">
-              <Field label="3. Assurance Maladie Patronale (%)">
-                <input
-                  type="number"
-                  step="0.000001"
-                  className="erp-input font-bold"
-                  value={customRates.assuranceMaladieRate}
-                  onChange={(e) => setCustomRates({ ...customRates, assuranceMaladieRate: Number(e.target.value) })}
-                />
-              </Field>
-              <p className="mt-1 text-[11px] font-semibold text-emerald-800">0,0048212520380679 × Total Brut (Charge Patronale)</p>
-            </div>
-
-            <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-3">
-              <Field label="Dispositif d’Avantage Fiscal">
-                <select
-                  className="erp-input font-semibold"
-                  value={simBenefitType}
-                  onChange={(e) => setSimBenefitType(e.target.value as any)}
-                >
-                  <option value="COMPLEMENTARY_RETIREMENT">Retraite complémentaire</option>
-                  <option value="RETIREMENT_SAVINGS">Épargne retraite</option>
-                  <option value="LIFE_INSURANCE">Assurance-vie</option>
-                </select>
-              </Field>
-              <p className="mt-1 text-[11px] font-semibold text-blue-800">Assis sur Salaire Brut Total (Base + Primes)</p>
-            </div>
-          </div>
-
-          {/* DÉTAIL DU CALCUL DU NET IMPOSABLE */}
-          <Panel title="📑 Détail du Calcul du Net Imposable (Assiette IRPP & CSS)" subtitle="Décomposition officielle tunisienne" noPad>
-            <div className="overflow-x-auto">
-              <table className="erp-table text-[12.5px]">
-                <thead>
-                  <tr className="bg-secondary/60">
-                    <th>Élément de Détermination de l'Assiette</th>
-                    <th className="text-center">Règle légale / Taux</th>
-                    <th className="text-right">Montant Annuel (DT/an)</th>
-                    <th className="text-right">Montant Mensuel (DT/mois)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="font-bold">
-                    <td>1. Salaire Brut Total (Base + Primes)</td>
-                    <td className="text-center text-muted-foreground">Assiette de base</td>
-                    <td className="text-right">{(simGross * 12).toFixed(3)} DT</td>
-                    <td className="text-right">{simGross.toFixed(3)} DT</td>
-                  </tr>
-                  <tr className="text-destructive">
-                    <td>− Cotisation CNSS Salariée Déductible</td>
-                    <td className="text-center">{customRates.cnssEmployeeRate}% du Brut</td>
-                    <td className="text-right">-{(simCnssEmployee * 12).toFixed(3)} DT</td>
-                    <td className="text-right">-{simCnssEmployee.toFixed(3)} DT</td>
-                  </tr>
-                  <tr className="bg-secondary/40 font-bold text-primary">
-                    <td>= Salaire Brut Imposable (Brut − CNSS)</td>
-                    <td className="text-center">Formule légale</td>
-                    <td className="text-right">{simAnnualTaxable.toFixed(3)} DT</td>
-                    <td className="text-right">{simTaxableGross.toFixed(3)} DT</td>
-                  </tr>
-                  <tr className="text-amber-800">
-                    <td>− Déduction Frais Professionnels</td>
-                    <td className="text-center">{customRates.profExpensesRate}% (plafonné à {customRates.profExpensesMaxCap} DT/an)</td>
-                    <td className="text-right">-{simProfExpenses.toFixed(3)} DT</td>
-                    <td className="text-right">-{(simProfExpenses / 12).toFixed(3)} DT</td>
-                  </tr>
-                  <tr className="text-muted-foreground">
-                    <td>− Déductions Familiales (Chef de famille + Enfants + Parents)</td>
-                    <td className="text-center">300 DT / 100 DT / 1 750 DT</td>
-                    <td className="text-right">-{simFamilyDeductions.toFixed(3)} DT</td>
-                    <td className="text-right">-{(simFamilyDeductions / 12).toFixed(3)} DT</td>
-                  </tr>
-                  <tr className="text-emerald-700 font-medium">
-                    <td>− Dispositif d’Avantage Fiscal ({simBenefitType === "COMPLEMENTARY_RETIREMENT" ? "Retraite compl." : "Épargne retraite"})</td>
-                    <td className="text-center">{simBenefitRate}% assis sur Salaire Brut Total (Base + Primes)</td>
-                    <td className="text-right">-{(simBenefitAmount * 12).toFixed(3)} DT</td>
-                    <td className="text-right">-{simBenefitAmount.toFixed(3)} DT</td>
-                  </tr>
-                </tbody>
-                <tfoot>
-                  <tr className="bg-primary text-primary-foreground font-bold">
-                    <td colSpan={2}>= REVENU NET IMPOSABLE RETENU (ASSIETTE BARÈME IRPP ET CSS)</td>
-                    <td className="text-right text-gold">{simAnnualNetTaxable.toFixed(3)} DT</td>
-                    <td className="text-right text-gold">{simMonthlyNetTaxable.toFixed(3)} DT</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </Panel>
-
-          {/* TABLEAU DES TRANCHES IRPP */}
-          <Panel
-            title="Barème Progressif de l’IRPP & Calcul par Tranche"
-            subtitle="Barème fiscal 8 tranches"
-            actions={
-              <span className="rounded bg-emerald-100 px-2 py-1 text-[11px] font-bold text-emerald-800 border border-emerald-200">
-                ✓ Tranche 6 vérifiée : 40 000 DT – 50 000 DT (36%, assiette 10 000 DT) conforme loi tunisienne
-              </span>
-            }
-            noPad
-          >
-            <Table head={["Tranche de revenu net imposable", "Taux", "Assiette Tranche (DT/an)", "IRPP Annuel", "IRPP Mensuel"]}>
-              {tranchesCalcul.map((t, idx) => (
-                <tr key={idx} className={t.slice > 0 ? "font-semibold" : "text-muted-foreground opacity-70"}>
-                  <td>{t.max === Infinity ? `Plus de ${t.min.toLocaleString("fr-FR")} DT` : `De ${t.min.toLocaleString("fr-FR")} DT à ${t.max.toLocaleString("fr-FR")} DT`}</td>
-                  <td>{t.rate} %</td>
-                  <td className="text-right">{t.slice.toFixed(3)}</td>
-                  <td className="text-right">{t.taxAnnual.toFixed(3)}</td>
-                  <td className="text-right text-destructive">{t.taxMonthly.toFixed(3)}</td>
-                </tr>
-              ))}
-              <tr className="bg-secondary/70 font-bold">
-                <td colSpan={2}>TOTAL IRPP CALCULÉ</td>
-                <td className="text-right">{simAnnualNetTaxable.toFixed(3)} DT</td>
-                <td className="text-right">{simAnnualIrpp.toFixed(3)} DT</td>
-                <td className="text-right text-destructive">{simMonthlyIrpp.toFixed(3)} DT</td>
-              </tr>
-            </Table>
-          </Panel>
-
-          {/* RECALCUL EN TEMPS RÉEL */}
-          <Panel title="📊 Résultat du Recalcul Instantané en Temps Réel" subtitle="Simulation avec les taux modulables">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="rounded-lg bg-secondary/60 p-3">
-                <div className="text-[11px] font-bold text-muted-foreground">1. SALAIRE BRUT</div>
-                <div className="text-[18px] font-extrabold text-foreground">{simGross.toFixed(3)} DT</div>
-              </div>
-              <div className="rounded-lg bg-red-50 p-3 border border-red-100">
-                <div className="text-[11px] font-bold text-red-700">2. CNSS SALARIÉ ({customRates.cnssEmployeeRate}%)</div>
-                <div className="text-[18px] font-extrabold text-destructive">-{simCnssEmployee.toFixed(3)} DT</div>
-              </div>
-              <div className="rounded-lg bg-emerald-50 p-3 border border-emerald-100">
-                <div className="text-[11px] font-bold text-emerald-700">3. BRUT IMPOSABLE</div>
-                <div className="text-[18px] font-extrabold text-emerald-800">{simTaxableGross.toFixed(3)} DT</div>
-              </div>
-              <div className="rounded-lg bg-secondary/60 p-3">
-                <div className="text-[11px] font-bold text-muted-foreground">4. NET IMPOSABLE MENSUEL</div>
-                <div className="text-[18px] font-extrabold text-foreground">{simMonthlyNetTaxable.toFixed(3)} DT</div>
-              </div>
-              <div className="rounded-lg bg-red-50 p-3 border border-red-100">
-                <div className="text-[11px] font-bold text-red-700">5. IRPP RETENU MENSUEL</div>
-                <div className="text-[18px] font-extrabold text-destructive">-{simMonthlyIrpp.toFixed(3)} DT</div>
-              </div>
-              <div className="rounded-lg bg-red-50 p-3 border border-red-100">
-                <div className="text-[11px] font-bold text-red-700">6. CSS MENSUELLE ({customRates.cssRate}%)</div>
-                <div className="text-[18px] font-extrabold text-destructive">-{simMonthlyCss.toFixed(3)} DT</div>
-              </div>
-              <div className="rounded-lg bg-primary p-3 text-primary-foreground sm:col-span-2">
-                <div className="text-[11px] text-muted-foreground uppercase font-bold text-gold">NET À PAYER SALARIÉ</div>
-                <div className="text-[22px] font-black text-white">{simNet.toFixed(3)} TND</div>
-              </div>
-            </div>
-
-            <div className="mt-3 rounded-lg border border-border bg-secondary/40 p-3 flex justify-between items-center text-[12.5px]">
-              <div>
-                <span className="font-bold text-foreground">Charges Patronales Totales : </span>
-                <span className="text-muted-foreground">CNSS employeur + Accident travail + FOPROLOS + 3 Assurances patronales (Décès 0,5%, Invalidité 0,784%, Maladie 0,482%)</span>
-              </div>
-              <span className="font-extrabold text-foreground text-[15px]">{simTotalEmployerCharges.toFixed(3)} DT</span>
-            </div>
-          </Panel>
-        </div>
       )}
 
       {/* Modale de lancement de cycle */}
@@ -909,7 +1654,7 @@ export default function Payroll() {
             <input type="month" className="erp-input" value={period} onChange={(e) => setPeriod(e.target.value)} />
           </Field>
           <div className="rounded-lg bg-gold-soft/50 p-3 text-[12px] leading-relaxed">
-            <p className="font-semibold text-[hsl(38_72%_30%)]">Taux et Barèmes de Paie Harmonises</p>
+            <p className="font-semibold text-[hsl(38_72%_30%)]">Taux et Barèmes de Paie Harmonisés</p>
             <p className="mt-1 text-muted-foreground">
               CNSS salarié {customRates.cnssEmployeeRate} % · CNSS employeur {customRates.cnssEmployerRate + customRates.workAccidentRate} % · CSS {customRates.cssRate} % · Assurances patronales 1,766 % (Décès 0,5 %, Invalidité 0,784 %, Maladie 0,482 %) · IRPP 8 tranches
             </p>

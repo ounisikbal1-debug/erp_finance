@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   parseMultiEmployeeFile,
   calculateAllEmployees,
+  calculateSinglePayslip,
   computeMultiEmployeeTotals,
   SAMPLE_EMPLOYEES,
   downloadExcelTemplate,
@@ -40,6 +41,7 @@ interface PayrollSimulationResult {
   assuranceDeces: number;
   assuranceInvalidite: number;
   assuranceMaladie: number;
+  employeeInsurance: number;
   totalImpots: number;
   totalGain: number;
   totalImpotsApresGains: number;
@@ -89,6 +91,7 @@ const RESULT_NUMBER_FIELDS: Array<keyof PayrollSimulationResult> = [
   'assuranceDeces',
   'assuranceInvalidite',
   'assuranceMaladie',
+  'employeeInsurance',
   'totalImpots',
   'totalGain',
   'totalImpotsApresGains',
@@ -202,15 +205,9 @@ function computePayslipFromCustomRates(
   const annualFamilyDeductions = (inputs.isHeadOfFamily ? rates.headOfFamilyDeduction : 0)
     + ((Number(inputs.childrenCount) || 0) * rates.childDeduction);
 
-  const benefitRate = Number(inputs.complementaryRetirementRate) || 0;
-  // Calcul de l’Avantage fiscal assis sur le Salaire Brut Total (Base + Primes)
-  const retirementBonusDeduction = inputs.fiscalBenefitType === 'COMPLEMENTARY_RETIREMENT'
-    ? round3(grossSalary * (benefitRate / 100))
-    : inputs.fiscalBenefitType === 'RETIREMENT_SAVINGS'
-      ? round3(grossSalary * ((benefitRate > 0 ? benefitRate : 4) / 100))
-      : inputs.fiscalBenefitType === 'LIFE_INSURANCE'
-        ? round3(grossSalary * ((benefitRate > 0 ? benefitRate : 3) / 100))
-        : 0;
+  const benefitRate = Math.max(0, Number(inputs.complementaryRetirementRate) || 0);
+  // Calcul de l’Avantage fiscal assis sur le Salaire Brut Total (Base + Primes) selon le contrat mutuelle spécifique du salarié
+  const retirementBonusDeduction = round3(grossSalary * (benefitRate / 100));
 
   const annualNetBeforeGain = Math.max(0, annualTaxableGross - annualProfExpenses - annualFamilyDeductions);
   const annualNetAfterGain = Math.max(0, annualNetBeforeGain - retirementBonusDeduction * 12);
@@ -244,7 +241,8 @@ function computePayslipFromCustomRates(
   const effectiveMaladieRate = rates.assuranceMaladieRate < 0.01 ? rates.assuranceMaladieRate * 100 : rates.assuranceMaladieRate;
   const assuranceMaladie = round3(grossSalary * (effectiveMaladieRate / 100));
 
-  const employeeInsurance = round3(grossSalary * (rates.employeeInsuranceRate / 100));
+  // Assurance Compl. Mutuelle Salariale = Taux de retraite complémentaire (%) * salaire brut (spécifique au salarié)
+  const employeeInsurance = retirementBonusDeduction;
   const parentACharge = round3(((Number(inputs.dependentParents) || 0) * rates.parentDeduction) / 12);
   const intermediateNet = round3(grossSalary - employeeCnss - irpp - css);
   // Retenues salariales uniquement : les 3 assurances sont exclusivement des charges patronales
@@ -272,6 +270,7 @@ function computePayslipFromCustomRates(
     assuranceDeces,
     assuranceInvalidite,
     assuranceMaladie,
+    employeeInsurance,
     totalImpots,
     totalGain,
     totalImpotsApresGains,
@@ -286,7 +285,9 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   const [inputs, setInputs] = useState(INITIAL_INPUTS);
   const [availability, setAvailability] = useState<PayrollAvailability | null>(null);
   const [availabilityError, setAvailabilityError] = useState('');
-  const [result, setResult] = useState<PayrollSimulationResult | null>(null);
+  const [result, setResult] = useState<PayrollSimulationResult>(() =>
+    computePayslipFromCustomRates(INITIAL_INPUTS, loadSavedCustomRates(), 'TN')
+  );
 
   // Feuille des Taux & Barèmes Modulables (chargée depuis localStorage)
   const [customRates, setCustomRates] = useState<CustomPayrollRates>(loadSavedCustomRates);
@@ -344,6 +345,20 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
     setActiveTab('payslip');
   };
 
+  const handleUpdateMultiEmployee = (empId: string, changes: Partial<PayrollSimulationInputs>) => {
+    setMultiEmployees((prev) =>
+      prev.map((emp) => {
+        if (emp.id !== empId) return emp;
+        const updatedInputs = { ...emp.inputs, ...changes };
+        return {
+          ...emp,
+          inputs: updatedInputs,
+          result: calculateSinglePayslip(updatedInputs, customRates, 'TN'),
+        };
+      })
+    );
+  };
+
   const multiTotals: MultiEmployeeTotals = computeMultiEmployeeTotals(multiEmployees);
 
   const canCalculate = canUsePayrollCalculator(availability);
@@ -355,10 +370,14 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   }, []);
 
   useEffect(() => {
+    const computed = computePayslipFromCustomRates(inputs, customRates, availability?.countryCode ?? 'TN');
+    setResult(computed);
+  }, [inputs, customRates, availability?.countryCode]);
+
+  useEffect(() => {
     let active = true;
     setAvailability(null);
     setAvailabilityError('');
-    setResult(null);
     setCalculationError('');
     if (!accessToken) return () => { active = false; };
 
@@ -405,7 +424,6 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
 
   const updateInputs = (changes: Partial<PayrollSimulationInputs>) => {
     setInputs((previous) => ({ ...previous, ...changes }));
-    setResult(null);
     setCalculationError('');
   };
 
@@ -528,7 +546,8 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   const modularMonthlyWorkAccident = Math.round((modularGross * (customRates.workAccidentRate / 100)) * 1000) / 1000;
   const modularMonthlyFoprolos = Math.round((modularGross * (customRates.foprolosRate / 100)) * 1000) / 1000;
   const modularMonthlyEmployerInsurance = Math.round((modularGross * (customRates.employerInsuranceRate / 100)) * 1000) / 1000;
-  const modularMonthlyEmployeeInsurance = Math.round((modularGross * (customRates.employeeInsuranceRate / 100)) * 1000) / 1000;
+  const effectiveBenefitRateRealtime = Number(inputs.complementaryRetirementRate) || 4;
+  const modularMonthlyEmployeeInsurance = Math.round((modularGross * (effectiveBenefitRateRealtime / 100)) * 1000) / 1000;
   const modularMonthlyAssuranceDeces = Math.round((modularGross * (customRates.assuranceDecesRate / 100)) * 1000) / 1000;
   const modularMonthlyAssuranceInvalidite = Math.round((modularGross * (customRates.assuranceInvaliditeRate / 100)) * 1000) / 1000;
   const effectiveMaladieRateRealtime = customRates.assuranceMaladieRate < 0.01 ? customRates.assuranceMaladieRate * 100 : customRates.assuranceMaladieRate;
@@ -770,25 +789,46 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             <div style={{ fontSize: '0.82rem', color: '#334155' }}>
               Enregistrez vos modifications pour les appliquer à la fiche de paie calculée et à la préparation CNSS / IRPP.
             </div>
-            <button
-              type="button"
-              onClick={saveCustomRates}
-              style={{
-                background: '#059669',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '10px 18px',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
-            >
-              💾 Enregistrer Modification
-            </button>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={saveCustomRates}
+                style={{
+                  background: '#059669',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 18px',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                💾 Enregistrer Modification
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('payslip')}
+                style={{
+                  background: '#2563EB',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 18px',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                📑 Voir le Bulletin de Paie Officiel
+              </button>
+            </div>
           </div>
           {savedRatesNotice && (
             <div role="status" style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '8px', color: '#065F46', padding: '10px 14px', fontWeight: 700, fontSize: '0.84rem' }}>
@@ -947,165 +987,272 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             <strong>💡 Feuille interactive de simulation des taux :</strong> Vous pouvez modifier chaque taux et plafond dans les cases ci-dessous. Le brut imposable (<code>Salaire Brut - CNSS</code>), l’IRPP et le salaire net se recalculent immédiatement en temps réel.
           </div>
 
-          {/* Grille des Taux Sociaux et Fiscaux Modulables */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Taux CNSS Salarié (%)
-              <input
-                type="number"
-                step="0.01"
-                value={customRates.cnssEmployeeRate}
-                onChange={(e) => setCustomRates({ ...customRates, cnssEmployeeRate: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Taux CNSS Patronale (%)
-              <input
-                type="number"
-                step="0.01"
-                value={customRates.cnssEmployerRate}
-                onChange={(e) => setCustomRates({ ...customRates, cnssEmployerRate: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Taux Accident du Travail (%)
-              <input
-                type="number"
-                step="0.01"
-                value={customRates.workAccidentRate}
-                onChange={(e) => setCustomRates({ ...customRates, workAccidentRate: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Taux FOPROLOS (%)
-              <input
-                type="number"
-                step="0.01"
-                value={customRates.foprolosRate}
-                onChange={(e) => setCustomRates({ ...customRates, foprolosRate: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Frais Professionnels (%)
-              <input
-                type="number"
-                step="0.1"
-                value={customRates.profExpensesRate}
-                onChange={(e) => setCustomRates({ ...customRates, profExpensesRate: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Plafond Frais Pro (DT/an)
-              <input
-                type="number"
-                step="50"
-                value={customRates.profExpensesMaxCap}
-                onChange={(e) => setCustomRates({ ...customRates, profExpensesMaxCap: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Déduction Chef de Famille (DT/an)
-              <input
-                type="number"
-                step="50"
-                value={customRates.headOfFamilyDeduction}
-                onChange={(e) => setCustomRates({ ...customRates, headOfFamilyDeduction: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Déduction par Enfant (DT/an)
-              <input
-                type="number"
-                step="25"
-                value={customRates.childDeduction}
-                onChange={(e) => setCustomRates({ ...customRates, childDeduction: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Déduction par Parent (DT/an)
-              <input
-                type="number"
-                step="50"
-                value={customRates.parentDeduction}
-                onChange={(e) => setCustomRates({ ...customRates, parentDeduction: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Taux CSS (%)
-              <input
-                type="number"
-                step="0.1"
-                value={customRates.cssRate}
-                onChange={(e) => setCustomRates({ ...customRates, cssRate: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Parents à charge
-              <select
-                value={inputs.dependentParents}
-                onChange={(e) => updateInputs({ dependentParents: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700, background: '#FFFFFF' }}
-              >
-                <option value={0}>Aucun parent à charge (0)</option>
-                <option value={1}>1er parent à charge</option>
-                <option value={2}>2ème parent à charge</option>
-              </select>
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Dispositif d’avantage fiscal
-              <select
-                value={inputs.fiscalBenefitType}
-                onChange={(e) => updateInputs({ fiscalBenefitType: e.target.value as PayrollSimulationInputs['fiscalBenefitType'] })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700, background: '#FFFFFF' }}
-              >
-                <option value="COMPLEMENTARY_RETIREMENT">Retraite complémentaire — gains calculés</option>
-                <option value="RETIREMENT_SAVINGS">Épargne retraite — gains calculés</option>
-                <option value="LIFE_INSURANCE">Assurance-vie — gains calculés</option>
-              </select>
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              1. Assurance Décès Patronale (%)
-              <input
-                type="number"
-                step="0.001"
-                value={customRates.assuranceDecesRate}
-                onChange={(e) => setCustomRates({ ...customRates, assuranceDecesRate: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-              <span style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600 }}>0.5% × Total Brut (Charge Patronale)</span>
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              2. Assurance Invalidité Patronale (%)
-              <input
-                type="number"
-                step="0.000001"
-                value={customRates.assuranceInvaliditeRate}
-                onChange={(e) => setCustomRates({ ...customRates, assuranceInvaliditeRate: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-              <span style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600 }}>0.78400752510838% × Total Brut (Charge Patronale)</span>
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              3. Assurance Maladie Patronale (%)
-              <input
-                type="number"
-                step="0.000001"
-                value={customRates.assuranceMaladieRate}
-                onChange={(e) => setCustomRates({ ...customRates, assuranceMaladieRate: Number(e.target.value) })}
-                style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
-              />
-              <span style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600 }}>0,0048212520380679 × Total Brut (Charge Patronale)</span>
-            </label>
+          {/* 1. RUBRIQUES MODULABLES DU SALARIÉ (RÉMUNÉRATION & SITUATION FAMILIALE) */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+              <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>👤</span>
+                <span>Rubriques Modulables du Salarié (Rémunération &amp; Situation Familiale)</span>
+              </h3>
+              <span style={{ fontSize: '0.75rem', background: '#DBEAFE', color: '#1E40AF', padding: '3px 10px', borderRadius: '4px', fontWeight: 700 }}>
+                Impact direct sur le Brut, la Retraite Compl. et l’Assiette Fiscale
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px' }}>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Salaire de base (DT)
+                <input
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  value={inputs.baseSalary}
+                  onChange={(e) => updateInputs({ baseSalary: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Prime de présence (DT)
+                <input
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  value={inputs.presenceBonus}
+                  onChange={(e) => updateInputs({ presenceBonus: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Avantage transport domicile-travail (DT)
+                <input
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  value={inputs.transportBonus}
+                  onChange={(e) => updateInputs({ transportBonus: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Taux de retraite complémentaire (%)
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={inputs.complementaryRetirementRate}
+                  onChange={(e) => updateInputs({ complementaryRetirementRate: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+                <span style={{ fontSize: '0.72rem', color: '#2563EB', fontWeight: 600 }}>Rubrique 10200 = Taux (%) × Salaire Brut</span>
+              </label>
+
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Dispositif d’avantage fiscal
+                <select
+                  value={inputs.fiscalBenefitType}
+                  onChange={(e) => updateInputs({ fiscalBenefitType: e.target.value as PayrollSimulationInputs['fiscalBenefitType'] })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700, background: '#FFFFFF' }}
+                >
+                  <option value="COMPLEMENTARY_RETIREMENT">Retraite complémentaire — gains calculés</option>
+                  <option value="RETIREMENT_SAVINGS">Épargne retraite — gains calculés</option>
+                  <option value="LIFE_INSURANCE">Assurance-vie — gains calculés</option>
+                </select>
+              </label>
+
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Enfants à charge
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={inputs.childrenCount}
+                  onChange={(e) => updateInputs({ childrenCount: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Parents à charge
+                <select
+                  value={inputs.dependentParents}
+                  onChange={(e) => updateInputs({ dependentParents: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700, background: '#FFFFFF' }}
+                >
+                  <option value={0}>Aucun parent à charge (0)</option>
+                  <option value={1}>1er parent à charge</option>
+                  <option value={2}>2ème parent à charge</option>
+                </select>
+              </label>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingTop: '22px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0F172A', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={inputs.isHeadOfFamily}
+                    onChange={(e) => updateInputs({ isHeadOfFamily: e.target.checked })}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                  Chef de famille
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. GRILLE DES TAUX SOCIAUX, ASSURANCES PATRONALES ET DÉDUCTIONS FISCALES MODULABLES */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <h3 style={{ margin: '0 0 14px', fontSize: '0.98rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>⚖️</span>
+              <span>Taux Sociaux, Assurances Patronales &amp; Déductions Fiscales Modulables</span>
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Taux CNSS Salarié (%)
+                <input
+                  type="number"
+                  step="0.01"
+                  value={customRates.cnssEmployeeRate}
+                  onChange={(e) => setCustomRates({ ...customRates, cnssEmployeeRate: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Taux CNSS Patronale (%)
+                <input
+                  type="number"
+                  step="0.01"
+                  value={customRates.cnssEmployerRate}
+                  onChange={(e) => setCustomRates({ ...customRates, cnssEmployerRate: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Taux Accident du Travail (%)
+                <input
+                  type="number"
+                  step="0.01"
+                  value={customRates.workAccidentRate}
+                  onChange={(e) => setCustomRates({ ...customRates, workAccidentRate: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Taux FOPROLOS (%)
+                <input
+                  type="number"
+                  step="0.01"
+                  value={customRates.foprolosRate}
+                  onChange={(e) => setCustomRates({ ...customRates, foprolosRate: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Assurance Mutuelle Patronale (%)
+                <input
+                  type="number"
+                  step="0.1"
+                  value={customRates.employerInsuranceRate}
+                  onChange={(e) => setCustomRates({ ...customRates, employerInsuranceRate: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Frais Professionnels (%)
+                <input
+                  type="number"
+                  step="0.1"
+                  value={customRates.profExpensesRate}
+                  onChange={(e) => setCustomRates({ ...customRates, profExpensesRate: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Plafond Frais Pro (DT/an)
+                <input
+                  type="number"
+                  step="50"
+                  value={customRates.profExpensesMaxCap}
+                  onChange={(e) => setCustomRates({ ...customRates, profExpensesMaxCap: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Déduction Chef de Famille (DT/an)
+                <input
+                  type="number"
+                  step="50"
+                  value={customRates.headOfFamilyDeduction}
+                  onChange={(e) => setCustomRates({ ...customRates, headOfFamilyDeduction: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Déduction par Enfant (DT/an)
+                <input
+                  type="number"
+                  step="25"
+                  value={customRates.childDeduction}
+                  onChange={(e) => setCustomRates({ ...customRates, childDeduction: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Déduction par Parent (DT/an)
+                <input
+                  type="number"
+                  step="50"
+                  value={customRates.parentDeduction}
+                  onChange={(e) => setCustomRates({ ...customRates, parentDeduction: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                Taux CSS (%)
+                <input
+                  type="number"
+                  step="0.1"
+                  value={customRates.cssRate}
+                  onChange={(e) => setCustomRates({ ...customRates, cssRate: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                1. Assurance Décès Patronale (%)
+                <input
+                  type="number"
+                  step="0.001"
+                  value={customRates.assuranceDecesRate}
+                  onChange={(e) => setCustomRates({ ...customRates, assuranceDecesRate: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+                <span style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600 }}>0.5% × Total Brut (Charge Patronale)</span>
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                2. Assurance Invalidité Patronale (%)
+                <input
+                  type="number"
+                  step="0.000001"
+                  value={customRates.assuranceInvaliditeRate}
+                  onChange={(e) => setCustomRates({ ...customRates, assuranceInvaliditeRate: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+                <span style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600 }}>0.78400752510838% × Total Brut (Charge Patronale)</span>
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
+                3. Assurance Maladie Patronale (%)
+                <input
+                  type="number"
+                  step="0.000001"
+                  value={customRates.assuranceMaladieRate}
+                  onChange={(e) => setCustomRates({ ...customRates, assuranceMaladieRate: Number(e.target.value) })}
+                  style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
+                />
+                <span style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600 }}>0,0048212520380679 × Total Brut (Charge Patronale)</span>
+              </label>
+            </div>
           </div>
 
           {/* DÉTAIL DU CALCUL DU NET IMPOSABLE */}
@@ -1265,25 +1412,46 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             <div style={{ fontSize: '0.82rem', color: '#334155' }}>
               Enregistrez vos modifications pour les appliquer à la fiche de paie calculée et à la préparation CNSS / IRPP.
             </div>
-            <button
-              type="button"
-              onClick={saveCustomRates}
-              style={{
-                background: '#059669',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '10px 18px',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
-            >
-              💾 Enregistrer Modification
-            </button>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={saveCustomRates}
+                style={{
+                  background: '#059669',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 18px',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                💾 Enregistrer Modification
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('payslip')}
+                style={{
+                  background: '#2563EB',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 18px',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                📑 Voir le Bulletin de Paie Officiel
+              </button>
+            </div>
           </div>
           {savedRatesNotice && (
             <div role="status" style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '8px', color: '#065F46', padding: '10px 14px', fontWeight: 700, fontSize: '0.84rem' }}>
@@ -1570,9 +1738,11 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 <tr style={{ background: '#0F172A', color: '#FFFFFF', textAlign: 'left' }}>
                   <th style={{ padding: '8px 10px' }}>Matricule</th>
                   <th style={{ padding: '8px 10px' }}>Salarié</th>
-                  <th style={{ padding: '8px 10px' }}>Département / Poste</th>
+                  <th style={{ padding: '8px 10px' }}>Situation Fam. (Spécifique)</th>
+                  <th style={{ padding: '8px 10px' }}>Contrat Mutuelle / Retraite Compl. (%)</th>
                   <th style={{ padding: '8px 10px', textAlign: 'right' }}>Salaire Brut (DT)</th>
                   <th style={{ padding: '8px 10px', textAlign: 'right' }}>CNSS Salarié</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right' }}>Mutuelle Sal. (10200)</th>
                   <th style={{ padding: '8px 10px', textAlign: 'right' }}>Net Imposable</th>
                   <th style={{ padding: '8px 10px', textAlign: 'right' }}>IRPP</th>
                   <th style={{ padding: '8px 10px', textAlign: 'right' }}>CSS</th>
@@ -1595,16 +1765,77 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                     return (
                       <tr key={emp.id} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC' }}>
                         <td style={{ padding: '8px 10px', fontWeight: 800, color: '#1E3A8A' }}>{emp.matricule}</td>
-                        <td style={{ padding: '8px 10px', fontWeight: 700, color: '#0F172A' }}>{emp.employeeName}</td>
-                        <td style={{ padding: '8px 10px', color: '#64748B' }}>
-                          <div>{emp.department}</div>
-                          <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{emp.position}</div>
+                        <td style={{ padding: '8px 10px' }}>
+                          <div style={{ fontWeight: 700, color: '#0F172A' }}>{emp.employeeName}</div>
+                          <div style={{ fontSize: '0.7rem', color: '#64748B' }}>{emp.department} · {emp.position}</div>
+                        </td>
+                        <td style={{ padding: '6px 8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', fontSize: '0.72rem' }}>
+                            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', cursor: 'pointer', fontWeight: 600 }}>
+                              <input
+                                type="checkbox"
+                                checked={emp.inputs.isHeadOfFamily}
+                                onChange={(e) => handleUpdateMultiEmployee(emp.id, { isHeadOfFamily: e.target.checked })}
+                              />
+                              Chef
+                            </label>
+                            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                              Enf:
+                              <input
+                                type="number"
+                                min="0"
+                                step="1"
+                                value={emp.inputs.childrenCount}
+                                onChange={(e) => handleUpdateMultiEmployee(emp.id, { childrenCount: Math.max(0, Number(e.target.value) || 0) })}
+                                style={{ width: '40px', padding: '2px 4px', border: '1px solid #CBD5E1', borderRadius: '4px', fontSize: '0.72rem', textAlign: 'center' }}
+                              />
+                            </label>
+                            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                              Par:
+                              <select
+                                value={emp.inputs.dependentParents}
+                                onChange={(e) => handleUpdateMultiEmployee(emp.id, { dependentParents: Number(e.target.value) || 0 })}
+                                style={{ padding: '2px 4px', border: '1px solid #CBD5E1', borderRadius: '4px', fontSize: '0.72rem', background: '#FFF' }}
+                              >
+                                <option value={0}>0</option>
+                                <option value={1}>1</option>
+                                <option value={2}>2</option>
+                              </select>
+                            </label>
+                          </div>
+                        </td>
+                        <td style={{ padding: '6px 8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem' }}>
+                            <select
+                              value={emp.inputs.fiscalBenefitType}
+                              onChange={(e) => handleUpdateMultiEmployee(emp.id, { fiscalBenefitType: e.target.value as PayrollSimulationInputs['fiscalBenefitType'] })}
+                              style={{ padding: '2px 4px', border: '1px solid #CBD5E1', borderRadius: '4px', fontSize: '0.72rem', background: '#FFF', maxWidth: '130px' }}
+                            >
+                              <option value="COMPLEMENTARY_RETIREMENT">Retraite compl.</option>
+                              <option value="RETIREMENT_SAVINGS">Épargne retraite</option>
+                              <option value="LIFE_INSURANCE">Assurance-vie</option>
+                            </select>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              value={emp.inputs.complementaryRetirementRate}
+                              onChange={(e) => handleUpdateMultiEmployee(emp.id, { complementaryRetirementRate: Math.max(0, Number(e.target.value) || 0) })}
+                              style={{ width: '52px', padding: '2px 4px', border: '1px solid #CBD5E1', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 700, textAlign: 'right' }}
+                              title="Taux contractuel spécifique (%) entre la mutuelle et ce salarié"
+                            />
+                            <span>%</span>
+                          </div>
                         </td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700 }}>
                           {res ? res.grossSalary.toFixed(3) : '—'}
                         </td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', color: '#B91C1C' }}>
                           {res ? res.employeeCnss.toFixed(3) : '—'}
+                        </td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#B91C1C', fontWeight: 600 }}>
+                          {res ? res.employeeInsurance.toFixed(3) : '—'}
                         </td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', color: '#475569' }}>
                           {res ? res.netImposable.toFixed(3) : '—'}
@@ -1649,11 +1880,14 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
               </tbody>
               <tfoot>
                 <tr style={{ background: '#F1F5F9', fontWeight: 800, borderTop: '2px solid #CBD5E1' }}>
-                  <td colSpan={3} style={{ padding: '10px' }}>
+                  <td colSpan={4} style={{ padding: '10px' }}>
                     TOTAL ({multiTotals.count} Salariés)
                   </td>
                   <td style={{ padding: '10px', textAlign: 'right' }}>{multiTotals.totalGross.toFixed(3)} DT</td>
                   <td style={{ padding: '10px', textAlign: 'right', color: '#B91C1C' }}>{multiTotals.totalCnssEmployee.toFixed(3)} DT</td>
+                  <td style={{ padding: '10px', textAlign: 'right', color: '#B91C1C' }}>
+                    {multiEmployees.reduce((s, e) => s + (e.result?.employeeInsurance ?? 0), 0).toFixed(3)} DT
+                  </td>
                   <td style={{ padding: '10px', textAlign: 'right' }}>{multiTotals.totalNetImposable.toFixed(3)} DT</td>
                   <td style={{ padding: '10px', textAlign: 'right', color: '#B91C1C' }}>{multiTotals.totalIrpp.toFixed(3)} DT</td>
                   <td style={{ padding: '10px', textAlign: 'right', color: '#B91C1C' }}>{multiTotals.totalCss.toFixed(3)} DT</td>
@@ -1670,82 +1904,33 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
         </div>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px', marginBottom: '1rem' }}>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-          Dispositif d’avantage fiscal
-          <select
-            value={inputs.fiscalBenefitType}
-            onChange={(event) => updateInputs({ fiscalBenefitType: event.target.value as PayrollSimulationInputs['fiscalBenefitType'] })}
-            style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit' }}
-          >
-            <option value="COMPLEMENTARY_RETIREMENT">Retraite complémentaire — gains calculés</option>
-            <option value="RETIREMENT_SAVINGS">Épargne retraite — gains calculés</option>
-            <option value="LIFE_INSURANCE">Assurance-vie — gains calculés</option>
-          </select>
-        </label>
-        {fields.map((field) => (
-          <label key={field.label} style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-            {field.label}
-            <input
-              type="number"
-              min="0"
-              step={field.step}
-              value={field.value}
-              onChange={(event) => field.update(Number(event.target.value))}
-              style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit' }}
-            />
-          </label>
-        ))}
-        <p style={{ color: '#64748B', fontSize: '0.78rem', marginTop: '-4px', gridColumn: '1 / -1' }}>
-          À partir de janvier 2026, le calcul historique exclut de l’assiette IRPP le transport domicile-travail pris en charge par l’employeur. N’y saisissez que cet avantage qualifié; le montant par défaut est indicatif, pas un plafond légal. Faites vérifier le traitement applicable à votre cas.
-        </p>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-          Taux de retraite complémentaire (%)
-          <select
-            value={inputs.complementaryRetirementRate}
-            onChange={(event) => updateInputs({ complementaryRetirementRate: Number(event.target.value) })}
-            style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit' }}
-          >
-            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rate) => (
-              <option key={rate} value={rate}>{rate}%</option>
-            ))}
-          </select>
-        </label>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-          Assurance mutuelle &amp; Parents à charge
-          <select
-            value={inputs.dependentParents}
-            onChange={(event) => updateInputs({ dependentParents: Number(event.target.value) })}
-            style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit' }}
-          >
-            <option value={0}>Aucun parent à charge</option>
-            <option value={1}>1er Parent à charge</option>
-            <option value={2}>2ème Parent à charge</option>
-          </select>
-        </label>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-          <input
-            type="checkbox"
-            checked={inputs.isHeadOfFamily}
-            onChange={(event) => updateInputs({ isHeadOfFamily: event.target.checked })}
-          />
-          Chef de famille
-        </label>
-      </div>
-      {inputs.fiscalBenefitType !== 'COMPLEMENTARY_RETIREMENT' && (
-        <p role="status" style={{ color: '#92400E', fontSize: '0.82rem' }}>
-          Ce dispositif est affiché pour préparation; ses taux et gains fiscaux ne sont pas encore paramétrés et n’affectent pas le calcul.
-        </p>
-      )}
-
-      <button
-        type="button"
-        onClick={calculatePayroll}
-        disabled={isCalculating}
-        style={{ background: isCalculating ? '#94A3B8' : '#2563EB', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '9px 16px', fontWeight: 700, cursor: isCalculating ? 'not-allowed' : 'pointer' }}
-      >
-        {isCalculating ? 'Calcul en cours…' : 'Calculer la fiche de paie (Taux modulables)'}
-      </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '12px 16px', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1.1rem' }}>💡</span>
+              <span>
+                <strong>Bulletin de paie officiel généré automatiquement.</strong> Toutes les rubriques modulables (salaires, primes, situation familiale, taux) sont centralisées exclusivement dans la <strong>Feuille des Taux Modulables</strong>.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab('ratesSheet')}
+              style={{
+                background: '#2563EB',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '7px 14px',
+                fontWeight: 700,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              ⚙️ Modifier les Rubriques Modulables
+            </button>
+          </div>
 
       {calculationError && (
         <div role="alert" style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', color: '#991B1B', padding: '12px 14px', marginTop: '1rem' }}>
@@ -1955,7 +2140,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(result.employeeCnss + result.irpp + result.css + (Math.round(result.grossSalary * (customRates.employeeInsuranceRate / 100) * 1000) / 1000)).toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(result.employeeCnss + result.irpp + result.css + result.employeeInsurance).toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right', color: '#334155' }}>
                     {(Math.round((result.grossSalary * ((customRates.cnssEmployerRate + customRates.workAccidentRate + customRates.employerInsuranceRate) / 100) + result.assuranceDeces + result.assuranceInvalidite + result.assuranceMaladie) * 1000) / 1000).toFixed(3)}
@@ -1973,9 +2158,9 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                   <td style={{ padding: '6px' }}>10200</td>
                   <td style={{ padding: '6px' }}>Assurance Compl. Mutuelle Salariale</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.employeeInsuranceRate.toFixed(3)} %</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{(Number(inputs.complementaryRetirementRate) || 0).toFixed(3)} %</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(Math.round(result.grossSalary * (customRates.employeeInsuranceRate / 100) * 1000) / 1000).toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.employeeInsurance.toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }} colSpan={2}>—</td>
                 </tr>
                 {inputs.dependentParents >= 1 && (
@@ -2003,39 +2188,6 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
               </tbody>
             </table>
           </div>
-
-          {/* Bouton Enregistrer Modification dans la Feuille des Taux Modulables */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', background: '#F8FAFC', border: '1px solid #CBD5E1', borderRadius: '8px', padding: '12px 16px' }}>
-            <div style={{ fontSize: '0.82rem', color: '#334155' }}>
-              Enregistrez vos modifications pour les appliquer à la fiche de paie calculée et à la préparation CNSS / IRPP.
-            </div>
-            <button
-              type="button"
-              onClick={saveCustomRates}
-              style={{
-                background: '#059669',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '10px 18px',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
-            >
-              💾 Enregistrer Modification
-            </button>
-          </div>
-          {savedRatesNotice && (
-            <div role="status" style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '8px', color: '#065F46', padding: '10px 14px', fontWeight: 700, fontSize: '0.84rem' }}>
-              ✅ {savedRatesNotice}
-            </div>
-          )}
-
-          {/* Détail de calcul IRPP/CSS supprimé de la fiche de paie conformément à la demande */}
 
           {/* Net à Payer & Footer */}
           <div style={{ marginTop: '1.2rem', padding: '12px 16px', background: '#0F172A', color: '#FFFFFF', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
