@@ -1,5 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  parseMultiEmployeeFile,
+  calculateAllEmployees,
+  computeMultiEmployeeTotals,
+  SAMPLE_EMPLOYEES,
+  downloadExcelTemplate,
+  downloadCsvTemplate,
+  exportMultiEmployeeResultsExcel,
+  exportMultiEmployeeResultsCSV,
+  type MultiEmployeeRecord,
+  type MultiEmployeeTotals,
+} from './multiEmployeePayrollService';
+import {
   canUsePayrollCalculator,
   getPayrollAvailabilityMessage,
   type PayrollAvailability,
@@ -271,7 +283,55 @@ function computePayslipFromCustomRates(
 }
 
 export default function PayrollSimulationPanel({ accessToken }: { accessToken: string | null }) {
-  const [activeTab, setActiveTab] = useState<'payslip' | 'ratesSheet'>('payslip');
+  const [activeTab, setActiveTab] = useState<'payslip' | 'ratesSheet' | 'multiEmployee'>('payslip');
+  const [multiEmployees, setMultiEmployees] = useState<MultiEmployeeRecord[]>(() =>
+    calculateAllEmployees(SAMPLE_EMPLOYEES, customRates)
+  );
+  const [isImporting, setIsImporting] = useState(false);
+  const [importFeedback, setImportFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [multiSearchTerm, setMultiSearchTerm] = useState('');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsImporting(true);
+    setImportFeedback(null);
+    try {
+      const imported = await parseMultiEmployeeFile(file);
+      const computed = calculateAllEmployees(imported, customRates);
+      setMultiEmployees(computed);
+      setActiveTab('multiEmployee');
+      setImportFeedback({
+        type: 'success',
+        message: `Import réussi : ${computed.length} salarié(s) importé(s) avec calcul instantané de la paie.`,
+      });
+    } catch (err: any) {
+      setImportFeedback({
+        type: 'error',
+        message: err.message || 'Erreur lors de l’importation du fichier.',
+      });
+    } finally {
+      setIsImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRecalculateMulti = () => {
+    const computed = calculateAllEmployees(multiEmployees, customRates);
+    setMultiEmployees(computed);
+    setImportFeedback({
+      type: 'success',
+      message: `Paie recalculée pour ${computed.length} salarié(s) avec les taux officiels actuels.`,
+    });
+  };
+
+  const handleSelectEmployeeForPayslip = (emp: MultiEmployeeRecord) => {
+    setInputs({ ...emp.inputs });
+    setActiveTab('payslip');
+  };
+
+  const multiTotals: MultiEmployeeTotals = computeMultiEmployeeTotals(multiEmployees);
   const [inputs, setInputs] = useState(INITIAL_INPUTS);
   const [availability, setAvailability] = useState<PayrollAvailability | null>(null);
   const [availabilityError, setAvailabilityError] = useState('');
@@ -566,7 +626,35 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
           </h1>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileImport}
+            accept=".xlsx,.xls,.csv,.pdf,.txt"
+            style={{ display: 'none' }}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isImporting}
+            style={{
+              background: '#2563EB',
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '8px 16px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 1px 3px rgba(37,99,235,0.25)',
+            }}
+          >
+            <span>📥</span> {isImporting ? 'Import en cours...' : 'Import Excel / CSV / PDF'}
+          </button>
           <button
             type="button"
             onClick={() => calculatePayroll()}
@@ -830,6 +918,26 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
         >
           ⚙️ Feuille des Taux Modulables (Barème IRPP & CNSS)
         </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('multiEmployee')}
+          style={{
+            background: activeTab === 'multiEmployee' ? '#2563EB' : '#F1F5F9',
+            color: activeTab === 'multiEmployee' ? '#FFFFFF' : '#334155',
+            border: 'none',
+            borderRadius: '6px',
+            padding: '8px 16px',
+            fontWeight: 800,
+            fontSize: '0.84rem',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <span>👥</span> Paie Multi-Salariés ({multiEmployees.length})
+        </button>
       </div>
 
       {activeTab === 'ratesSheet' ? (
@@ -941,7 +1049,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
               />
             </label>
             <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              Assurance Mutuelle Patronale (%) — {modularMonthlyEmployerInsurance.toFixed(3)} DT/mois
+              Parents à charge
               <select
                 value={inputs.dependentParents}
                 onChange={(e) => updateInputs({ dependentParents: Number(e.target.value) })}
@@ -965,7 +1073,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
               </select>
             </label>
             <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              1. Assurance Décès Patronale (%) — {modularMonthlyAssuranceDeces.toFixed(3)} DT/mois
+              1. Assurance Décès Patronale (%)
               <input
                 type="number"
                 step="0.001"
@@ -976,7 +1084,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
               <span style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600 }}>0.5% × Total Brut (Charge Patronale)</span>
             </label>
             <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              2. Assurance Invalidité Patronale (%) — {modularMonthlyAssuranceInvalidite.toFixed(3)} DT/mois
+              2. Assurance Invalidité Patronale (%)
               <input
                 type="number"
                 step="0.000001"
@@ -987,7 +1095,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
               <span style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600 }}>0.78400752510838% × Total Brut (Charge Patronale)</span>
             </label>
             <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              3. Assurance Maladie Patronale (%) — {modularMonthlyAssuranceMaladie.toFixed(3)} DT/mois
+              3. Assurance Maladie Patronale (%)
               <input
                 type="number"
                 step="0.000001"
@@ -1228,6 +1336,335 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#334155' }}>{modularTotalEmployer.toFixed(3)} DT</div>
               </div>
             </div>
+          </div>
+        </div>
+      ) : activeTab === 'multiEmployee' ? (
+        <div style={{ display: 'grid', gap: '16px' }}>
+          {/* BANNIÈRE ACTIONS & IMPORT */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h3 style={{ margin: '0 0 4px', fontSize: '1.05rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>👥</span> Calcul &amp; Traitement de Paie Multi-Salariés en Simultané
+                </h3>
+                <p style={{ margin: 0, color: '#64748B', fontSize: '0.82rem' }}>
+                  Importez un fichier Excel (.xlsx/.xls), CSV ou PDF pour calculer instantanément la paie de tous les collaborateurs.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isImporting}
+                  style={{
+                    background: '#2563EB',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '8px 14px',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span>📥</span> {isImporting ? 'Import en cours...' : 'Importer Fichier'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => downloadExcelTemplate()}
+                  style={{
+                    background: '#047857',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                  title="Télécharger le modèle Excel pré-rempli"
+                >
+                  <span>📊</span> Modèle Excel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => downloadCsvTemplate()}
+                  style={{
+                    background: '#0D9488',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                  title="Télécharger le modèle CSV pré-rempli"
+                >
+                  <span>📄</span> Modèle CSV
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRecalculateMulti}
+                  style={{
+                    background: '#F1F5F9',
+                    color: '#0F172A',
+                    border: '1px solid #CBD5E1',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                  title="Recalculer les paies avec les taux actuels"
+                >
+                  <span>⚡</span> Recalculer ({multiEmployees.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportMultiEmployeeResultsExcel(multiEmployees, multiTotals)}
+                  style={{
+                    background: '#1E293B',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span>📤</span> Export Excel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportMultiEmployeeResultsCSV(multiEmployees, multiTotals)}
+                  style={{
+                    background: '#334155',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span>📤</span> Export CSV
+                </button>
+              </div>
+            </div>
+
+            {/* FEEDBACK BANNER */}
+            {importFeedback && (
+              <div
+                style={{
+                  marginTop: '12px',
+                  padding: '10px 14px',
+                  borderRadius: '6px',
+                  fontSize: '0.83rem',
+                  fontWeight: 600,
+                  background: importFeedback.type === 'success' ? '#ECFDF5' : '#FEF2F2',
+                  border: `1px solid ${importFeedback.type === 'success' ? '#A7F3D0' : '#FECACA'}`,
+                  color: importFeedback.type === 'success' ? '#065F46' : '#991B1B',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <span>{importFeedback.type === 'success' ? '✅' : '⚠️'} {importFeedback.message}</span>
+                <button
+                  type="button"
+                  onClick={() => setImportFeedback(null)}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 800, color: 'inherit' }}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* KPI CARDS SYNTHÈSE GLOBALE */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px' }}>
+            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '12px 14px' }}>
+              <div style={{ color: '#64748B', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase' }}>Effectif Importé</div>
+              <div style={{ marginTop: '4px', color: '#0F172A', fontSize: '1.4rem', fontWeight: 900 }}>{multiTotals.count} Salariés</div>
+            </div>
+
+            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '12px 14px' }}>
+              <div style={{ color: '#64748B', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase' }}>Masse Salariale Brute</div>
+              <div style={{ marginTop: '4px', color: '#0F172A', fontSize: '1.4rem', fontWeight: 900 }}>{multiTotals.totalGross.toFixed(3)} DT</div>
+            </div>
+
+            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '12px 14px' }}>
+              <div style={{ color: '#64748B', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase' }}>CNSS Salariés (9.68%)</div>
+              <div style={{ marginTop: '4px', color: '#B91C1C', fontSize: '1.4rem', fontWeight: 900 }}>{multiTotals.totalCnssEmployee.toFixed(3)} DT</div>
+            </div>
+
+            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '12px 14px' }}>
+              <div style={{ color: '#64748B', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase' }}>IRPP &amp; CSS Retenus</div>
+              <div style={{ marginTop: '4px', color: '#B91C1C', fontSize: '1.4rem', fontWeight: 900 }}>{(multiTotals.totalIrpp + multiTotals.totalCss).toFixed(3)} DT</div>
+              <div style={{ fontSize: '0.7rem', color: '#64748B' }}>IRPP: {multiTotals.totalIrpp.toFixed(3)} | CSS: {multiTotals.totalCss.toFixed(3)}</div>
+            </div>
+
+            <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '12px 14px' }}>
+              <div style={{ color: '#166534', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase' }}>Total Net à Payer</div>
+              <div style={{ marginTop: '4px', color: '#15803D', fontSize: '1.45rem', fontWeight: 900 }}>{multiTotals.totalNetSalary.toFixed(3)} DT</div>
+            </div>
+
+            <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '8px', padding: '12px 14px' }}>
+              <div style={{ color: '#065F46', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase' }}>3 Assurances Patronales</div>
+              <div style={{ marginTop: '4px', color: '#047857', fontSize: '1.4rem', fontWeight: 900 }}>{multiTotals.totalAssurancesPatronales.toFixed(3)} DT</div>
+              <div style={{ fontSize: '0.68rem', color: '#065F46' }}>Décès (0.5%): {multiTotals.totalAssuranceDeces.toFixed(3)} | Inv: {multiTotals.totalAssuranceInvalidite.toFixed(3)} | Mal: {multiTotals.totalAssuranceMaladie.toFixed(3)}</div>
+            </div>
+
+            <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '12px 14px' }}>
+              <div style={{ color: '#64748B', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase' }}>Charges Patronales Globales</div>
+              <div style={{ marginTop: '4px', color: '#1E3A8A', fontSize: '1.4rem', fontWeight: 900 }}>{multiTotals.totalEmployerCharges.toFixed(3)} DT</div>
+              <div style={{ fontSize: '0.7rem', color: '#64748B' }}>CNSS Pat. + Acc. + FOPROLOS + 3 Ass.</div>
+            </div>
+
+            <div style={{ background: '#0F172A', color: '#FFFFFF', borderRadius: '8px', padding: '12px 14px' }}>
+              <div style={{ color: '#94A3B8', fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase' }}>Coût Global Entreprise</div>
+              <div style={{ marginTop: '4px', color: '#38BDF8', fontSize: '1.45rem', fontWeight: 900 }}>{multiTotals.totalCoutGlobal.toFixed(3)} DT</div>
+            </div>
+          </div>
+
+          {/* TABLEAU DES RÉSULTATS MULTI-SALARIÉS */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '8px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflowX: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A' }}>
+                📋 Grille Détaillée des Salariés &amp; Fiches de Paie Calculées ({multiEmployees.length})
+              </div>
+              <input
+                type="text"
+                placeholder="🔍 Filtrer par Matricule, Salarié..."
+                value={multiSearchTerm}
+                onChange={(e) => setMultiSearchTerm(e.target.value)}
+                style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.8rem', width: '240px' }}
+              />
+            </div>
+
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem' }}>
+              <thead>
+                <tr style={{ background: '#0F172A', color: '#FFFFFF', textAlign: 'left' }}>
+                  <th style={{ padding: '8px 10px' }}>Matricule</th>
+                  <th style={{ padding: '8px 10px' }}>Salarié</th>
+                  <th style={{ padding: '8px 10px' }}>Département / Poste</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right' }}>Salaire Brut (DT)</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right' }}>CNSS Salarié</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right' }}>Net Imposable</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right' }}>IRPP</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right' }}>CSS</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right', background: '#15803D' }}>Net à Payer</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right' }}>3 Assurances Pat.</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'right' }}>Total Charges Pat.</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center' }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {multiEmployees
+                  .filter((emp) =>
+                    !multiSearchTerm ||
+                    emp.matricule.toLowerCase().includes(multiSearchTerm.toLowerCase()) ||
+                    emp.employeeName.toLowerCase().includes(multiSearchTerm.toLowerCase()) ||
+                    emp.department.toLowerCase().includes(multiSearchTerm.toLowerCase())
+                  )
+                  .map((emp, idx) => {
+                    const res = emp.result;
+                    return (
+                      <tr key={emp.id} style={{ borderBottom: '1px solid #F1F5F9', background: idx % 2 === 0 ? '#FFFFFF' : '#F8FAFC' }}>
+                        <td style={{ padding: '8px 10px', fontWeight: 800, color: '#1E3A8A' }}>{emp.matricule}</td>
+                        <td style={{ padding: '8px 10px', fontWeight: 700, color: '#0F172A' }}>{emp.employeeName}</td>
+                        <td style={{ padding: '8px 10px', color: '#64748B' }}>
+                          <div>{emp.department}</div>
+                          <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{emp.position}</div>
+                        </td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700 }}>
+                          {res ? res.grossSalary.toFixed(3) : '—'}
+                        </td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#B91C1C' }}>
+                          {res ? res.employeeCnss.toFixed(3) : '—'}
+                        </td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#475569' }}>
+                          {res ? res.netImposable.toFixed(3) : '—'}
+                        </td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#B91C1C' }}>
+                          {res ? res.irpp.toFixed(3) : '—'}
+                        </td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#B91C1C' }}>
+                          {res ? res.css.toFixed(3) : '—'}
+                        </td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 900, color: '#15803D', background: '#DCFCE7' }}>
+                          {res ? res.netSalary.toFixed(3) : '—'} DT
+                        </td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#065F46', fontWeight: 600 }}>
+                          {res ? res.totalAssurancesPatronales.toFixed(3) : '—'}
+                        </td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#1E3A8A', fontWeight: 700 }}>
+                          {res ? res.totalEmployerCharges.toFixed(3) : '—'}
+                        </td>
+                        <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleSelectEmployeeForPayslip(emp)}
+                            style={{
+                              background: '#EFF6FF',
+                              color: '#1D4ED8',
+                              border: '1px solid #BFDBFE',
+                              borderRadius: '4px',
+                              padding: '4px 8px',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                            title="Charger dans la fiche de paie individuelle officielle"
+                          >
+                            👁️ Bulletin
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+              <tfoot>
+                <tr style={{ background: '#F1F5F9', fontWeight: 800, borderTop: '2px solid #CBD5E1' }}>
+                  <td colSpan={3} style={{ padding: '10px' }}>
+                    TOTAL ({multiTotals.count} Salariés)
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'right' }}>{multiTotals.totalGross.toFixed(3)} DT</td>
+                  <td style={{ padding: '10px', textAlign: 'right', color: '#B91C1C' }}>{multiTotals.totalCnssEmployee.toFixed(3)} DT</td>
+                  <td style={{ padding: '10px', textAlign: 'right' }}>{multiTotals.totalNetImposable.toFixed(3)} DT</td>
+                  <td style={{ padding: '10px', textAlign: 'right', color: '#B91C1C' }}>{multiTotals.totalIrpp.toFixed(3)} DT</td>
+                  <td style={{ padding: '10px', textAlign: 'right', color: '#B91C1C' }}>{multiTotals.totalCss.toFixed(3)} DT</td>
+                  <td style={{ padding: '10px', textAlign: 'right', color: '#15803D', background: '#BBF7D0', fontSize: '0.85rem' }}>
+                    {multiTotals.totalNetSalary.toFixed(3)} DT
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'right', color: '#065F46' }}>{multiTotals.totalAssurancesPatronales.toFixed(3)} DT</td>
+                  <td style={{ padding: '10px', textAlign: 'right', color: '#1E3A8A' }}>{multiTotals.totalEmployerCharges.toFixed(3)} DT</td>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>—</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </div>
       ) : (
