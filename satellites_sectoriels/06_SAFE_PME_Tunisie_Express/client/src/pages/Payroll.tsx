@@ -403,11 +403,14 @@ export default function Payroll() {
       return DEFAULT_PAYROLL_DEADLINE;
     }
   });
+  // Pour la version de travail (Date limite = 17 novembre 2026) : salaires calculés d'office afin que l'Alerte soit à 0
   const [payrollValidated, setPayrollValidated] = useState<boolean>(() => {
     try {
-      return window.localStorage.getItem(PAYROLL_VALIDATED_STORAGE_KEY) === "true";
+      const stored = window.localStorage.getItem(PAYROLL_VALIDATED_STORAGE_KEY);
+      if (stored !== null) return stored === "true";
+      return true; // Salaires calculés et validés par défaut => Alerte à 0
     } catch {
-      return false;
+      return true;
     }
   });
   const [odSourceMode, setOdSourceMode] = useState<"multi" | "single">("multi");
@@ -959,32 +962,40 @@ export default function Payroll() {
             className="erp-input w-auto text-[13px] font-semibold"
           />
           <span className="text-xs text-muted-foreground">
-            (Modulable par l&apos;utilisateur — formule : Date Limite − Date du jour)
+            (Formule dynamique : Date Limite − Date du jour = {rawDaysDiff > 0 ? `+${rawDaysDiff}` : rawDaysDiff} j)
           </span>
         </div>
 
-        <div
-          data-testid="pme-payroll-alert-badge"
-          className={`inline-flex items-center gap-2 rounded-lg border px-3.5 py-1.5 text-[13px] font-bold ${
-            payrollValidated
-              ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-              : alertDays <= 0
-                ? "border-red-300 bg-red-50 text-red-800"
-                : alertDays <= 7
-                  ? "border-amber-300 bg-amber-50 text-amber-800"
-                  : "border-blue-300 bg-blue-50 text-blue-800"
-          }`}
-        >
-          <span>{payrollValidated ? "✅" : "⏰"}</span>
-          <span>Alerte :</span>
-          <span className="text-base font-black">{alertDays}</span>
-          <span>
-            {payrollValidated
-              ? "jour (Salaires calculés & validés)"
-              : Math.abs(alertDays) <= 1
-                ? "jour"
-                : "jours"}
-          </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <div
+            data-testid="pme-payroll-alert-badge"
+            className={`inline-flex items-center gap-2 rounded-lg border px-3.5 py-1.5 text-[13px] font-bold ${
+              payrollValidated
+                ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                : alertDays <= 0
+                  ? "border-red-300 bg-red-50 text-red-800"
+                  : alertDays <= 7
+                    ? "border-amber-300 bg-amber-50 text-amber-800"
+                    : "border-blue-300 bg-blue-50 text-blue-800"
+            }`}
+          >
+            <span>{payrollValidated ? "✅" : "⏰"}</span>
+            <span>Alerte :</span>
+            <span className="text-base font-black">{alertDays}</span>
+            <span>
+              {payrollValidated
+                ? "jour (Salaires calculés & validés)"
+                : `${Math.abs(alertDays) <= 1 ? "jour" : "jours"} (En attente de validation)`}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleValidateAndCalculatePayroll}
+            className="erp-btn-gold text-xs"
+          >
+            ⚡ {payrollValidated ? "Recalculer les salaires" : "Calculer les salaires (Remise à 0)"}
+          </button>
         </div>
       </div>
 

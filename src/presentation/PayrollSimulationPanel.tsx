@@ -341,11 +341,14 @@ export default function PayrollSimulationPanel({
       return DEFAULT_PAYROLL_DEADLINE;
     }
   });
+  // Pour la version de travail (Date limite = 17 novembre 2026) : salaires calculés d'office afin que l'Alerte soit à 0
   const [payrollValidated, setPayrollValidated] = useState<boolean>(() => {
     try {
-      return window.localStorage.getItem(PAYROLL_VALIDATED_STORAGE_KEY) === 'true';
+      const stored = window.localStorage.getItem(PAYROLL_VALIDATED_STORAGE_KEY);
+      if (stored !== null) return stored === 'true';
+      return true; // Salaires calculés et validés par défaut => Alerte à 0
     } catch {
-      return false;
+      return true;
     }
   });
 
@@ -1084,7 +1087,7 @@ export default function PayrollSimulationPanel({
             }}
           />
           <span style={{ fontSize: '0.76rem', color: '#64748B' }}>
-            (Modulable par l’utilisateur — formule : Date Limite − Date du jour)
+            (Formule dynamique : Date Limite − Date du jour = {rawDaysDiff > 0 ? `+${rawDaysDiff}` : rawDaysDiff} j)
           </span>
         </div>
 
@@ -1110,11 +1113,29 @@ export default function PayrollSimulationPanel({
             <span>
               {payrollValidated
                 ? 'jour (Salaires calculés & validés)'
-                : Math.abs(alertDays) <= 1
-                  ? 'jour'
-                  : 'jours'}
+                : `${Math.abs(alertDays) <= 1 ? 'jour' : 'jours'} (En attente de validation)`}
             </span>
           </div>
+
+          <button
+            type="button"
+            onClick={handleRecalculateMulti}
+            style={{
+              background: payrollValidated ? '#F1F5F9' : '#059669',
+              color: payrollValidated ? '#475569' : '#FFFFFF',
+              border: `1px solid ${payrollValidated ? '#CBD5E1' : '#059669'}`,
+              borderRadius: '6px',
+              padding: '7px 12px',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span>⚡</span> {payrollValidated ? 'Recalculer les salaires' : 'Calculer les salaires (Remise à 0)'}
+          </button>
         </div>
       </div>
 
