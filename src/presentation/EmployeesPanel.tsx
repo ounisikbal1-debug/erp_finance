@@ -154,6 +154,7 @@ export default function EmployeesPanel({ accessToken }: { accessToken: string | 
         throw new Error('La réponse de création du salarié est invalide.');
       }
       setEmployees((current) => [created, ...current]);
+      window.dispatchEvent(new CustomEvent('safe:hr-employee-created', { detail: created }));
       setFirstName('');
       setLastName('');
       setEmail('');

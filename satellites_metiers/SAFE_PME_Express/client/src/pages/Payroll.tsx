@@ -330,6 +330,48 @@ function loadSavedPmeRates(): CustomPmePayrollRates {
   }
 }
 
+const PAYROLL_DEADLINE_STORAGE_KEY = "safe_pme_payroll_deadline_v1";
+const PAYROLL_VALIDATED_STORAGE_KEY = "safe_pme_payroll_validated_v1";
+const MULTI_EMPLOYEES_STORAGE_KEY = "safe_pme_multi_employees_v1";
+const DEFAULT_PAYROLL_DEADLINE = "2026-11-17";
+
+function computeDaysRemaining(deadlineStr: string): number {
+  if (!deadlineStr) return 0;
+  const parts = deadlineStr.split("-").map(Number);
+  if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return 0;
+  const target = new Date(parts[0], parts[1] - 1, parts[2]);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((target.getTime() - today.getTime()) / 86400000);
+}
+
+function loadSavedPmeMultiEmployees(rates: CustomPmePayrollRates): PmeMultiEmployeeRecord[] {
+  try {
+    const raw = window.localStorage.getItem(MULTI_EMPLOYEES_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((e: any, idx: number) => ({
+          id: e.id || `pme-emp-${idx}`,
+          matricule: e.matricule || `EMP-${idx + 1}`,
+          employeeName: e.employeeName || "Salarié",
+          department: e.department || "Général",
+          position: e.position || "Collaborateur",
+          inputs: e.inputs || INITIAL_PME_INPUTS,
+          result: computePmePayslipFull(e.inputs || INITIAL_PME_INPUTS, rates),
+        }));
+      }
+    }
+  } catch {
+    // Fallback
+  }
+  return SAMPLE_PME_EMPLOYEES_RAW.map((e, idx) => ({
+    id: `pme-emp-${idx}`,
+    ...e,
+    result: computePmePayslipFull(e.inputs, rates),
+  }));
+}
+
 export default function Payroll() {
   const utils = trpc.useUtils();
   const runs = trpc.payroll.runs.useQuery();
@@ -341,6 +383,12 @@ export default function Payroll() {
       setSelected(r.id);
     },
   });
+  const postOdEntry = trpc.accounting.createEntry.useMutation({
+    onSuccess: () => {
+      utils.accounting.entries.invalidate();
+      utils.accounting.trialBalance.invalidate();
+    },
+  });
 
   const [activeTab, setActiveTab] = useState<"payslip" | "ratesSheet" | "multiEmployee" | "cycles">("payslip");
   const [inputs, setInputs] = useState<PmePayrollInputs>(INITIAL_PME_INPUTS);
@@ -348,12 +396,25 @@ export default function Payroll() {
   const [savedNotice, setSavedNotice] = useState("");
   const printableSlipRef = useRef<HTMLElement | null>(null);
 
+  const [payrollDeadline, setPayrollDeadline] = useState<string>(() => {
+    try {
+      return window.localStorage.getItem(PAYROLL_DEADLINE_STORAGE_KEY) || DEFAULT_PAYROLL_DEADLINE;
+    } catch {
+      return DEFAULT_PAYROLL_DEADLINE;
+    }
+  });
+  const [payrollValidated, setPayrollValidated] = useState<boolean>(() => {
+    try {
+      return window.localStorage.getItem(PAYROLL_VALIDATED_STORAGE_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
+  const [odSourceMode, setOdSourceMode] = useState<"multi" | "single">("multi");
+  const [odStatusNotice, setOdStatusNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
   const [multiEmployees, setMultiEmployees] = useState<PmeMultiEmployeeRecord[]>(() =>
-    SAMPLE_PME_EMPLOYEES_RAW.map((e, idx) => ({
-      id: `pme-emp-${idx}`,
-      ...e,
-      result: computePmePayslipFull(e.inputs, loadSavedPmeRates()),
-    })),
+    loadSavedPmeMultiEmployees(loadSavedPmeRates()),
   );
   const [isImporting, setIsImporting] = useState(false);
   const [importNotice, setImportNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -362,6 +423,68 @@ export default function Payroll() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [period, setPeriod] = useState(currentPeriod());
+
+  const handleDeadlineChange = (newDeadline: string) => {
+    setPayrollDeadline(newDeadline);
+    setPayrollValidated(false);
+    try {
+      window.localStorage.setItem(PAYROLL_DEADLINE_STORAGE_KEY, newDeadline);
+      window.localStorage.setItem(PAYROLL_VALIDATED_STORAGE_KEY, "false");
+    } catch {
+      // Ignore
+    }
+  };
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(MULTI_EMPLOYEES_STORAGE_KEY, JSON.stringify(multiEmployees));
+    } catch {
+      // Ignore
+    }
+  }, [multiEmployees]);
+
+  // Ajout automatique des salariés enregistrés dans le module RH (employees.list)
+  useEffect(() => {
+    const list = employees.data;
+    if (!Array.isArray(list) || list.length === 0) return;
+    setMultiEmployees((prev) => {
+      let changed = false;
+      const next = [...prev];
+      for (const hrEmp of list) {
+        if (!hrEmp.active) continue;
+        const fullName = `${hrEmp.firstName} ${hrEmp.lastName}`.trim();
+        const matricule = (hrEmp.matricule && hrEmp.matricule.trim()) || `HR-${hrEmp.id.slice(0, 6).toUpperCase()}`;
+        const exists = next.some(
+          (e) =>
+            e.id === hrEmp.id ||
+            e.matricule.toLowerCase() === matricule.toLowerCase() ||
+            e.employeeName.trim().toLowerCase() === fullName.toLowerCase(),
+        );
+        if (exists) continue;
+        changed = true;
+        const empInputs: PmePayrollInputs = {
+          fiscalBenefitType: "COMPLEMENTARY_RETIREMENT",
+          baseSalary: round3(Number(hrEmp.baseSalary) || 0),
+          presenceBonus: 0,
+          transportBonus: 0,
+          isHeadOfFamily: Boolean(hrEmp.headOfFamily),
+          childrenCount: Number(hrEmp.children) || 0,
+          dependentParents: 0,
+          complementaryRetirementRate: 0,
+        };
+        next.push({
+          id: hrEmp.id,
+          matricule,
+          employeeName: fullName,
+          department: hrEmp.department || "Ressources Humaines",
+          position: hrEmp.position || "Collaborateur",
+          inputs: empInputs,
+          result: computePmePayslipFull(empInputs, customRates),
+        });
+      }
+      return changed ? next : prev;
+    });
+  }, [employees.data, customRates]);
 
   const result = useMemo(() => computePmePayslipFull(inputs, customRates), [inputs, customRates]);
 
@@ -372,6 +495,9 @@ export default function Payroll() {
           acc.count += 1;
           acc.totalGross = round3(acc.totalGross + e.result.grossSalary);
           acc.totalCnss = round3(acc.totalCnss + e.result.employeeCnss);
+          acc.totalEmployerCnss = round3(acc.totalEmployerCnss + e.result.employerCnss);
+          acc.totalWorkAccident = round3(acc.totalWorkAccident + e.result.workAccident);
+          acc.totalFoprolos = round3(acc.totalFoprolos + e.result.foprolos);
           acc.totalInsuranceEmp = round3(acc.totalInsuranceEmp + e.result.employeeInsurance);
           acc.totalNetImp = round3(acc.totalNetImp + e.result.netImposable);
           acc.totalIrpp = round3(acc.totalIrpp + e.result.irpp);
@@ -386,6 +512,9 @@ export default function Payroll() {
           count: 0,
           totalGross: 0,
           totalCnss: 0,
+          totalEmployerCnss: 0,
+          totalWorkAccident: 0,
+          totalFoprolos: 0,
           totalInsuranceEmp: 0,
           totalNetImp: 0,
           totalIrpp: 0,
@@ -420,10 +549,111 @@ export default function Payroll() {
         result: computePmePayslipFull(emp.inputs, customRates),
       })),
     );
+    setPayrollValidated(true);
+    try {
+      window.localStorage.setItem(PAYROLL_VALIDATED_STORAGE_KEY, "true");
+    } catch {
+      // Ignore
+    }
     setImportNotice({
       type: "success",
-      message: `Paie recalculée pour ${multiEmployees.length} salarié(s) selon les taux actuels et contrats individuels.`,
+      message: `Paie recalculée et validée pour ${multiEmployees.length} salarié(s). Alerte remise à 0.`,
     });
+  };
+
+  const handleValidateAndCalculatePayroll = () => {
+    handleRecalculateMulti();
+    setActiveTab("payslip");
+  };
+
+  const rawDaysDiff = computeDaysRemaining(payrollDeadline);
+  const alertDays = payrollValidated ? 0 : rawDaysDiff;
+
+  const useMultiForOd = odSourceMode === "multi" && multiEmployees.length > 0;
+  const odGross = round3(useMultiForOd ? multiTotals.totalGross : result.grossSalary);
+  const odEmployerCharges = round3(useMultiForOd ? multiTotals.totalEmployer : result.totalEmployerCharges);
+  const odCnssTotal = round3(
+    useMultiForOd
+      ? multiTotals.totalCnss + multiTotals.totalEmployerCnss + multiTotals.totalWorkAccident + multiTotals.totalFoprolos
+      : result.employeeCnss + result.employerCnss + result.workAccident + result.foprolos,
+  );
+  const odEmployeeInsurance = round3(useMultiForOd ? multiTotals.totalInsuranceEmp : result.employeeInsurance);
+  const odAssurancesPatronales = round3(useMultiForOd ? multiTotals.totalAssurances : result.totalAssurancesPatronales);
+  const odAssurancesAndMutuelle = round3(odEmployeeInsurance + odAssurancesPatronales);
+  const odIrpp = round3(useMultiForOd ? multiTotals.totalIrpp : result.irpp);
+  const odCss = round3(useMultiForOd ? multiTotals.totalCss : result.css);
+  const odTotalDebit = round3(odGross + odEmployerCharges);
+  const odNetBalanced = round3(odTotalDebit - (odCnssTotal + odAssurancesAndMutuelle + odIrpp + odCss));
+  const odTotalCredit = round3(odNetBalanced + odCnssTotal + odAssurancesAndMutuelle + odIrpp + odCss);
+
+  const handlePostPayrollOd = async () => {
+    setOdStatusNotice(null);
+    const toMillimes = (v: number) => Math.round(v * 1000);
+    const debitGrossM = toMillimes(odGross);
+    const debitEmpM = toMillimes(odEmployerCharges);
+    const totalDebitM = debitGrossM + debitEmpM;
+    const cnssM = toMillimes(odCnssTotal);
+    const assMutM = toMillimes(odAssurancesAndMutuelle);
+    const irppM = toMillimes(odIrpp);
+    const cssM = toMillimes(odCss);
+    const netM = totalDebitM - (cnssM + assMutM + irppM + cssM);
+
+    if (totalDebitM <= 0 || netM < 0) {
+      setOdStatusNotice({ type: "error", message: "Montants OD invalides ou nuls." });
+      return;
+    }
+
+    const lines: Array<{ accountCode: string; accountLabel: string; debit: number; credit: number }> = [
+      { accountCode: "641", accountLabel: "Charges de personnel (Brut)", debit: debitGrossM, credit: 0 },
+    ];
+    if (debitEmpM > 0) {
+      lines.push({
+        accountCode: "645",
+        accountLabel: `Charges sociales pat. & 3 Assurances (${odAssurancesPatronales.toFixed(3)} DT)`,
+        debit: debitEmpM,
+        credit: 0,
+      });
+    }
+    if (netM > 0) {
+      lines.push({ accountCode: "421", accountLabel: "Personnel — rémunérations dues", debit: 0, credit: netM });
+    }
+    if (cnssM > 0) {
+      lines.push({ accountCode: "431", accountLabel: "CNSS (Salarié + Patronale + AT + FOPROLOS)", debit: 0, credit: cnssM });
+    }
+    if (assMutM > 0) {
+      lines.push({
+        accountCode: "431",
+        accountLabel: `Mutuelle 10200 (${odEmployeeInsurance.toFixed(3)}) + 3 Assurances pat. (${odAssurancesPatronales.toFixed(3)})`,
+        debit: 0,
+        credit: assMutM,
+      });
+    }
+    if (irppM > 0) {
+      lines.push({ accountCode: "447", accountLabel: "Impôts sur les salaires (IRPP)", debit: 0, credit: irppM });
+    }
+    if (cssM > 0) {
+      lines.push({ accountCode: "448", accountLabel: "État — CSS", debit: 0, credit: cssM });
+    }
+
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      await postOdEntry.mutateAsync({
+        entryDate: today,
+        journal: "PA",
+        reference: `OD-PAIE-${period}`,
+        label: `OD Paie ${period} (${useMultiForOd ? `${multiTotals.count} salariés` : "Bulletin"}) — Mutuelle 10200: ${odEmployeeInsurance.toFixed(3)} DT`,
+        lines,
+      });
+      setOdStatusNotice({
+        type: "success",
+        message: `OD de Paie enregistrée dans le journal comptable (${odTotalDebit.toFixed(3)} DT).`,
+      });
+    } catch (err: any) {
+      setOdStatusNotice({
+        type: "error",
+        message: err?.message || "Erreur lors de l'enregistrement de l'OD de Paie dans le journal comptable.",
+      });
+    }
   };
 
   const handleSelectEmployeeForPayslip = (emp: PmeMultiEmployeeRecord) => {
@@ -700,6 +930,12 @@ export default function Payroll() {
               👥 Paie Multi-Salariés ({multiEmployees.length})
             </button>
             <button
+              className="erp-btn-gold"
+              onClick={handleValidateAndCalculatePayroll}
+            >
+              + Lancer la Paie
+            </button>
+            <button
               className={activeTab === "cycles" ? "erp-btn-gold" : "erp-btn-ghost"}
               onClick={() => setActiveTab("cycles")}
             >
@@ -708,6 +944,168 @@ export default function Payroll() {
           </div>
         }
       />
+
+      {/* DATE LIMITE MODULABLE & ALERTE PAIE (DATE LIMITE - DATE DU JOUR, REMISE À 0 APRÈS CALCUL & VALIDATION) */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+        <div className="flex flex-wrap items-center gap-3">
+          <label htmlFor="safe-pme-payroll-deadline" className="text-[13px] font-bold text-foreground">
+            Date Limite :
+          </label>
+          <input
+            id="safe-pme-payroll-deadline"
+            type="date"
+            value={payrollDeadline}
+            onChange={(e) => handleDeadlineChange(e.target.value)}
+            className="erp-input w-auto text-[13px] font-semibold"
+          />
+          <span className="text-xs text-muted-foreground">
+            (Modulable par l&apos;utilisateur — formule : Date Limite − Date du jour)
+          </span>
+        </div>
+
+        <div
+          data-testid="pme-payroll-alert-badge"
+          className={`inline-flex items-center gap-2 rounded-lg border px-3.5 py-1.5 text-[13px] font-bold ${
+            payrollValidated
+              ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+              : alertDays <= 0
+                ? "border-red-300 bg-red-50 text-red-800"
+                : alertDays <= 7
+                  ? "border-amber-300 bg-amber-50 text-amber-800"
+                  : "border-blue-300 bg-blue-50 text-blue-800"
+          }`}
+        >
+          <span>{payrollValidated ? "✅" : "⏰"}</span>
+          <span>Alerte :</span>
+          <span className="text-base font-black">{alertDays}</span>
+          <span>
+            {payrollValidated
+              ? "jour (Salaires calculés & validés)"
+              : Math.abs(alertDays) <= 1
+                ? "jour"
+                : "jours"}
+          </span>
+        </div>
+      </div>
+
+      {/* SYNTHÈSE & GÉNÉRATION OD DE PAIE (MOIS EN COURS — MONTANTS RÉELS AU MILLIME PRÈS) */}
+      <div className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-extrabold uppercase tracking-wide text-foreground">
+              GÉNÉRATION OD DE PAIE (MOIS EN COURS)
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Montants calculés au millime près (Brut, Charges patronales &amp; 3 Assurances, Mutuelle 10200, IRPP, CSS, Net à payer)
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              aria-label="Source de l'OD de Paie"
+              value={odSourceMode}
+              onChange={(e) => setOdSourceMode(e.target.value as "multi" | "single")}
+              className="erp-input w-auto text-xs font-semibold"
+            >
+              <option value="multi">Paie Multi-Salariés ({multiTotals.count})</option>
+              <option value="single">Bulletin Individuel</option>
+            </select>
+            <button
+              type="button"
+              onClick={handlePostPayrollOd}
+              disabled={postOdEntry.isPending}
+              className="erp-btn-gold"
+            >
+              {postOdEntry.isPending ? "Comptabilisation…" : "Comptabiliser OD Paie"}
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="erp-table text-xs">
+            <thead>
+              <tr className="border-b-2 border-border bg-secondary/70 font-bold">
+                <th>Compte</th>
+                <th>Intitulé</th>
+                <th className="text-right">Débit (DT)</th>
+                <th className="text-right">Crédit (DT)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="font-bold text-primary">641</td>
+                <td>Charges de personnel (Salaires bruts)</td>
+                <td className="text-right font-bold">{odGross.toFixed(3)}</td>
+                <td className="text-right">—</td>
+              </tr>
+              <tr>
+                <td className="font-bold text-primary">645</td>
+                <td>
+                  Charges sociales patronales &amp; 3 Assurances{" "}
+                  <span className="text-[11px] text-muted-foreground">
+                    (dont 3 Assurances: {odAssurancesPatronales.toFixed(3)} DT)
+                  </span>
+                </td>
+                <td className="text-right font-bold">{odEmployerCharges.toFixed(3)}</td>
+                <td className="text-right">—</td>
+              </tr>
+              <tr>
+                <td className="font-bold text-primary">421</td>
+                <td>Personnel — Rémunérations dues (Net à payer)</td>
+                <td className="text-right">—</td>
+                <td className="text-right font-bold text-destructive">{odNetBalanced.toFixed(3)}</td>
+              </tr>
+              <tr>
+                <td className="font-bold text-primary">431</td>
+                <td>CNSS (Salarié + Patronale + AT + FOPROLOS)</td>
+                <td className="text-right">—</td>
+                <td className="text-right font-bold text-destructive">{odCnssTotal.toFixed(3)}</td>
+              </tr>
+              <tr>
+                <td className="font-bold text-primary">431</td>
+                <td>
+                  Mutuelle Sal. 10200 + 3 Assurances Patronales{" "}
+                  <span className="text-[11px] text-muted-foreground">
+                    (10200: {odEmployeeInsurance.toFixed(3)} · Ass. Pat.: {odAssurancesPatronales.toFixed(3)})
+                  </span>
+                </td>
+                <td className="text-right">—</td>
+                <td className="text-right font-bold text-destructive">{odAssurancesAndMutuelle.toFixed(3)}</td>
+              </tr>
+              <tr>
+                <td className="font-bold text-primary">447</td>
+                <td>Impôts sur les salaires (IRPP)</td>
+                <td className="text-right">—</td>
+                <td className="text-right font-bold text-destructive">{odIrpp.toFixed(3)}</td>
+              </tr>
+              <tr>
+                <td className="font-bold text-primary">448</td>
+                <td>État — Contribution Sociale de Solidarité (CSS)</td>
+                <td className="text-right">—</td>
+                <td className="text-right font-bold text-destructive">{odCss.toFixed(3)}</td>
+              </tr>
+              <tr className="bg-secondary/60 font-extrabold">
+                <td colSpan={2}>TOTAL ÉQUILIBRÉ OD PAIE</td>
+                <td className="text-right">{odTotalDebit.toFixed(3)}</td>
+                <td className="text-right">{odTotalCredit.toFixed(3)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {odStatusNotice && (
+          <div
+            role="status"
+            className={`mt-3 rounded-lg border px-3 py-2 text-xs font-bold ${
+              odStatusNotice.type === "success"
+                ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                : "border-red-300 bg-red-50 text-red-800"
+            }`}
+          >
+            {odStatusNotice.type === "success" ? "✅ " : "⚠️ "}
+            {odStatusNotice.message}
+          </div>
+        )}
+      </div>
 
       {activeTab === "payslip" ? (
         <div className="space-y-4">

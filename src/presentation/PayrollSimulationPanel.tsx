@@ -281,7 +281,43 @@ function computePayslipFromCustomRates(
   };
 }
 
-export default function PayrollSimulationPanel({ accessToken }: { accessToken: string | null }) {
+const PAYROLL_DEADLINE_STORAGE_KEY = 'safe_payroll_deadline_v1';
+const PAYROLL_VALIDATED_STORAGE_KEY = 'safe_payroll_validated_v1';
+const MULTI_EMPLOYEES_STORAGE_KEY = 'safe_multi_employees_v1';
+const DEFAULT_PAYROLL_DEADLINE = '2026-11-17';
+
+function computeDaysRemaining(deadlineStr: string): number {
+  if (!deadlineStr) return 0;
+  const parts = deadlineStr.split('-').map(Number);
+  if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return 0;
+  const target = new Date(parts[0], parts[1] - 1, parts[2]);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((target.getTime() - today.getTime()) / 86400000);
+}
+
+function loadSavedMultiEmployees(rates: CustomPayrollRates): MultiEmployeeRecord[] {
+  try {
+    const raw = window.localStorage.getItem(MULTI_EMPLOYEES_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return calculateAllEmployees(parsed, rates);
+      }
+    }
+  } catch {
+    // Fallback to sample employees
+  }
+  return calculateAllEmployees(SAMPLE_EMPLOYEES, rates);
+}
+
+export default function PayrollSimulationPanel({
+  accessToken,
+  entityId = null,
+}: {
+  accessToken: string | null;
+  entityId?: string | null;
+}) {
   const [inputs, setInputs] = useState(INITIAL_INPUTS);
   const [availability, setAvailability] = useState<PayrollAvailability | null>(null);
   const [availabilityError, setAvailabilityError] = useState('');
@@ -297,14 +333,130 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   const [configVersion, setConfigVersion] = useState(0);
   const printableSlipRef = useRef<HTMLElement | null>(null);
 
+  // Date Limite modulable & Alerte (Date Limite - Date du jour, remise à 0 après calcul & validation)
+  const [payrollDeadline, setPayrollDeadline] = useState<string>(() => {
+    try {
+      return window.localStorage.getItem(PAYROLL_DEADLINE_STORAGE_KEY) || DEFAULT_PAYROLL_DEADLINE;
+    } catch {
+      return DEFAULT_PAYROLL_DEADLINE;
+    }
+  });
+  const [payrollValidated, setPayrollValidated] = useState<boolean>(() => {
+    try {
+      return window.localStorage.getItem(PAYROLL_VALIDATED_STORAGE_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  // Comptabilisation OD Paie
+  const [odSourceMode, setOdSourceMode] = useState<'multi' | 'single'>('multi');
+  const [isPostingOd, setIsPostingOd] = useState(false);
+  const [odStatusNotice, setOdStatusNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
   const [activeTab, setActiveTab] = useState<'payslip' | 'ratesSheet' | 'multiEmployee'>('payslip');
   const [multiEmployees, setMultiEmployees] = useState<MultiEmployeeRecord[]>(() =>
-    calculateAllEmployees(SAMPLE_EMPLOYEES, loadSavedCustomRates())
+    loadSavedMultiEmployees(loadSavedCustomRates())
   );
   const [isImporting, setIsImporting] = useState(false);
   const [importFeedback, setImportFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [multiSearchTerm, setMultiSearchTerm] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleDeadlineChange = (newDeadline: string) => {
+    setPayrollDeadline(newDeadline);
+    setPayrollValidated(false);
+    try {
+      window.localStorage.setItem(PAYROLL_DEADLINE_STORAGE_KEY, newDeadline);
+      window.localStorage.setItem(PAYROLL_VALIDATED_STORAGE_KEY, 'false');
+    } catch {
+      // Ignore storage errors
+    }
+  };
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(MULTI_EMPLOYEES_STORAGE_KEY, JSON.stringify(multiEmployees));
+    } catch {
+      // Ignore storage errors
+    }
+  }, [multiEmployees]);
+
+  // Synchronisation automatique des salariés depuis le module RH (/api/hr/employees + événement temps réel)
+  useEffect(() => {
+    const mergeHrEmployee = (hrEmp: {
+      id: string;
+      empId?: string | null;
+      firstName: string;
+      lastName: string;
+      position?: string | null;
+      baseSalary: number;
+      maritalStatus?: string;
+      terminatedAt?: string | null;
+    }) => {
+      if (hrEmp.terminatedAt) return;
+      const fullName = `${hrEmp.firstName} ${hrEmp.lastName}`.trim();
+      const matricule = (hrEmp.empId && hrEmp.empId.trim()) || `HR-${hrEmp.id.slice(0, 6).toUpperCase()}`;
+      setMultiEmployees((prev) => {
+        const exists = prev.some(
+          (e) =>
+            e.id === hrEmp.id
+            || e.matricule.toLowerCase() === matricule.toLowerCase()
+            || e.employeeName.trim().toLowerCase() === fullName.toLowerCase(),
+        );
+        if (exists) return prev;
+        const empInputs: PayrollSimulationInputs = {
+          fiscalBenefitType: 'COMPLEMENTARY_RETIREMENT',
+          baseSalary: round3(Number(hrEmp.baseSalary) || 0),
+          presenceBonus: 0,
+          transportBonus: 0,
+          isHeadOfFamily: hrEmp.maritalStatus === 'MARRIED',
+          childrenCount: 0,
+          dependentParents: 0,
+          complementaryRetirementRate: 0,
+        };
+        const newRec: MultiEmployeeRecord = {
+          id: hrEmp.id,
+          matricule,
+          employeeName: fullName,
+          department: 'Ressources Humaines',
+          position: hrEmp.position || 'Collaborateur',
+          inputs: empInputs,
+          result: calculateSinglePayslip(empInputs, customRates, 'TN'),
+        };
+        return [...prev, newRec];
+      });
+    };
+
+    const onHrCreated = (evt: Event) => {
+      const detail = (evt as CustomEvent).detail;
+      if (detail && typeof detail === 'object' && typeof detail.id === 'string') {
+        mergeHrEmployee(detail);
+      }
+    };
+    window.addEventListener('safe:hr-employee-created', onHrCreated);
+
+    if (accessToken) {
+      fetch('/api/hr/employees', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((list) => {
+          if (Array.isArray(list)) {
+            list.forEach((hrEmp) => {
+              if (hrEmp && typeof hrEmp === 'object' && typeof hrEmp.id === 'string') {
+                mergeHrEmployee(hrEmp);
+              }
+            });
+          }
+        })
+        .catch(() => {});
+    }
+
+    return () => {
+      window.removeEventListener('safe:hr-employee-created', onHrCreated);
+    };
+  }, [accessToken, customRates]);
 
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -334,9 +486,15 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   const handleRecalculateMulti = () => {
     const computed = calculateAllEmployees(multiEmployees, customRates);
     setMultiEmployees(computed);
+    setPayrollValidated(true);
+    try {
+      window.localStorage.setItem(PAYROLL_VALIDATED_STORAGE_KEY, 'true');
+    } catch {
+      // Ignore storage errors
+    }
     setImportFeedback({
       type: 'success',
-      message: `Paie recalculée pour ${computed.length} salarié(s) avec les taux officiels actuels.`,
+      message: `Paie recalculée et validée pour ${computed.length} salarié(s) avec les taux officiels actuels. Alerte remise à 0.`,
     });
   };
 
@@ -458,6 +616,14 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
       // Calcul prioritaire à partir des taux et barèmes de la Feuille des Taux Modulables
       const computed = computePayslipFromCustomRates(inputs, customRates, availability?.countryCode ?? 'TN');
       setResult(computed);
+      const recomputedMulti = calculateAllEmployees(multiEmployees, customRates);
+      setMultiEmployees(recomputedMulti);
+      setPayrollValidated(true);
+      try {
+        window.localStorage.setItem(PAYROLL_VALIDATED_STORAGE_KEY, 'true');
+      } catch {
+        // Ignore storage errors
+      }
       window.localStorage.setItem('safe_last_simulated_payslip_v1', JSON.stringify({
         result: computed,
         customRates,
@@ -632,6 +798,190 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
     ['Assurance Maladie (Charge Patronale 0.482%)', result.assuranceMaladie],
   ] : [];
 
+  const rawDaysDiff = computeDaysRemaining(payrollDeadline);
+  const alertDays = payrollValidated ? 0 : rawDaysDiff;
+
+  const useMultiForOd = odSourceMode === 'multi' && multiEmployees.length > 0;
+  const singleEmployerCnss = round3(result.grossSalary * (customRates.cnssEmployerRate / 100));
+  const singleWorkAccident = round3(result.grossSalary * (customRates.workAccidentRate / 100));
+  const singleFoprolos = round3(result.grossSalary * (customRates.foprolosRate / 100));
+  const singleAssurancesPatronales = round3(result.assuranceDeces + result.assuranceInvalidite + result.assuranceMaladie);
+  const singleEmployerCharges = round3(singleEmployerCnss + singleWorkAccident + singleFoprolos + singleAssurancesPatronales);
+
+  const odGross = round3(useMultiForOd ? multiTotals.totalGross : result.grossSalary);
+  const odEmployerCharges = round3(useMultiForOd ? multiTotals.totalEmployerCharges : singleEmployerCharges);
+  const odCnssTotal = round3(
+    useMultiForOd
+      ? multiTotals.totalCnssEmployee + multiTotals.totalEmployerCnss + multiTotals.totalWorkAccident + multiTotals.totalFoprolos
+      : result.employeeCnss + singleEmployerCnss + singleWorkAccident + singleFoprolos,
+  );
+  const odEmployeeInsurance = round3(useMultiForOd ? multiTotals.totalEmployeeInsurance : result.employeeInsurance);
+  const odAssurancesPatronales = round3(useMultiForOd ? multiTotals.totalAssurancesPatronales : singleAssurancesPatronales);
+  const odAssurancesAndMutuelle = round3(odEmployeeInsurance + odAssurancesPatronales);
+  const odIrpp = round3(useMultiForOd ? multiTotals.totalIrpp : result.irpp);
+  const odCss = round3(useMultiForOd ? multiTotals.totalCss : result.css);
+  const odNetRaw = round3(useMultiForOd ? multiTotals.totalNetSalary : result.netSalary);
+  const odTotalDebit = round3(odGross + odEmployerCharges);
+  const odNetBalanced = round3(odTotalDebit - (odCnssTotal + odAssurancesAndMutuelle + odIrpp + odCss));
+  const odTotalCredit = round3(odNetBalanced + odCnssTotal + odAssurancesAndMutuelle + odIrpp + odCss);
+
+  const departmentBreakdown = Object.values(
+    multiEmployees.reduce<Record<string, { code: string; name: string; count: number; gross: number; cnss: number; net: number }>>((acc, emp) => {
+      const deptName = (emp.department || 'Général').trim();
+      const code = deptName.slice(0, 4).toUpperCase();
+      if (!acc[deptName]) {
+        acc[deptName] = { code, name: deptName, count: 0, gross: 0, cnss: 0, net: 0 };
+      }
+      acc[deptName].count += 1;
+      if (emp.result) {
+        acc[deptName].gross = round3(acc[deptName].gross + emp.result.grossSalary);
+        acc[deptName].cnss = round3(acc[deptName].cnss + emp.result.employeeCnss + emp.result.employerCnss);
+        acc[deptName].net = round3(acc[deptName].net + emp.result.netSalary);
+      }
+      return acc;
+    }, {}),
+  );
+
+  const handlePostPayrollOd = async () => {
+    if (isPostingOd) return;
+    setOdStatusNotice(null);
+    if (!accessToken || !entityId) {
+      setOdStatusNotice({
+        type: 'error',
+        message: 'Session authentifiée et entité requises pour comptabiliser l’OD de Paie dans le journal comptable.',
+      });
+      return;
+    }
+    if (odTotalDebit <= 0 || odTotalDebit !== odTotalCredit) {
+      setOdStatusNotice({
+        type: 'error',
+        message: `Écriture déséquilibrée (Débit ${odTotalDebit.toFixed(3)} ≠ Crédit ${odTotalCredit.toFixed(3)}).`,
+      });
+      return;
+    }
+
+    setIsPostingOd(true);
+    try {
+      let availableCodes = new Set<string>(['640', '647', '421', '434', '438', '432']);
+      const accRes = await fetch(`/api/finance/accounts?entityId=${encodeURIComponent(entityId)}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (accRes.ok) {
+        const accList = await accRes.json();
+        if (Array.isArray(accList)) {
+          availableCodes = new Set(
+            accList
+              .filter((a: any) => a && typeof a.code === 'string' && a.isPostingAllowed !== false)
+              .map((a: any) => a.code),
+          );
+        }
+      }
+
+      const pickCode = (candidates: string[]) => candidates.find((c) => availableCodes.has(c)) ?? candidates[0];
+      const codeSalaires = pickCode(['640', '641', '640000']);
+      const codeChargesPat = pickCode(['647', '645', '647000']);
+      const codeNet = pickCode(['421', '421000']);
+      const codeCnss = pickCode(['434', '431', '431000']);
+      const codeIrpp = pickCode(['438', '447', '432']);
+      const codeCss = pickCode(['432', '448', '438']);
+
+      const lines: Array<{ accountCode: string; debit: number; credit: number; description: string }> = [
+        {
+          accountCode: codeSalaires,
+          debit: odGross,
+          credit: 0,
+          description: `Salaires bruts (${useMultiForOd ? `${multiTotals.count} salariés` : 'Bulletin individuel'})`,
+        },
+      ];
+      if (odEmployerCharges > 0) {
+        lines.push({
+          accountCode: codeChargesPat,
+          debit: odEmployerCharges,
+          credit: 0,
+          description: `Charges sociales patronales & 3 assurances (${odAssurancesPatronales.toFixed(3)} TND)`,
+        });
+      }
+      if (odNetBalanced > 0) {
+        lines.push({
+          accountCode: codeNet,
+          debit: 0,
+          credit: odNetBalanced,
+          description: 'Personnel - Net à payer',
+        });
+      }
+      if (odCnssTotal > 0) {
+        lines.push({
+          accountCode: codeCnss,
+          debit: 0,
+          credit: odCnssTotal,
+          description: 'Organismes sociaux - CNSS (Salarié + Patronale + AT + FOPROLOS)',
+        });
+      }
+      if (odAssurancesAndMutuelle > 0) {
+        lines.push({
+          accountCode: codeCnss,
+          debit: 0,
+          credit: odAssurancesAndMutuelle,
+          description: `Mutuelle 10200 (${odEmployeeInsurance.toFixed(3)}) + 3 Assurances patronales (${odAssurancesPatronales.toFixed(3)})`,
+        });
+      }
+      if (odIrpp > 0) {
+        lines.push({
+          accountCode: codeIrpp,
+          debit: 0,
+          credit: odIrpp,
+          description: 'État - Retenue à la source IRPP',
+        });
+      }
+      if (odCss > 0) {
+        lines.push({
+          accountCode: codeCss,
+          debit: 0,
+          credit: odCss,
+          description: 'État - Contribution Sociale de Solidarité (CSS)',
+        });
+      }
+
+      const now = new Date();
+      const yyyyMm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const entryNumber = `OD-PAIE-${yyyyMm}-${Date.now().toString().slice(-4)}`;
+      const entryDate = now.toISOString().slice(0, 10);
+
+      const response = await fetch('/api/finance/journal-entries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          entryNumber,
+          entityId,
+          date: entryDate,
+          reference: `PAIE-${yyyyMm}`,
+          description: `OD de Paie ${yyyyMm} (${useMultiForOd ? `${multiTotals.count} salariés` : 'Bulletin'}) — Mutuelle 10200: ${odEmployeeInsurance.toFixed(3)} TND`,
+          note: `Comptabilisation automatique de l'OD de Paie depuis le module Paie (${odTotalDebit.toFixed(3)} TND).`,
+          lines,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(typeof payload?.error === 'string' ? payload.error : 'Échec de l’enregistrement dans le journal comptable.');
+      }
+
+      setOdStatusNotice({
+        type: 'success',
+        message: `OD de Paie ${payload.entryNumber || entryNumber} enregistrée dans le journal comptable (${odTotalDebit.toFixed(3)} TND).`,
+      });
+    } catch (err) {
+      setOdStatusNotice({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Erreur lors de la comptabilisation de l’OD de Paie.',
+      });
+    } finally {
+      setIsPostingOd(false);
+    }
+  };
+
   return (
     <>
     <section style={{ display: 'grid', gap: '16px' }}>
@@ -697,32 +1047,103 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
         </div>
       </div>
 
-      {/* 2. BANDEAU DE 4 CARTES KPI SYNTHÉTIQUES */}
+      {/* 1B. DATE LIMITE MODULABLE & ALERTE PAIE (DATE LIMITE - DATE DU JOUR, REMISE À 0 APRÈS CALCUL & VALIDATION) */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+          background: '#FFFFFF',
+          border: '1px solid #CBD5E1',
+          borderRadius: '10px',
+          padding: '12px 16px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <label
+            htmlFor="safe-ge-payroll-deadline"
+            style={{ fontSize: '0.84rem', fontWeight: 800, color: '#0F172A' }}
+          >
+            Date Limite :
+          </label>
+          <input
+            id="safe-ge-payroll-deadline"
+            type="date"
+            value={payrollDeadline}
+            onChange={(e) => handleDeadlineChange(e.target.value)}
+            style={{
+              border: '1px solid #94A3B8',
+              borderRadius: '6px',
+              padding: '6px 10px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              color: '#0F172A',
+              background: '#F8FAFC',
+            }}
+          />
+          <span style={{ fontSize: '0.76rem', color: '#64748B' }}>
+            (Modulable par l’utilisateur — formule : Date Limite − Date du jour)
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <div
+            data-testid="payroll-alert-badge"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '7px 14px',
+              borderRadius: '8px',
+              fontWeight: 800,
+              fontSize: '0.85rem',
+              background: payrollValidated ? '#ECFDF5' : alertDays <= 0 ? '#FEF2F2' : alertDays <= 7 ? '#FFF7ED' : '#EFF6FF',
+              color: payrollValidated ? '#065F46' : alertDays <= 0 ? '#B91C1C' : alertDays <= 7 ? '#C2410C' : '#1D4ED8',
+              border: `1px solid ${payrollValidated ? '#A7F3D0' : alertDays <= 0 ? '#FECACA' : alertDays <= 7 ? '#FDBA74' : '#BFDBFE'}`,
+            }}
+          >
+            <span>{payrollValidated ? '✅' : '⏰'}</span>
+            <span>Alerte :</span>
+            <span style={{ fontSize: '1rem', fontWeight: 900 }}>{alertDays}</span>
+            <span>
+              {payrollValidated
+                ? 'jour (Salaires calculés & validés)'
+                : Math.abs(alertDays) <= 1
+                  ? 'jour'
+                  : 'jours'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. BANDEAU DE 4 CARTES KPI SYNTHÉTIQUES (MONTANTS RÉELS AU MILLIME PRÈS) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
         <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '16px 18px' }}>
           <div style={{ color: '#64748B', fontSize: '0.74rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             MASSE SALARIALE BRUTE
           </div>
-          <div style={{ marginTop: '6px', color: '#0F172A', fontSize: '1.65rem', fontWeight: 900 }}>
-            185 400 TND
+          <div style={{ marginTop: '6px', color: '#0F172A', fontSize: '1.55rem', fontWeight: 900 }}>
+            {odGross.toFixed(3)} TND
           </div>
         </div>
 
         <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '16px 18px' }}>
           <div style={{ color: '#64748B', fontSize: '0.74rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            CHARGES PATRONALES (CNSS)
+            CHARGES PATRONALES (CNSS + 3 ASS.)
           </div>
-          <div style={{ marginTop: '6px', color: '#0F172A', fontSize: '1.65rem', fontWeight: 900 }}>
-            30 720 TND
+          <div style={{ marginTop: '6px', color: '#0F172A', fontSize: '1.55rem', fontWeight: 900 }}>
+            {odEmployerCharges.toFixed(3)} TND
           </div>
         </div>
 
         <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '16px 18px' }}>
           <div style={{ color: '#64748B', fontSize: '0.74rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            IMPÔTS RETENUS (IRPP)
+            IMPÔTS RETENUS (IRPP + CSS)
           </div>
-          <div style={{ marginTop: '6px', color: '#0F172A', fontSize: '1.65rem', fontWeight: 900 }}>
-            24 850 TND
+          <div style={{ marginTop: '6px', color: '#0F172A', fontSize: '1.55rem', fontWeight: 900 }}>
+            {round3(odIrpp + odCss).toFixed(3)} TND
           </div>
         </div>
 
@@ -730,8 +1151,8 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
           <div style={{ color: '#64748B', fontSize: '0.74rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             NET À PAYER GLOBAL
           </div>
-          <div style={{ marginTop: '6px', color: '#0F172A', fontSize: '1.65rem', fontWeight: 900 }}>
-            143 600 TND
+          <div style={{ marginTop: '6px', color: '#0F172A', fontSize: '1.55rem', fontWeight: 900 }}>
+            {odNetRaw.toFixed(3)} TND
           </div>
         </div>
       </div>
@@ -741,7 +1162,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
         {/* VOLET GAUCHE : VENTILATION ANALYTIQUE & BULLETINS */}
         <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '18px' }}>
           <h3 style={{ margin: '0 0 14px', fontSize: '0.88rem', fontWeight: 800, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-            VENTILATION ANALYTIQUE &amp; BULLETINS
+            VENTILATION ANALYTIQUE &amp; BULLETINS ({multiTotals.count} SALARIÉS)
           </h3>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
@@ -756,30 +1177,18 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 </tr>
               </thead>
               <tbody>
-                <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
-                  <td style={{ padding: '9px 8px', fontWeight: 700 }}>PROD</td>
-                  <td style={{ padding: '9px 8px', fontWeight: 600 }}>Production</td>
-                  <td style={{ padding: '9px 8px', textAlign: 'center' }}><span style={{ background: '#F1F5F9', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>180 u</span></td>
-                  <td style={{ padding: '9px 8px', textAlign: 'right', fontWeight: 600 }}>125 000,00</td>
-                  <td style={{ padding: '9px 8px', textAlign: 'right' }}>21 800,00</td>
-                  <td style={{ padding: '9px 8px', textAlign: 'right', fontWeight: 700, color: '#1D4ED8' }}>98 100,00</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
-                  <td style={{ padding: '9px 8px', fontWeight: 700 }}>COMM</td>
-                  <td style={{ padding: '9px 8px', fontWeight: 600 }}>Commercial</td>
-                  <td style={{ padding: '9px 8px', textAlign: 'center' }}><span style={{ background: '#F1F5F9', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>45 u</span></td>
-                  <td style={{ padding: '9px 8px', textAlign: 'right', fontWeight: 600 }}>32 000,00</td>
-                  <td style={{ padding: '9px 8px', textAlign: 'right' }}>5 600,00</td>
-                  <td style={{ padding: '9px 8px', textAlign: 'right', fontWeight: 700, color: '#1D4ED8' }}>25 100,00</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
-                  <td style={{ padding: '9px 8px', fontWeight: 700 }}>FINA</td>
-                  <td style={{ padding: '9px 8px', fontWeight: 600 }}>Finance &amp; Admin</td>
-                  <td style={{ padding: '9px 8px', textAlign: 'center' }}><span style={{ background: '#F1F5F9', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>12 u</span></td>
-                  <td style={{ padding: '9px 8px', textAlign: 'right', fontWeight: 600 }}>28 400,00</td>
-                  <td style={{ padding: '9px 8px', textAlign: 'right' }}>3 320,00</td>
-                  <td style={{ padding: '9px 8px', textAlign: 'right', fontWeight: 700, color: '#1D4ED8' }}>20 400,00</td>
-                </tr>
+                {departmentBreakdown.map((dept) => (
+                  <tr key={dept.name} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                    <td style={{ padding: '9px 8px', fontWeight: 700 }}>{dept.code}</td>
+                    <td style={{ padding: '9px 8px', fontWeight: 600 }}>{dept.name}</td>
+                    <td style={{ padding: '9px 8px', textAlign: 'center' }}>
+                      <span style={{ background: '#F1F5F9', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>{dept.count}</span>
+                    </td>
+                    <td style={{ padding: '9px 8px', textAlign: 'right', fontWeight: 600 }}>{dept.gross.toFixed(3)}</td>
+                    <td style={{ padding: '9px 8px', textAlign: 'right' }}>{dept.cnss.toFixed(3)}</td>
+                    <td style={{ padding: '9px 8px', textAlign: 'right', fontWeight: 700, color: '#1D4ED8' }}>{dept.net.toFixed(3)}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -839,15 +1248,34 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
           {/* Détail de calcul IRPP/CSS supprimé de la fiche de paie conformément à la demande */}
         </div>
 
-        {/* VOLET DROIT : GÉNÉRATION OD DE PAIE */}
+        {/* VOLET DROIT : GÉNÉRATION OD DE PAIE (MOIS EN COURS — MONTANTS RÉELS AU MILLIME PRÈS) */}
         <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '18px' }}>
-          <h3 style={{ margin: '0 0 14px', fontSize: '0.88rem', fontWeight: 800, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-            GÉNÉRATION OD DE PAIE (NOV 2026)
-          </h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+            <h3 style={{ margin: 0, fontSize: '0.88rem', fontWeight: 800, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+              GÉNÉRATION OD DE PAIE (MOIS EN COURS)
+            </h3>
+            <select
+              aria-label="Source de l'OD de Paie"
+              value={odSourceMode}
+              onChange={(e) => setOdSourceMode(e.target.value as 'multi' | 'single')}
+              style={{
+                border: '1px solid #CBD5E1',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                color: '#1E293B',
+                background: '#F8FAFC',
+              }}
+            >
+              <option value="multi">Paie Multi-Salariés ({multiTotals.count})</option>
+              <option value="single">Bulletin Individuel</option>
+            </select>
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.76rem' }}>
             <thead>
               <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #CBD5E1', color: '#334155', fontWeight: 700 }}>
-                <th style={{ padding: '7px 4px', textAlign: 'left' }}>Compte Général</th>
+                <th style={{ padding: '7px 4px', textAlign: 'left' }}>Compte</th>
                 <th style={{ padding: '7px 4px', textAlign: 'left' }}>Intitulé</th>
                 <th style={{ padding: '7px 4px', textAlign: 'right' }}>Débit (TND)</th>
                 <th style={{ padding: '7px 4px', textAlign: 'right' }}>Crédit (TND)</th>
@@ -855,50 +1283,102 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             </thead>
             <tbody>
               <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
-                <td style={{ padding: '7px 4px', fontWeight: 700, color: '#1D4ED8' }}>640000</td>
-                <td style={{ padding: '7px 4px' }}>Salaires et émoluments</td>
-                <td style={{ padding: '7px 4px', textAlign: 'right', fontWeight: 700 }}>185 400,00</td>
+                <td style={{ padding: '7px 4px', fontWeight: 700, color: '#1D4ED8' }}>640</td>
+                <td style={{ padding: '7px 4px' }}>Salaires et traitements bruts</td>
+                <td style={{ padding: '7px 4px', textAlign: 'right', fontWeight: 700 }}>{odGross.toFixed(3)}</td>
                 <td style={{ padding: '7px 4px', textAlign: 'right' }}>—</td>
               </tr>
               <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
-                <td style={{ padding: '7px 4px', fontWeight: 700, color: '#1D4ED8' }}>647000</td>
-                <td style={{ padding: '7px 4px' }}>Charges sociales sur salaires</td>
-                <td style={{ padding: '7px 4px', textAlign: 'right', fontWeight: 700 }}>30 720,00</td>
+                <td style={{ padding: '7px 4px', fontWeight: 700, color: '#1D4ED8' }}>647</td>
+                <td style={{ padding: '7px 4px' }}>
+                  Charges sociales pat. &amp; 3 Assurances
+                  <div style={{ fontSize: '0.67rem', color: '#64748B' }}>
+                    dont 3 Assurances (Décès/Inv./Mal.): {odAssurancesPatronales.toFixed(3)}
+                  </div>
+                </td>
+                <td style={{ padding: '7px 4px', textAlign: 'right', fontWeight: 700 }}>{odEmployerCharges.toFixed(3)}</td>
                 <td style={{ padding: '7px 4px', textAlign: 'right' }}>—</td>
               </tr>
               <tr style={{ borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}>
-                <td style={{ padding: '7px 4px', fontWeight: 700, color: '#1D4ED8' }}>421000</td>
+                <td style={{ padding: '7px 4px', fontWeight: 700, color: '#1D4ED8' }}>421</td>
                 <td style={{ padding: '7px 4px' }}>Personnel - Net à payer</td>
                 <td style={{ padding: '7px 4px', textAlign: 'right' }}>—</td>
-                <td style={{ padding: '7px 4px', textAlign: 'right', fontWeight: 700, color: '#B91C1C' }}>143 600,00</td>
+                <td style={{ padding: '7px 4px', textAlign: 'right', fontWeight: 700, color: '#B91C1C' }}>{odNetBalanced.toFixed(3)}</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}>
+                <td style={{ padding: '7px 4px', fontWeight: 700, color: '#1D4ED8' }}>434</td>
+                <td style={{ padding: '7px 4px' }}>Organismes sociaux (CNSS Sal. + Pat. + AT + FOP.)</td>
+                <td style={{ padding: '7px 4px', textAlign: 'right' }}>—</td>
+                <td style={{ padding: '7px 4px', textAlign: 'right', fontWeight: 700, color: '#B91C1C' }}>{odCnssTotal.toFixed(3)}</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}>
+                <td style={{ padding: '7px 4px', fontWeight: 700, color: '#1D4ED8' }}>434</td>
+                <td style={{ padding: '7px 4px' }}>
+                  Mutuelle Sal. 10200 + 3 Assurances Patronales
+                  <div style={{ fontSize: '0.67rem', color: '#64748B' }}>
+                    10200: {odEmployeeInsurance.toFixed(3)} · Ass. Pat.: {odAssurancesPatronales.toFixed(3)}
+                  </div>
+                </td>
+                <td style={{ padding: '7px 4px', textAlign: 'right' }}>—</td>
+                <td style={{ padding: '7px 4px', textAlign: 'right', fontWeight: 700, color: '#B91C1C' }}>{odAssurancesAndMutuelle.toFixed(3)}</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}>
+                <td style={{ padding: '7px 4px', fontWeight: 700, color: '#1D4ED8' }}>438</td>
+                <td style={{ padding: '7px 4px' }}>État - Retenue à la source (IRPP)</td>
+                <td style={{ padding: '7px 4px', textAlign: 'right' }}>—</td>
+                <td style={{ padding: '7px 4px', textAlign: 'right', fontWeight: 700, color: '#B91C1C' }}>{odIrpp.toFixed(3)}</td>
               </tr>
               <tr style={{ borderBottom: '1px solid #CBD5E1', background: '#F8FAFC' }}>
-                <td style={{ padding: '7px 4px', fontWeight: 700, color: '#1D4ED8' }}>431000</td>
-                <td style={{ padding: '7px 4px' }}>Organismes sociaux (CNSS)</td>
+                <td style={{ padding: '7px 4px', fontWeight: 700, color: '#1D4ED8' }}>432</td>
+                <td style={{ padding: '7px 4px' }}>État - Contribution Sociale (CSS)</td>
                 <td style={{ padding: '7px 4px', textAlign: 'right' }}>—</td>
-                <td style={{ padding: '7px 4px', textAlign: 'right', fontWeight: 700, color: '#B91C1C' }}>47 670,00</td>
+                <td style={{ padding: '7px 4px', textAlign: 'right', fontWeight: 700, color: '#B91C1C' }}>{odCss.toFixed(3)}</td>
+              </tr>
+              <tr style={{ background: '#EFF6FF', fontWeight: 800 }}>
+                <td colSpan={2} style={{ padding: '8px 4px', color: '#0F172A' }}>TOTAL ÉQUILIBRÉ OD PAIE</td>
+                <td style={{ padding: '8px 4px', textAlign: 'right', color: '#0F172A' }}>{odTotalDebit.toFixed(3)}</td>
+                <td style={{ padding: '8px 4px', textAlign: 'right', color: '#0F172A' }}>{odTotalCredit.toFixed(3)}</td>
               </tr>
             </tbody>
           </table>
 
+          {odStatusNotice && (
+            <div
+              role="status"
+              style={{
+                marginTop: '10px',
+                padding: '9px 12px',
+                borderRadius: '6px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                background: odStatusNotice.type === 'success' ? '#ECFDF5' : '#FEF2F2',
+                color: odStatusNotice.type === 'success' ? '#065F46' : '#B91C1C',
+                border: `1px solid ${odStatusNotice.type === 'success' ? '#A7F3D0' : '#FECACA'}`,
+              }}
+            >
+              {odStatusNotice.type === 'success' ? '✅ ' : '⚠️ '}{odStatusNotice.message}
+            </div>
+          )}
+
           <button
             type="button"
-            onClick={() => alert('OD de Paie comptabilisée avec succès pour Novembre 2026.')}
+            onClick={handlePostPayrollOd}
+            disabled={isPostingOd}
             style={{
-              marginTop: '16px',
+              marginTop: '14px',
               width: '100%',
-              background: '#1E3A8A',
+              background: isPostingOd ? '#64748B' : '#1E3A8A',
               color: '#FFFFFF',
               border: 'none',
               borderRadius: '6px',
               padding: '10px 14px',
               fontWeight: 700,
               fontSize: '0.84rem',
-              cursor: 'pointer',
+              cursor: isPostingOd ? 'not-allowed' : 'pointer',
               textAlign: 'center',
             }}
           >
-            Comptabiliser OD Paie
+            {isPostingOd ? 'Comptabilisation en cours...' : 'Comptabiliser OD Paie'}
           </button>
         </div>
       </div>

@@ -88,6 +88,8 @@ export interface MultiEmployeeTotals {
   count: number;
   totalGross: number;
   totalCnssEmployee: number;
+  totalEmployeeInsurance: number;
+  totalParentACharge: number;
   totalNetImposable: number;
   totalIrpp: number;
   totalCss: number;
@@ -237,6 +239,8 @@ export function computeMultiEmployeeTotals(records: MultiEmployeeRecord[]): Mult
       acc.count += 1;
       acc.totalGross = round3(acc.totalGross + res.grossSalary);
       acc.totalCnssEmployee = round3(acc.totalCnssEmployee + res.employeeCnss);
+      acc.totalEmployeeInsurance = round3(acc.totalEmployeeInsurance + res.employeeInsurance);
+      acc.totalParentACharge = round3(acc.totalParentACharge + res.parentACharge);
       acc.totalNetImposable = round3(acc.totalNetImposable + res.netImposable);
       acc.totalIrpp = round3(acc.totalIrpp + res.irpp);
       acc.totalCss = round3(acc.totalCss + res.css);
@@ -256,6 +260,8 @@ export function computeMultiEmployeeTotals(records: MultiEmployeeRecord[]): Mult
       count: 0,
       totalGross: 0,
       totalCnssEmployee: 0,
+      totalEmployeeInsurance: 0,
+      totalParentACharge: 0,
       totalNetImposable: 0,
       totalIrpp: 0,
       totalCss: 0,

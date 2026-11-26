@@ -2311,7 +2311,7 @@ export const App: React.FC = () => {
         );
 
       case 'payrollEngine':
-        return <PayrollSimulationPanel accessToken={apiAccessToken} />;
+        return <PayrollSimulationPanel accessToken={apiAccessToken} entityId={apiEntityId} />;
 
       case 'anomalies':
         return <AnomaliesPanel accessToken={apiAccessToken} />;
