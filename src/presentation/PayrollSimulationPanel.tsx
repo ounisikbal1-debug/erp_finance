@@ -925,39 +925,63 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
           </div>
 
           {/* Tableau Modulable des Tranches IRPP */}
-          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '14px' }}>
-            <h3 style={{ margin: '0 0 10px', fontSize: '0.95rem', color: '#0F172A' }}>Barème Progressif de l’IRPP (Tranches modulables)</h3>
+          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '14px', overflowX: 'auto' }}>
+            <h3 style={{ margin: '0 0 10px', fontSize: '0.95rem', color: '#0F172A' }}>Barème Progressif de l’IRPP (Tranches modulables &amp; Calcul par tranche)</h3>
             <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#EDF2F7', borderBottom: '2px solid #CBD5E1' }}>
                   <th style={{ padding: '8px', textAlign: 'left' }}>Tranche de revenu net imposable</th>
                   <th style={{ padding: '8px', textAlign: 'right' }}>Taux IRPP (%)</th>
+                  <th style={{ padding: '8px', textAlign: 'right' }}>Assiette Tranche (DT/an)</th>
+                  <th style={{ padding: '8px', textAlign: 'right' }}>IRPP Annuel (DT/an)</th>
+                  <th style={{ padding: '8px', textAlign: 'right' }}>IRPP Mensuel (DT/mois)</th>
                 </tr>
               </thead>
               <tbody>
-                {customRates.irppBrackets.map((b, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid #E2E8F0' }}>
-                    <td style={{ padding: '7px 8px' }}>
-                      {b.max === Infinity ? `Plus de ${b.min.toLocaleString('fr-FR')} DT` : `De ${b.min.toLocaleString('fr-FR')} DT à ${b.max.toLocaleString('fr-FR')} DT`}
-                    </td>
-                    <td style={{ padding: '7px 8px', textAlign: 'right' }}>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.5"
-                        value={b.rate}
-                        onChange={(e) => {
-                          const newBrackets = [...customRates.irppBrackets];
-                          newBrackets[idx] = { ...newBrackets[idx], rate: Number(e.target.value) };
-                          setCustomRates({ ...customRates, irppBrackets: newBrackets });
-                        }}
-                        style={{ width: '80px', textAlign: 'right', padding: '4px 6px', fontWeight: 700 }}
-                      /> %
-                    </td>
-                  </tr>
-                ))}
+                {customRates.irppBrackets.map((b, idx) => {
+                  const rowCalc = tranchesAfterGains[idx] ?? { slice: 0, taxAnnual: 0, taxMonthly: 0 };
+                  const isActiveSlice = rowCalc.slice > 0;
+                  return (
+                    <tr key={idx} style={{ borderBottom: '1px solid #E2E8F0', background: isActiveSlice ? '#FFFFFF' : '#F8FAFC', color: isActiveSlice ? '#0F172A' : '#64748B' }}>
+                      <td style={{ padding: '7px 8px', fontWeight: isActiveSlice ? 600 : 400 }}>
+                        {b.max === Infinity ? `Plus de ${b.min.toLocaleString('fr-FR')} DT` : `De ${b.min.toLocaleString('fr-FR')} DT à ${b.max.toLocaleString('fr-FR')} DT`}
+                      </td>
+                      <td style={{ padding: '7px 8px', textAlign: 'right' }}>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.5"
+                          value={b.rate}
+                          onChange={(e) => {
+                            const newBrackets = [...customRates.irppBrackets];
+                            newBrackets[idx] = { ...newBrackets[idx], rate: Number(e.target.value) };
+                            setCustomRates({ ...customRates, irppBrackets: newBrackets });
+                          }}
+                          style={{ width: '76px', textAlign: 'right', padding: '4px 6px', fontWeight: 700 }}
+                        /> %
+                      </td>
+                      <td style={{ padding: '7px 8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                        {rowCalc.slice.toFixed(3)}
+                      </td>
+                      <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: isActiveSlice ? 700 : 400, fontVariantNumeric: 'tabular-nums' }}>
+                        {rowCalc.taxAnnual.toFixed(3)}
+                      </td>
+                      <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: isActiveSlice ? 700 : 400, color: isActiveSlice && rowCalc.taxMonthly > 0 ? '#B91C1C' : 'inherit', fontVariantNumeric: 'tabular-nums' }}>
+                        {rowCalc.taxMonthly.toFixed(3)}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
+              <tfoot>
+                <tr style={{ background: '#E2E8F0', borderTop: '2px solid #94A3B8', fontWeight: 800, color: '#0F172A' }}>
+                  <td style={{ padding: '8px' }} colSpan={2}>TOTAL IRPP CALCULÉ</td>
+                  <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{annualTaxableAfterGains.toFixed(3)} DT</td>
+                  <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{sumIrppAfterGains.toFixed(3)} DT</td>
+                  <td style={{ padding: '8px', textAlign: 'right', color: '#B91C1C', fontVariantNumeric: 'tabular-nums' }}>{monthlyIrppAfterGains.toFixed(3)} DT</td>
+                </tr>
+              </tfoot>
             </table>
           </div>
 
