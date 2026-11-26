@@ -191,12 +191,13 @@ function computePayslipFromCustomRates(
     + ((Number(inputs.childrenCount) || 0) * rates.childDeduction);
 
   const benefitRate = Number(inputs.complementaryRetirementRate) || 0;
+  // Calcul de l’Avantage fiscal assis sur le Salaire Brut Total (Base + Primes)
   const retirementBonusDeduction = inputs.fiscalBenefitType === 'COMPLEMENTARY_RETIREMENT'
-    ? round3(taxableGross * (benefitRate / 100))
+    ? round3(grossSalary * (benefitRate / 100))
     : inputs.fiscalBenefitType === 'RETIREMENT_SAVINGS'
-      ? round3(taxableGross * ((benefitRate > 0 ? benefitRate : 4) / 100))
+      ? round3(grossSalary * ((benefitRate > 0 ? benefitRate : 4) / 100))
       : inputs.fiscalBenefitType === 'LIFE_INSURANCE'
-        ? round3(taxableGross * ((benefitRate > 0 ? benefitRate : 3) / 100))
+        ? round3(grossSalary * ((benefitRate > 0 ? benefitRate : 3) / 100))
         : 0;
 
   const annualNetBeforeGain = Math.max(0, annualTaxableGross - annualProfExpenses - annualFamilyDeductions);
@@ -223,18 +224,19 @@ function computePayslipFromCustomRates(
   const totalGain = round3(gainIrpp + gainCss);
   const totalImpotsApresGains = round3(irpp + css);
 
-  // 1- Assurance Décès = 0.5% * Total brut
+  // 1- Assurance Décès = 0.5% * Total brut (100% Charge Patronale)
   const assuranceDeces = round3(grossSalary * (rates.assuranceDecesRate / 100));
-  // 2- Assurance Invalidité = 0.78400752510838% * Total Brut
+  // 2- Assurance Invalidité = 0.78400752510838% * Total Brut (100% Charge Patronale)
   const assuranceInvalidite = round3(grossSalary * (rates.assuranceInvaliditeRate / 100));
-  // 3- Assurance Maladie = 0.0048212520380679 * Total Brut (gère % ou proportion décimale)
+  // 3- Assurance Maladie = 0.0048212520380679 * Total Brut (100% Charge Patronale)
   const effectiveMaladieRate = rates.assuranceMaladieRate < 0.01 ? rates.assuranceMaladieRate * 100 : rates.assuranceMaladieRate;
   const assuranceMaladie = round3(grossSalary * (effectiveMaladieRate / 100));
 
   const employeeInsurance = round3(grossSalary * (rates.employeeInsuranceRate / 100));
   const parentACharge = round3(((Number(inputs.dependentParents) || 0) * rates.parentDeduction) / 12);
   const intermediateNet = round3(grossSalary - employeeCnss - irpp - css);
-  const totalRetenue = round3(employeeCnss + irpp + css + employeeInsurance + assuranceDeces + assuranceInvalidite + assuranceMaladie + parentACharge);
+  // Retenues salariales uniquement : les 3 assurances sont exclusivement des charges patronales
+  const totalRetenue = round3(employeeCnss + irpp + css + employeeInsurance + parentACharge);
   const netSalary = round3(grossSalary - totalRetenue);
 
   return {
@@ -444,11 +446,12 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
     + (inputs.childrenCount * customRates.childDeduction)
     + (inputs.dependentParents * (customRates.parentDeduction / 12) * 12);
   const modularBenefitRate = Number(inputs.complementaryRetirementRate) || 0;
+  // Calcul de l’Avantage fiscal assis sur le Salaire Brut Total (Base + Primes)
   const modularMonthlyBenefitDeduction = inputs.fiscalBenefitType === 'COMPLEMENTARY_RETIREMENT'
-    ? Math.round(modularTaxableGross * (modularBenefitRate / 100) * 1000) / 1000
+    ? Math.round(modularGross * (modularBenefitRate / 100) * 1000) / 1000
     : inputs.fiscalBenefitType === 'RETIREMENT_SAVINGS'
-      ? Math.round(modularTaxableGross * ((modularBenefitRate > 0 ? modularBenefitRate : 4) / 100) * 1000) / 1000
-      : Math.round(modularTaxableGross * ((modularBenefitRate > 0 ? modularBenefitRate : 3) / 100) * 1000) / 1000;
+      ? Math.round(modularGross * ((modularBenefitRate > 0 ? modularBenefitRate : 4) / 100) * 1000) / 1000
+      : Math.round(modularGross * ((modularBenefitRate > 0 ? modularBenefitRate : 3) / 100) * 1000) / 1000;
   const modularAnnualNetTaxable = Math.max(0, modularAnnualTaxableGross - modularAnnualProfExpenses - modularAnnualFamilyDeductions - modularMonthlyBenefitDeduction * 12);
   
   let modularAnnualIrpp = 0;
@@ -469,9 +472,10 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   const modularMonthlyAssuranceInvalidite = Math.round((modularGross * (customRates.assuranceInvaliditeRate / 100)) * 1000) / 1000;
   const effectiveMaladieRateRealtime = customRates.assuranceMaladieRate < 0.01 ? customRates.assuranceMaladieRate * 100 : customRates.assuranceMaladieRate;
   const modularMonthlyAssuranceMaladie = Math.round((modularGross * (effectiveMaladieRateRealtime / 100)) * 1000) / 1000;
-  const modularMonthlyTotalAssurances = Math.round((modularMonthlyAssuranceDeces + modularMonthlyAssuranceInvalidite + modularMonthlyAssuranceMaladie) * 1000) / 1000;
-  const modularTotalEmployer = Math.round((modularMonthlyEmployerCnss + modularMonthlyWorkAccident + modularMonthlyFoprolos + modularMonthlyEmployerInsurance) * 1000) / 1000;
-  const modularTotalDeductions = Math.round((modularCnss + modularMonthlyIrpp + modularMonthlyCss + modularMonthlyEmployeeInsurance + modularMonthlyTotalAssurances) * 1000) / 1000;
+  const modularMonthlyTotalAssurancesPatronales = Math.round((modularMonthlyAssuranceDeces + modularMonthlyAssuranceInvalidite + modularMonthlyAssuranceMaladie) * 1000) / 1000;
+  // Les 3 assurances sont exclusivement des charges patronales
+  const modularTotalEmployer = Math.round((modularMonthlyEmployerCnss + modularMonthlyWorkAccident + modularMonthlyFoprolos + modularMonthlyEmployerInsurance + modularMonthlyTotalAssurancesPatronales) * 1000) / 1000;
+  const modularTotalDeductions = Math.round((modularCnss + modularMonthlyIrpp + modularMonthlyCss + modularMonthlyEmployeeInsurance) * 1000) / 1000;
   const modularNet = Math.round((modularGross - modularTotalDeductions) * 1000) / 1000;
 
   // Calculs détaillés Tranche par Tranche : AVANT GAINS et APRÈS GAINS (8 tranches SAFE & CSS 0.5%)
@@ -541,11 +545,11 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
     ['Impôts avant gains', result.totalImpots],
     ['Impôts après gains', result.totalImpotsApresGains],
     ['Net intermédiaire', result.intermediateNet],
-    ['Assurance Décès (0.5%)', -result.assuranceDeces],
-    ['Assurance Invalidité (0.784%)', -result.assuranceInvalidite],
-    ['Assurance Maladie (0.482%)', -result.assuranceMaladie],
     ['Déduction parents à charge', result.parentACharge],
-    ['Total retenues', result.totalRetenue],
+    ['Total retenues salariales', result.totalRetenue],
+    ['Assurance Décès (Charge Patronale 0.5%)', result.assuranceDeces],
+    ['Assurance Invalidité (Charge Patronale 0.784%)', result.assuranceInvalidite],
+    ['Assurance Maladie (Charge Patronale 0.482%)', result.assuranceMaladie],
   ] : [];
 
   return (
@@ -961,7 +965,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
               </select>
             </label>
             <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              1. Assurance Décès (%) — {modularMonthlyAssuranceDeces.toFixed(3)} DT/mois
+              1. Assurance Décès Patronale (%) — {modularMonthlyAssuranceDeces.toFixed(3)} DT/mois
               <input
                 type="number"
                 step="0.001"
@@ -969,10 +973,10 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 onChange={(e) => setCustomRates({ ...customRates, assuranceDecesRate: Number(e.target.value) })}
                 style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
               />
-              <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 500 }}>0.5% × Total Brut</span>
+              <span style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600 }}>0.5% × Total Brut (Charge Patronale)</span>
             </label>
             <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              2. Assurance Invalidité (%) — {modularMonthlyAssuranceInvalidite.toFixed(3)} DT/mois
+              2. Assurance Invalidité Patronale (%) — {modularMonthlyAssuranceInvalidite.toFixed(3)} DT/mois
               <input
                 type="number"
                 step="0.000001"
@@ -980,10 +984,10 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 onChange={(e) => setCustomRates({ ...customRates, assuranceInvaliditeRate: Number(e.target.value) })}
                 style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
               />
-              <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 500 }}>0.78400752510838% × Total Brut</span>
+              <span style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600 }}>0.78400752510838% × Total Brut (Charge Patronale)</span>
             </label>
             <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#334155', fontWeight: 700, fontSize: '0.82rem' }}>
-              3. Assurance Maladie (%) — {modularMonthlyAssuranceMaladie.toFixed(3)} DT/mois
+              3. Assurance Maladie Patronale (%) — {modularMonthlyAssuranceMaladie.toFixed(3)} DT/mois
               <input
                 type="number"
                 step="0.000001"
@@ -991,7 +995,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 onChange={(e) => setCustomRates({ ...customRates, assuranceMaladieRate: Number(e.target.value) })}
                 style={{ border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px', font: 'inherit', fontWeight: 700 }}
               />
-              <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 500 }}>0,0048212520380679 × Total Brut (0.4821%)</span>
+              <span style={{ fontSize: '0.72rem', color: '#166534', fontWeight: 600 }}>0,0048212520380679 × Total Brut (Charge Patronale)</span>
             </label>
           </div>
 
@@ -1059,7 +1063,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                   </tr>
                   <tr style={{ borderBottom: '1px solid #E2E8F0', color: '#15803D' }}>
                     <td style={{ padding: '7px 10px' }}>− Dispositif d’Avantage Fiscal ({inputs.fiscalBenefitType === 'COMPLEMENTARY_RETIREMENT' ? 'Retraite compl.' : inputs.fiscalBenefitType === 'RETIREMENT_SAVINGS' ? 'Épargne retraite' : 'Assurance-vie'})</td>
-                    <td style={{ padding: '7px 10px', textAlign: 'center' }}>Taux appliqué {modularBenefitRate > 0 ? `${modularBenefitRate}%` : 'Standard'}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'center' }}>Taux appliqué {modularBenefitRate > 0 ? `${modularBenefitRate}%` : 'Standard'} assis sur Salaire Brut Total (Base + Primes)</td>
                     <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{(modularMonthlyBenefitDeduction * 12).toFixed(3)} DT</td>
                     <td style={{ padding: '7px 10px', textAlign: 'right' }}>-{modularMonthlyBenefitDeduction.toFixed(3)} DT</td>
                   </tr>
@@ -1480,43 +1484,43 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                   <td style={{ padding: '6px' }}>9920</td>
-                  <td style={{ padding: '6px' }}>1. Assurance Décès (0.5% × Brut)</td>
+                  <td style={{ padding: '6px' }}>1. Assurance Décès Patronale (0.5% × Brut)</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.assuranceDecesRate.toFixed(3)} %</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.assuranceDeces.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#334155', fontWeight: 600 }}>{result.assuranceDeces.toFixed(3)}</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                   <td style={{ padding: '6px' }}>9930</td>
-                  <td style={{ padding: '6px' }}>2. Assurance Invalidité</td>
+                  <td style={{ padding: '6px' }}>2. Assurance Invalidité Patronale</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.assuranceInvaliditeRate.toFixed(4)} %</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.assuranceInvalidite.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#334155', fontWeight: 600 }}>{result.assuranceInvalidite.toFixed(3)}</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                   <td style={{ padding: '6px' }}>9940</td>
-                  <td style={{ padding: '6px' }}>3. Assurance Maladie</td>
+                  <td style={{ padding: '6px' }}>3. Assurance Maladie Patronale</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.assuranceMaladieRate.toFixed(4)} %</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.assuranceMaladie.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#334155', fontWeight: 600 }}>{result.assuranceMaladie.toFixed(3)}</td>
                 </tr>
                 <tr style={{ borderTop: '2px solid #CBD5E1', borderBottom: '2px solid #CBD5E1', background: '#F8FAFC', fontWeight: 800 }}>
                   <td style={{ padding: '6px' }} colSpan={2}>TOTAL COTISATIONS</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(result.employeeCnss + result.irpp + result.css + result.assuranceDeces + result.assuranceInvalidite + result.assuranceMaladie + (Math.round(result.grossSalary * (customRates.employeeInsuranceRate / 100) * 1000) / 1000)).toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(result.employeeCnss + result.irpp + result.css + (Math.round(result.grossSalary * (customRates.employeeInsuranceRate / 100) * 1000) / 1000)).toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right', color: '#334155' }}>
-                    {(Math.round((result.grossSalary * ((customRates.cnssEmployerRate + customRates.workAccidentRate + customRates.employerInsuranceRate) / 100)) * 1000) / 1000).toFixed(3)}
+                    {(Math.round((result.grossSalary * ((customRates.cnssEmployerRate + customRates.workAccidentRate + customRates.employerInsuranceRate) / 100) + result.assuranceDeces + result.assuranceInvalidite + result.assuranceMaladie) * 1000) / 1000).toFixed(3)}
                   </td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>

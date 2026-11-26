@@ -134,7 +134,6 @@ function computeRowFromGross(
 ): PayrollRegisterRow {
   const r3 = (v: number) => Math.round(v * 1000) / 1000;
   const employeeCnss = r3(grossSalary * (rates.cnssEmployeeRate / 100));
-  const employerCnss = r3(grossSalary * ((rates.cnssEmployerRate + rates.workAccidentRate) / 100));
   const foprolos = r3(grossSalary * (rates.foprolosRate / 100));
   const taxableGross = Math.max(0, r3(grossSalary - employeeCnss));
   const annualTaxable = taxableGross * 12;
@@ -156,7 +155,8 @@ function computeRowFromGross(
   const assDeces = r3(grossSalary * (decesRate / 100));
   const assInv = r3(grossSalary * (invRate / 100));
   const assMaladie = r3(grossSalary * (effectiveMaladie / 100));
-  const netSalary = r3(grossSalary - employeeCnss - irpp - css - assDeces - assInv - assMaladie);
+  const employerCnss = r3(grossSalary * ((rates.cnssEmployerRate + rates.workAccidentRate) / 100) + assDeces + assInv + assMaladie);
+  const netSalary = r3(grossSalary - employeeCnss - irpp - css);
   return {
     id,
     employeeNumber,

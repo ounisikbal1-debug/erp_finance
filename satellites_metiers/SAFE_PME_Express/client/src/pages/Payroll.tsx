@@ -86,7 +86,7 @@ export default function Payroll() {
     <>
       <PageHeader
         title="Paie & bulletins"
-        subtitle="IRPP 8 tranches (0 % → 40 %) · CNSS 9,68 % / 17,07 % · CSS 0,5 %"
+        subtitle="IRPP 8 tranches (0 % → 40 %) · CNSS 9,68 % / 17,07 % · CSS 0,5 % · Assurances patronales 1,766 % (Décès 0,5 %, Invalidité 0,784 %, Maladie 0,482 %)"
         actions={
           <button className="erp-btn-gold" onClick={() => setOpen(true)} disabled={active.length === 0}>
             + Lancer un cycle de paie
@@ -212,8 +212,7 @@ export default function Payroll() {
           <div className="rounded-lg bg-gold-soft/50 p-3 text-[12px] leading-relaxed">
             <p className="font-semibold text-[hsl(38_72%_30%)]">Taux appliqués</p>
             <p className="mt-1 text-muted-foreground">
-              CNSS salarié {CNSS_EMPLOYEE_RATE} % · CNSS employeur {CNSS_EMPLOYER_RATE} % · CSS {CSS_RATE} % ·
-              IRPP 8 tranches
+              CNSS salarié {CNSS_EMPLOYEE_RATE} % · CNSS employeur {CNSS_EMPLOYER_RATE} % · CSS {CSS_RATE} % · Assurances patronales 1,766 % (Décès 0,5 %, Invalidité 0,784 %, Maladie 0,482 %) · IRPP 8 tranches
             </p>
           </div>
         </div>
