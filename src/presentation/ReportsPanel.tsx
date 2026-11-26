@@ -124,7 +124,7 @@ export default function ReportsPanel({
     },
     {
       id: 'inv_taxation',
-      label: '⚖ï¸ Déclarations de TVA & Retenues RS',
+      label: '⚖️ Déclarations de TVA & Retenues RS',
       badge: 'Fiscalité',
       description: 'Suivi de la TVA facturée, déductible et retenues à la source (RS 1%, 1.5%, 3%, 15%) selon le barème DGI.',
       render: () => <TaxationPanel accessToken={accessToken} entityId={entityId} currency={currency} />,
@@ -240,7 +240,7 @@ export default function ReportsPanel({
     },
     {
       id: 'stk_customs_regimes',
-      label: 'ðŸ›ï¸ Registre des Régimes Douaniers (AT/ACT/C)',
+      label: '🛡️ Registre des Régimes Douaniers (AT/ACT/C)',
       badge: 'SINDA Douane',
       description: 'Apurement des comptes matières sous régimes suspensifs AT 6000 et ACT 5000.',
       render: () => (
@@ -331,7 +331,7 @@ export default function ReportsPanel({
     },
     {
       id: 'pay_cnss_declaration',
-      label: 'ðŸ›ï¸ Déclaration Trimestrielle CNSS',
+      label: '🛡️ Déclaration Trimestrielle CNSS',
       badge: 'Bordereau CNSS',
       description: 'Bordereau de déclaration des salaires et cotisations sociales trimestrielles à télédéclarer.',
       render: () => (
@@ -361,7 +361,7 @@ export default function ReportsPanel({
     },
     {
       id: 'pay_bank_transfers',
-      label: 'ðŸ¦ Ordres de Virements Bancaires des Salaires',
+      label: '🏦 Ordres de Virements Bancaires des Salaires',
       badge: 'Télécompensation',
       description: 'Fichier de virement normalisé des salaires nets vers les banques tunisiennes (BIAT, BNA, Attijari, STB, etc.).',
       render: () => (
@@ -446,7 +446,7 @@ export default function ReportsPanel({
     },
     {
       id: 'hr_leaves_tracking',
-      label: 'ðŸ–ï¸ Suivi des Congés Légaux & Absences',
+      label: '🖥️ Suivi des Congés Légaux & Absences',
       badge: 'Solde Congés',
       description: 'Suivi des droits à congés payés annuels, absences justifiées et attestations maladie.',
       render: () => (
@@ -476,7 +476,7 @@ export default function ReportsPanel({
   const accountingReports: ReportDefinition[] = [
     {
       id: 'acc_general_balance',
-      label: '⚖ï¸ Balance Générale à 8 Colonnes',
+      label: '⚖️ Balance Générale à 8 Colonnes',
       badge: 'SCE',
       description: 'Soldes d’ouverture, mouvements période et soldes de clôture des classes 1 à 7 du Système Comptable des Entreprises.',
       render: () => <GeneralBalancePanel accessToken={accessToken} entityId={entityId} />,
@@ -504,7 +504,7 @@ export default function ReportsPanel({
     },
     {
       id: 'acc_taxation',
-      label: 'ðŸ›ï¸ Liasse Fiscale & Déclarations G50',
+      label: '🛡️ Liasse Fiscale & Déclarations G50',
       badge: 'DGI Tunisie',
       description: 'Déclarations fiscales mensuelles G50, TVA, TCL, FOPROLOS et acomptes provisionnels IS.',
       render: () => <TaxationPanel accessToken={accessToken} entityId={entityId} currency={currency} />,
@@ -522,7 +522,7 @@ export default function ReportsPanel({
   const productionReports: ReportDefinition[] = [
     {
       id: 'prod_of_tracking',
-      label: '⚙ï¸ Suivi d’Avancement des Ordres de Fabrication (OF)',
+      label: '⚙️ Suivi d’Avancement des Ordres de Fabrication (OF)',
       badge: 'GPAO & Ateliers',
       description: 'Tableau de bord des OF ordonnancés, en cours, terminés et analyse des taux de rebuts industriels.',
       render: () => (
@@ -602,7 +602,7 @@ export default function ReportsPanel({
             <div style={{ border: '1px solid #E2E8F0', borderRadius: 8, padding: 12, background: '#F8FAFC' }}>
               <div style={{ fontWeight: 800, color: '#0F172A' }}>Plaques Électroniques CMS 24V</div>
               <div style={{ fontSize: 12, color: '#334155', marginTop: 4 }}>Coût Standard BOM : <strong>48.200 TND</strong> • Coût Réel Constaté : <strong>48.950 TND</strong></div>
-              <div style={{ fontSize: 11, color: '#DC2626', marginTop: 4 }}>⚠ï¸ Léger surcoût composant électronique (+1.55%)</div>
+              <div style={{ fontSize: 11, color: '#DC2626', marginTop: 4 }}>⚠️ Léger surcoût composant électronique (+1.55%)</div>
             </div>
           </div>
         </div>
@@ -614,7 +614,7 @@ export default function ReportsPanel({
   const assetsReports: ReportDefinition[] = [
     {
       id: 'ast_registry',
-      label: 'ðŸ¢ Registre Général des Immobilisations',
+      label: '🏢 Registre Général des Immobilisations',
       badge: 'Fichier des Actifs',
       description: 'Inventaire de tous les biens corporels et incorporels avec date de mise en service et valeur brute d’acquisition.',
       render: () => (
@@ -922,7 +922,7 @@ export default function ReportsPanel({
               gap: 6,
             }}
           >
-            🖨ï¸ Imprimer ce Rapport
+            🖨️ Imprimer ce Rapport
           </button>
         </div>
         {activeReport.render()}

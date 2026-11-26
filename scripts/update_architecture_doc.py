@@ -1,9 +1,9 @@
 ﻿# -*- coding: utf-8 -*-
 r"""
-Mise Ã  jour globale de la documentation SAFE ERP :
-1. Mise Ã  jour de ARCHITECTURE_TECHNIQUE_SAFE_ERP.docx avec la section complÃ¨te MVC & Services Distincts
-2. Mise Ã  jour de DOSSIER_COMPLET_*.docx avec l'architecture MVC propre Ã  chaque prologiciel
-3. Mise Ã  jour de SUITE_PROLOGICIELS_METIERS_SAFE_TUNISIE.docx
+Mise à jour globale de la documentation SAFE ERP :
+1. Mise à jour de ARCHITECTURE_TECHNIQUE_SAFE_ERP.docx avec la section complète MVC & Services Distincts
+2. Mise à jour de DOSSIER_COMPLET_*.docx avec l'architecture MVC propre à chaque prologiciel
+3. Mise à jour de SUITE_PROLOGICIELS_METIERS_SAFE_TUNISIE.docx
 4. Synchronisation vers C:\Users\USER\OneDrive\Desktop\SAFE_Doccumentation, C:\Users\USER\OneDrive\Desktop et docs/
 r"""
 
@@ -143,7 +143,7 @@ def add_callout(doc, text, title="NOTE ARCHITECTURALE"):
 def build_cover_page(doc, title, subtitle, badge_text):
     p_meta = doc.add_paragraph()
     p_meta.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    r_meta = p_meta.add_run(f"CONFIDENTIEL â€¢ Ã‰DITION OFFICIELLE {datetime.datetime.now().year} â€¢ NORMES TUNISIENNES SCE & IFRS")
+    r_meta = p_meta.add_run(f"CONFIDENTIEL • ÉDITION OFFICIELLE {datetime.datetime.now().year} • NORMES TUNISIENNES SCE & IFRS")
     r_meta.font.size = Pt(8)
     r_meta.font.bold = True
     r_meta.font.color.rgb = RGBColor(100, 116, 139)
@@ -179,18 +179,18 @@ def build_cover_page(doc, title, subtitle, badge_text):
     doc.add_paragraph("\n")
 
     add_callout(doc, 
-        "Document d'architecture technique exhaustif dÃ©crivant la restructuration complÃ¨te en ModÃ¨le-Vue-ContrÃ´leur (MVC) "
-        "avec isolation stricte de la logique mÃ©tier dans des Services DÃ©couplÃ©s, garantissant une intÃ©gritÃ© transactionnelle "
-        "parfaite, une testabilitÃ© Ã  100% et une conformitÃ© rigoureuse aux normes fiscales et comptables tunisiennes 2026.",
-        "RÃ‰FÃ‰RENTIEL D'INGÃ‰NIERIE LOGICIELLE"
+        "Document d'architecture technique exhaustif décrivant la restructuration complète en Modèle-Vue-Contrôleur (MVC) "
+        "avec isolation stricte de la logique métier dans des Services Découplés, garantissant une intégrité transactionnelle "
+        "parfaite, une testabilité à 100% et une conformité rigoureuse aux normes fiscales et comptables tunisiennes 2026.",
+        "RÉFÉRENTIEL D'INGÉNIERIE LOGICIELLE"
     )
 
     p_footer = doc.add_paragraph()
     p_footer.alignment = WD_ALIGN_PARAGRAPH.LEFT
     r_f = p_footer.add_run(
-        "Auteurs : Direction Technique SAFE ERP & Ã‰quipe R&D\n"
+        "Auteurs : Direction Technique SAFE ERP & Équipe R&D\n"
         "Technologies : TypeScript, Node.js Express, React 19, Prisma ORM, FastAPI, SQLite / PostgreSQL\n"
-        f"DerniÃ¨re rÃ©vision : {datetime.datetime.now().strftime('%d/%m/%Y')} â€¢ Statut : VALIDÃ‰ EN PRODUCTION"
+        f"Dernière révision : {datetime.datetime.now().strftime('%d/%m/%Y')} • Statut : VALIDÉ EN PRODUCTION"
     )
     r_f.font.size = Pt(8.5)
     r_f.font.color.rgb = RGBColor(148, 163, 184)
@@ -206,134 +206,134 @@ def generate_updated_architecture_doc():
     build_cover_page(
         doc,
         "Dossier d'Architecture Technique & Logicielle",
-        "Architecture MVC, Services MÃ©tiers Distincts, E-Facture TTN, SÃ©curitÃ© HMAC-SHA256 & Normes SCE 2026",
+        "Architecture MVC, Services Métiers Distincts, E-Facture TTN, Sécurité HMAC-SHA256 & Normes SCE 2026",
         "DOCUMENT D'ARCHITECTURE TECHNIQUE (DAT v2.0)"
     )
 
-    add_header_styled(doc, "1. Architecture Globale du SystÃ¨me & Vision 3-Tiers", 1)
+    add_header_styled(doc, "1. Architecture Globale du Système & Vision 3-Tiers", 1)
     doc.add_paragraph(
-        "La suite logicielle SAFE ERP a Ã©tÃ© entiÃ¨rement refondue pour adopter le patron d'architecture "
-        "ModÃ¨le - Vue - ContrÃ´leur (MVC) renforcÃ© par une couche de Services MÃ©tiers Distincts (Domain Services). "
-        "Cette sÃ©paration hermÃ©tique Ã©limine tout couplage fort entre le protocole de transport rÃ©seau (HTTP REST), "
-        "l'expÃ©rience utilisateur graphique (SPA React / HTML5) et les rÃ¨gles de calcul financiÃ¨res et fiscales tunisiennes."
+        "La suite logicielle SAFE ERP a été entièrement refondue pour adopter le patron d'architecture "
+        "Modèle - Vue - Contrôleur (MVC) renforcé par une couche de Services Métiers Distincts (Domain Services). "
+        "Cette séparation hermétique élimine tout couplage fort entre le protocole de transport réseau (HTTP REST), "
+        "l'expérience utilisateur graphique (SPA React / HTML5) et les règles de calcul financières et fiscales tunisiennes."
     )
 
     data_stack = [
-        ["Couche Applicative", "Technologies & Librairies", "RÃ´le & ResponsabilitÃ©", "SÃ©curitÃ© & Isolation"],
-        ["Vues (Presentation Layer)", "React 19, TypeScript, Vite, TailwindCSS, HTML5 Standalone", "Interfaces de pilotage Comex, thÃ¨me sombre/clair, bascule RTL Arabe, Ã©crans dÃ©diÃ©s par progiciel", "Aucun calcul mÃ©tier cÃ´tÃ© client, requÃªtes API authentifiÃ©es"],
-        ["ContrÃ´leurs (Controller Layer)", "Node.js Express / Python FastAPI, Typage TypeScript / Pydantic", "27 contrÃ´leurs modulaires (src/core/controllers/), validation des entrÃ©es et isolation entitÃ©", "Matrice RBAC stricte, SoD, protection injection"],
-        ["Services MÃ©tiers (Service Layer)", "Services TS/Python 100% dÃ©couplÃ©s (src/core/services/)", "Logique mÃ©tier pure : FiscalService, AuditTrailService, PayrollEngine, StockValuation, BankingService", "TestabilitÃ© unitaire 100%, 0 dÃ©pendance transport"],
-        ["ModÃ¨les & Persistance (Model Layer)", "Prisma ORM 6.x, PostgreSQL (Prod) / SQLite (Autonome)", "131 tables relationnelles, 81 migrations versionnÃ©es, abstraction centralisÃ©e (prisma.ts)", "Transactions ACID au millime, verrous matÃ©riels"],
-        ["Facturation Ã‰lectronique TTN", "XML UBL 2.1, CEV 2D-Doc, TunTrust PKI (X.509)", "Plateforme nationale El Fatoora, signature et horodatage certifiÃ©", "InviolabilitÃ© SHA-256 & AgrÃ©ment TTN"],
-        ["SÃ©curitÃ© & TraÃ§abilitÃ©", "SHA-256 chain, HMAC-SHA256, scrypt, Hardware ID Lock", "Sessions infalsifiables, audit trail immuable des journaux comptables", "Empreinte machine unique, protection anti-copie"],
-        ["GÃ©nÃ©ration Documentaire", "ExcelJS, PptxGenJS, Python docx", "Exports classeurs multi-onglets, plaquettes financiÃ¨res et dossiers d'audit", "GÃ©nÃ©ration locale native sans cloud tiers"]
+        ["Couche Applicative", "Technologies & Librairies", "Rôle & Responsabilité", "Sécurité & Isolation"],
+        ["Vues (Presentation Layer)", "React 19, TypeScript, Vite, TailwindCSS, HTML5 Standalone", "Interfaces de pilotage Comex, thème sombre/clair, bascule RTL Arabe, écrans dédiés par progiciel", "Aucun calcul métier côté client, requêtes API authentifiées"],
+        ["Contrôleurs (Controller Layer)", "Node.js Express / Python FastAPI, Typage TypeScript / Pydantic", "27 contrôleurs modulaires (src/core/controllers/), validation des entrées et isolation entité", "Matrice RBAC stricte, SoD, protection injection"],
+        ["Services Métiers (Service Layer)", "Services TS/Python 100% découplés (src/core/services/)", "Logique métier pure : FiscalService, AuditTrailService, PayrollEngine, StockValuation, BankingService", "Testabilité unitaire 100%, 0 dépendance transport"],
+        ["Modèles & Persistance (Model Layer)", "Prisma ORM 6.x, PostgreSQL (Prod) / SQLite (Autonome)", "131 tables relationnelles, 81 migrations versionnées, abstraction centralisée (prisma.ts)", "Transactions ACID au millime, verrous matériels"],
+        ["Facturation Électronique TTN", "XML UBL 2.1, CEV 2D-Doc, TunTrust PKI (X.509)", "Plateforme nationale El Fatoora, signature et horodatage certifié", "Inviolabilité SHA-256 & Agrément TTN"],
+        ["Sécurité & Traçabilité", "SHA-256 chain, HMAC-SHA256, scrypt, Hardware ID Lock", "Sessions infalsifiables, audit trail immuable des journaux comptables", "Empreinte machine unique, protection anti-copie"],
+        ["Génération Documentaire", "ExcelJS, PptxGenJS, Python docx", "Exports classeurs multi-onglets, plaquettes financières et dossiers d'audit", "Génération locale native sans cloud tiers"]
     ]
     create_styled_table(doc, data_stack[0], data_stack[1:], [1.5, 2.0, 2.3, 1.6])
 
     # NOUVELLE SECTION MAJEURE : ARCHITECTURE MVC & SERVICES DISTINCTS
-    add_header_styled(doc, "2. Architecture MVC (ModÃ¨le - Vue - ContrÃ´leur) & Services MÃ©tiers Distincts", 1)
+    add_header_styled(doc, "2. Architecture MVC (Modèle - Vue - Contrôleur) & Services Métiers Distincts", 1)
     doc.add_paragraph(
-        "Le dÃ©coupage architectural adoptÃ© structure l'ensemble de la suite (ERP Global, 7 Prologiciels Satellites MÃ©tiers "
-        "et 6 Satellites Sectoriels) selon les standards les plus exigeants du gÃ©nie logiciel d'entreprise :"
+        "Le découpage architectural adopté structure l'ensemble de la suite (ERP Global, 7 Prologiciels Satellites Métiers "
+        "et 6 Satellites Sectoriels) selon les standards les plus exigeants du génie logiciel d'entreprise :"
     )
 
     add_header_styled(doc, "2.1 Les 3 Couches Fondamentales du Patron MVC", 2)
     doc.add_paragraph(
-        "1. ModÃ¨le (Model Layer - src/core/models/) : DÃ©finit les entitÃ©s mÃ©tier, les relations et assure l'accÃ¨s aux donnÃ©es. "
-        "La persistance est encapsulÃ©e via une instance Prisma unique et contrÃ´lÃ©e (`prisma.ts`), supportant de maniÃ¨re transparente "
-        "PostgreSQL pour les dÃ©ploiements multisites en entreprise et SQLite pour les progiciels autonomes monoposte.\n"
-        "2. ContrÃ´leur (Controller Layer - src/core/controllers/) : Chaque domaine fonctionnel dispose d'un contrÃ´leur dÃ©diÃ©. "
-        "Son rÃ´le est strictement limitÃ© Ã  l'interception des requÃªtes HTTP, Ã  la validation structurelle des charges utiles (payloads), "
-        "au contrÃ´le des habilitations (RBAC) et Ã  la rÃ©solution du pÃ©rimÃ¨tre de la sociÃ©tÃ© dÃ©clarante (`resolveEntityScope`).\n"
+        "1. Modèle (Model Layer - src/core/models/) : Définit les entités métier, les relations et assure l'accès aux données. "
+        "La persistance est encapsulée via une instance Prisma unique et contrôlée (`prisma.ts`), supportant de manière transparente "
+        "PostgreSQL pour les déploiements multisites en entreprise et SQLite pour les progiciels autonomes monoposte.\n"
+        "2. Contrôleur (Controller Layer - src/core/controllers/) : Chaque domaine fonctionnel dispose d'un contrôleur dédié. "
+        "Son rôle est strictement limité à l'interception des requêtes HTTP, à la validation structurelle des charges utiles (payloads), "
+        "au contrôle des habilitations (RBAC) et à la résolution du périmètre de la société déclarante (`resolveEntityScope`).\n"
         "3. Vue (View / Presentation Layer - src/presentation/ & web_dist/) : Composants React 19 et interfaces HTML5 autonomes "
-        "qui consomment les rÃ©ponses JSON standardisÃ©es des contrÃ´leurs sans jamais exÃ©cuter de logique fiscale ou comptable en local."
+        "qui consomment les réponses JSON standardisées des contrôleurs sans jamais exécuter de logique fiscale ou comptable en local."
     )
 
-    add_header_styled(doc, "2.2 La Couche des Services MÃ©tiers Distincts (Core Domain Services)", 2)
+    add_header_styled(doc, "2.2 La Couche des Services Métiers Distincts (Core Domain Services)", 2)
     doc.add_paragraph(
-        "Au cÅ“ur du systÃ¨me, les rÃ¨gles de gestion sont encapsulÃ©es dans des services autonomes (`src/core/services/`). "
-        "Ces services ne dÃ©pendent d'aucun framework Web (ni Express, ni FastAPI) et peuvent Ãªtre appelÃ©s indiffÃ©remment par les contrÃ´leurs API, "
-        "des tÃ¢ches d'arriÃ¨re-plan ou des scripts de clÃ´ture automatisÃ©s :"
+        "Au cœur du système, les règles de gestion sont encapsulées dans des services autonomes (`src/core/services/`). "
+        "Ces services ne dépendent d'aucun framework Web (ni Express, ni FastAPI) et peuvent être appelés indifféremment par les contrôleurs API, "
+        "des tâches d'arrière-plan ou des scripts de clôture automatisés :"
     )
 
     data_services = [
-        ["Service MÃ©tier Autonome", "Fichiers Sources ClÃ©s", "ResponsabilitÃ© & Algorithmes MÃ©tiers", "Normes & RÃ¨gles AppliquÃ©es"],
-        ["FiscalService", "src/core/services/fiscal.service.ts", "Calcul prÃ©cis de la TVA tunisienne aux 3 taux lÃ©gaux (19%, 13%, 7%), calcul de la Retenue Ã  la Source (RS), liquidation du timbre fiscal 1.000 DT, prÃ©paration des dÃ©clarations G50 mensuelles et calcul de l'acompte provisionnel et de l'IS.", "Code de la TVA, LF 2026, DÃ©cret G50 DGI"],
-        ["AuditTrailService", "src/core/services/audit-trail.service.ts", "SÃ©curisation cryptographique de toutes les Ã©critures comptables. Chaque mouvement est scellÃ© par un hachage SHA-256 chaÃ®nÃ© Ã  l'Ã©criture prÃ©cÃ©dente (table JournalEntryAuditChainHead).", "Norme ISA 240, InviolabilitÃ© lÃ©gale COSO"],
-        ["PayrollEngineService", "src/core/services/payroll.service.ts", "Moteur de paie tunisienne calculant le brut imposable, les cotisations CNSS salariales (9.68%) et patronales (16.57% + accident du travail), la Contribution Sociale de SolidaritÃ© (CSS 1%) et le barÃ¨me progressif IRPP 8 tranches.", "Code du Travail Tunisien, BarÃ¨me IRPP 2026"],
-        ["StockValuationService", "src/core/services/stock.service.ts", "Suivi en temps rÃ©el des stocks multi-dÃ©pÃ´ts, gestion des entrÃ©es/sorties/transferts, calcul automatique du Prix Unitaire Moyen PondÃ©rÃ© (PUMP) et FIFO, dÃ©tection des seuils de rÃ©approvisionnement.", "Norme comptable tunisienne NCT 04 (Stocks)"],
-        ["BankingService", "src/core/services/banking.service.ts", "Rapprochement bancaire automatisÃ© avec tolÃ©rance millimÃ©trique, gestion des comptes bancaires multi-devises (TND, EUR, USD), rÃ©Ã©valuation mensuelle des devises au cours BCT interbancaire.", "Circulaires Banque Centrale de Tunisie (BCT)"],
-        ["ConsolidationService", "src/core/services/consolidation.service.ts", "Moteur de consolidation groupe : Ã©limination des opÃ©rations rÃ©ciproques intercompagnies (recettes/dÃ©penses, crÃ©ances/dettes), conversion au cours de clÃ´ture et production de la balance agrÃ©gÃ©e.", "Norme NCT 35 (Ã‰tats Financiers ConsolidÃ©s)"],
-        ["CustomsService", "src/core/services/customs.service.ts", "Gestion des rÃ©gimes douaniers Ã©conomiques : entrepÃ´t fictif, admission temporaire (AT), apurement des comptes douaniers et calcul des droits de douane et taxes d'effet Ã©quivalent.", "Code des Douanes Tunisiennes"]
+        ["Service Métier Autonome", "Fichiers Sources Clés", "Responsabilité & Algorithmes Métiers", "Normes & Règles Appliquées"],
+        ["FiscalService", "src/core/services/fiscal.service.ts", "Calcul précis de la TVA tunisienne aux 3 taux légaux (19%, 13%, 7%), calcul de la Retenue à la Source (RS), liquidation du timbre fiscal 1.000 DT, préparation des déclarations G50 mensuelles et calcul de l'acompte provisionnel et de l'IS.", "Code de la TVA, LF 2026, Décret G50 DGI"],
+        ["AuditTrailService", "src/core/services/audit-trail.service.ts", "Sécurisation cryptographique de toutes les écritures comptables. Chaque mouvement est scellé par un hachage SHA-256 chaîné à l'écriture précédente (table JournalEntryAuditChainHead).", "Norme ISA 240, Inviolabilité légale COSO"],
+        ["PayrollEngineService", "src/core/services/payroll.service.ts", "Moteur de paie tunisienne calculant le brut imposable, les cotisations CNSS salariales (9.68%) et patronales (16.57% + accident du travail), la Contribution Sociale de Solidarité (CSS 1%) et le barème progressif IRPP 8 tranches.", "Code du Travail Tunisien, Barème IRPP 2026"],
+        ["StockValuationService", "src/core/services/stock.service.ts", "Suivi en temps réel des stocks multi-dépôts, gestion des entrées/sorties/transferts, calcul automatique du Prix Unitaire Moyen Pondéré (PUMP) et FIFO, détection des seuils de réapprovisionnement.", "Norme comptable tunisienne NCT 04 (Stocks)"],
+        ["BankingService", "src/core/services/banking.service.ts", "Rapprochement bancaire automatisé avec tolérance millimétrique, gestion des comptes bancaires multi-devises (TND, EUR, USD), réévaluation mensuelle des devises au cours BCT interbancaire.", "Circulaires Banque Centrale de Tunisie (BCT)"],
+        ["ConsolidationService", "src/core/services/consolidation.service.ts", "Moteur de consolidation groupe : élimination des opérations réciproques intercompagnies (recettes/dépenses, créances/dettes), conversion au cours de clôture et production de la balance agrégée.", "Norme NCT 35 (États Financiers Consolidés)"],
+        ["CustomsService", "src/core/services/customs.service.ts", "Gestion des régimes douaniers économiques : entrepôt fictif, admission temporaire (AT), apurement des comptes douaniers et calcul des droits de douane et taxes d'effet équivalent.", "Code des Douanes Tunisiennes"]
     ]
     create_styled_table(doc, data_services[0], data_services[1:], [1.6, 2.0, 2.2, 1.6])
 
-    add_header_styled(doc, "2.3 Architecture MVC des 7 Prologiciels Satellites MÃ©tiers", 2)
+    add_header_styled(doc, "2.3 Architecture MVC des 7 Prologiciels Satellites Métiers", 2)
     doc.add_paragraph(
-        "Chaque prologiciel mÃ©tier du dossier `satellites_metiers/` est structurÃ© selon un schÃ©ma MVC unifiÃ© :"
+        "Chaque prologiciel métier du dossier `satellites_metiers/` est structuré selon un schéma MVC unifié :"
     )
     doc.add_paragraph(
-        "â€¢ SAFE_Facturation : `controllers/sales.controller.ts`, `services/invoice.service.ts`, `models/sales.model.ts`\n"
-        "â€¢ SAFE_Gestion_des_Stocks : `controllers/stock.controller.ts`, `services/warehouse.service.ts`, `models/stock.model.ts`\n"
-        "â€¢ SAFE_Paie : `controllers/payroll.controller.ts`, `services/social-tax.service.ts`, `models/payroll.model.ts`\n"
-        "â€¢ SAFE_Gestion_RH : `controllers/hr.controller.ts`, `services/career.service.ts`, `models/employee.model.ts`\n"
-        "â€¢ SAFE_Comptabilite_Fiscalite : `controllers/accounting.controller.ts`, `services/tax-g50.service.ts`, `models/ledger.model.ts`\n"
-        "â€¢ SAFE_Production_GPAO : `controllers/mrp.controller.ts`, `services/bom-cost.service.ts`, `models/production.model.ts`\n"
-        "â€¢ SAFE_Immobilisations : `controllers/asset.controller.ts`, `services/depreciation.service.ts`, `models/asset.model.ts`"
+        "• SAFE_Facturation : `controllers/sales.controller.ts`, `services/invoice.service.ts`, `models/sales.model.ts`\n"
+        "• SAFE_Gestion_des_Stocks : `controllers/stock.controller.ts`, `services/warehouse.service.ts`, `models/stock.model.ts`\n"
+        "• SAFE_Paie : `controllers/payroll.controller.ts`, `services/social-tax.service.ts`, `models/payroll.model.ts`\n"
+        "• SAFE_Gestion_RH : `controllers/hr.controller.ts`, `services/career.service.ts`, `models/employee.model.ts`\n"
+        "• SAFE_Comptabilite_Fiscalite : `controllers/accounting.controller.ts`, `services/tax-g50.service.ts`, `models/ledger.model.ts`\n"
+        "• SAFE_Production_GPAO : `controllers/mrp.controller.ts`, `services/bom-cost.service.ts`, `models/production.model.ts`\n"
+        "• SAFE_Immobilisations : `controllers/asset.controller.ts`, `services/depreciation.service.ts`, `models/asset.model.ts`"
     )
 
     add_header_styled(doc, "2.4 Architecture MVC des 6 Progiciels Satellites Sectoriels (FastAPI)", 2)
     doc.add_paragraph(
-        "Les logiciels sectoriels autonomes (`satellites_sectoriels/` et Bureau `SAFE_ERP_TUNISIE`) opÃ¨rent sur des ports rÃ©seau dÃ©diÃ©s "
-        "avec une architecture MVC complÃ¨te sous FastAPI et stockage SQLite local hermÃ©tique :"
+        "Les logiciels sectoriels autonomes (`satellites_sectoriels/` et Bureau `SAFE_ERP_TUNISIE`) opèrent sur des ports réseau dédiés "
+        "avec une architecture MVC complète sous FastAPI et stockage SQLite local hermétique :"
     )
     doc.add_paragraph(
-        "1. Port 8001 : SAFE NÃ©goce & Distribution Commerciale (gestion dÃ©pÃ´ts, tournÃ©es de livraison, tarifs grossistes).\n"
-        "2. Port 8002 : SAFE Services, Conseils & Cabinets (suivi temps passÃ©, gestion des dossiers clients, facturation d'honoraires).\n"
-        "3. Port 8003 : SAFE Industrie & Production PME (ordres de fabrication, coÃ»ts de revient matiÃ¨res/main-d'Å“uvre, TRS).\n"
+        "1. Port 8001 : SAFE Négoce & Distribution Commerciale (gestion dépôts, tournées de livraison, tarifs grossistes).\n"
+        "2. Port 8002 : SAFE Services, Conseils & Cabinets (suivi temps passé, gestion des dossiers clients, facturation d'honoraires).\n"
+        "3. Port 8003 : SAFE Industrie & Production PME (ordres de fabrication, coûts de revient matières/main-d'œuvre, TRS).\n"
         "4. Port 8004 : SAFE Restauration & Point de Vente POS (caisse tactile, plans de table, menus, TVA 7% & 19%).\n"
-        "5. Port 8005 : SAFE Transport Routier & Colis Express (flotte vÃ©hicules, lettres de voiture, suivi colis, maintenance).\n"
-        "6. Port 8090 : SAFE CRM Ã‰diteur & Licences MatÃ©rielles (supervision des activations Hardware ID, HMAC-SHA256)."
+        "5. Port 8005 : SAFE Transport Routier & Colis Express (flotte véhicules, lettres de voiture, suivi colis, maintenance).\n"
+        "6. Port 8090 : SAFE CRM Éditeur & Licences Matérielles (supervision des activations Hardware ID, HMAC-SHA256)."
     )
 
     add_callout(doc, 
-        "Chaque satellite sectoriel intÃ¨gre dÃ©sormais en dur son logo PNG officiel en Base64 sans aucune dÃ©pendance rÃ©seau, "
-        "Ã©liminant tout risque d'image brisÃ©e, et propose une route d'API native @app.get('/safe-logo.png') pour une compatibilitÃ© absolue.",
-        "RÃ‰SOLU : INTÃ‰GRITÃ‰ VISUELLE & SÃ‰CURITÃ‰ DES SATELLITES"
+        "Chaque satellite sectoriel intègre désormais en dur son logo PNG officiel en Base64 sans aucune dépendance réseau, "
+        "éliminant tout risque d'image brisée, et propose une route d'API native @app.get('/safe-logo.png') pour une compatibilité absolue.",
+        "RÉSOLU : INTÉGRITÉ VISUELLE & SÉCURITÉ DES SATELLITES"
     )
 
     add_header_styled(doc, "3. Architecture du Module E-Facture Tunisienne (El Fatoora)", 1)
     doc.add_paragraph(
-        "Le module E-Facture (`src/application/modules/sales/tunisian-e-invoice.ts`) gÃ¨re le cycle de vie complet de la facture dÃ©matÃ©rialisÃ©e conformÃ©ment aux exigences de Tunisie TradeNet :"
+        "Le module E-Facture (`src/application/modules/sales/tunisian-e-invoice.ts`) gère le cycle de vie complet de la facture dématérialisée conformément aux exigences de Tunisie TradeNet :"
     )
-    doc.add_paragraph("â€¢ GÃ©nÃ©ration UBL 2.1 : Extraction des mÃ©tadonnÃ©es de la facture de vente (entitÃ© Ã©mettrice, client, matricule fiscal, TVA 19/13/7%, timbre 1 DT) et structuration sous format XML standardisÃ© OASIS UBL 2.1 Invoice.")
-    doc.add_paragraph("â€¢ Calcul du Condensat SHA-256 : Hachage cryptographique du corps XML garantissant la non-altÃ©ration du document.")
-    doc.add_paragraph("â€¢ Cachet Ã‰lectronique Visible (CEV / 2D-Doc) : GÃ©nÃ©ration de l'en-tÃªte normalisÃ© `CEV01` contenant : Matricule Ã©metteur (MF), Matricule client, NÂ° facture, Date d'Ã©mission, Montants HT, TVA, Timbre, Total TTC et empreinte de sÃ©curitÃ© Base64.")
-    doc.add_paragraph("â€¢ Signature NumÃ©rique TunTrust : Application du certificat X.509 de l'entreprise avec clÃ© privÃ©e RSA-SHA256.")
-    doc.add_paragraph("â€¢ TÃ©lÃ©transmission TTN : Envoi du flux XML via les passerelles d'interconnexion sÃ©curisÃ©es de Tunisie TradeNet, rÃ©cupÃ©ration de l'accusÃ© de rÃ©ception et affectation du numÃ©ro d'agrÃ©ment officiel.")
+    doc.add_paragraph("• Génération UBL 2.1 : Extraction des métadonnées de la facture de vente (entité émettrice, client, matricule fiscal, TVA 19/13/7%, timbre 1 DT) et structuration sous format XML standardisé OASIS UBL 2.1 Invoice.")
+    doc.add_paragraph("• Calcul du Condensat SHA-256 : Hachage cryptographique du corps XML garantissant la non-altération du document.")
+    doc.add_paragraph("• Cachet Électronique Visible (CEV / 2D-Doc) : Génération de l'en-tête normalisé `CEV01` contenant : Matricule émetteur (MF), Matricule client, N° facture, Date d'émission, Montants HT, TVA, Timbre, Total TTC et empreinte de sécurité Base64.")
+    doc.add_paragraph("• Signature Numérique TunTrust : Application du certificat X.509 de l'entreprise avec clé privée RSA-SHA256.")
+    doc.add_paragraph("• Télétransmission TTN : Envoi du flux XML via les passerelles d'interconnexion sécurisées de Tunisie TradeNet, récupération de l'accusé de réception et affectation du numéro d'agrément officiel.")
 
-    add_header_styled(doc, "4. ModÃ¨le de DonnÃ©es & Tables ClÃ©s", 1)
+    add_header_styled(doc, "4. Modèle de Données & Tables Clés", 1)
     doc.add_paragraph(
-        "Le schÃ©ma de base de donnÃ©es comprend 131 tables organisÃ©es en domaines fonctionnels Ã©tanches :"
+        "Le schéma de base de données comprend 131 tables organisées en domaines fonctionnels étanches :"
     )
-    doc.add_paragraph("â€¢ Domaine Facturation Ã‰lectronique : TunisianEInvoice (id, invoiceId, entityId, ttnReference, status, xmlPayload, sha256Hash, qrCodeData, signatureDigest, submissionDate, responseDate, rejectionReason).")
-    doc.add_paragraph("â€¢ Domaine Comptable & TrÃ©sorerie : ChartOfAccount, JournalEntry, JournalLine, BankAccount, BankStatement, BankStatementLine, BankReconciliation, CashflowPayment, CashflowAccountingMapping.")
-    doc.add_paragraph("â€¢ Domaine Ventes & Clients : Customer, CustomerContact, SalesQuote, SalesOrder, Invoice, InvoiceItem, SalesInvoiceWorkflowEvent.")
-    doc.add_paragraph("â€¢ Domaine Achats & Fournisseurs : Vendor, PurchaseOrder, PurchaseOrderLine, PurchaseInvoice, PurchaseInvoiceLine, SupplierCreditNote, PurchaseInvoiceWorkflowEvent.")
-    doc.add_paragraph("â€¢ Domaine Stocks & Production : Material, MaterialWarehouseStock, Warehouse, StockMovement, ProductionOrder, BillOfMaterial.")
-    doc.add_paragraph("â€¢ Domaine FiscalitÃ© & RÃ©glementaire : CountryProfile, CountryTaxRate, CountryTaxRule, CountryTaxThreshold, TaxDeclarationWorkpaper, WithholdingCertificate.")
-    doc.add_paragraph("â€¢ Domaine RH & Paie : Employee, LeaveRequest, PayrollConfig, PayrollRubrique, PayrollTaxBracket, HrDocumentMetadata.")
-    doc.add_paragraph("â€¢ Domaine SÃ©curitÃ© & Audit : User, AuthSession, AdminUserEvent, JournalEntryAuditChainHead, JournalEntryAuditRecord.")
+    doc.add_paragraph("• Domaine Facturation Électronique : TunisianEInvoice (id, invoiceId, entityId, ttnReference, status, xmlPayload, sha256Hash, qrCodeData, signatureDigest, submissionDate, responseDate, rejectionReason).")
+    doc.add_paragraph("• Domaine Comptable & Trésorerie : ChartOfAccount, JournalEntry, JournalLine, BankAccount, BankStatement, BankStatementLine, BankReconciliation, CashflowPayment, CashflowAccountingMapping.")
+    doc.add_paragraph("• Domaine Ventes & Clients : Customer, CustomerContact, SalesQuote, SalesOrder, Invoice, InvoiceItem, SalesInvoiceWorkflowEvent.")
+    doc.add_paragraph("• Domaine Achats & Fournisseurs : Vendor, PurchaseOrder, PurchaseOrderLine, PurchaseInvoice, PurchaseInvoiceLine, SupplierCreditNote, PurchaseInvoiceWorkflowEvent.")
+    doc.add_paragraph("• Domaine Stocks & Production : Material, MaterialWarehouseStock, Warehouse, StockMovement, ProductionOrder, BillOfMaterial.")
+    doc.add_paragraph("• Domaine Fiscalité & Réglementaire : CountryProfile, CountryTaxRate, CountryTaxRule, CountryTaxThreshold, TaxDeclarationWorkpaper, WithholdingCertificate.")
+    doc.add_paragraph("• Domaine RH & Paie : Employee, LeaveRequest, PayrollConfig, PayrollRubrique, PayrollTaxBracket, HrDocumentMetadata.")
+    doc.add_paragraph("• Domaine Sécurité & Audit : User, AuthSession, AdminUserEvent, JournalEntryAuditChainHead, JournalEntryAuditRecord.")
 
-    add_header_styled(doc, "5. Points d'EntrÃ©e API REST (E-Facturation & Ventes)", 1)
-    doc.add_paragraph("Le module de facturation Ã©lectronique expose les endpoints REST sÃ©curisÃ©s suivants :")
-    doc.add_paragraph("â€¢ GET /api/sales/e-invoices?entityId=:id : Liste et mÃ©tadonnÃ©es des e-factures Ã©mises pour une filiale.")
-    doc.add_paragraph("â€¢ GET /api/sales/e-invoices/:id : Consultation dÃ©taillÃ©e d'une e-facture (statut TTN, CEV, empreintes).")
-    doc.add_paragraph("â€¢ GET /api/sales/e-invoices/:id/xml : Flux brut XML UBL 2.1 tÃ©lÃ©chargeable au standard TTN.")
-    doc.add_paragraph("â€¢ POST /api/sales/e-invoices/generate/:invoiceId : GÃ©nÃ©ration du document XML UBL et du CEV.")
-    doc.add_paragraph("â€¢ POST /api/sales/e-invoices/:id/sign : Signature cryptographique par certificat TunTrust.")
-    doc.add_paragraph("â€¢ POST /api/sales/e-invoices/:id/submit-ttn : Soumission et obtention de l'agrÃ©ment TTN.")
-    doc.add_paragraph("â€¢ POST /api/sales/e-invoices/bulk-generate : GÃ©nÃ©ration, signature et transmission par lots.")
+    add_header_styled(doc, "5. Points d'Entrée API REST (E-Facturation & Ventes)", 1)
+    doc.add_paragraph("Le module de facturation électronique expose les endpoints REST sécurisés suivants :")
+    doc.add_paragraph("• GET /api/sales/e-invoices?entityId=:id : Liste et métadonnées des e-factures émises pour une filiale.")
+    doc.add_paragraph("• GET /api/sales/e-invoices/:id : Consultation détaillée d'une e-facture (statut TTN, CEV, empreintes).")
+    doc.add_paragraph("• GET /api/sales/e-invoices/:id/xml : Flux brut XML UBL 2.1 téléchargeable au standard TTN.")
+    doc.add_paragraph("• POST /api/sales/e-invoices/generate/:invoiceId : Génération du document XML UBL et du CEV.")
+    doc.add_paragraph("• POST /api/sales/e-invoices/:id/sign : Signature cryptographique par certificat TunTrust.")
+    doc.add_paragraph("• POST /api/sales/e-invoices/:id/submit-ttn : Soumission et obtention de l'agrément TTN.")
+    doc.add_paragraph("• POST /api/sales/e-invoices/bulk-generate : Génération, signature et transmission par lots.")
 
     # Multi-path saves
     targets = [
@@ -345,14 +345,14 @@ def generate_updated_architecture_doc():
     for target in targets:
         try:
             doc.save(target)
-            print(f"âœ” DAT Ã©crit avec succÃ¨s dans : {target}")
+            print(f"✔ DAT écrit avec succès dans : {target}")
         except Exception as e:
-            print(f"âš  Erreur lors de l'enregistrement de {target} : {e}")
+            print(f"⚠ Erreur lors de l'enregistrement de {target} : {e}")
 
 # Run generator
 if __name__ == "__main__":
     print("=" * 80)
-    print("GÃ‰NÃ‰RATION DU DOSSIER D'ARCHITECTURE TECHNIQUE MIS Ã€ JOUR (MVC & SERVICES)")
+    print("GÉNÉRATION DU DOSSIER D'ARCHITECTURE TECHNIQUE MIS À JOUR (MVC & SERVICES)")
     print("=" * 80)
     generate_updated_architecture_doc()
 

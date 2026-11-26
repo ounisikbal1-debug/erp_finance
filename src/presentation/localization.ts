@@ -996,7 +996,7 @@ const englishBusinessText: Record<string, string> = {
   'Prévisualiser le formulaire': 'Preview form',
   'Suivi des litiges partenaires': 'Partner dispute tracking',
   'La mesure « disputes » utilise le nombre de litiges ouverts, enregistrés et clôturés par un administrateur.':
-    'The “disputesâ€ metric uses the number of open, recorded, and administrator-closed disputes.',
+    'The “disputes” metric uses the number of open, recorded, and administrator-closed disputes.',
   'Type de partenaire': 'Partner type',
   'Code ou identifiant du partenaire': 'Partner code or ID',
   'Référence (facultative)': 'Reference (optional)',

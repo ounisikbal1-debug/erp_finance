@@ -71,7 +71,7 @@ describe("requestIsSecure", () => {
     // session as soon as the app is embedded in the Studio iframe.
     expect(requestIsSecure(ctx(LOCAL, { host: "demo.chainopera.io" }))).toBe(true);
     expect(requestIsSecure(ctx(LOCAL, { host: "demo.chainopera.run" }))).toBe(true);
-    // ä¸€æ¡åŽç¼€è·¨æ‰€æœ‰æ·±åº¦ï¼šæœ€æ·±çš„é‚£ä¸ªå½¢æ€ä¹Ÿå¿…é¡»è®¤
+    // 一条后缀跨所有深度：最深的那个形态也必须认
     expect(requestIsSecure(ctx(LOCAL, { host: "sbx.preview.test.chainopera.run" }))).toBe(true);
     expect(requestIsSecure(ctx(LOCAL, { "x-forwarded-host": "demo.chainopera.io:443" }))).toBe(true);
   });

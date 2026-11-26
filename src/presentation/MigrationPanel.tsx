@@ -293,7 +293,7 @@ export const MigrationPanel: React.FC<MigrationPanelProps> = ({ accessToken, ent
 
       {errorMessage && (
         <div style={{ padding: '14px 18px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#991B1B', borderRadius: '8px', marginBottom: '20px', fontWeight: 600 }}>
-          ⚠ï¸ {errorMessage}
+          ⚠️ {errorMessage}
         </div>
       )}
 
@@ -303,7 +303,7 @@ export const MigrationPanel: React.FC<MigrationPanelProps> = ({ accessToken, ent
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <h2 style={{ fontSize: '1.05rem', fontWeight: 700, marginTop: 0, marginBottom: '16px', color: '#1E293B', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>1ï¸⃣</span> Configuration du flux
+                <span>1️⃣</span> Configuration du flux
               </h2>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
@@ -360,7 +360,7 @@ export const MigrationPanel: React.FC<MigrationPanelProps> = ({ accessToken, ent
                     Contenu brut (CSV / TSV / Texte délimité)
                   </label>
                   <label style={{ fontSize: '0.75rem', color: '#2563EB', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}>
-                    ðŸ“ Parcourir un fichier...
+                    📁 Parcourir un fichier...
                     <input type="file" accept=".csv,.txt,.tsv" onChange={handleFileUpload} style={{ display: 'none' }} />
                   </label>
                 </div>
@@ -399,7 +399,7 @@ export const MigrationPanel: React.FC<MigrationPanelProps> = ({ accessToken, ent
                   gap: '8px',
                 }}
               >
-                {analyzing ? 'â³ Analyse en cours...' : 'ðŸ” Étape 1 : Analyser & Détecter le Mapping'}
+                {analyzing ? 'â³ Analyse en cours...' : '🔍 Étape 1 : Analyser & Détecter le Mapping'}
               </button>
             </div>
           </div>
@@ -409,7 +409,7 @@ export const MigrationPanel: React.FC<MigrationPanelProps> = ({ accessToken, ent
             <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#1E293B', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>2ï¸⃣</span> Correspondances & Validation
+                  <span>2️⃣</span> Correspondances & Validation
                 </h2>
                 {detectedErp && (
                   <span style={{ padding: '4px 10px', background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800 }}>
@@ -468,7 +468,7 @@ export const MigrationPanel: React.FC<MigrationPanelProps> = ({ accessToken, ent
                         cursor: simulating ? 'not-allowed' : 'pointer',
                       }}
                     >
-                      {simulating ? 'â³ Simulation...' : '🛡ï¸ Étape 2 : Simuler (Dry-Run)'}
+                      {simulating ? 'â³ Simulation...' : '🛡️ Étape 2 : Simuler (Dry-Run)'}
                     </button>
 
                     <button

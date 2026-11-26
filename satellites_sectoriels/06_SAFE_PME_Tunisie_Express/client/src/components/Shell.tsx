@@ -12,7 +12,7 @@ const NAV = [
     items: [
       { href: "/factures", label: "Factures clients", icon: "▤" },
       { href: "/achats", label: "Achats fournisseurs", icon: "▥" },
-      { href: "/tiers", label: "Tiers", icon: "â—" },
+      { href: "/tiers", label: "Tiers", icon: "◍" },
       { href: "/articles", label: "Articles & services", icon: "▢" },
     ],
   },

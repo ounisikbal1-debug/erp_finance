@@ -303,7 +303,7 @@ def init_db():
             designation TEXT NOT NULL,
             prix_ttc REAL NOT NULL,
             taux_tva REAL DEFAULT 7.0,
-            icone TEXT DEFAULT 'ðŸ½ï¸',
+            icone TEXT DEFAULT '🍽️',
             actif INTEGER DEFAULT 1
         )
     """)
@@ -452,16 +452,16 @@ def init_db():
     if c.fetchone()[0] == 0:
         menu_items = [
             # PLATS TRADITIONNELS & SPÉCIALITÉS
-            ("PL-COUSC-AGN", "PLATS", "Couscous Impérial à l'Agneau & Légumes", 26.500, 7.0, "ðŸ²"),
-            ("PL-COUSC-MER", "PLATS", "Couscous au Mérou Sauvage & Piments", 34.000, 7.0, "ðŸŸ"),
-            ("PL-OJJA-ROY", "PLATS", "Ojja Royale aux Merguez Artisanales", 18.500, 7.0, "ðŸ³"),
-            ("PL-OJJA-FRM", "PLATS", "Ojja aux Crevettes & Fruits de Mer", 22.000, 7.0, "ðŸ¦"),
-            ("PL-LOUP-GRI", "PLATS", "Loup de Mer Grillé & Salade Mechouia", 32.000, 7.0, "ðŸŸ"),
-            ("PL-DAUR-ROY", "PLATS", "Daurade Royale Grillée au Feu de Bois", 29.000, 7.0, "ðŸŸ"),
-            ("PL-GARG-AGN", "PLATS", "Gargoulette d'Agneau Traditionnelle", 35.000, 7.0, "ðŸº"),
-            ("PL-PATE-FRM", "PLATS", "Pâtes Tunisiennes aux Fruits de Mer", 24.000, 7.0, "ðŸ"),
-            ("PL-ESCA-PAN", "PLATS", "Escalope de Dinde Panée & Frites Maison", 16.500, 7.0, "ðŸ—"),
-            ("PL-POUL-ROT", "PLATS", "Demi-Poulet Rôti aux Épices de Djerba", 15.000, 7.0, "ðŸ—"),
+            ("PL-COUSC-AGN", "PLATS", "Couscous Impérial à l'Agneau & Légumes", 26.500, 7.0, "🍲"),
+            ("PL-COUSC-MER", "PLATS", "Couscous au Mérou Sauvage & Piments", 34.000, 7.0, "🐟"),
+            ("PL-OJJA-ROY", "PLATS", "Ojja Royale aux Merguez Artisanales", 18.500, 7.0, "🍳"),
+            ("PL-OJJA-FRM", "PLATS", "Ojja aux Crevettes & Fruits de Mer", 22.000, 7.0, "🦐"),
+            ("PL-LOUP-GRI", "PLATS", "Loup de Mer Grillé & Salade Mechouia", 32.000, 7.0, "🐟"),
+            ("PL-DAUR-ROY", "PLATS", "Daurade Royale Grillée au Feu de Bois", 29.000, 7.0, "🐟"),
+            ("PL-GARG-AGN", "PLATS", "Gargoulette d'Agneau Traditionnelle", 35.000, 7.0, "🏺"),
+            ("PL-PATE-FRM", "PLATS", "Pâtes Tunisiennes aux Fruits de Mer", 24.000, 7.0, "🍝"),
+            ("PL-ESCA-PAN", "PLATS", "Escalope de Dinde Panée & Frites Maison", 16.500, 7.0, "🍗"),
+            ("PL-POUL-ROT", "PLATS", "Demi-Poulet Rôti aux Épices de Djerba", 15.000, 7.0, "🍗"),
             ("PL-KAFT-FOI", "PLATS", "Plat Kafteji Tunisien avec Foie d'Agneau", 12.500, 7.0, "🥘"),
             
             # ENTRÉES & SALADES
@@ -469,7 +469,7 @@ def init_db():
             ("EN-BRICK-CRE", "ENTREES", "Brick aux Crevettes Royales & Fromage", 9.000, 7.0, "🥟"),
             ("EN-SAL-MECH", "ENTREES", "Salade Mechouia Grillée au Pilon", 8.000, 7.0, "🥗"),
             ("EN-SAL-TUN", "ENTREES", "Salade Tunisienne aux Légumes Frais", 6.000, 7.0, "🥗"),
-            ("EN-SAL-POUL", "ENTREES", "Salade de Poulpe Mariné à l'Huile d'Olive", 14.500, 7.0, "ðŸ™"),
+            ("EN-SAL-POUL", "ENTREES", "Salade de Poulpe Mariné à l'Huile d'Olive", 14.500, 7.0, "🐙"),
             ("EN-DOIG-FAT", "ENTREES", "Assiette Doigts de Fatma (4 pièces)", 7.500, 7.0, "🥖"),
             ("EN-TAJI-POU", "ENTREES", "Tajine Tunisien au Poulet & Fromage", 8.000, 7.0, "🥧"),
             
@@ -480,21 +480,21 @@ def init_db():
             ("SW-BAGU-FAR", "SANDWICHS", "Baguette Farcie au Four Poulet Fromage", 9.000, 7.0, "🥖"),
             
             # PÂTISSERIES TUNISIENNES & DESSERTS
-            ("DE-MAKR-KAI", "DESSERTS", "Assiette Makroudh Pur Miel de Kairouan", 7.000, 7.0, "ðŸ¯"),
+            ("DE-MAKR-KAI", "DESSERTS", "Assiette Makroudh Pur Miel de Kairouan", 7.000, 7.0, "🍯"),
             ("DE-BAKL-FIN", "DESSERTS", "Assortiment Baklawa Fine aux Amandes", 9.500, 7.0, "🥮"),
-            ("DE-SAMS-NOI", "DESSERTS", "Samsa Tunisienne Croustillante Noisettes", 8.500, 7.0, "ðŸ“"),
+            ("DE-SAMS-NOI", "DESSERTS", "Samsa Tunisienne Croustillante Noisettes", 8.500, 7.0, "📐"),
             ("DE-ASSI-ZGO", "DESSERTS", "Bol Assida Zgougou Royale Fruits Secs", 12.000, 7.0, "🥣"),
-            ("DE-KAAK-WAR", "DESSERTS", "Kaak Warka Traditionnel de Zaghouan", 9.000, 7.0, "ðŸ©"),
-            ("DE-GLAC-ART", "DESSERTS", "Coupe de Glace Artisanale (3 Boules)", 7.500, 7.0, "ðŸ¨"),
-            ("DE-SALA-FRU", "DESSERTS", "Salade de Fruits Frais de Saison", 6.500, 7.0, "ðŸ‰"),
+            ("DE-KAAK-WAR", "DESSERTS", "Kaak Warka Traditionnel de Zaghouan", 9.000, 7.0, "🍩"),
+            ("DE-GLAC-ART", "DESSERTS", "Coupe de Glace Artisanale (3 Boules)", 7.500, 7.0, "🍨"),
+            ("DE-SALA-FRU", "DESSERTS", "Salade de Fruits Frais de Saison", 6.500, 7.0, "🍉"),
             
             # BOISSONS CHAUDES & FRAÎCHES
-            ("BO-CITR-AMA", "BOISSONS", "Citronnade Tunisienne aux Amandes Fraîches", 7.500, 7.0, "ðŸ‹"),
+            ("BO-CITR-AMA", "BOISSONS", "Citronnade Tunisienne aux Amandes Fraîches", 7.500, 7.0, "🍋"),
             ("BO-THE-PIGN", "BOISSONS", "Thé Rouge / Vert à la Menthe & Pignons", 4.500, 7.0, "🫖"),
             ("BO-CAFE-TUR", "BOISSONS", "Café Turc à la Fleur d'Oranger (Zhr)", 4.000, 7.0, "☕"),
             ("BO-ESPR-ITA", "BOISSONS", "Espresso Italien Pur Arabica", 3.200, 7.0, "☕"),
             ("BO-DIRE-LAI", "BOISSONS", "Café Direct au Lait Frais", 3.800, 7.0, "🥛"),
-            ("BO-JUS-ORAN", "BOISSONS", "Jus d'Orange Pressé Minute", 6.000, 7.0, "ðŸŠ"),
+            ("BO-JUS-ORAN", "BOISSONS", "Jus d'Orange Pressé Minute", 6.000, 7.0, "🍊"),
             ("BO-BOGA-CID", "BOISSONS", "Soda Boga Cidre Tunisien 33cl", 3.000, 7.0, "🥤"),
             ("BO-EAU-1500", "BOISSONS", "Bouteille Eau Minérale Safia 1.5L", 2.500, 7.0, "💧"),
         ]
@@ -1155,7 +1155,7 @@ class AddMenuItemReq(BaseModel):
     designation: str
     prix_ttc: float
     taux_tva: float = 7.0
-    icone: str = "ðŸ½ï¸"
+    icone: str = "🍽️"
 
 @app.post("/api/pos/menu")
 def add_menu_item(req: AddMenuItemReq):
@@ -1366,7 +1366,7 @@ def index_page():
                     <polygon points="50,28 53,35 60,35 54,39 56,46 50,42 44,46 46,39 40,35 47,35" fill="#F59E0B"/>
                 </svg>
                 <div>
-                    <div class="safe-brand-title">ðŸ›¡ï¸ SAFE ERP <span class="badge bg-warning text-dark font-monospace fs-6">TUNISIE 2026</span></div>
+                    <div class="safe-brand-title">🛡️ SAFE ERP <span class="badge bg-warning text-dark font-monospace fs-6">TUNISIE 2026</span></div>
                     <div class="safe-brand-slogan">{SUITE_SLOGAN}</div>
                 </div>
             </div>
@@ -1395,13 +1395,13 @@ def index_page():
         <ul class="nav nav-pills gap-1" id="pills-tab" role="tablist">
             <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-negoce">🛒 Négoce & Facturation</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-services">💼 Services & Cabinets</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-industrie">âš™ï¸ Industrie & GPAO</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-pos">ðŸ½ï¸ Restauration & Caisse POS</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-compta">âš–ï¸ Grand Livre (SCE NC 01)</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-company">ðŸ¢ Paramètres Société (En-tête)</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-fiscal">âš™ï¸ Fiscalité & Réglementation</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-admin">ðŸ›¡ï¸ Administration & Reset</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-license">ðŸ” Licence & HW-ID</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-industrie">⚙️ Industrie & GPAO</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-pos">🍽️ Restauration & Caisse POS</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-compta">⚖️ Grand Livre (SCE NC 01)</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-company">🏢 Paramètres Société (En-tête)</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-fiscal">⚙️ Fiscalité & Réglementation</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-admin">🛡️ Administration & Reset</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-license">🔐 Licence & HW-ID</button></li>
         </ul>
     </div>
 
@@ -1452,7 +1452,7 @@ def index_page():
                                     <!-- DEUX BOUTONS SÉPARÉS : COMPTABILISATION (1) & VALIDATION (2) - EXIGENCE 6 -->
                                     <div class="d-flex gap-2 mt-3">
                                         <button type="button" class="btn btn-outline-primary btn-sm w-50 fw-bold" onclick="submitNegoceFacture('COMPTABILISER')">
-                                            ðŸ“ 1. Comptabiliser (Brouillon Provisoire)
+                                            📝 1. Comptabiliser (Brouillon Provisoire)
                                         </button>
                                         <button type="button" class="btn btn-primary btn-sm w-50 fw-bold" onclick="submitNegoceFacture('VALIDER')">
                                             🔒 2. Valider Facture (Ferme & Définitive)
@@ -1921,7 +1921,7 @@ def index_page():
             <div class="tab-pane fade" id="tab-company">
                 <div class="card" style="max-width: 800px; margin: 0 auto;">
                     <div class="card-header bg-primary text-white fw-bold">
-                        ðŸ¢ Coordonnées & Personnalisation de l'En-tête des Factures / Tickets
+                        🏢 Coordonnées & Personnalisation de l'En-tête des Factures / Tickets
                     </div>
                     <div class="card-body">
                         <form id="form-company-config">
@@ -1972,7 +1972,7 @@ def index_page():
             <div class="tab-pane fade" id="tab-fiscal">
                 <div class="card" style="max-width: 800px; margin: 0 auto;">
                     <div class="card-header bg-dark text-white fw-bold">
-                        âš™ï¸ Barèmes & Taux Réglementaires Modifiables (Loi de Finances & Normes Tunisiennes)
+                        ⚙️ Barèmes & Taux Réglementaires Modifiables (Loi de Finances & Normes Tunisiennes)
                     </div>
                     <div class="card-body">
                         <form id="form-fiscal-params">
@@ -2036,7 +2036,7 @@ def index_page():
             <div class="tab-pane fade" id="tab-admin">
                 <div class="card border-danger" style="max-width: 700px; margin: 0 auto;">
                     <div class="card-header bg-danger text-white fw-bold">
-                        âš ï¸ Réinitialisation des Données Opérationnelles d'Entreprise (Remise à Zéro)
+                        ⚠️ Réinitialisation des Données Opérationnelles d'Entreprise (Remise à Zéro)
                     </div>
                     <div class="card-body">
                         <p class="text-danger fw-bold">Cette action est réservée EXCLUSIVEMENT à l'Administrateur de la société.</p>
@@ -2049,7 +2049,7 @@ def index_page():
                             <input type="password" class="form-control form-control-sm" id="admin-reset-pw" placeholder="Mot de passe admin requis">
                         </div>
                         <button class="btn btn-danger w-100 fw-bold" onclick="resetOperationalData()">
-                            ðŸ—‘ï¸ Exécuter la Remise à Zéro des Données Opérationnelles
+                            🗑️ Exécuter la Remise à Zéro des Données Opérationnelles
                         </button>
                         <div id="reset-alert" class="alert d-none py-2 my-2"></div>
                     </div>
@@ -2062,7 +2062,7 @@ def index_page():
             <div class="tab-pane fade" id="tab-license">
                 <div class="card" style="max-width: 650px; margin: 0 auto;">
                     <div class="card-header bg-primary text-white fw-bold">
-                        ðŸ” Gestionnaire de Licence & Verrou Matériel Hardware ID
+                        🔐 Gestionnaire de Licence & Verrou Matériel Hardware ID
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -2090,7 +2090,7 @@ def index_page():
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius:12px;">
                 <div class="modal-header bg-dark text-white border-bottom border-warning">
-                    <h5 class="modal-title fw-bold">ðŸ›¡ï¸ Connexion Sécurisée SAFE ERP</h5>
+                    <h5 class="modal-title fw-bold">🛡️ Connexion Sécurisée SAFE ERP</h5>
                 </div>
                 <div class="modal-body p-4">
                     <div class="text-center mb-3">
@@ -2125,7 +2125,7 @@ def index_page():
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content" style="border-radius:10px;">
                 <div class="modal-header bg-light py-2 no-print">
-                    <h6 class="modal-title fw-bold text-primary">ðŸ–¨ï¸ Aperçu Avant Impression Pièce Officielle A4</h6>
+                    <h6 class="modal-title fw-bold text-primary">🖨️ Aperçu Avant Impression Pièce Officielle A4</h6>
                     <div>
                         <button class="btn btn-sm btn-primary me-2 fw-bold" onclick="window.print()">Imprimer Document</button>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -2431,14 +2431,14 @@ def index_page():
                 al.className = 'alert alert-success py-2 my-2';
                 al.innerText = actionType === 'VALIDER' 
                     ? `✅ Facture Officielle [${d.numero}] validée ferme et enregistrée au Grand Livre !`
-                    : `ðŸ“ Pièce Brouillon [${d.numero}] comptabilisée à l\\'état provisoire.`;
+                    : `📝 Pièce Brouillon [${d.numero}] comptabilisée à l\\'état provisoire.`;
                 al.classList.remove('d-none');
                 await loadNegoceFactures();
                 await loadNegoceArticles();
                 await loadGrandLivre();
             } else {
                 al.className = 'alert alert-danger py-2 my-2';
-                al.innerText = 'âŒ Erreur : ' + (d.detail || 'Impossible de créer la facture');
+                al.innerText = '❌ Erreur : ' + (d.detail || 'Impossible de créer la facture');
                 al.classList.remove('d-none');
             }
         }
@@ -2462,7 +2462,7 @@ def index_page():
                             <td class="fw-bold ${isAvoir ? 'text-danger' : 'text-success'}">${fmt(f.net_a_payer)}</td>
                             <td><span class="badge ${isBrouillon ? 'bg-secondary' : (isAvoir ? 'bg-warning text-dark' : 'bg-success')}">${f.statut}</span></td>
                             <td>
-                                <button class="btn btn-xs btn-outline-primary py-0" onclick="printDoc('FACTURE_NEGOCE', '${f.numero}')">ðŸ–¨ï¸ A4</button>
+                                <button class="btn btn-xs btn-outline-primary py-0" onclick="printDoc('FACTURE_NEGOCE', '${f.numero}')">🖨️ A4</button>
                                 ${isBrouillon ? `<button class="btn btn-xs btn-success py-0 ms-1" onclick="validerFacture('${f.numero}')">Valider</button>` : ''}
                                 ${(!isBrouillon && !isAvoir) ? `<button class="btn btn-xs btn-outline-danger py-0 ms-1" onclick="emettreAvoirNegoce('${f.numero}')">Avoir</button>` : ''}
                             </td>
@@ -2545,7 +2545,7 @@ def index_page():
                             <td class="text-danger">-${fmt(n.montant_rs)}</td>
                             <td class="fw-bold text-success">${fmt(n.net_a_payer)}</td>
                             <td>
-                                <button class="btn btn-xs btn-outline-primary py-0" onclick="printDoc('NOTE_SERVICES', '${n.numero}')">ðŸ–¨ï¸ A4</button>
+                                <button class="btn btn-xs btn-outline-primary py-0" onclick="printDoc('NOTE_SERVICES', '${n.numero}')">🖨️ A4</button>
                                 ${!isAvoir ? `<button class="btn btn-xs btn-outline-danger py-0 ms-1" onclick="emettreAvoirServices('${n.numero}')">Avoir</button>` : ''}
                             </td>
                         </tr>
@@ -2882,7 +2882,7 @@ def index_page():
                             <td>${t.table_numero}</td>
                             <td class="fw-bold text-success">${fmt(t.total_ttc)}</td>
                             <td>
-                                <button class="btn btn-xs btn-outline-primary py-0" onclick="printDoc('TICKET_POS', '${t.numero}')">ðŸ–¨ï¸</button>
+                                <button class="btn btn-xs btn-outline-primary py-0" onclick="printDoc('TICKET_POS', '${t.numero}')">🖨️</button>
                                 ${!isAvoir ? `<button class="btn btn-xs btn-outline-danger py-0 ms-1" onclick="annulerTicketPos('${t.numero}')">Avoir</button>` : ''}
                             </td>
                         </tr>
@@ -3028,7 +3028,7 @@ def index_page():
                     await loadAllData();
                 } else {
                     al.className = 'alert alert-danger py-2 my-2';
-                    al.innerText = 'âŒ ' + (d.detail || 'Erreur');
+                    al.innerText = '❌ ' + (d.detail || 'Erreur');
                     al.classList.remove('d-none');
                 }
             } catch(e) {
@@ -3063,7 +3063,7 @@ def index_page():
                     setTimeout(() => location.reload(), 1500);
                 } else {
                     al.className = 'alert alert-danger py-2';
-                    al.innerText = 'âŒ ' + (d.detail || 'Clé non valide');
+                    al.innerText = '❌ ' + (d.detail || 'Clé non valide');
                 }
             } catch(e) {
                 al.className = 'alert alert-danger py-2';

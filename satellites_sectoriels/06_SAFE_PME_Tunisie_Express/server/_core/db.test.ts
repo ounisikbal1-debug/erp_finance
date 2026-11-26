@@ -1,8 +1,8 @@
 ﻿import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AppDB } from "./db";
 
-// db.ts åœ¨æ¨¡å—åŠ è½½æ—¶å°±æŒ‰ env.dbDriver 建 driver。两个 driver 都 mock 掉，于是这个
-// 测试问的是"atomic æŠŠè¯­å¥äº¤ç»™äº†è°"ï¼Œè€Œä¸æ˜¯"èƒ½ä¸èƒ½è¿žä¸Šåº“"。
+// db.ts 在模块加载时就按 env.dbDriver 建 driver。两个 driver 都 mock 掉，于是这个
+// 测试问的是"atomic 把语句交给了谁"，而不是"能不能连上库"。
 const batch = vi.fn(async (qs: unknown[]) => qs.map(() => []));
 const transaction = vi.fn(async (cb: (tx: unknown) => Promise<unknown>) => cb({ tx: true }));
 
@@ -36,7 +36,7 @@ beforeEach(() => {
 });
 
 describe("atomic", () => {
-  it("http: 一个 batch —— 一个 HTTP è¯·æ±‚é‡Œçš„æœåŠ¡ç«¯äº‹åŠ¡", async () => {
+  it("http: 一个 batch —— 一个 HTTP 请求里的服务端事务", async () => {
     const { atomic } = await loadWith("http");
     await atomic((() => ["q1", "q2"]) as never);
     expect(batch).toHaveBeenCalledTimes(1);
@@ -44,7 +44,7 @@ describe("atomic", () => {
     expect(transaction).not.toHaveBeenCalled();
   });
 
-  it("tcp: 真事务，且 builder 绑在 tx ä¸Šè€Œä¸æ˜¯ db 上", async () => {
+  it("tcp: 真事务，且 builder 绑在 tx 上而不是 db 上", async () => {
     const { atomic } = await loadWith("tcp");
     const seen: unknown[] = [];
     await atomic(((d: unknown) => {
@@ -52,18 +52,18 @@ describe("atomic", () => {
       return [Promise.resolve("r1")];
     }) as never);
     expect(transaction).toHaveBeenCalledTimes(1);
-    // è¿™ä¸€æ¡æ˜¯è¿™ä¸ªæµ‹è¯•å­˜åœ¨çš„ç†ç”±ï¼šbuild 收到 db çš„è¯è¯­å¥å°±è·‘åœ¨äº‹åŠ¡å¤–é¢ï¼Œ
-    // åå­—å« atomic è€Œè¡Œä¸ºä¸æ˜¯ —— 比直接报错更糟。
+    // 这一条是这个测试存在的理由：build 收到 db 的话语句就跑在事务外面，
+    // 名字叫 atomic 而行为不是 —— 比直接报错更糟。
     expect(seen[0]).toEqual({ tx: true });
     expect(batch).not.toHaveBeenCalled();
   });
 });
 
-// ç±»åž‹å±‚ç¦ä»¤ï¼Œä¸æ˜¯è¿è¡Œæ—¶æµ‹è¯•ï¼šè¿™ä¸ªå‡½æ•°ä½“ä»Žä¸ä¼šè¢«è°ƒç”¨ï¼ˆä¸‹é¢åª `void` å®ƒï¼Œä¸æ‰§è¡Œå®ƒï¼‰ï¼Œ
-// 纯粹是给 tsc 检查用的。一旦 AppDB 的 Omit æ¼æŽ‰ "transaction" 或 "batch" 中的任何一个，
-// 对应那行 @ts-expect-error 就会因为"æ²¡æœ‰é”™è¯¯å¯æŠ‘åˆ¶"而报错，pnpm typecheck 就会失败——
-// 这是防止 `batch`ï¼ˆåªå­˜åœ¨äºŽ http é©±åŠ¨ï¼‰åœ¨å¦ä¸€ä¸ªæ–¹æ³•ä¸Šé‡æ¼” `transaction`
-// ï¼ˆåªå­˜åœ¨äºŽ tcp é©±åŠ¨ï¼‰é‚£ç§ dev ç¼–è¯‘é€šè¿‡ã€prod è¿è¡Œæ—¶ TypeError 的分裂。
+// 类型层禁令，不是运行时测试：这个函数体从不会被调用（下面只 `void` 它，不执行它），
+// 纯粹是给 tsc 检查用的。一旦 AppDB 的 Omit 漏掉 "transaction" 或 "batch" 中的任何一个，
+// 对应那行 @ts-expect-error 就会因为"没有错误可抑制"而报错，pnpm typecheck 就会失败——
+// 这是防止 `batch`（只存在于 http 驱动）在另一个方法上重演 `transaction`
+// （只存在于 tcp 驱动）那种 dev 编译通过、prod 运行时 TypeError 的分裂。
 function _typeOnlyBannedMethodsStayBanned(appDb: AppDB) {
   // @ts-expect-error transaction only exists on the tcp driver — banned from AppDB, see db.ts
   appDb.transaction;

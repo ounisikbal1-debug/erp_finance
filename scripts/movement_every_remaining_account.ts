@@ -2,7 +2,7 @@
 import prisma from '../src/data/prisma/client';
 
 async function main() {
-  console.log('=== MOUVEMENTATION SYSTÃ‰MATIQUE DE TOUS LES COMPTES RESTANTS ===');
+  console.log('=== MOUVEMENTATION SYSTÉMATIQUE DE TOUS LES COMPTES RESTANTS ===');
 
   const entities = await prisma.entity.findMany();
   const tn01 = entities.find(e => e.code === 'TN01') || entities[0];
@@ -16,7 +16,7 @@ async function main() {
       where: { countryId: ent.countryId },
     });
 
-    // Obtenir tous les comptes ayant dÃ©jÃ  au moins un mouvement
+    // Obtenir tous les comptes ayant déjà au moins un mouvement
     const movedAccountCodes = new Set(
       (await prisma.journalLine.findMany({
         where: { journalEntry: { entityId: ent.id } },
@@ -26,9 +26,9 @@ async function main() {
     );
 
     const unmovemented = accounts.filter(a => !movedAccountCodes.has(a.code));
-    console.log(`Comptes sans mouvement trouvÃ©s : ${unmovemented.length}`);
+    console.log(`Comptes sans mouvement trouvés : ${unmovemented.length}`);
 
-    // CrÃ©er des Ã©critures Ã©quilibrÃ©es par paires ou blocs
+    // Créer des écritures équilibrées par paires ou blocs
     const linesToInsert: Array<{ code: string; debit: number; credit: number; desc: string }> = [];
 
     for (let i = 0; i < unmovemented.length; i++) {
@@ -41,42 +41,42 @@ async function main() {
           code: acc.code,
           debit: amount,
           credit: 0,
-          desc: `Imputation opÃ©rationnelle dÃ©bit ${acc.description}`,
+          desc: `Imputation opérationnelle débit ${acc.description}`,
         });
       } else {
         linesToInsert.push({
           code: acc.code,
           debit: 0,
           credit: amount,
-          desc: `Imputation opÃ©rationnelle crÃ©dit ${acc.description}`,
+          desc: `Imputation opérationnelle crédit ${acc.description}`,
         });
       }
     }
 
-    // Calculer le total DÃ©bit et CrÃ©dit pour Ã©quilibrer parfaitement
+    // Calculer le total Débit et Crédit pour équilibrer parfaitement
     const totalD = linesToInsert.reduce((s, l) => s + l.debit, 0);
     const totalC = linesToInsert.reduce((s, l) => s + l.credit, 0);
     const diff = totalD - totalC;
 
     if (diff > 0) {
-      // DÃ©bit supÃ©rieur : on ajoute une ligne de contrepartie crÃ©diteur sur 101000 ou 532100
+      // Débit supérieur : on ajoute une ligne de contrepartie créditeur sur 101000 ou 532100
       linesToInsert.push({
         code: '101000',
         debit: 0,
         credit: diff,
-        desc: 'Contrepartie dâ€™Ã©quilibre comptable des ouvertures de sous-comptes',
+        desc: 'Contrepartie d’équilibre comptable des ouvertures de sous-comptes',
       });
     } else if (diff < 0) {
-      // CrÃ©dit supÃ©rieur : on ajoute une ligne de contrepartie dÃ©biteur sur 532100
+      // Crédit supérieur : on ajoute une ligne de contrepartie débiteur sur 532100
       linesToInsert.push({
         code: '532100',
         debit: Math.abs(diff),
         credit: 0,
-        desc: 'Contrepartie dâ€™Ã©quilibre trÃ©sorerie des ouvertures de sous-comptes',
+        desc: 'Contrepartie d’équilibre trésorerie des ouvertures de sous-comptes',
       });
     }
 
-    // InsÃ©rer la piÃ¨ce comptable globale d'ouverture et de mouvementation
+    // Insérer la pièce comptable globale d'ouverture et de mouvementation
     if (linesToInsert.length > 0) {
       const entryNum = `OD-MVT-ALL-2026-${ent.code}`;
       const existing = await prisma.journalEntry.findFirst({
@@ -94,7 +94,7 @@ async function main() {
           entityId: ent.id,
           date: new Date('2026-10-15T10:00:00.000Z'),
           reference: 'MVT-INTEGRAL-SCE',
-          description: 'Mouvementation intÃ©grale de tous les sous-comptes dâ€™actifs, passifs, charges, produits et trÃ©sorerie',
+          description: 'Mouvementation intégrale de tous les sous-comptes d’actifs, passifs, charges, produits et trésorerie',
           status: 'POSTED',
           createdByUsername: 'admin',
           approvedByUsername: 'finmgr',
@@ -112,11 +112,11 @@ async function main() {
           },
         },
       });
-      console.log(`PiÃ¨ce ${entryNum} crÃ©Ã©e avec ${linesToInsert.length} lignes.`);
+      console.log(`Pièce ${entryNum} créée avec ${linesToInsert.length} lignes.`);
     }
   }
 
-  console.log('\n=== VÃ‰RIFICATION DU RÃ‰SULTAT ===');
+  console.log('\n=== VÉRIFICATION DU RÉSULTAT ===');
 }
 
 main().catch(console.error).finally(() => (prisma as any).$disconnect());

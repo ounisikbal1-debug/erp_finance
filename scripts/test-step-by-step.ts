@@ -11,22 +11,22 @@
 async function main() {
   console.log('=== TEST COMPLET ETAPE PAR ETAPE : PLAN COMPTABLE DEPUIS SAP ===');
 
-  // 1. DonnÃ©es brutes SAP
+  // 1. Données brutes SAP
   const rawCsv = `SAKNR;TXT50;BILKT
 411100;Clients Ventes Locales;4
-401100;Fournisseurs MatiÃ¨res PremiÃ¨res;4
+401100;Fournisseurs Matières Premières;4
 707000;Ventes de Marchandises;7
 607000;Achats de Marchandises;6`;
 
   console.log('\n1. FICHIER BRUT :');
   console.log(rawCsv);
 
-  // 2. DÃ©tection
+  // 2. Détection
   const delim = detectDelimiter(rawCsv);
   const rows = parseDelimitedText(rawCsv, delim);
   const headers = rows[0];
   const erp = detectErpSystem(headers);
-  console.log(`\n2. DETECTION : DÃ©limiteur="${delim}" | ERP="${erp}" | En-tÃªtes=[${headers.join(', ')}]`);
+  console.log(`\n2. DETECTION : Délimiteur="${delim}" | ERP="${erp}" | En-têtes=[${headers.join(', ')}]`);
 
   // 3. Mapping
   const mappings = buildFieldMappings(headers, 'CHART_OF_ACCOUNTS', erp);
@@ -51,9 +51,9 @@ async function main() {
     console.log('Erreurs de validation :', sim.errors);
   }
 
-  // 5. ExÃ©cution
+  // 5. Exécution
   const entity = await prisma.entity.findFirst({ select: { id: true, name: true } });
-  if (!entity) throw new Error('EntitÃ© absente');
+  if (!entity) throw new Error('Entité absente');
   console.log(`\n5. EXECUTION REELLE POUR L'ENTITE : ${entity.name}`);
 
   const exec = await executeMigration(
@@ -65,9 +65,9 @@ async function main() {
     'GUIDE_USER'
   );
 
-  console.log(`RÃ©sultat : SuccÃ¨s=${exec.success} | InsÃ©rÃ©s=${exec.insertedCount} | Mis Ã  jour=${exec.updatedCount} | DurÃ©e=${exec.durationMs}ms`);
+  console.log(`Résultat : Succès=${exec.success} | Insérés=${exec.insertedCount} | Mis à jour=${exec.updatedCount} | Durée=${exec.durationMs}ms`);
 
-  // 6. VÃ©rification en base
+  // 6. Vérification en base
   const accounts = await prisma.chartOfAccount.findMany({
     where: {
       code: { in: ['411100', '401100', '707000', '607000'] }

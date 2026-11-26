@@ -193,7 +193,7 @@ export default function AssetsManagementPanel({ accessToken, entityId: _entityId
                   <td style={{ padding: '8px 6px' }}>Linéaire</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>10%</td>
                   <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>680 000 TND</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>âœï¸ 🗑ï¸</td>
+                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>✏️ 🗑️</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
                   <td style={{ padding: '8px 4px' }}><input type="checkbox" /></td>
@@ -203,7 +203,7 @@ export default function AssetsManagementPanel({ accessToken, entityId: _entityId
                   <td style={{ padding: '8px 6px' }}>Dégressif</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>25%</td>
                   <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>115 000 TND</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>âœï¸ 🗑ï¸</td>
+                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>✏️ 🗑️</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
                   <td style={{ padding: '8px 4px' }}><input type="checkbox" /></td>
@@ -213,7 +213,7 @@ export default function AssetsManagementPanel({ accessToken, entityId: _entityId
                   <td style={{ padding: '8px 6px' }}>Linéaire</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>20%</td>
                   <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>135 000 TND</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>âœï¸ 🗑ï¸</td>
+                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>✏️ 🗑️</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
                   <td style={{ padding: '8px 4px' }}><input type="checkbox" /></td>
@@ -223,7 +223,7 @@ export default function AssetsManagementPanel({ accessToken, entityId: _entityId
                   <td style={{ padding: '8px 6px' }}>Linéaire</td>
                   <td style={{ padding: '8px 6px', textAlign: 'center' }}>33%</td>
                   <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>930 000 TND</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>âœï¸ 🗑ï¸</td>
+                  <td style={{ padding: '8px 6px', textAlign: 'center' }}>✏️ 🗑️</td>
                 </tr>
 
                 {assets.map((a) => (
@@ -335,7 +335,7 @@ export default function AssetsManagementPanel({ accessToken, entityId: _entityId
           onClick={() => setTab(tab === 'assets' ? 'provisions' : 'assets')}
           style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: '6px', padding: '6px 12px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
         >
-          {tab === 'assets' ? 'Afficher le Registre des Provisions →' : 'â† Revenir aux Immobilisations'}
+          {tab === 'assets' ? 'Afficher le Registre des Provisions →' : '← Revenir aux Immobilisations'}
         </button>
       </div>
 

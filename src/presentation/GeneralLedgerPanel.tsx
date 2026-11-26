@@ -248,7 +248,7 @@ export default function GeneralLedgerPanel({
           <div style={{ marginTop: '6px', color: '#D97706', fontSize: '1.65rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '6px' }}>
             18 écritures
             <span style={{ fontSize: '0.75rem', background: '#FEF3C7', color: '#B45309', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
-              ⚠ï¸ 18 écritures
+              ⚠️ 18 écritures
             </span>
           </div>
         </div>
@@ -277,7 +277,7 @@ export default function GeneralLedgerPanel({
           <div style={{ marginBottom: '14px' }}>
             <input
               type="text"
-              placeholder="ðŸ” Rechercher compte (Ex : 411, 701, Client Alpha...)"
+              placeholder="🔍 Rechercher compte (Ex : 411, 701, Client Alpha...)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{ width: '100%', border: '1px solid #CBD5E1', borderRadius: '6px', padding: '8px 12px', fontSize: '0.82rem' }}

@@ -152,7 +152,7 @@ export function renderStatusBadge(status: string) {
           whiteSpace: 'nowrap',
         }}
       >
-        <span>⚠ï¸</span>
+        <span>⚠️</span>
         <span>{status}</span>
       </span>
     );
@@ -175,7 +175,7 @@ export function renderStatusBadge(status: string) {
         whiteSpace: 'nowrap',
       }}
     >
-      <span>ðŸ“</span>
+      <span>📝</span>
       <span>{status || 'Brouillon'}</span>
     </span>
   );
@@ -450,16 +450,16 @@ export const ALL_MODULES_CONFIG: Array<{ id: NavModule; label: string; icon: str
   { id: 'profitCenters', label: 'Centres de Profit (Contrôle analytique SAFE)', icon: '📈', category: 'PILOTAGE' },
   { id: 'fxRevaluation', label: 'Réévaluation des devises', icon: '💱', category: 'PILOTAGE' },
   { id: 'financialStatements', label: 'Mouvements comptables', icon: '📑', category: 'PILOTAGE' },
-  { id: 'consolidation', label: 'Consolidation Groupe', icon: 'ðŸŒ', category: 'PILOTAGE' },
-  { id: 'intercompany', label: 'Transactions intercompagnies', icon: 'ðŸ”', category: 'PILOTAGE' },
-  { id: 'monthlyClose', label: 'Clôture mensuelle', icon: '🗓ï¸', category: 'PILOTAGE' },
+  { id: 'consolidation', label: 'Consolidation Groupe', icon: '🌐', category: 'PILOTAGE' },
+  { id: 'intercompany', label: 'Transactions intercompagnies', icon: '🔁', category: 'PILOTAGE' },
+  { id: 'monthlyClose', label: 'Clôture mensuelle', icon: '🗓️', category: 'PILOTAGE' },
   { id: 'controlling', label: 'Contrôle de gestion', icon: '/icons/dashboard.png', category: 'PILOTAGE' },
 
   // COMPTABILITÉ & ÉCRITURES
   { id: 'generalBalance', label: 'Balance Générale des Comptes', icon: '/icons/comptabilite.png', category: 'COMPTABILITÉ' },
   { id: 'generalLedger', label: 'Grand Livre Général (GL)', icon: '📖', category: 'COMPTABILITÉ' },
   { id: 'assetsManagement', label: 'Immobilisations (Immobilisations SAFE)', icon: '/icons/immobilisations.png', category: 'COMPTABILITÉ' },
-  { id: 'accountingEntry', label: 'Saisie Comptable Horizontale', icon: 'âœï¸', category: 'COMPTABILITÉ' },
+  { id: 'accountingEntry', label: 'Saisie Comptable Horizontale', icon: '✍️', category: 'COMPTABILITÉ' },
   { id: 'agedReceivables', label: 'Balance Âgée Clients', icon: '👥', category: 'COMPTABILITÉ' },
   { id: 'agedPayables', label: 'Balance Âgée Fournisseurs', icon: '/icons/stocks.png', category: 'COMPTABILITÉ' },
   { id: 'taxation', label: 'Déclarations Fiscales (G50)', icon: '/icons/comptabilite.png', category: 'COMPTABILITÉ' },
@@ -468,7 +468,7 @@ export const ALL_MODULES_CONFIG: Array<{ id: NavModule; label: string; icon: str
   // CAPITAL HUMAIN
   { id: 'payrollEngine', label: 'Gestion de la Paie & Salaires', icon: '/icons/paie.png', category: 'CAPITAL HUMAIN' },
   { id: 'hrDeep', label: 'Ressources Humaines & Talents', icon: '/icons/rh.png', category: 'CAPITAL HUMAIN' },
-  { id: 'hrWorkflows', label: 'Documents, recrutement & frais', icon: 'ðŸ“', category: 'CAPITAL HUMAIN' },
+  { id: 'hrWorkflows', label: 'Documents, recrutement & frais', icon: '📁', category: 'CAPITAL HUMAIN' },
 
   // OPÉRATIONS & SUPPLY CHAIN
   { id: 'purchases', label: 'Achats & Fournisseurs', icon: '🛒', category: 'OPÉRATIONS' },
@@ -478,15 +478,15 @@ export const ALL_MODULES_CONFIG: Array<{ id: NavModule; label: string; icon: str
   { id: 'tunisianEInvoices', label: 'E-Factures TTN (El Fatoora)', icon: '🇹🇳', category: 'OPÉRATIONS' },
   { id: 'incomeStatement', label: 'Compte de Résultat (P&L)', icon: '📉', category: 'OPÉRATIONS' },
   { id: 'activities', label: 'Activités Opérationnelles & Métiers', icon: '/icons/industrie.png', category: 'OPÉRATIONS' },
-  { id: 'maintenance', label: 'Maintenance des équipements', icon: '🛠ï¸', category: 'OPÉRATIONS' },
+  { id: 'maintenance', label: 'Maintenance des équipements', icon: '🛠️', category: 'OPÉRATIONS' },
   { id: 'projects', label: 'Projets & chantiers', icon: '📋', category: 'OPÉRATIONS' },
   { id: 'tenders', label: 'Marchés publics', icon: '📑', category: 'OPÉRATIONS' },
   { id: 'customsRegimes', label: 'Régimes douaniers AT / ACT', icon: '/icons/stocks.png', category: 'OPÉRATIONS' },
   { id: 'quality', label: 'Qualité & actions CAPA', icon: '✅', category: 'OPÉRATIONS' },
 
   // PARAMÈTRES & GOUVERNANCE
-  { id: 'governanceSod', label: 'Gouvernance & SoD (Gouvernance SAFE)', icon: '🛡ï¸', category: 'PARAMÈTRES' },
-  { id: 'securityAccess', label: 'Sécurité & Droits d’Accès (RBAC)', icon: '🛡ï¸', category: 'PARAMÈTRES' },
+  { id: 'governanceSod', label: 'Gouvernance & SoD (Gouvernance SAFE)', icon: '🛡️', category: 'PARAMÈTRES' },
+  { id: 'securityAccess', label: 'Sécurité & Droits d’Accès (RBAC)', icon: '🛡️', category: 'PARAMÈTRES' },
   { id: 'parameters', label: 'Paramètres Fiscaux & Barèmes IRPP', icon: '/icons/comptabilite.png', category: 'PARAMÈTRES' },
   { id: 'workbookControls', label: 'Préparation du classeur', icon: '🧩', category: 'PARAMÈTRES' },
   { id: 'reportsExport', label: 'Rapports & Plaquettes Financières', icon: '📂', category: 'PARAMÈTRES' },
@@ -523,7 +523,7 @@ export const STANDALONE_APPS: Record<SafeStandaloneAppId, StandaloneAppConfig> =
     name: 'SAFE ERP Global (Suite Complète)',
     shortName: 'ERP Complet',
     tagline: 'Suite intégrée de gestion d’entreprise multi-entités et multi-pays (Tous les 28 modules)',
-    icon: 'ðŸŒ',
+    icon: '🌐',
     badge: 'Enterprise Suite 360°',
     accentColor: '#1D4ED8',
     modules: ALL_MODULES_CONFIG.map((m) => m.id),
@@ -1085,10 +1085,10 @@ export const App: React.FC = () => {
         setLicenseActionMsg('✅ ' + data.message);
         setSystemLicInfo('Licence Active (Clé HMAC Validée)');
       } else {
-        setLicenseActionMsg('âŒ ' + (data.detail || data.message || 'Clé non valide pour cette machine'));
+        setLicenseActionMsg('❌ ' + (data.detail || data.message || 'Clé non valide pour cette machine'));
       }
     } catch {
-      setLicenseActionMsg('âŒ Erreur de communication serveur.');
+      setLicenseActionMsg('❌ Erreur de communication serveur.');
     }
   };
 
@@ -1295,7 +1295,7 @@ export const App: React.FC = () => {
 
   const handleTogglePermission = (role: UserRole, modId: NavModule) => {
     if (currentUserRole !== 'ADMIN' && currentUserRole !== 'FINANCIAL_MANAGER') {
-      alert("⚠ï¸ Action non autorisée : Seuls l'Administrateur et le Directeur Financier (CFO) peuvent modifier la matrice des droits d'accès.");
+      alert("⚠️ Action non autorisée : Seuls l'Administrateur et le Directeur Financier (CFO) peuvent modifier la matrice des droits d'accès.");
       return;
     }
     const currentList = rolePermissions[role] || [];
@@ -1580,7 +1580,7 @@ export const App: React.FC = () => {
             onClick={() => exportToPowerPoint(moduleTitle, exportCols, exportRows, { moduleName: moduleTitle, companyName: activeEntityName, currency, customDate: currentDateString }, kpis)}
             style={{ background: '#FFFFFF', color: '#C2410C', border: '1px solid #FED7AA', padding: '7px 12px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}
           >
-            📽ï¸ PPTX
+            📽️ PPTX
           </button>
 
           {/* L'ACTION PRINCIPALE : LE SEUL BOUTON BLEU PLEIN DE L'ÉCRAN */}
@@ -1875,7 +1875,7 @@ export const App: React.FC = () => {
                   À PARTIR DE LA 2ÈME LIGNE : DÉTAIL DES LIGNES D'ÉCRITURES COMPTABLES
                 </span>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isVoucherBalanced ? '#15803D' : '#DC2626' }}>
-                  {isVoucherBalanced ? '✓ Pièce Rigoureusement Équilibrée' : `⚠ï¸ Déséquilibre : ${voucherBalanceDiff.toLocaleString()} ${currency}`}
+                  {isVoucherBalanced ? '✓ Pièce Rigoureusement Équilibrée' : `⚠️ Déséquilibre : ${voucherBalanceDiff.toLocaleString()} ${currency}`}
                 </span>
               </div>
 
@@ -2231,7 +2231,7 @@ export const App: React.FC = () => {
             <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ padding: '12px 14px', background: '#F8FAFC', borderBottom: '2px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: 800, color: '#0F172A', fontSize: '0.88rem' }}>
-                  🛡ï¸ Matrice des Droits d’Accès par Rôle (Modifiable en Direct pour Admin & CFO)
+                  🛡️ Matrice des Droits d’Accès par Rôle (Modifiable en Direct pour Admin & CFO)
                 </span>
                 <span style={{ fontSize: '0.74rem', color: '#2563EB', fontWeight: 700 }}>
                   Profil actuel : {currentUserRole} ({activeUser.name})
@@ -3078,7 +3078,7 @@ export const App: React.FC = () => {
           )}
           {!isGlobalAdmin && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: theme === 'night-blue' ? '#CBD5E1' : '#334155', fontSize: '0.78rem' }}>
-              <span aria-hidden="true">ðŸ¢</span>
+              <span aria-hidden="true">🏢</span>
               <span>{text('entity')}: <strong style={{ color: theme === 'night-blue' ? '#F8FAFC' : '#0F172A' }}>{currentEntity.name} ({currentEntity.code})</strong></span>
             </div>
           )}
@@ -3108,7 +3108,7 @@ export const App: React.FC = () => {
 
           {/* Activité */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '0.74rem', color: theme === 'night-blue' ? '#CBD5E1' : '#334155', fontWeight: 700 }}>ðŸ­ {text('activity')}:</span>
+            <span style={{ fontSize: '0.74rem', color: theme === 'night-blue' ? '#CBD5E1' : '#334155', fontWeight: 700 }}>🏭 {text('activity')}:</span>
             <select
               value={filterActivity}
               onChange={(e) => setFilterActivity(e.target.value)}
@@ -3133,7 +3133,7 @@ export const App: React.FC = () => {
 
           {/* Rôle attribué par le serveur */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '0.74rem', color: theme === 'night-blue' ? '#CBD5E1' : '#334155', fontWeight: 700 }}>🛡ï¸ {text('role')}:</span>
+            <span style={{ fontSize: '0.74rem', color: theme === 'night-blue' ? '#CBD5E1' : '#334155', fontWeight: 700 }}>🛡️ {text('role')}:</span>
             <strong style={{ color: theme === 'night-blue' ? '#F8FAFC' : '#0F172A', fontSize: '0.78rem' }}>{currentUserRole === 'ADMIN' ? (isGlobalAdmin ? 'Administrateur groupe' : 'Administrateur entité') : translateRole(language, currentUserRole)}</strong>
           </div>
 
@@ -3201,7 +3201,7 @@ export const App: React.FC = () => {
           flexShrink: 0,
         }}>
           <label style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px', color: theme === 'night-blue' ? '#F8FAFC' : '#0F172A', fontSize: '0.84rem', fontWeight: 700 }}>
-            ðŸ¢ {isChangingEntityContext ? text('switchingCompany') : text('activeScope')}:
+            🏢 {isChangingEntityContext ? text('switchingCompany') : text('activeScope')}:
             <select
               aria-label={text('activeScope')}
               value={activeGroupContext ? `group:${activeGroupContext.id}` : apiEntityId ? `entity:${apiEntityId}` : ''}
@@ -3668,7 +3668,7 @@ export const App: React.FC = () => {
           <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '1.8rem', width: '100%', maxWidth: '580px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.3)', border: '1px solid #E2E8F0' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '1.4rem' }}>ðŸ”</span>
+                <span style={{ fontSize: '1.4rem' }}>🔐</span>
                 <div>
                   <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>Verrou Matériel & Licence Cryptographique</h3>
                   <p style={{ fontSize: '0.72rem', color: '#64748B', margin: '2px 0 0 0' }}>Signature HW-ID & Validation HMAC-SHA256</p>
@@ -3711,7 +3711,7 @@ export const App: React.FC = () => {
 
               {/* Point 2 : Cryptographie HMAC-SHA256 */}
               <div style={{ background: '#EFF6FF', padding: '10px 14px', borderRadius: '8px', border: '1px solid #BFDBFE' }}>
-                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#1D4ED8' }}>🛡ï¸ Génération Cryptographique HMAC-SHA256 :</span>
+                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#1D4ED8' }}>🛡️ Génération Cryptographique HMAC-SHA256 :</span>
                 <p style={{ fontSize: '0.7rem', color: '#1E40AF', margin: '4px 0 8px 0' }}>Format officiel : <code>SAFE-YYYYMMDD-XXXX-XXXX-XXXX-XXXX</code> scellé cryptographiquement.</p>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input

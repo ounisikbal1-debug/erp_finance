@@ -49,7 +49,7 @@ def create_styled_table(doc, headers, data, col_widths=None):
             set_cell_background(row_cells[c_idx], bg_color)
             set_cell_margins(row_cells[c_idx], top=80, bottom=80, left=120, right=120)
             p = row_cells[c_idx].paragraphs[0]
-            if c_idx > 0 and any(char.isdigit() for char in str(val)) and not any(w in str(val).lower() for w in ['compte', 'facture', 'test', 'virement', 'chÃ¨que']):
+            if c_idx > 0 and any(char.isdigit() for char in str(val)) and not any(w in str(val).lower() for w in ['compte', 'facture', 'test', 'virement', 'chèque']):
                 p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
             else:
                 p.alignment = WD_ALIGN_PARAGRAPH.LEFT
@@ -91,7 +91,7 @@ def add_callout(doc, text, title="NOTE IMPORTANTE"):
     set_cell_background(cell, 'EFF6FF') # Light blue
     set_cell_margins(cell, top=120, bottom=120, left=180, right=180)
     p = cell.paragraphs[0]
-    r_title = p.add_run(f"ðŸ“Œ {title} : ")
+    r_title = p.add_run(f"📌 {title} : ")
     r_title.bold = True
     r_title.font.color.rgb = RGBColor(30, 58, 138)
     r_title.font.size = Pt(10)

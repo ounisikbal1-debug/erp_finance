@@ -90,4 +90,4 @@ for inv in invoices:
     count += 1
 
 conn.commit()
-print(f'âœ” Successfully created {count} Tunisian e-invoices with TTN approval & TunTrust PKI signature!')
+print(f'✔ Successfully created {count} Tunisian e-invoices with TTN approval & TunTrust PKI signature!')

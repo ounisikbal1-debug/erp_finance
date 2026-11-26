@@ -124,7 +124,7 @@ export default function Partners() {
           <Loading />
         ) : rows.length === 0 ? (
           <EmptyState
-            icon="â—"
+            icon="◍"
             title={type === "client" ? "Aucun client enregistré" : "Aucun fournisseur enregistré"}
             description={
               type === "client"

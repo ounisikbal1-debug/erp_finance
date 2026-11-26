@@ -139,7 +139,7 @@ export default function GovernanceSodPanel({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#111827' }}>
-            🛡ï¸ Gouvernance, Risques & Séparation des Tâches (Gouvernance SAFE)
+            🛡️ Gouvernance, Risques & Séparation des Tâches (Gouvernance SAFE)
           </h1>
           <p style={{ margin: 0, color: '#6B7280', fontSize: '14px' }}>
             Contrôle interne, matrice SoD (Segregation of Duties), détection des conflits toxiques et délégation des pouvoirs.
@@ -242,7 +242,7 @@ export default function GovernanceSodPanel({
                         fontWeight: 600,
                       }}
                     >
-                      🛡ï¸ Retirer le Droit en Conflit
+                      🛡️ Retirer le Droit en Conflit
                     </button>
                   ) : (
                     <span style={{ color: '#6B7280', fontSize: '12px' }}>Aucune action requise</span>
@@ -257,7 +257,7 @@ export default function GovernanceSodPanel({
       {/* Delegation Simulator */}
       <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '8px', padding: '20px' }}>
         <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 12px 0' }}>
-          ⚖ï¸ Simulateur des Seuils d'Engagement Financier & Délégations de Signature
+          ⚖️ Simulateur des Seuils d'Engagement Financier & Délégations de Signature
         </h2>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end', marginBottom: '16px', flexWrap: 'wrap' }}>
           <div>

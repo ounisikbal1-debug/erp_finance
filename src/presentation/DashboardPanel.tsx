@@ -298,7 +298,7 @@ export default function DashboardPanel({
         fetchApiPayload('/api/finance/accounts', accessToken),
         fetchApiPayload(`/api/finance/financial-report?${reportQuery}`, accessToken),
         fetchApiPayload(`/api/receivables/aging?${agingQuery}`, accessToken),
-        fetchApiPayload(`/api/payables/aging?${agingQuery}`, accessToken),
+        fetchApiPayload(`/api/purchases/payables/aging?${agingQuery}`, accessToken),
         fetchApiPayload(`/api/advanced-finance/analysis?asOf=${encodeURIComponent(asOf)}`, accessToken),
       ]);
       if (!isAccountBalancePayload(balance)) throw new Error('La réponse de balance générale est invalide.');

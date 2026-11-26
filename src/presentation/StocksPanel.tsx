@@ -1152,7 +1152,7 @@ export default function StocksPanel({
             {lowStockMaterials.length} références
           </div>
           <div style={{ fontSize: '0.75rem', color: '#D97706', marginTop: 4, fontWeight: 700 }}>
-            ⚠ï¸ {lowStockMaterials.length} à réapprovisionner
+            ⚠️ {lowStockMaterials.length} à réapprovisionner
           </div>
         </div>
 

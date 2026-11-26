@@ -1,5 +1,5 @@
 ﻿/**
- * Test de validation automatisÃ© des 5 axes d'amÃ©lioration
+ * Test de validation automatisé des 5 axes d'amélioration
  * SAFE ERP - Enterprise Edition 2026
  */
 import { bankingAndFiscalGateway } from '../src/core/services/finance/banking-and-fiscal-gateway.service';
@@ -8,37 +8,37 @@ import { invoiceOcrAiService } from '../src/core/services/ai/invoice-ocr-ai.serv
 
 async function runValidationSuite() {
   console.log("==================================================================");
-  console.log("ðŸ”¬ SUITE DE TEST AUTOMATISÃ‰E : VALIDATION DES 5 AXES SAFE ERP");
+  console.log("🔬 SUITE DE TEST AUTOMATISÉE : VALIDATION DES 5 AXES SAFE ERP");
   console.log("==================================================================");
 
   let passed = 0;
   let total = 0;
 
-  // Test 1 : Docker & ScalabilitÃ© (vÃ©rification configuration)
+  // Test 1 : Docker & Scalabilité (vérification configuration)
   total++;
-  console.log("\n[Axe 1] Validation Stack Haute DisponibilitÃ© Docker/Postgres/Redis...");
+  console.log("\n[Axe 1] Validation Stack Haute Disponibilité Docker/Postgres/Redis...");
   const fs = require('fs');
   if (fs.existsSync('docker-compose.yml') && fs.existsSync('Dockerfile')) {
-    console.log("  âœ… SuccÃ¨s : docker-compose.yml et Dockerfile validÃ©s avec healthcheck et ports.");
+    console.log("  ✅ Succès : docker-compose.yml et Dockerfile validés avec healthcheck et ports.");
     passed++;
   } else {
-    console.error("  âŒ Ã‰chec : fichiers Docker introuvables.");
+    console.error("  ❌ Échec : fichiers Docker introuvables.");
   }
 
-  // Test 2 : ConnectivitÃ© Bancaire EBICS
+  // Test 2 : Connectivité Bancaire EBICS
   total++;
   console.log("\n[Axe 3A] Test Passerelle Bancaire EBICS...");
   const bankRes = await bankingAndFiscalGateway.syncBankStatements('TN59 1000 6035 1834 8920 1827');
   if (bankRes.success && bankRes.transactions.length > 0) {
-    console.log(`  âœ… SuccÃ¨s : ${bankRes.transactions.length} Ã©critures synchronisÃ©es via EBICS TS.`);
+    console.log(`  ✅ Succès : ${bankRes.transactions.length} écritures synchronisées via EBICS TS.`);
     passed++;
   } else {
-    console.error("  âŒ Ã‰chec synchronisation bancaire.");
+    console.error("  ❌ Échec synchronisation bancaire.");
   }
 
-  // Test 3 : TÃ©lÃ©transmission Fiscale TTN
+  // Test 3 : Télétransmission Fiscale TTN
   total++;
-  console.log("\n[Axe 3B] Test Certification Facture Ã‰lectronique TTN...");
+  console.log("\n[Axe 3B] Test Certification Facture Électronique TTN...");
   const ttnRes = await bankingAndFiscalGateway.submitInvoiceToTTN({
     invoiceNumber: "FAC-2026-TEST",
     fiscalIdSupplier: "0892341/B/A/000",
@@ -51,15 +51,15 @@ async function runValidationSuite() {
     items: [{ description: "Prestation Audit ERP", quantity: 1, unitPriceHT: 1000, vatRate: 0.19 }]
   });
   if (ttnRes.success && ttnRes.certificateHash.startsWith("TTN-CERT-")) {
-    console.log(`  âœ… SuccÃ¨s : Facture visÃ©e TTN (${ttnRes.ttnReference}) avec scellement.`);
+    console.log(`  ✅ Succès : Facture visée TTN (${ttnRes.ttnReference}) avec scellement.`);
     passed++;
   } else {
-    console.error("  âŒ Ã‰chec certification TTN.");
+    console.error("  ❌ Échec certification TTN.");
   }
 
-  // Test 4 : SÃ©curitÃ© 2FA & Scellement Probatoire SHA-256
+  // Test 4 : Sécurité 2FA & Scellement Probatoire SHA-256
   total++;
-  console.log("\n[Axe 4] Test SÃ©curitÃ© 2FA & Scellement d'Archives...");
+  console.log("\n[Axe 4] Test Sécurité 2FA & Scellement d'Archives...");
   const twoFa = enterpriseSecurityService.generateTwoFactorSecret('USR-1', 'admin@safe-erp.com');
   const codeValid = enterpriseSecurityService.verifyTwoFactorCode('123456', twoFa.secret);
   const seal = enterpriseSecurityService.sealAccountingPeriod('2026-02', [
@@ -68,26 +68,26 @@ async function runValidationSuite() {
   ], 'USR-1');
 
   if (twoFa.secret && codeValid && seal.sha256Seal.length === 64) {
-    console.log(`  âœ… SuccÃ¨s : 2FA opÃ©rationnel et registre comptable scellÃ© (Hash SHA-256: ${seal.sha256Seal.substring(0, 16)}...).`);
+    console.log(`  ✅ Succès : 2FA opérationnel et registre comptable scellé (Hash SHA-256: ${seal.sha256Seal.substring(0, 16)}...).`);
     passed++;
   } else {
-    console.error("  âŒ Ã‰chec sÃ©curitÃ© / scellement.");
+    console.error("  ❌ Échec sécurité / scellement.");
   }
 
-  // Test 5 : OCR Factures & PrÃ©-imputation IA
+  // Test 5 : OCR Factures & Pré-imputation IA
   total++;
-  console.log("\n[Axe 5] Test OCR & PrÃ©-imputation Intelligente...");
+  console.log("\n[Axe 5] Test OCR & Pré-imputation Intelligente...");
   const ocrData = await invoiceOcrAiService.analyzeInvoiceDocument('facture_fournisseur_sample.pdf');
   const anomalyCheck = invoiceOcrAiService.detectInvoiceAnomalies(ocrData);
   if (ocrData.confidenceScore > 0.95 && ocrData.suggestedAccountingEntries.length === 3 && !anomalyCheck.hasAnomalies) {
-    console.log(`  âœ… SuccÃ¨s : OCR validÃ© (${ocrData.confidenceScore * 100}% confiance), 3 Ã©critures SCE gÃ©nÃ©rÃ©es sans anomalies.`);
+    console.log(`  ✅ Succès : OCR validé (${ocrData.confidenceScore * 100}% confiance), 3 écritures SCE générées sans anomalies.`);
     passed++;
   } else {
-    console.error("  âŒ Ã‰chec analyse OCR IA.");
+    console.error("  ❌ Échec analyse OCR IA.");
   }
 
   console.log("\n==================================================================");
-  console.log(`ðŸ† BILAN FINAL : ${passed}/${total} TESTS VALIDÃ‰S AVEC SUCCÃˆS (100%)`);
+  console.log(`🏆 BILAN FINAL : ${passed}/${total} TESTS VALIDÉS AVEC SUCCÈS (100%)`);
   console.log("==================================================================");
 }
 

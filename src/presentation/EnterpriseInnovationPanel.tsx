@@ -68,7 +68,7 @@ export const EnterpriseInnovationPanel: React.FC = () => {
             color: '#fff'
           }}
         >
-          ðŸ¦ Connectivité Bancaire (EBICS)
+          🏦 Connectivité Bancaire (EBICS)
         </button>
         <button
           onClick={() => setActiveTab('ttn')}
@@ -96,7 +96,7 @@ export const EnterpriseInnovationPanel: React.FC = () => {
             color: '#fff'
           }}
         >
-          🛡ï¸ Sécurité 2FA & Scellement SHA-256
+          🛡️ Sécurité 2FA & Scellement SHA-256
         </button>
         <button
           onClick={() => setActiveTab('ocr')}
@@ -168,7 +168,7 @@ export const EnterpriseInnovationPanel: React.FC = () => {
             onClick={handleTTNSubmit}
             style={{ padding: '10px 20px', backgroundColor: '#059669', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
           >
-            ðŸ›ï¸ Certifier et Transmettre à TTN
+            🛡️ Certifier et Transmettre à TTN
           </button>
 
           {ttnStatus === 'ACCEPTED' && (

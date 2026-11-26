@@ -210,10 +210,10 @@ export default function TunisianEInvoicePanel({ accessToken, entityId }: Props) 
         {/* Legal tags */}
         <div className="mt-5 pt-4 border-t border-rose-500/30 flex flex-wrap gap-2 text-xs text-rose-200">
           <span className="bg-black/20 px-3 py-1 rounded-md">📋 Standard TTN El Fatoora v2.1</span>
-          <span className="bg-black/20 px-3 py-1 rounded-md">ðŸ” SHA-256 Digest & Hash Intégrité</span>
-          <span className="bg-black/20 px-3 py-1 rounded-md">ðŸ” TunTrust National Root CA</span>
+          <span className="bg-black/20 px-3 py-1 rounded-md">🔐 SHA-256 Digest & Hash Intégrité</span>
+          <span className="bg-black/20 px-3 py-1 rounded-md">🔒 TunTrust National Root CA</span>
           <span className="bg-black/20 px-3 py-1 rounded-md">🔲 CEV 2D-Doc QR Haute Résolution</span>
-          <span className="bg-black/20 px-3 py-1 rounded-md">ðŸ›ï¸ DGI & Ministère des Finances</span>
+          <span className="bg-black/20 px-3 py-1 rounded-md">🛡️ DGI & Ministère des Finances</span>
         </div>
       </div>
 
@@ -267,7 +267,7 @@ export default function TunisianEInvoicePanel({ accessToken, entityId }: Props) 
             </div>
           </div>
           <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl font-bold">
-            ⚖ï¸
+            ⚖️
           </div>
         </div>
       </div>
@@ -283,7 +283,7 @@ export default function TunisianEInvoicePanel({ accessToken, entityId }: Props) 
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
             />
-            <span className="absolute left-3 top-2.5 text-slate-400">ðŸ”</span>
+            <span className="absolute left-3 top-2.5 text-slate-400">🔍</span>
           </div>
           <select
             value={statusFilter}
@@ -307,7 +307,7 @@ export default function TunisianEInvoicePanel({ accessToken, entityId }: Props) 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         {loading ? (
           <div className="py-20 text-center text-slate-500">
-            <div className="text-3xl animate-spin mb-3">⚙ï¸</div>
+            <div className="text-3xl animate-spin mb-3">⚙️</div>
             <p className="text-sm font-medium">Chargement des factures électroniques...</p>
           </div>
         ) : error ? (
@@ -441,7 +441,7 @@ export default function TunisianEInvoicePanel({ accessToken, entityId }: Props) 
                           className="px-2 py-1 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded transition flex items-center gap-1"
                           title="Imprimer la Facture Officielle TTN (Modèle Tunisie TradeNet)"
                         >
-                          <span>🖨ï¸ Facture TTN</span>
+                          <span>🖨️ Facture TTN</span>
                         </button>
                       </div>
                     </td>
@@ -476,7 +476,7 @@ export default function TunisianEInvoicePanel({ accessToken, entityId }: Props) 
                   }}
                   className="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-semibold transition"
                 >
-                  ⬇ï¸ Télécharger XML
+                  ⬇️ Télécharger XML
                 </button>
                 <button
                   onClick={() => setSelectedXml(null)}
@@ -560,7 +560,7 @@ export default function TunisianEInvoicePanel({ accessToken, entityId }: Props) 
               {/* Security & Cryptography Details */}
               <div className="space-y-3">
                 <h4 className="font-bold text-sm text-slate-800 flex items-center gap-2">
-                  <span>ðŸ”</span> Empreintes & Certificats Cryptographiques
+                  <span>🔐</span> Empreintes & Certificats Cryptographiques
                 </h4>
 
                 <div>

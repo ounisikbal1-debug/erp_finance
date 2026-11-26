@@ -544,7 +544,7 @@ export default function CustomsRegimePanel({
             onClick={() => deleteRegime(selected.id)}
             style={{ background: '#DC2626', color: '#FFFFFF', border: 0, borderRadius: 6, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}
           >
-            🗑ï¸ {text('Supprimer ce régime')}
+            🗑️ {text('Supprimer ce régime')}
           </button>
         )}
       </div>
@@ -554,7 +554,7 @@ export default function CustomsRegimePanel({
           {/* FORMULAIRE DE MODIFICATION DIRECTE */}
           <form onSubmit={saveSelectedChanges} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 12, alignItems: 'end', background: '#F8FAFC', border: '1px solid #CBD5E1', borderRadius: 8, padding: 14 }}>
             <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '0.98rem', color: '#0F172A', fontWeight: 800 }}>âœï¸ Modification du Régime : {selected.regimeReference}</h3>
+              <h3 style={{ margin: 0, fontSize: '0.98rem', color: '#0F172A', fontWeight: 800 }}>✏️ Modification du Régime : {selected.regimeReference}</h3>
               <span style={{ fontSize: '0.72rem', background: '#DBEAFE', color: '#1E40AF', padding: '3px 8px', borderRadius: 4, fontWeight: 700 }}>UI Éditable</span>
             </div>
             <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>Type

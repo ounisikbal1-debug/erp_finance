@@ -101,7 +101,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
           borderBottom: '1px solid #334155',
           gap: '12px'
         }}>
-          <span style={{ fontSize: '18px', color: '#94a3b8' }}>ðŸ”</span>
+          <span style={{ fontSize: '18px', color: '#94a3b8' }}>🔍</span>
           <input
             type="text"
             autoFocus

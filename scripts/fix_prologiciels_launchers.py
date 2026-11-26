@@ -141,7 +141,7 @@ def update_all_launchers():
         with open(ps1_path, "w", encoding="utf-8-sig") as f:
             f.write(make_bulletproof_ps1(prolog))
 
-        print(f"âœ” Cleaned launchers for {prolog['folder']}")
+        print(f"✔ Cleaned launchers for {prolog['folder']}")
 
 if __name__ == "__main__":
     update_all_launchers()

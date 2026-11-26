@@ -1,6 +1,6 @@
 ﻿/**
- * SAFE ERP - Script de dÃ©monstration pas Ã  pas de migration de donnÃ©es
- * Exemple : Migration d'un extrait de clients exportÃ©s depuis SAP
+ * SAFE ERP - Script de démonstration pas à pas de migration de données
+ * Exemple : Migration d'un extrait de clients exportés depuis SAP
  */
 
 import {
@@ -15,51 +15,51 @@ import {
 
 async function runStepByStepDemo() {
   console.log('===============================================================');
-  console.log('   DÃ‰MONSTRATION PAS Ã€ PAS DU MODULE DE MIGRATION SAFE ERP    ');
+  console.log('   DÉMONSTRATION PAS À PAS DU MODULE DE MIGRATION SAFE ERP    ');
   console.log('===============================================================\n');
 
   // -------------------------------------------------------------
-  // Ã‰TAPE 1 : DonnÃ©es brutes en provenance d'un ERP tiers (Ex: SAP)
+  // ÉTAPE 1 : Données brutes en provenance d'un ERP tiers (Ex: SAP)
   // -------------------------------------------------------------
-  console.log('ðŸ”¹ Ã‰TAPE 1 : RÃ©ception des donnÃ©es brutes (Export CSV / SAP)');
+  console.log('🔹 ÉTAPE 1 : Réception des données brutes (Export CSV / SAP)');
   const rawCsvData = 
 `KUNNR;NAME1;ORT01;LAND1;STCEG
 CUST-SAP-001;SOCIETE GENERALE TUNISIE;Tunis;TN;1234567/A/M/000
 CUST-SAP-002;MEDITERRANEAN TRADING;Sousse;TN;9876543/B/P/000
 CUST-SAP-003;MAGHREB DISTRIB;Sfax;TN;1122334/C/M/000`;
 
-  console.log('Extrait du fichier reÃ§u :');
+  console.log('Extrait du fichier reçu :');
   console.log(rawCsvData);
   console.log('---------------------------------------------------------------\n');
 
   // -------------------------------------------------------------
-  // Ã‰TAPE 2 : DÃ©coupage et dÃ©tection automatique
+  // ÉTAPE 2 : Découpage et détection automatique
   // -------------------------------------------------------------
-  console.log('ðŸ”¹ Ã‰TAPE 2 : DÃ©tection automatique du format et du systÃ¨me source');
+  console.log('🔹 ÉTAPE 2 : Détection automatique du format et du système source');
   const delimiter = detectDelimiter(rawCsvData);
-  console.log(`- SÃ©parateur dÃ©tectÃ© : "${delimiter}"`);
+  console.log(`- Séparateur détecté : "${delimiter}"`);
 
   const rows = parseDelimitedText(rawCsvData, delimiter);
   const headers = rows[0] || [];
-  console.log(`- En-tÃªtes identifiÃ©s : [${headers.join(', ')}]`);
+  console.log(`- En-têtes identifiés : [${headers.join(', ')}]`);
 
   const detectedErp = detectErpSystem(headers);
-  console.log(`- SystÃ¨me ERP source dÃ©tectÃ© : ðŸ‘‰ [${detectedErp}] ðŸ‘ˆ\n`);
+  console.log(`- Système ERP source détecté : 👉 [${detectedErp}] 👈\n`);
 
   // -------------------------------------------------------------
-  // Ã‰TAPE 3 : Construction automatique du Mapping
+  // ÉTAPE 3 : Construction automatique du Mapping
   // -------------------------------------------------------------
-  console.log('ðŸ”¹ Ã‰TAPE 3 : Ã‰tablissement automatique du Mapping (Champs Source -> SAFE)');
+  console.log('🔹 ÉTAPE 3 : Établissement automatique du Mapping (Champs Source -> SAFE)');
   const targetDomain = 'CUSTOMERS';
   const mapping = buildFieldMappings(headers, targetDomain, detectedErp);
-  console.log('Correspondances calculÃ©es :');
+  console.log('Correspondances calculées :');
   console.table(mapping);
   console.log('---------------------------------------------------------------\n');
 
   // -------------------------------------------------------------
-  // Ã‰TAPE 4 : Simulation (Dry-Run / Sans impact en base)
+  // ÉTAPE 4 : Simulation (Dry-Run / Sans impact en base)
   // -------------------------------------------------------------
-  console.log('ðŸ”¹ Ã‰TAPE 4 : Lancement d\'une simulation Ã  blanc (Dry-Run)');
+  console.log('🔹 ÉTAPE 4 : Lancement d\'une simulation à blanc (Dry-Run)');
   // Transformer en tableau d'objets
   const dataRows = rows.slice(1).map((r) => {
     const obj: Record<string, string> = {};
@@ -70,9 +70,9 @@ CUST-SAP-003;MAGHREB DISTRIB;Sfax;TN;1122334/C/M/000`;
   });
 
   const simulation = simulateMigration(dataRows, targetDomain, mapping, detectedErp);
-  console.log(`- Lignes analysÃ©es : ${simulation.totalRows}`);
-  console.log(`- Lignes valides   : ${simulation.validRows} âœ…`);
-  console.log(`- Erreurs bloquantes: ${simulation.invalidRows} âŒ`);
+  console.log(`- Lignes analysées : ${simulation.totalRows}`);
+  console.log(`- Lignes valides   : ${simulation.validRows} ✅`);
+  console.log(`- Erreurs bloquantes: ${simulation.invalidRows} ❌`);
   if (simulation.warnings.length > 0) {
     console.log('- Avertissements :');
     console.table(simulation.warnings);
@@ -80,15 +80,15 @@ CUST-SAP-003;MAGHREB DISTRIB;Sfax;TN;1122334/C/M/000`;
   console.log('---------------------------------------------------------------\n');
 
   // -------------------------------------------------------------
-  // Ã‰TAPE 5 : ExÃ©cution rÃ©elle sÃ©curisÃ©e en base
+  // ÉTAPE 5 : Exécution réelle sécurisée en base
   // -------------------------------------------------------------
-  console.log('ðŸ”¹ Ã‰TAPE 5 : Injection rÃ©elle dans la base de donnÃ©es SAFE');
+  console.log('🔹 ÉTAPE 5 : Injection réelle dans la base de données SAFE');
   const entity = await prisma.entity.findFirst({ select: { id: true, name: true } });
   if (!entity) {
-    console.error('Aucune entitÃ© trouvÃ©e pour le test.');
+    console.error('Aucune entité trouvée pour le test.');
     return;
   }
-  console.log(`- EntitÃ© cible : ${entity.name} (${entity.id})`);
+  console.log(`- Entité cible : ${entity.name} (${entity.id})`);
 
   const result = await executeMigration(
     entity.id,
@@ -99,12 +99,12 @@ CUST-SAP-003;MAGHREB DISTRIB;Sfax;TN;1122334/C/M/000`;
     'ADMIN_USER_DEMO'
   );
 
-  console.log(`- SuccÃ¨s : ${result.success ? 'OUI âœ…' : 'NON âŒ'}`);
-  console.log(`- Enregistrements insÃ©rÃ©s : ${result.insertedCount}`);
-  console.log(`- Enregistrements mis Ã  jour : ${result.updatedCount}`);
-  console.log(`- DurÃ©e de traitement : ${result.durationMs} ms`);
+  console.log(`- Succès : ${result.success ? 'OUI ✅' : 'NON ❌'}`);
+  console.log(`- Enregistrements insérés : ${result.insertedCount}`);
+  console.log(`- Enregistrements mis à jour : ${result.updatedCount}`);
+  console.log(`- Durée de traitement : ${result.durationMs} ms`);
 
-  // VÃ©rification directe dans la base
+  // Vérification directe dans la base
   const createdCustomers = await prisma.customer.findMany({
     where: {
       code: { in: ['CUST-SAP-001', 'CUST-SAP-002', 'CUST-SAP-003'] },
@@ -112,10 +112,10 @@ CUST-SAP-003;MAGHREB DISTRIB;Sfax;TN;1122334/C/M/000`;
     select: { code: true, name: true, city: true, taxNumber: true },
   });
 
-  console.log('\nRÃ©sultat en base de donnÃ©es SAFE :');
+  console.log('\nRésultat en base de données SAFE :');
   console.table(createdCustomers);
   console.log('===============================================================');
-  console.log('   ðŸŽ‰ TEST DE MIGRATION EFFECTUÃ‰ AVEC SUCCÃˆS !                ');
+  console.log('   🎉 TEST DE MIGRATION EFFECTUÉ AVEC SUCCÈS !                ');
   console.log('===============================================================');
 }
 

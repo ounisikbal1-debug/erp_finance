@@ -1,7 +1,7 @@
 ﻿/**
- * SAFE ERP - BANC D'Ã‰PREUVE DE STRESS ET HAUTE CHARGE CONCURRENTE
- * Simule des dizaines d'utilisateurs simultanÃ©s (requÃªtes concurrentes en lecture/Ã©criture)
- * Mesure les temps de rÃ©ponse moyens, P95, dÃ©bit (req/sec) et taux d'erreur 0%.
+ * SAFE ERP - BANC D'ÉPREUVE DE STRESS ET HAUTE CHARGE CONCURRENTE
+ * Simule des dizaines d'utilisateurs simultanés (requêtes concurrentes en lecture/écriture)
+ * Mesure les temps de réponse moyens, P95, débit (req/sec) et taux d'erreur 0%.
  */
 
 import { performance } from 'node:perf_hooks';
@@ -67,11 +67,11 @@ export async function runStressTest(options: StressTestOptions): Promise<TestRes
   console.log('      SAFE ERP - BANC DE TEST DE CHARGE MASSIVE (STRESS TEST)     ');
   console.log('==================================================================');
   console.log(`- Cible                  : ${baseUrl}`);
-  console.log(`- Utilisateurs Virtuels  : ${concurrentUsers} utilisateurs simultanÃ©s`);
-  console.log(`- RequÃªtes par usager    : ${requestsPerUser} requÃªtes`);
-  console.log(`- Total transactions     : ${concurrentUsers * requestsPerUser} requÃªtes`);
+  console.log(`- Utilisateurs Virtuels  : ${concurrentUsers} utilisateurs simultanés`);
+  console.log(`- Requêtes par usager    : ${requestsPerUser} requêtes`);
+  console.log(`- Total transactions     : ${concurrentUsers * requestsPerUser} requêtes`);
   console.log('------------------------------------------------------------------');
-  console.log('DÃ©marrage de la montÃ©e en charge...\n');
+  console.log('Démarrage de la montée en charge...\n');
 
   const latencies: number[] = [];
   const errors: string[] = [];
@@ -104,29 +104,29 @@ export async function runStressTest(options: StressTestOptions): Promise<TestRes
   };
 
   console.log('==================================================================');
-  console.log('                  RÃ‰SULTATS DU BENCHMARK DE CHARGE                ');
+  console.log('                  RÉSULTATS DU BENCHMARK DE CHARGE                ');
   console.log('==================================================================');
-  console.log(`- DurÃ©e totale               : ${result.durationSeconds} s`);
-  console.log(`- Transactions rÃ©ussies      : ${result.successfulRequests} / ${result.totalRequests} (${Math.round((result.successfulRequests / result.totalRequests) * 100)}%)`);
-  console.log(`- Ã‰checs ou dÃ©connexions     : ${result.failedRequests} âŒ`);
-  console.log(`- DÃ©bit moyen soutenu        : ${result.requestsPerSecond} requÃªtes / seconde`);
+  console.log(`- Durée totale               : ${result.durationSeconds} s`);
+  console.log(`- Transactions réussies      : ${result.successfulRequests} / ${result.totalRequests} (${Math.round((result.successfulRequests / result.totalRequests) * 100)}%)`);
+  console.log(`- Échecs ou déconnexions     : ${result.failedRequests} ❌`);
+  console.log(`- Débit moyen soutenu        : ${result.requestsPerSecond} requêtes / seconde`);
   console.log(`- Temps de latence moyen     : ${result.avgLatencyMs} ms`);
   console.log(`- Latence au 95e percentile  : ${result.p95LatencyMs} ms`);
   console.log('------------------------------------------------------------------');
 
   if (result.failedRequests === 0 && result.p95LatencyMs < 200) {
-    console.log('ðŸŽ‰ VERDICT : CERTIFIÃ‰ HAUTE PERFORMANCE & RÃ‰SISTANT Ã€ LA CHARGE CONCURRENTE !');
+    console.log('🎉 VERDICT : CERTIFIÉ HAUTE PERFORMANCE & RÉSISTANT À LA CHARGE CONCURRENTE !');
   } else if (result.failedRequests === 0) {
-    console.log('âœ… VERDICT : TEST RÃ‰USSI SANS AUCUNE ERREUR.');
+    console.log('✅ VERDICT : TEST RÉUSSI SANS AUCUNE ERREUR.');
   } else {
-    console.log('âš ï¸ VERDICT : DES ERREURS ONT Ã‰TÃ‰ DÃ‰TECTÃ‰ES.');
+    console.log('⚠️ VERDICT : DES ERREURS ONT ÉTÉ DÉTECTÉES.');
   }
   console.log('==================================================================\n');
 
   return result;
 }
 
-// ExÃ©cution directe
+// Exécution directe
 runStressTest({
   baseUrl: 'http://127.0.0.1:3001',
   concurrentUsers: 50,

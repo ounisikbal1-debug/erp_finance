@@ -143,7 +143,7 @@ export const QuickJournalEntry: React.FC = () => {
             fontWeight: 'bold',
             fontSize: '13px'
           }}>
-            {isBalanced ? '✅ Équilibrée (Solde 0.000)' : `âŒ Déséquilibrée (-${diff.toFixed(3)} TND)`}
+            {isBalanced ? '✅ Équilibrée (Solde 0.000)' : `❌ Déséquilibrée (-${diff.toFixed(3)} TND)`}
           </div>
         </div>
       </div>
@@ -224,7 +224,7 @@ export const QuickJournalEntry: React.FC = () => {
                     onClick={() => setLines(lines.filter(x => x.id !== l.id))}
                     style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '14px' }}
                   >
-                    🗑ï¸
+                    🗑️
                   </button>
                 </td>
               </tr>

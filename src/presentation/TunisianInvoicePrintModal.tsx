@@ -153,7 +153,7 @@ export default function TunisianInvoicePrintModal({ invoice, onClose, entityName
                 cursor: 'pointer',
               }}
             >
-              🖨ï¸ Imprimer la Facture
+              🖨️ Imprimer la Facture
             </button>
             <button
               type="button"

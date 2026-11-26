@@ -84,7 +84,7 @@ export const DEFAULT_TUNISIAN_PROJECTS: Project[] = [
     id: 'prj-tn-btp-01',
     projectCode: 'PRJ-BTP-2026-01',
     name: 'Chantier Siège Tertiaire R+5 (Berges du Lac 2, Tunis)',
-    description: 'Construction gros Å“uvre béton armé B25, menuiserie aluminium double vitrage, sécurité incendie & VRD selon CCAG tunisien.',
+    description: 'Construction gros œuvre béton armé B25, menuiserie aluminium double vitrage, sécurité incendie & VRD selon CCAG tunisien.',
     status: 'ACTIVE',
     budgetAmount: 4800000,
     contractAmount: 5450000,
@@ -92,13 +92,13 @@ export const DEFAULT_TUNISIAN_PROJECTS: Project[] = [
     endAt: '2026-12-31',
     tasks: [
       { id: 'tsk-01', title: 'Terrassement et fondations spéciales (Pieux forés CTC)', description: null, status: 'COMPLETED', dueAt: '2025-11-30', completedAt: '2025-11-28' },
-      { id: 'tsk-02', title: 'Gros Å“uvre poteaux / dalles RDC à R+3', description: null, status: 'IN_PROGRESS', dueAt: '2026-05-15', completedAt: null },
+      { id: 'tsk-02', title: 'Gros œuvre poteaux / dalles RDC à R+3', description: null, status: 'IN_PROGRESS', dueAt: '2026-05-15', completedAt: null },
       { id: 'tsk-03', title: 'Lots techniques : Climatisation VRV, plomberie & électricité CFO/CFA', description: null, status: 'PLANNED', dueAt: '2026-09-30', completedAt: null },
     ],
     milestones: [
       { id: 'mls-01', title: 'Obtention Permis de Bâtir & PV Implantation Géomètre', description: null, dueAt: '2025-08-15', completedAt: '2025-08-10' },
       { id: 'mls-02', title: 'Réception Technique Fondations CTC & Coulage Radiers', description: null, dueAt: '2025-11-15', completedAt: '2025-11-12' },
-      { id: 'mls-03', title: 'Hors d’Eau / Hors d’Air & Début Second Å’uvre', description: null, dueAt: '2026-06-30', completedAt: null },
+      { id: 'mls-03', title: 'Hors d’Eau / Hors d’Air & Début Second Œuvre', description: null, dueAt: '2026-06-30', completedAt: null },
       { id: 'mls-04', title: 'Réception Provisoire des Travaux & Décompte DGD', description: null, dueAt: '2026-12-15', completedAt: null },
     ],
     costs: [
@@ -539,7 +539,7 @@ export default function ProjectManagementPanel({
               onClick={() => void deleteProject(selectedProject.id)}
               style={{ background: '#DC2626', color: '#FFFFFF', border: 0, borderRadius: 6, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}
             >
-              🗑ï¸ Supprimer ce projet
+              🗑️ Supprimer ce projet
             </button>
           )}
         </div>

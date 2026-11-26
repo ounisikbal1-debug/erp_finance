@@ -41,7 +41,7 @@ export default function InvoiceDetail() {
         actions={
           <>
             <Link href="/factures" className="erp-btn-ghost no-print">
-              â† Retour
+              ← Retour
             </Link>
             <button
               className="erp-btn-gold no-print"

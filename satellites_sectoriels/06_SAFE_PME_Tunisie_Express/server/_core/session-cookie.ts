@@ -40,7 +40,7 @@ export type SessionCookieOptions = {
   partitioned?: true;
 };
 
-/** HTTPS ç§ CHIPS；localhost ä» Lax。 */
+/** HTTPS 种 CHIPS；localhost 仍 Lax。 */
 export function sessionCookieOptions(https: boolean): SessionCookieOptions {
   if (https) {
     return {
@@ -49,7 +49,7 @@ export function sessionCookieOptions(https: boolean): SessionCookieOptions {
       maxAge: SESSION_MAX_AGE,
       sameSite: "None",
       secure: true,
-      partitioned: true, // Hono ä¼šå†™æˆ ; Partitioned
+      partitioned: true, // Hono 会写成 ; Partitioned
     };
   }
   return {

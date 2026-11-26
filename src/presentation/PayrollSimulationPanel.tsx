@@ -93,6 +93,146 @@ function formatAmount(value: number, currencySymbol: string): string {
   return `${value.toFixed(3)} ${currencySymbol}`;
 }
 
+interface CustomPayrollRates {
+  cnssEmployeeRate: number;
+  cnssEmployerRate: number;
+  workAccidentRate: number;
+  foprolosRate: number;
+  profExpensesRate: number;
+  profExpensesMaxCap: number;
+  headOfFamilyDeduction: number;
+  childDeduction: number;
+  parentDeduction: number;
+  cssRate: number;
+  employerInsuranceRate: number;
+  employeeInsuranceRate: number;
+  irppBrackets: Array<{ min: number; max: number; rate: number }>;
+}
+
+const CUSTOM_RATES_STORAGE_KEY = 'safe_custom_payroll_rates_v1';
+
+const DEFAULT_CUSTOM_RATES: CustomPayrollRates = {
+  cnssEmployeeRate: 9.68,
+  cnssEmployerRate: 16.57,
+  workAccidentRate: 0.5,
+  foprolosRate: 1.0,
+  profExpensesRate: 10.0,
+  profExpensesMaxCap: 2000.0,
+  headOfFamilyDeduction: 300.0,
+  childDeduction: 100.0,
+  parentDeduction: 1750.0,
+  cssRate: 0.5,
+  employerInsuranceRate: 6.0,
+  employeeInsuranceRate: 0.0,
+  irppBrackets: [
+    { min: 0, max: 5000, rate: 0 },
+    { min: 5000, max: 10000, rate: 15 },
+    { min: 10000, max: 20000, rate: 25 },
+    { min: 20000, max: 30000, rate: 30 },
+    { min: 30000, max: 40000, rate: 33 },
+    { min: 40000, max: 50000, rate: 36 },
+    { min: 50000, max: 70000, rate: 38 },
+    { min: 70000, max: Infinity, rate: 40 },
+  ],
+};
+
+function loadSavedCustomRates(): CustomPayrollRates {
+  try {
+    const raw = window.localStorage.getItem(CUSTOM_RATES_STORAGE_KEY);
+    if (!raw) return DEFAULT_CUSTOM_RATES;
+    const parsed = JSON.parse(raw) as Partial<CustomPayrollRates>;
+    const brackets = Array.isArray(parsed.irppBrackets) && parsed.irppBrackets.length > 0
+      ? parsed.irppBrackets.map((b) => ({
+          min: Number(b.min) || 0,
+          max: b.max === null || b.max === undefined || !Number.isFinite(Number(b.max)) ? Infinity : Number(b.max),
+          rate: Number(b.rate) || 0,
+        }))
+      : DEFAULT_CUSTOM_RATES.irppBrackets;
+    return { ...DEFAULT_CUSTOM_RATES, ...parsed, irppBrackets: brackets };
+  } catch {
+    return DEFAULT_CUSTOM_RATES;
+  }
+}
+
+function round3(val: number): number {
+  return Math.round(val * 1000) / 1000;
+}
+
+function computePayslipFromCustomRates(
+  inputs: PayrollSimulationInputs,
+  rates: CustomPayrollRates,
+  countryCode = 'TN',
+): PayrollSimulationResult {
+  const grossSalary = round3((Number(inputs.baseSalary) || 0) + (Number(inputs.presenceBonus) || 0) + (Number(inputs.transportBonus) || 0));
+  const employeeCnss = round3(grossSalary * (rates.cnssEmployeeRate / 100));
+  const taxableGross = Math.max(0, round3(grossSalary - employeeCnss));
+  const annualTaxableGross = taxableGross * 12;
+  const annualProfExpenses = Math.min(annualTaxableGross * (rates.profExpensesRate / 100), rates.profExpensesMaxCap);
+  const annualFamilyDeductions = (inputs.isHeadOfFamily ? rates.headOfFamilyDeduction : 0)
+    + ((Number(inputs.childrenCount) || 0) * rates.childDeduction);
+
+  const retirementBonusDeduction = inputs.fiscalBenefitType === 'COMPLEMENTARY_RETIREMENT'
+    ? round3(taxableGross * ((Number(inputs.complementaryRetirementRate) || 0) / 100))
+    : 0;
+
+  const annualNetBeforeGain = Math.max(0, annualTaxableGross - annualProfExpenses - annualFamilyDeductions);
+  const annualNetAfterGain = Math.max(0, annualNetBeforeGain - retirementBonusDeduction * 12);
+
+  const calcAnnualIrpp = (annualNet: number) => {
+    let total = 0;
+    for (const b of rates.irppBrackets) {
+      if (annualNet > b.min) {
+        total += Math.max(0, Math.min(annualNet, b.max) - b.min) * (b.rate / 100);
+      }
+    }
+    return total;
+  };
+
+  const irppBeforeRetirementGain = round3(calcAnnualIrpp(annualNetBeforeGain) / 12);
+  const irpp = round3(calcAnnualIrpp(annualNetAfterGain) / 12);
+  const cssBeforeRetirementGain = round3((annualNetBeforeGain * (rates.cssRate / 100)) / 12);
+  const css = round3((annualNetAfterGain * (rates.cssRate / 100)) / 12);
+
+  const gainIrpp = Math.max(0, round3(irppBeforeRetirementGain - irpp));
+  const gainCss = Math.max(0, round3(cssBeforeRetirementGain - css));
+  const totalImpots = round3(irppBeforeRetirementGain + cssBeforeRetirementGain);
+  const totalGain = round3(gainIrpp + gainCss);
+  const totalImpotsApresGains = round3(irpp + css);
+
+  const employeeInsurance = round3(grossSalary * (rates.employeeInsuranceRate / 100));
+  const parentACharge = round3(((Number(inputs.dependentParents) || 0) * rates.parentDeduction) / 12);
+  const intermediateNet = round3(grossSalary - employeeCnss - irpp - css);
+  const totalRetenue = round3(employeeCnss + irpp + css + employeeInsurance + parentACharge);
+  const netSalary = round3(grossSalary - totalRetenue);
+
+  return {
+    country: countryCode,
+    currency: 'TND',
+    currencySymbol: 'DT',
+    grossSalary,
+    employeeCnss,
+    taxableGross,
+    fraisProfessionnels: round3(annualProfExpenses / 12),
+    chefDeFamille: round3((inputs.isHeadOfFamily ? rates.headOfFamilyDeduction : 0) / 12),
+    enfantACharge: round3(((Number(inputs.childrenCount) || 0) * rates.childDeduction) / 12),
+    retirementBonusDeduction,
+    netImposable: round3(annualNetAfterGain / 12),
+    irpp,
+    irppBeforeRetirementGain,
+    css,
+    cssBeforeRetirementGain,
+    gainIrpp,
+    gainCss,
+    totalImpots,
+    totalGain,
+    totalImpotsApresGains,
+    intermediateNet,
+    parentACharge,
+    totalRetenue,
+    netSalary,
+  };
+}
+
 export default function PayrollSimulationPanel({ accessToken }: { accessToken: string | null }) {
   const [activeTab, setActiveTab] = useState<'payslip' | 'ratesSheet'>('payslip');
   const [inputs, setInputs] = useState(INITIAL_INPUTS);
@@ -100,31 +240,9 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
   const [availabilityError, setAvailabilityError] = useState('');
   const [result, setResult] = useState<PayrollSimulationResult | null>(null);
 
-  // Feuille des Taux & Barèmes Modulables
-  const [customRates, setCustomRates] = useState({
-    cnssEmployeeRate: 9.68,
-    cnssEmployerRate: 16.57,
-    workAccidentRate: 0.5,
-    foprolosRate: 1.0,
-    profExpensesRate: 10.0,
-    profExpensesMaxCap: 2000.0,
-    headOfFamilyDeduction: 300.0,
-    childDeduction: 100.0,
-    parentDeduction: 1750.0,
-    cssRate: 0.5,
-    employerInsuranceRate: 6.0,
-    employeeInsuranceRate: 0.0,
-    irppBrackets: [
-      { min: 0, max: 5000, rate: 0 },
-      { min: 5000, max: 10000, rate: 15 },
-      { min: 10000, max: 20000, rate: 25 },
-      { min: 20000, max: 30000, rate: 30 },
-      { min: 30000, max: 40000, rate: 33 },
-      { min: 40000, max: 50000, rate: 36 },
-      { min: 50000, max: 70000, rate: 38 },
-      { min: 70000, max: Infinity, rate: 40 },
-    ],
-  });
+  // Feuille des Taux & Barèmes Modulables (chargée depuis localStorage)
+  const [customRates, setCustomRates] = useState<CustomPayrollRates>(loadSavedCustomRates);
+  const [savedRatesNotice, setSavedRatesNotice] = useState('');
   const [calculationError, setCalculationError] = useState('');
   const [isCalculating, setIsCalculating] = useState(false);
   const [configVersion, setConfigVersion] = useState(0);
@@ -193,35 +311,62 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
     setCalculationError('');
   };
 
+  const saveCustomRates = () => {
+    try {
+      const serializable = {
+        ...customRates,
+        irppBrackets: customRates.irppBrackets.map((b) => ({
+          min: b.min,
+          max: Number.isFinite(b.max) ? b.max : null,
+          rate: b.rate,
+        })),
+      };
+      window.localStorage.setItem(CUSTOM_RATES_STORAGE_KEY, JSON.stringify(serializable));
+      window.dispatchEvent(new CustomEvent('safe:custom-rates-updated', { detail: customRates }));
+      if (result) {
+        const updated = computePayslipFromCustomRates(inputs, customRates, availability?.countryCode ?? 'TN');
+        setResult(updated);
+      }
+      setSavedRatesNotice('Modifications enregistrées ! Les taux modulables sont appliqués au calcul de la fiche de paie et de la préparation CNSS/IRPP.');
+    } catch {
+      setSavedRatesNotice('Erreur lors de l’enregistrement local des taux modulables.');
+    }
+  };
+
   const calculatePayroll = async () => {
-    if (!accessToken || !canCalculate || isCalculating) return;
+    if (isCalculating) return;
     setIsCalculating(true);
     setCalculationError('');
-    setResult(null);
+    setActiveTab('payslip');
     try {
-      const response = await fetch('/api/hr/simulate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(inputs),
-      });
-      const payload: unknown = await response.json();
-      if (!response.ok) {
-        const errorMessage = payload && typeof payload === 'object' && 'error' in payload
-          && typeof payload.error === 'string'
-          ? payload.error
-          : 'Le serveur a refusé le calcul de paie.';
-        throw new Error(errorMessage);
+      // Calcul prioritaire à partir des taux et barèmes de la Feuille des Taux Modulables
+      const computed = computePayslipFromCustomRates(inputs, customRates, availability?.countryCode ?? 'TN');
+      setResult(computed);
+      window.localStorage.setItem('safe_last_simulated_payslip_v1', JSON.stringify({
+        result: computed,
+        customRates,
+        inputs,
+        calculatedAt: new Date().toISOString(),
+      }));
+      window.dispatchEvent(new CustomEvent('safe:payroll-launched', {
+        detail: { result: computed, customRates, inputs },
+      }));
+
+      // Synchronisation optionnelle avec le backend si la configuration pays est disponible
+      if (accessToken && canCalculate) {
+        fetch('/api/hr/simulate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(inputs),
+        }).catch(() => {});
       }
-      if (!isPayrollSimulationResult(payload)) throw new Error('Réponse de calcul de paie invalide.');
-      // Garantir strictement Brut imposable = Salaire Brut - Cotisation CNSS (9.68%)
-      const strictlyCalculatedTaxableGross = Math.max(0, Math.round((payload.grossSalary - payload.employeeCnss) * 1000) / 1000);
-      setResult({
-        ...payload,
-        taxableGross: strictlyCalculatedTaxableGross,
-      });
+
+      setTimeout(() => {
+        printableSlipRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 60);
     } catch (error) {
       setCalculationError(error instanceof Error ? error.message : 'Le calcul de paie a échoué.');
     } finally {
@@ -477,6 +622,37 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
               </tbody>
             </table>
           </div>
+
+          {/* Bouton Enregistrer Modification dans la Feuille des Taux Modulables */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', background: '#F8FAFC', border: '1px solid #CBD5E1', borderRadius: '8px', padding: '12px 16px' }}>
+            <div style={{ fontSize: '0.82rem', color: '#334155' }}>
+              Enregistrez vos modifications pour les appliquer à la fiche de paie calculée et à la préparation CNSS / IRPP.
+            </div>
+            <button
+              type="button"
+              onClick={saveCustomRates}
+              style={{
+                background: '#059669',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '10px 18px',
+                fontWeight: 800,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              💾 Enregistrer Modification
+            </button>
+          </div>
+          {savedRatesNotice && (
+            <div role="status" style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '8px', color: '#065F46', padding: '10px 14px', fontWeight: 700, fontSize: '0.84rem' }}>
+              ✅ {savedRatesNotice}
+            </div>
+          )}
 
           {/* Détail de calcul IRPP/CSS supprimé de la fiche de paie conformément à la demande */}
         </div>
@@ -770,6 +946,37 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             </table>
           </div>
 
+          {/* Bouton Enregistrer Modification dans la Feuille des Taux Modulables */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', background: '#F8FAFC', border: '1px solid #CBD5E1', borderRadius: '8px', padding: '12px 16px' }}>
+            <div style={{ fontSize: '0.82rem', color: '#334155' }}>
+              Enregistrez vos modifications pour les appliquer à la fiche de paie calculée et à la préparation CNSS / IRPP.
+            </div>
+            <button
+              type="button"
+              onClick={saveCustomRates}
+              style={{
+                background: '#059669',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '10px 18px',
+                fontWeight: 800,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              💾 Enregistrer Modification
+            </button>
+          </div>
+          {savedRatesNotice && (
+            <div role="status" style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '8px', color: '#065F46', padding: '10px 14px', fontWeight: 700, fontSize: '0.84rem' }}>
+              ✅ {savedRatesNotice}
+            </div>
+          )}
+
           {/* Détail de calcul IRPP/CSS supprimé de la fiche de paie conformément à la demande */}
 
           {/* Récapitulatif en Direct avec Recalcul Immédiat */}
@@ -891,10 +1098,10 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
       <button
         type="button"
         onClick={calculatePayroll}
-        disabled={!canCalculate || isCalculating}
-        style={{ background: !canCalculate || isCalculating ? '#94A3B8' : '#2563EB', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '9px 16px', fontWeight: 700, cursor: !canCalculate || isCalculating ? 'not-allowed' : 'pointer' }}
+        disabled={isCalculating}
+        style={{ background: isCalculating ? '#94A3B8' : '#2563EB', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '9px 16px', fontWeight: 700, cursor: isCalculating ? 'not-allowed' : 'pointer' }}
       >
-        {isCalculating ? 'Calcul en cours…' : 'Calculer avec la configuration du pays'}
+        {isCalculating ? 'Calcul en cours…' : 'Calculer la fiche de paie (Taux modulables)'}
       </button>
 
       {calculationError && (
@@ -935,7 +1142,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
             <div><span style={{ color: '#64748B' }}>Emploi :</span> <strong>Collaborateur Cadre / Senior</strong></div>
             <div><span style={{ color: '#64748B' }}>Situation :</span> <strong>{inputs.isHeadOfFamily ? 'Marié(e)' : 'Célibataire'}</strong></div>
             <div><span style={{ color: '#64748B' }}>Enfant(s) :</span> <strong>{inputs.childrenCount}</strong></div>
-            <div><span style={{ color: '#64748B' }}>Parents à charge :</span> <strong>{inputs.dependentParents > 0 ? `${inputs.dependentParents} à charge (${(inputs.dependentParents * 145.833).toFixed(3)} DT)` : '0'}</strong></div>
+            <div><span style={{ color: '#64748B' }}>Parents à charge :</span> <strong>{inputs.dependentParents > 0 ? `${inputs.dependentParents} à charge (${((inputs.dependentParents * customRates.parentDeduction) / 12).toFixed(3)} DT)` : '0'}</strong></div>
             <div><span style={{ color: '#64748B' }}>N° Sécurité Sociale :</span> <strong>12780984-03</strong></div>
           </div>
 
@@ -996,11 +1203,11 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                   <td style={{ padding: '6px' }}>8000</td>
                   <td style={{ padding: '6px' }}>CNSS Normale</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>9,680 %</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.cnssEmployeeRate.toFixed(3)} %</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.employeeCnss.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>16,570 %</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>{(Math.round(result.grossSalary * 0.1657 * 1000) / 1000).toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.cnssEmployerRate.toFixed(3)} %</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{(Math.round(result.grossSalary * (customRates.cnssEmployerRate / 100) * 1000) / 1000).toFixed(3)}</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                   <td style={{ padding: '6px' }}>8220</td>
@@ -1009,8 +1216,8 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>0,500 %</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>{(Math.round(result.grossSalary * 0.005 * 1000) / 1000).toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.workAccidentRate.toFixed(3)} %</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{(Math.round(result.grossSalary * (customRates.workAccidentRate / 100) * 1000) / 1000).toFixed(3)}</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E2E8F0', background: '#F8FAFC' }}>
                   <td style={{ padding: '6px' }}>8500</td>
@@ -1034,7 +1241,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                   <td style={{ padding: '6px' }}>9400</td>
                   <td style={{ padding: '6px' }}>Contrib° Sociale de Solidarité (CSS)</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>{result.netImposable.toFixed(3)}</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>0,500 %</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.cssRate.toFixed(3)} %</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{result.css.toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
@@ -1043,22 +1250,22 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                   <td style={{ padding: '6px' }}>9910</td>
                   <td style={{ padding: '6px' }}>Assurance Compl. Mutuelle Patronale</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.employerInsuranceRate.toFixed(3)} %</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{(Math.round(result.grossSalary * (customRates.employerInsuranceRate / 100) * 1000) / 1000).toFixed(3)}</td>
                 </tr>
                 <tr style={{ borderTop: '2px solid #CBD5E1', borderBottom: '2px solid #CBD5E1', background: '#F8FAFC', fontWeight: 800 }}>
                   <td style={{ padding: '6px' }} colSpan={2}>TOTAL COTISATIONS</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(result.employeeCnss + result.irpp + result.css).toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(result.employeeCnss + result.irpp + result.css + (Math.round(result.grossSalary * (customRates.employeeInsuranceRate / 100) * 1000) / 1000)).toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                   <td style={{ padding: '6px', textAlign: 'right', color: '#334155' }}>
-                    {(Math.round((result.grossSalary * (0.1657 + 0.005)) * 1000) / 1000).toFixed(3)}
+                    {(Math.round((result.grossSalary * ((customRates.cnssEmployerRate + customRates.workAccidentRate + customRates.employerInsuranceRate) / 100)) * 1000) / 1000).toFixed(3)}
                   </td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
@@ -1072,10 +1279,10 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                 <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                   <td style={{ padding: '6px' }}>10200</td>
                   <td style={{ padding: '6px' }}>Assurance Compl. Mutuelle Salariale</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{result.grossSalary.toFixed(3)}</td>
+                  <td style={{ padding: '6px', textAlign: 'right' }}>{customRates.employeeInsuranceRate.toFixed(3)} %</td>
                   <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                  <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
+                  <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(Math.round(result.grossSalary * (customRates.employeeInsuranceRate / 100) * 1000) / 1000).toFixed(3)}</td>
                   <td style={{ padding: '6px', textAlign: 'right' }} colSpan={2}>—</td>
                 </tr>
                 {inputs.dependentParents >= 1 && (
@@ -1085,7 +1292,7 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                     <td style={{ padding: '6px', textAlign: 'right' }}>1,000</td>
                     <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                     <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                    <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>145,833</td>
+                    <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(customRates.parentDeduction / 12).toFixed(3)}</td>
                     <td style={{ padding: '6px', textAlign: 'right' }} colSpan={2}>—</td>
                   </tr>
                 )}
@@ -1096,13 +1303,44 @@ export default function PayrollSimulationPanel({ accessToken }: { accessToken: s
                     <td style={{ padding: '6px', textAlign: 'right' }}>1,000</td>
                     <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
                     <td style={{ padding: '6px', textAlign: 'right' }}>—</td>
-                    <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>145,834</td>
+                    <td style={{ padding: '6px', textAlign: 'right', color: '#B91C1C' }}>{(customRates.parentDeduction / 12).toFixed(3)}</td>
                     <td style={{ padding: '6px', textAlign: 'right' }} colSpan={2}>—</td>
                   </tr>
                 )}
               </tbody>
             </table>
           </div>
+
+          {/* Bouton Enregistrer Modification dans la Feuille des Taux Modulables */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', background: '#F8FAFC', border: '1px solid #CBD5E1', borderRadius: '8px', padding: '12px 16px' }}>
+            <div style={{ fontSize: '0.82rem', color: '#334155' }}>
+              Enregistrez vos modifications pour les appliquer à la fiche de paie calculée et à la préparation CNSS / IRPP.
+            </div>
+            <button
+              type="button"
+              onClick={saveCustomRates}
+              style={{
+                background: '#059669',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '10px 18px',
+                fontWeight: 800,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              💾 Enregistrer Modification
+            </button>
+          </div>
+          {savedRatesNotice && (
+            <div role="status" style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '8px', color: '#065F46', padding: '10px 14px', fontWeight: 700, fontSize: '0.84rem' }}>
+              ✅ {savedRatesNotice}
+            </div>
+          )}
 
           {/* Détail de calcul IRPP/CSS supprimé de la fiche de paie conformément à la demande */}
 
