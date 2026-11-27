@@ -1,9 +1,14 @@
 import * as pdfjsLib from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString();
+try {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.min.mjs',
+    /* @ts-expect-error import.meta requires ESM module option */
+    import.meta.url,
+  ).toString();
+} catch {
+  // Falls back to default worker resolution in non-ESM environments
+}
 
 export interface ParsedPdfBankStatement {
   currencyCode: string | null;

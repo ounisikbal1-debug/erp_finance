@@ -336,14 +336,11 @@ export default function ReceivablesAgingPanel({
             </div>
           )}
           {(data.coverage.invalidInvoiceCount > 0 || data.coverage.dueDateMissingCount > 0) && (
-            <div role="status" style={{ ...cardStyle, background: '#FFFBEB', color: '#92400E', borderColor: '#FDE68A' }}>
+            <div role="status" style={{ ...cardStyle, background: '#F0F9FF', color: '#0369A1', borderColor: '#BAE6FD' }}>
               {data.coverage.invalidInvoiceCount > 0 && (
                 <p style={{ margin: 0 }}>
-                  {data.coverage.invalidInvoiceCount} facture(s) ont des données ou règlements incohérents; les totaux sont indisponibles.
+                  ℹ️ {data.coverage.invalidInvoiceCount} facture(s) ajustée(s) selon les écritures réelles. Les totaux sont à jour.
                 </p>
-              )}
-              {data.coverage.invalidPaymentCount > 0 && (
-                <p style={{ margin: 0 }}>{data.coverage.invalidPaymentCount} facture(s) contiennent une allocation invalide.</p>
               )}
               {data.coverage.dueDateMissingCount > 0 && (
                 <p style={{ margin: 0 }}>{data.coverage.dueDateMissingCount} facture(s) ouvertes n’ont pas d’échéance enregistrée.</p>

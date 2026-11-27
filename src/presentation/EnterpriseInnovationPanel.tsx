@@ -34,7 +34,7 @@ export const EnterpriseInnovationPanel: React.FC = () => {
       entries: [
         { acc: '601000', name: 'Achats matières premières', debit: '2 450,000', credit: '0,000' },
         { acc: '436660', name: 'TVA déductible 19%', debit: '465,500', credit: '0,000' },
-        { acc: '401000', name: 'Fournisseurs d'exploitation', debit: '0,000', credit: '2 915,500' }
+        { acc: '401000', name: 'Fournisseurs d\'exploitation', debit: '0,000', credit: '2 915,500' }
       ]
     });
   };

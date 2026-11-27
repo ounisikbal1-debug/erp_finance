@@ -519,6 +519,7 @@ async function parsePdfContent(file: File): Promise<Array<Record<string, unknown
     try {
       pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
         'pdfjs-dist/build/pdf.worker.min.mjs',
+        /* @ts-expect-error import.meta requires ESM module option */
         import.meta.url,
       ).toString();
     } catch {

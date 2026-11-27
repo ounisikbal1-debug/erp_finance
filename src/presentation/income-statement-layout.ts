@@ -64,8 +64,8 @@ export function buildIncomeStatementLines(input: {
     : resultBeforeTax === null
     ? 0
     : Math.max(resultBeforeTax, 0) * effectiveTaxRate / 100;
-  const netResult = resultBeforeTax === null ? (periodResult ?? 0) : resultBeforeTax - taxAmount;
   const periodResult = revenue === null || expenses === null ? null : revenue - expenses;
+  const netResult = resultBeforeTax === null ? (periodResult ?? 0) : resultBeforeTax - taxAmount;
   const unclassifiedRevenueCount = accounts.filter((account) =>
     account.type === 'Revenue' && !account.financialCategory && account.movement !== 0).length;
   const unclassifiedExpenseCount = accounts.filter((account) =>

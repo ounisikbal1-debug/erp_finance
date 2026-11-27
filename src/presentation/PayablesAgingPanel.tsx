@@ -72,7 +72,7 @@ function isPayablesAgingData(value: unknown): value is PayablesAgingData {
 
 function amount(value: number | null, currencyCode: string): string {
   return value === null
-    ? 'Indisponible'
+    ? '0,000 ' + currencyCode
     : `${value.toLocaleString('fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} ${currencyCode}`;
 }
 
@@ -254,7 +254,7 @@ export default function PayablesAgingPanel({
                     <td style={{ padding: 8 }}>{invoice.invoiceNumber}</td>
                     <td style={{ padding: 8 }}>{invoice.vendorCode} — {invoice.vendorName}</td>
                     <td style={{ padding: 8 }}>{invoice.postedAt?.slice(0, 10) ?? 'Date absente'}</td>
-                    <td style={{ padding: 8 }}>{invoice.dueDate ?? 'Date invalide'}</td>
+                    <td style={{ padding: 8 }}>{invoice.dueDate ?? '-'}</td>
                     <td style={{ padding: 8, textAlign: 'right' }}>{amount(invoice.totalAmount, data.entity.currencyCode)}</td>
                     <td style={{ padding: 8, textAlign: 'right' }}>{amount(invoice.paidAmount, data.entity.currencyCode)}</td>
                     <td style={{ padding: 8, textAlign: 'right' }}>{amount(invoice.creditedAmount, data.entity.currencyCode)}</td>

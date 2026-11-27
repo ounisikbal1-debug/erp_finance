@@ -207,7 +207,7 @@ export async function buildWorkbook(filename: string, sheets: ExcelSheetData[], 
   const dateImputation = getImputedDate(meta.customDate);
   const company = meta.companyName || 'Société non précisée';
   const excelModule = await import('exceljs');
-  const ExcelJS = (excelModule as { default?: typeof excelModule }).default ?? excelModule;
+  const ExcelJS = (excelModule as unknown as { default?: typeof excelModule }).default ?? excelModule;
   const WorkbookCtor = ExcelJS.Workbook ?? excelModule.Workbook;
   if (!WorkbookCtor) {
     throw new Error('Bibliothèque ExcelJS indisponible pour la génération du classeur.');
