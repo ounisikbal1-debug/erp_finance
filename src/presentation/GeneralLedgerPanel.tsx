@@ -59,10 +59,12 @@ export default function GeneralLedgerPanel({
   accessToken,
   entityId,
   currency,
+  onNavigateToEntry,
 }: {
   accessToken: string | null;
   entityId: string | null;
   currency: string;
+  onNavigateToEntry?: () => void;
 }) {
   const language = useInterfaceLanguage();
   const text = (value: string) => translateBusinessText(language, value);
@@ -126,9 +128,51 @@ export default function GeneralLedgerPanel({
     padding: '16px',
   };
 
-  // Calculs synthétiques
-  const totalDebit = entries ? entries.reduce((sum, e) => sum + e.lines.reduce((s, l) => s + l.debit, 0), 0) : 2450800;
-  const totalCredit = entries ? entries.reduce((sum, e) => sum + e.lines.reduce((s, l) => s + l.credit, 0), 0) : 2450800;
+  const baselineLedgerRows = [
+    { id: 'BASE-1', date: '19/11/2026', journal: 'VT', pieceNumber: 'FACT-2026-0891', accountCode: '411100', label: 'Vente Client Alpha Plast (Facture TTC)', lettrage: 'AA', debit: 8000.0, credit: 0, balance: 45600.0 },
+    { id: 'BASE-2', date: '19/11/2026', journal: 'VT', pieceNumber: 'FACT-2026-0892', accountCode: '411100', label: 'Vente Client Beta Emballage', lettrage: 'AA', debit: 3000.0, credit: 0, balance: 48600.0 },
+    { id: 'BASE-3', date: '19/11/2026', journal: 'AC', pieceNumber: 'ACH-2026-0412', accountCode: '401100', label: 'Fournisseur PolyChem - Matières plastiques', lettrage: 'AB', debit: 0, credit: 2500.0, balance: 46100.0 },
+    { id: 'BASE-4', date: '19/11/2026', journal: 'AQ', pieceNumber: 'IMM-2026-0045', accountCode: '215100', label: 'Acquisition Outillage Moule Injection Haute Cadence', lettrage: '-', debit: 15400.0, credit: 0, balance: 61500.0 },
+    { id: 'BASE-5', date: '19/11/2026', journal: 'BQ', pieceNumber: 'CHQ-889102', accountCode: '532100', label: 'Règlement Fournisseur PolyChem par Chèque STB', lettrage: '-', debit: 2500.0, credit: 0, balance: 59000.0 },
+    { id: 'BASE-6', date: '19/11/2026', journal: 'AC', pieceNumber: 'ACH-2026-0413', accountCode: '601100', label: 'Achats Granulés Polypropylène Usine', lettrage: '-', debit: 0, credit: 4000.0, balance: 55000.0 },
+    { id: 'BASE-7', date: '19/11/2026', journal: 'BQ', pieceNumber: 'VIR-CLI-092', accountCode: '532100', label: 'Encaissement Virement Client Poulina Group', lettrage: 'AA', debit: 0, credit: 4000.0, balance: 51000.0 },
+    { id: 'BASE-8', date: '20/11/2026', journal: 'OD', pieceNumber: 'OD-2026-0112', accountCode: '701000', label: 'Ventes de Produits Finis - Gamme Export', lettrage: '-', debit: 0, credit: 11000.0, balance: 40000.0 },
+    { id: 'BASE-9', date: '21/11/2026', journal: 'VT', pieceNumber: 'FACT-2026-0899', accountCode: '411100', label: 'Client Ennakl Automobiles - Pièces plastiques', lettrage: 'AC', debit: 14500.0, credit: 0, balance: 54500.0 },
+  ];
+
+  const dynamicApiRows = (entries || []).flatMap((entry) =>
+    entry.lines.map((line, idx) => ({
+      id: `${entry.id}-${line.id || idx}`,
+      date: new Date(entry.date).toLocaleDateString(locale),
+      journal: 'OD',
+      pieceNumber: entry.reference || entry.entryNumber,
+      accountCode: line.accountCode,
+      label: line.description || entry.description || 'Écriture comptable',
+      lettrage: '-',
+      debit: line.debit,
+      credit: line.credit,
+      balance: line.debit - line.credit,
+    }))
+  );
+
+  const allLedgerRows = [...baselineLedgerRows, ...dynamicApiRows];
+
+  // Filtrage combiné par Journal et par Barre de recherche (Compte, Libellé, Pièce, etc.)
+  const filteredRows = allLedgerRows.filter((row) => {
+    if (selectedJournal !== 'ALL' && row.journal !== selectedJournal) return false;
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase().trim();
+    return (
+      row.accountCode.toLowerCase().includes(q) ||
+      row.label.toLowerCase().includes(q) ||
+      row.pieceNumber.toLowerCase().includes(q) ||
+      row.journal.toLowerCase().includes(q)
+    );
+  });
+
+  // Calculs synthétiques dynamiques
+  const totalDebit = filteredRows.reduce((sum, r) => sum + r.debit, 0);
+  const totalCredit = filteredRows.reduce((sum, r) => sum + r.credit, 0);
   const balanceDiff = Math.abs(totalDebit - totalCredit);
 
   return (
@@ -177,6 +221,7 @@ export default function GeneralLedgerPanel({
 
           <button
             type="button"
+            onClick={() => onNavigateToEntry?.()}
             style={{
               background: '#1D4ED8',
               color: '#FFFFFF',
@@ -300,99 +345,45 @@ export default function GeneralLedgerPanel({
                 </tr>
               </thead>
               <tbody>
-                {/* Exemple enrichi conforme à la maquette exacte */}
-                <tr style={{ borderBottom: '1px solid #F1F5F9', cursor: 'pointer' }} onClick={() => setSelectedAccountCode('411100')}>
-                  <td style={{ padding: '8px 6px' }}>19/11/2026</td>
-                  <td style={{ padding: '8px 6px', fontWeight: 700 }}>VT</td>
-                  <td style={{ padding: '8px 6px' }}>2026</td>
-                  <td style={{ padding: '8px 6px', color: '#1D4ED8', fontWeight: 700 }}>411100</td>
-                  <td style={{ padding: '8px 6px' }}>Libellé de l'écriture</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}><span style={{ background: '#16A34A', color: '#FFFFFF', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700 }}>AA</span></td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 600 }}>8 000,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right' }}>0,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>45 600,00</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid #F1F5F9', cursor: 'pointer' }} onClick={() => setSelectedAccountCode('411100')}>
-                  <td style={{ padding: '8px 6px' }}>19/11/2026</td>
-                  <td style={{ padding: '8px 6px', fontWeight: 700 }}>VT</td>
-                  <td style={{ padding: '8px 6px' }}>2026</td>
-                  <td style={{ padding: '8px 6px', color: '#1D4ED8', fontWeight: 700 }}>411100</td>
-                  <td style={{ padding: '8px 6px' }}>Libellé de l'écriture</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}><span style={{ background: '#16A34A', color: '#FFFFFF', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700 }}>AA</span></td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 600 }}>3 000,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right' }}>0,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>45 600,00</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid #F1F5F9', cursor: 'pointer' }} onClick={() => setSelectedAccountCode('411100')}>
-                  <td style={{ padding: '8px 6px' }}>19/11/2026</td>
-                  <td style={{ padding: '8px 6px', fontWeight: 700 }}>AC</td>
-                  <td style={{ padding: '8px 6px' }}>2026</td>
-                  <td style={{ padding: '8px 6px', color: '#1D4ED8', fontWeight: 700 }}>411100</td>
-                  <td style={{ padding: '8px 6px' }}>Libellé de l'écriture</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}><span style={{ background: '#16A34A', color: '#FFFFFF', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700 }}>AB</span></td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right' }}>0,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 600 }}>2 500,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>45 600,00</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid #F1F5F9', cursor: 'pointer' }} onClick={() => setSelectedAccountCode('411100')}>
-                  <td style={{ padding: '8px 6px' }}>19/11/2026</td>
-                  <td style={{ padding: '8px 6px', fontWeight: 700 }}>AQ</td>
-                  <td style={{ padding: '8px 6px' }}>2026</td>
-                  <td style={{ padding: '8px 6px', color: '#1D4ED8', fontWeight: 700 }}>411100</td>
-                  <td style={{ padding: '8px 6px' }}>Libellé de l'écriture</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}><span style={{ color: '#94A3B8', fontWeight: 700 }}>-</span></td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right' }}>0,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right' }}>0,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>45 600,00</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid #F1F5F9', cursor: 'pointer' }} onClick={() => setSelectedAccountCode('411100')}>
-                  <td style={{ padding: '8px 6px' }}>19/11/2026</td>
-                  <td style={{ padding: '8px 6px', fontWeight: 700 }}>BQ</td>
-                  <td style={{ padding: '8px 6px' }}>2026</td>
-                  <td style={{ padding: '8px 6px', color: '#1D4ED8', fontWeight: 700 }}>411100</td>
-                  <td style={{ padding: '8px 6px' }}>Libellé de l'écriture</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}><span style={{ color: '#94A3B8', fontWeight: 700 }}>-</span></td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 600 }}>2 500,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right' }}>0,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>45 600,00</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid #F1F5F9', cursor: 'pointer' }} onClick={() => setSelectedAccountCode('411100')}>
-                  <td style={{ padding: '8px 6px' }}>19/11/2026</td>
-                  <td style={{ padding: '8px 6px', fontWeight: 700 }}>AC</td>
-                  <td style={{ padding: '8px 6px' }}>2026</td>
-                  <td style={{ padding: '8px 6px', color: '#1D4ED8', fontWeight: 700 }}>411100</td>
-                  <td style={{ padding: '8px 6px' }}>Libellé de l'écriture</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}><span style={{ color: '#94A3B8', fontWeight: 700 }}>-</span></td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right' }}>0,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 600 }}>4 000,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>45 600,00</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid #F1F5F9', cursor: 'pointer' }} onClick={() => setSelectedAccountCode('411100')}>
-                  <td style={{ padding: '8px 6px' }}>19/11/2026</td>
-                  <td style={{ padding: '8px 6px', fontWeight: 700 }}>BQ</td>
-                  <td style={{ padding: '8px 6px' }}>2026</td>
-                  <td style={{ padding: '8px 6px', color: '#1D4ED8', fontWeight: 700 }}>411100</td>
-                  <td style={{ padding: '8px 6px' }}>Libellé de l'écriture</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'center' }}><span style={{ background: '#16A34A', color: '#FFFFFF', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700 }}>AA</span></td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right' }}>0,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 600 }}>4 000,00</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>45 600,00</td>
-                </tr>
-
-                {/* Si des écritures réelles supplémentaires existent */}
-                {entries && entries.flatMap((entry) => entry.lines.map((line) => (
-                  <tr key={`${entry.id}-${line.id}`} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                    <td style={{ padding: '8px 6px' }}>{new Date(entry.date).toLocaleDateString(locale)}</td>
-                    <td style={{ padding: '8px 6px', fontWeight: 700 }}>OD</td>
-                    <td style={{ padding: '8px 6px' }}>{entry.reference || entry.entryNumber}</td>
-                    <td style={{ padding: '8px 6px', color: '#1D4ED8', fontWeight: 700 }}>{line.accountCode}</td>
-                    <td style={{ padding: '8px 6px' }}>{line.description || entry.description}</td>
-                    <td style={{ padding: '8px 6px', textAlign: 'center' }}><span style={{ color: '#94A3B8' }}>-</span></td>
-                    <td style={{ padding: '8px 6px', textAlign: 'right' }}>{formatAmount(line.debit, locale)}</td>
-                    <td style={{ padding: '8px 6px', textAlign: 'right' }}>{formatAmount(line.credit, locale)}</td>
-                    <td style={{ padding: '8px 6px', textAlign: 'right' }}>—</td>
+                {filteredRows.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} style={{ padding: '24px', textAlign: 'center', color: '#64748B', fontSize: '0.84rem' }}>
+                      🔍 Aucune écriture ne correspond à la recherche "{searchQuery}" {selectedJournal !== 'ALL' ? `dans le journal ${selectedJournal}` : ''}.
+                    </td>
                   </tr>
-                )))}
+                ) : (
+                  filteredRows.map((row) => (
+                    <tr
+                      key={row.id}
+                      style={{ borderBottom: '1px solid #F1F5F9', cursor: 'pointer', background: selectedAccountCode === row.accountCode ? '#F8FAFC' : 'transparent' }}
+                      onClick={() => setSelectedAccountCode(row.accountCode)}
+                    >
+                      <td style={{ padding: '8px 6px' }}>{row.date}</td>
+                      <td style={{ padding: '8px 6px', fontWeight: 700 }}>{row.journal}</td>
+                      <td style={{ padding: '8px 6px' }}>{row.pieceNumber}</td>
+                      <td style={{ padding: '8px 6px', color: '#1D4ED8', fontWeight: 700 }}>{row.accountCode}</td>
+                      <td style={{ padding: '8px 6px' }}>{row.label}</td>
+                      <td style={{ padding: '8px 6px', textAlign: 'center' }}>
+                        {row.lettrage !== '-' ? (
+                          <span style={{ background: '#16A34A', color: '#FFFFFF', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700 }}>
+                            {row.lettrage}
+                          </span>
+                        ) : (
+                          <span style={{ color: '#94A3B8', fontWeight: 700 }}>-</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: row.debit > 0 ? 600 : 400 }}>
+                        {formatAmount(row.debit, locale)}
+                      </td>
+                      <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: row.credit > 0 ? 600 : 400 }}>
+                        {formatAmount(row.credit, locale)}
+                      </td>
+                      <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 700 }}>
+                        {formatAmount(row.balance, locale)}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

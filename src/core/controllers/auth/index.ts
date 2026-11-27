@@ -30,13 +30,32 @@ router.post('/logout', authenticate, async (_req, res) => {
 
 router.get('/entities', authenticate, entityContextHandlers.list);
 router.post('/entity-context', authenticate, entityContextHandlers.select);
-router.get('/login-options', async (_req, res) => {
+router.get('/login-options', async (req, res) => {
   try {
+    const isSpecializedApp = Boolean(req.query.app && req.query.app !== 'ALL');
     const entities = await prisma.entity.findMany({
-      select: { id: true, name: true, code: true },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        country: {
+          select: { code: true, name: true },
+        },
+      },
       orderBy: { name: 'asc' },
     });
-    res.json({ entities });
+    const mapped = entities.map((entity) => ({
+      id: entity.id,
+      name: entity.name,
+      code: entity.code,
+      country: entity.country?.name || 'Tunisie',
+      countryCode: entity.country?.code || 'TN',
+    }));
+    // Pour les logiciels métiers spécialisés (comptabilité, facturation, paie, etc.), filtrer strictement les entités tunisiennes
+    const filtered = isSpecializedApp
+      ? mapped.filter((e) => !e.code.includes('FR') && !e.code.includes('US') && !e.code.includes('AE') && !e.name.toLowerCase().includes('france') && !e.name.toLowerCase().includes('europe') && !e.name.toLowerCase().includes('usa') && !e.name.toLowerCase().includes('asie'))
+      : mapped;
+    res.json({ entities: filtered });
   } catch (error) {
     console.error('Erreur inattendue pendant le chargement des options de connexion.', {
       errorType: error instanceof Error ? error.name : 'UnknownError',

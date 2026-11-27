@@ -1,6 +1,6 @@
 ﻿param(
   [ValidateRange(1, 65535)]
-  [int]$Port = 3001,
+  [int]$Port = 3000,
   [switch]$NoBrowser,
   [string]$App = ""
 )
@@ -15,6 +15,11 @@ if (-not (Test-Path -LiteralPath $databasePath -PathType Leaf)) {
 }
 if (-not (Test-Path -LiteralPath $distIndex -PathType Leaf)) {
   throw 'Interface de production absente. Exécutez npm run build avant le démarrage.'
+}
+
+$listener = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
+if ($listener) {
+  $Port = 3001
 }
 
 $healthUrl = "http://127.0.0.1:$Port/health"

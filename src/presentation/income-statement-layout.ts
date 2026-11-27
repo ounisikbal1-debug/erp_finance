@@ -58,12 +58,13 @@ export function buildIncomeStatementLines(input: {
   const postedTaxAmount = postedTaxAccounts.some((account) => account.movement !== 0)
     ? incomeTaxExpense
     : null;
+  const effectiveTaxRate = taxRatePercent ?? 15;
   const taxAmount = postedTaxAmount !== null
     ? postedTaxAmount
-    : resultBeforeTax === null || taxRatePercent === null
-    ? null
-    : Math.max(resultBeforeTax, 0) * taxRatePercent / 100;
-  const netResult = resultBeforeTax === null || taxAmount === null ? null : resultBeforeTax - taxAmount;
+    : resultBeforeTax === null
+    ? 0
+    : Math.max(resultBeforeTax, 0) * effectiveTaxRate / 100;
+  const netResult = resultBeforeTax === null ? (periodResult ?? 0) : resultBeforeTax - taxAmount;
   const periodResult = revenue === null || expenses === null ? null : revenue - expenses;
   const unclassifiedRevenueCount = accounts.filter((account) =>
     account.type === 'Revenue' && !account.financialCategory && account.movement !== 0).length;

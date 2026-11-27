@@ -9,6 +9,8 @@ import IncomeStatementPanel from './IncomeStatementPanel';
 import PayablesAgingPanel from './PayablesAgingPanel';
 import ReceivablesAgingPanel from './ReceivablesAgingPanel';
 import TaxationPanel from './TaxationPanel';
+import BalanceSheetPanel from './BalanceSheetPanel';
+import BankReconciliationPanel from './BankReconciliationPanel';
 
 export interface ReportsPanelProps {
   accessToken: string | null;
@@ -110,7 +112,7 @@ export default function ReportsPanel({
     },
     {
       id: 'inv_aged_receivables',
-      label: 'â³ Balance Âgée Clients & Échéances',
+      label: '📈 Balance Âgée Clients & Échéances',
       badge: 'Recouvrement',
       description: 'État détaillé des créances ouvertes selon l’ancienneté et échéances contractuelles de paiement.',
       render: () => <ReceivablesAgingPanel accessToken={accessToken} entityId={entityId} />,
@@ -128,6 +130,13 @@ export default function ReportsPanel({
       badge: 'Fiscalité',
       description: 'Suivi de la TVA facturée, déductible et retenues à la source (RS 1%, 1.5%, 3%, 15%) selon le barème DGI.',
       render: () => <TaxationPanel accessToken={accessToken} entityId={entityId} currency={currency} />,
+    },
+    {
+      id: 'inv_bank_reconciliation',
+      label: '🏦 Rapprochement Bancaire des Règlements',
+      badge: 'Trésorerie',
+      description: 'Pointage et rapprochement bancaire des encaissements clients et décaissements fournisseurs.',
+      render: () => <BankReconciliationPanel accessToken={accessToken} entityId={entityId} currency={currency} />,
     },
   ];
 
@@ -487,6 +496,20 @@ export default function ReportsPanel({
       badge: 'Audit & Pièces',
       description: 'Détail exhaustif des écritures comptabilisées et soldes progressifs par numéro de compte.',
       render: () => <GeneralLedgerPanel accessToken={accessToken} entityId={entityId} currency={currency} />,
+    },
+    {
+      id: 'acc_balance_sheet',
+      label: '📑 Bilan Comptable Officiel (Actif / Passif SCE NC 01)',
+      badge: 'Bilan Légal',
+      description: 'Bilan comptable certifié conforme au Système Comptable des Entreprises (NC 01) avec équilibre Actif/Passif.',
+      render: () => <BalanceSheetPanel accessToken={accessToken} entityId={entityId} currency={currency} />,
+    },
+    {
+      id: 'acc_bank_reconciliation',
+      label: '🏦 État de Rapprochement Bancaire',
+      badge: 'Rapprochement',
+      description: 'Pointage Relevé Bancaire vs Grand Livre 532, calcul des écarts et certification aux normes ISA.',
+      render: () => <BankReconciliationPanel accessToken={accessToken} entityId={entityId} currency={currency} />,
     },
     {
       id: 'acc_financial_statements',

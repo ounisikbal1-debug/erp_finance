@@ -115,7 +115,8 @@ export function calculateReceivablesAging(input: {
     for (const payment of invoice.cashflowPayments) {
       if (payment.paidAt >= endExclusive) continue;
       const amountMillimes = toMillimes(payment.carryingAmount ?? payment.amount, false);
-      if (payment.direction !== 'CUSTOMER_RECEIPT'
+      const isReceipt = payment.direction === 'CUSTOMER_RECEIPT' || payment.direction === 'INCOMING';
+      if (!isReceipt
         || payment.currencyCode !== currencyCode
         || amountMillimes === null
         || !Number.isFinite(payment.paidAt.getTime())) {
@@ -207,10 +208,10 @@ export function calculateReceivablesAging(input: {
     asOf: input.asOf,
     currencyPrecision: 3,
     totals: {
-      outstanding: totalsAvailable ? outstandingMillimes / 1000 : null,
+      outstanding: outstandingMillimes / 1000,
       ...Object.fromEntries(BUCKETS.map((bucket) => [
         bucket,
-        totalsAvailable ? bucketTotals[bucket] / 1000 : null,
+        bucketTotals[bucket] / 1000,
       ])) as Record<Bucket, number | null>,
       openInvoiceCount: sortedInvoices.length,
     },

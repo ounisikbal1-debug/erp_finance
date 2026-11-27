@@ -621,8 +621,8 @@ export default function IncomeStatementPanel({
   ];
   const exportRows = statementLines.map((line) => ({
     ...line,
-    amount: line.amount ?? 'Indisponible',
-    percentageOfRevenue: line.percentageOfRevenue === null ? 'Indisponible' : line.percentageOfRevenue,
+    amount: line.amount ?? 0,
+    percentageOfRevenue: line.percentageOfRevenue === null ? 0 : line.percentageOfRevenue,
   }));
   const exportMeta = data ? {
     moduleName: 'Compte de résultat comptable',

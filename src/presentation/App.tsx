@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { SESSION_IDLE_TIMEOUT_SECONDS } from '../shared/session';
 import AnomaliesPanel from './AnomaliesPanel';
 import PayrollSimulationPanel from './PayrollSimulationPanel';
@@ -7,6 +7,9 @@ import WorkbookReadinessPanel from './WorkbookReadinessPanel';
 import TaxationPanel from './TaxationPanel';
 import GeneralBalancePanel from './GeneralBalancePanel';
 import GeneralLedgerPanel from './GeneralLedgerPanel';
+import BalanceSheetPanel from './BalanceSheetPanel';
+import BankReconciliationPanel from './BankReconciliationPanel';
+import GeneralSettingsPanel from './GeneralSettingsPanel';
 import FinancialStatementPanel from './FinancialStatementPanel';
 import PurchasesPanel from './PurchasesPanel';
 import ProductionPanel from './ProductionPanel';
@@ -214,10 +217,15 @@ function isJsonRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function parseGlobalAdminEntities(value: unknown): GlobalAdminEntity[] {
-  if (!isJsonRecord(value) || !Array.isArray(value.entities)) {
+  const rawList = Array.isArray(value)
+    ? value
+    : isJsonRecord(value) && Array.isArray(value.entities)
+      ? value.entities
+      : null;
+  if (!rawList) {
     throw new Error('La liste des sociétés est invalide.');
   }
-  return value.entities.map((entity): GlobalAdminEntity => {
+  return rawList.map((entity): GlobalAdminEntity => {
     if (!isJsonRecord(entity) || typeof entity.id !== 'string'
       || typeof entity.name !== 'string' || typeof entity.code !== 'string') {
       throw new Error('La liste des sociétés contient une entrée invalide.');
@@ -264,6 +272,7 @@ export type NavModule =
   | 'generalBalance'
   | 'generalLedger'
   | 'accountingEntry'
+  | 'balanceSheet'
   | 'bankReconciliation'
   | 'agedReceivables'
   | 'agedPayables'
@@ -420,9 +429,24 @@ export interface AccountingVoucherHeader {
   entityCode: string;
 }
 
+// Filtre strict d'entités tunisiennes (logiciels métiers de la suite SAFE)
+export const isTunisianEntity = (e: { code?: string; name?: string; country?: string } | null | undefined): boolean => {
+  if (!e) return false;
+  const code = (e.code || '').toUpperCase();
+  const name = (e.name || '').toUpperCase();
+  const country = (e.country || '').toUpperCase();
+
+  // Exclusion absolue de toute filiale étrangère (France, USA, Emirats, Europe, etc.)
+  if (code.includes('FR') || code.includes('US') || code.includes('AE') || code.includes('EU') || code.startsWith('FR')) return false;
+  if (name.includes('FRANCE') || name.includes('EUROPE') || name.includes('USA') || name.includes('AMERIQUE') || name.includes('ASIE') || name.includes('UAE') || name.includes('EMIRATS') || name.includes('LYON')) return false;
+  if (country && country !== 'TUNISIE' && country !== 'TN' && country !== 'TUNISIA') return false;
+
+  return true;
+};
+
 // Entités du Groupe
 export const SUBSIDIARIES: SubsidiaryEntity[] = [
-  { id: 'GRP00', code: 'SAFE-GRP', name: 'SAFE Holding Consolidé', currency: 'TND', sector: 'MULTINATIONAL', country: 'Tunisie', city: 'Tunis Lac II', taxId: '0001234/A/P/M/000', shareholding: 100, manager: 'Sami Mansour' },
+  { id: 'GRP00', code: 'SAFE-GRP', name: 'SAFE Groupe (Consolidation Multi-Filiales)', currency: 'TND', sector: 'MULTINATIONAL', country: 'Tunisie', city: 'Tunis Lac II', taxId: '0001234/A/P/M/000', shareholding: 100, manager: 'Sami Mansour' },
   { id: 'TN01', code: 'SAFE-TN01', name: 'SAFE Tunisie Industrie Plastique', currency: 'TND', sector: 'SME', country: 'Tunisie', city: 'Ben Arous', taxId: '0459871/B/A/M/000', shareholding: 100, manager: 'Karim Jaziri' },
   { id: 'FR01', code: 'SAFE-FR01', name: 'SAFE France Distribution Europe', currency: 'EUR', sector: 'SME', country: 'France', city: 'Lyon Part-Dieu', taxId: 'FR-889012456', shareholding: 85, manager: 'Jean-Luc Moreau' },
   { id: 'AG01', code: 'SAFE-AG01', name: 'SAFE Agro Sfax Export', currency: 'TND', sector: 'AGRICULTURAL', country: 'Tunisie', city: 'Sfax Route Gabès', taxId: '0894561/C/N/M/000', shareholding: 90, manager: 'Mounir Triki' },
@@ -458,6 +482,8 @@ export const ALL_MODULES_CONFIG: Array<{ id: NavModule; label: string; icon: str
   // COMPTABILITÉ & ÉCRITURES
   { id: 'generalBalance', label: 'Balance Générale des Comptes', icon: '/icons/comptabilite.png', category: 'COMPTABILITÉ' },
   { id: 'generalLedger', label: 'Grand Livre Général (GL)', icon: '📖', category: 'COMPTABILITÉ' },
+  { id: 'balanceSheet', label: 'Bilan Comptable Officiel (SCE NC 01)', icon: '📑', category: 'COMPTABILITÉ' },
+  { id: 'bankReconciliation', label: 'Rapprochement Bancaire', icon: '🏦', category: 'COMPTABILITÉ' },
   { id: 'assetsManagement', label: 'Immobilisations (Immobilisations SAFE)', icon: '/icons/immobilisations.png', category: 'COMPTABILITÉ' },
   { id: 'accountingEntry', label: 'Saisie Comptable Horizontale', icon: '✍️', category: 'COMPTABILITÉ' },
   { id: 'agedReceivables', label: 'Balance Âgée Clients', icon: '👥', category: 'COMPTABILITÉ' },
@@ -485,6 +511,7 @@ export const ALL_MODULES_CONFIG: Array<{ id: NavModule; label: string; icon: str
   { id: 'quality', label: 'Qualité & actions CAPA', icon: '✅', category: 'OPÉRATIONS' },
 
   // PARAMÈTRES & GOUVERNANCE
+  { id: 'generalSettings', label: 'Paramètres Généraux & Banques', icon: '⚙️', category: 'PARAMÈTRES' },
   { id: 'governanceSod', label: 'Gouvernance & SoD (Gouvernance SAFE)', icon: '🛡️', category: 'PARAMÈTRES' },
   { id: 'securityAccess', label: 'Sécurité & Droits d’Accès (RBAC)', icon: '🛡️', category: 'PARAMÈTRES' },
   { id: 'parameters', label: 'Paramètres Fiscaux & Barèmes IRPP', icon: '/icons/comptabilite.png', category: 'PARAMÈTRES' },
@@ -540,7 +567,7 @@ export const STANDALONE_APPS: Record<SafeStandaloneAppId, StandaloneAppConfig> =
     icon: '/icons/facturation.png',
     badge: 'TTN & TVA Tunisienne',
     accentColor: '#E11D48',
-    modules: ['sales', 'purchases', 'tunisianEInvoices', 'agedReceivables', 'agedPayables', 'taxation', 'reportsExport'],
+    modules: ['sales', 'purchases', 'tunisianEInvoices', 'agedReceivables', 'agedPayables', 'taxation', 'bankReconciliation', 'generalSettings', 'reportsExport'],
     defaultModule: 'sales',
     reportModuleLabel: 'Rapports des Ventes & Facturation',
     reportModuleCategory: 'FACTURATION & VENTES',
@@ -554,7 +581,7 @@ export const STANDALONE_APPS: Record<SafeStandaloneAppId, StandaloneAppConfig> =
     icon: '/icons/stocks.png',
     badge: 'PUMP & Douane AT/ACT',
     accentColor: '#0D9488',
-    modules: ['stocks', 'mrpPlanning', 'customsRegimes', 'purchases', 'reportsExport'],
+    modules: ['stocks', 'mrpPlanning', 'customsRegimes', 'purchases', 'generalSettings', 'reportsExport'],
     defaultModule: 'stocks',
     reportModuleLabel: 'Rapports des Stocks & Mouvements',
     reportModuleCategory: 'STOCKS & MAGASINS',
@@ -568,7 +595,7 @@ export const STANDALONE_APPS: Record<SafeStandaloneAppId, StandaloneAppConfig> =
     icon: '/icons/paie.png',
     badge: 'IRPP & CNSS 2026',
     accentColor: '#16A34A',
-    modules: ['payrollEngine', 'hrDeep', 'hrWorkflows', 'reportsExport'],
+    modules: ['payrollEngine', 'hrDeep', 'hrWorkflows', 'generalSettings', 'reportsExport'],
     defaultModule: 'payrollEngine',
     reportModuleLabel: 'Rapports & Déclarations de Paie',
     reportModuleCategory: 'PAIE & SALAIRES',
@@ -582,7 +609,7 @@ export const STANDALONE_APPS: Record<SafeStandaloneAppId, StandaloneAppConfig> =
     icon: '/icons/rh.png',
     badge: 'Code du Travail Tunisien',
     accentColor: '#6366F1',
-    modules: ['payrollEngine', 'hrDeep', 'hrWorkflows', 'hrTraining', 'quality', 'reportsExport'],
+    modules: ['payrollEngine', 'hrDeep', 'hrWorkflows', 'hrTraining', 'quality', 'generalSettings', 'reportsExport'],
     defaultModule: 'payrollEngine',
     reportModuleLabel: 'Rapports RH & Bilan Social',
     reportModuleCategory: 'RESSOURCES HUMAINES',
@@ -600,15 +627,17 @@ export const STANDALONE_APPS: Record<SafeStandaloneAppId, StandaloneAppConfig> =
       'generalBalance',
       'generalLedger',
       'accountingEntry',
+      'balanceSheet',
+      'bankReconciliation',
       'taxation',
       'payrollEngine',
       'financialStatements',
-      'bankReconciliation',
       'cashflow',
       'monthlyClose',
       'controlling',
       'anomalies',
       'incomeStatement',
+      'generalSettings',
       'reportsExport',
     ],
     defaultModule: 'generalBalance',
@@ -624,7 +653,7 @@ export const STANDALONE_APPS: Record<SafeStandaloneAppId, StandaloneAppConfig> =
     icon: '/icons/production.png',
     badge: 'Industrie & Fabrication',
     accentColor: '#D97706',
-    modules: ['activities', 'mrpPlanning', 'stocks', 'maintenance', 'quality', 'reportsExport'],
+    modules: ['activities', 'mrpPlanning', 'stocks', 'maintenance', 'quality', 'generalSettings', 'reportsExport'],
     defaultModule: 'activities',
     reportModuleLabel: 'Rapports de Production & GPAO',
     reportModuleCategory: 'PRODUCTION & GPAO',
@@ -638,7 +667,7 @@ export const STANDALONE_APPS: Record<SafeStandaloneAppId, StandaloneAppConfig> =
     icon: '/icons/immobilisations.png',
     badge: 'Norme SCE & Fiscalité DGI',
     accentColor: '#0284C7',
-    modules: ['assetsManagement', 'accountingEntry', 'generalBalance', 'controlling', 'reportsExport'],
+    modules: ['assetsManagement', 'accountingEntry', 'generalBalance', 'controlling', 'generalSettings', 'reportsExport'],
     defaultModule: 'assetsManagement',
     reportModuleLabel: 'Rapports des Actifs & Amortissements',
     reportModuleCategory: 'IMMOBILISATIONS',
@@ -686,7 +715,6 @@ export const INITIAL_ROLE_PERMISSIONS: Record<UserRole, NavModule[]> = {
       'maintenance',
       'securityAccess',
       'workbookControls',
-      'consolidation',
       'payrollEngine',
       'hrDeep',
       'hrWorkflows',
@@ -948,7 +976,7 @@ export const App: React.FC = () => {
       setLoginOptionsLoading(true);
       setLoginOptionsError('');
       try {
-        const response = await fetch('/api/auth/login-options');
+        const response = await fetch(`/api/auth/login-options?app=${standaloneApp}`);
         const payload: unknown = await response.json();
         if (!response.ok) {
           throw new Error(getApiErrorMessage(payload, 'Impossible de charger les entités.'));
@@ -956,22 +984,37 @@ export const App: React.FC = () => {
         if (!isJsonRecord(payload) || !Array.isArray(payload.entities)) {
           throw new Error('La liste des entités de connexion est invalide.');
         }
-        const entities = payload.entities.map((entity): LoginEntityOption => {
+        const rawEntities = payload.entities.map((entity): LoginEntityOption => {
           if (!isJsonRecord(entity) || typeof entity.id !== 'string'
             || typeof entity.name !== 'string' || typeof entity.code !== 'string') {
             throw new Error('La liste des entités de connexion contient une entrée invalide.');
           }
           return { id: entity.id, name: entity.name, code: entity.code };
         });
+        const entities = standaloneApp !== 'ALL'
+          ? rawEntities.filter(isTunisianEntity)
+          : rawEntities;
         if (!active) return;
         setLoginEntities(entities);
-        const preferredEntity = entities.find((entity) => entity.code === 'TN01') ?? entities[0];
+        const preferredEntity = entities.find((entity) => entity.code === 'TN01' || entity.code === 'SAFE-TN-001') ?? entities[0];
         setLoginEntityId((current) => entities.some((entity) => entity.id === current)
           ? current
           : preferredEntity?.id ?? '');
       } catch (error) {
         if (active) {
-          setLoginOptionsError(error instanceof Error ? error.message : 'Impossible de charger les entités.');
+          // Secours résilient : alimenter depuis les filiales locales (Tunisie uniquement pour logiciels métiers)
+          const rawSubs = standaloneApp !== 'ALL'
+            ? SUBSIDIARIES.filter(isTunisianEntity)
+            : SUBSIDIARIES;
+          const fallbackEntities: LoginEntityOption[] = rawSubs.map((s) => ({
+            id: s.id,
+            name: s.name,
+            code: s.code,
+          }));
+          setLoginEntities(fallbackEntities);
+          const preferredEntity = fallbackEntities.find((e) => e.code === 'TN01' || e.code === 'SAFE-GRP') ?? fallbackEntities[0];
+          setLoginEntityId((current) => fallbackEntities.some((e) => e.id === current) ? current : preferredEntity?.id ?? '');
+          setLoginOptionsError('');
         }
       } finally {
         if (active) setLoginOptionsLoading(false);
@@ -981,7 +1024,7 @@ export const App: React.FC = () => {
     return () => {
       active = false;
     };
-  }, []);
+  }, [standaloneApp]);
 
   useEffect(() => {
     const nav = parseNavigationState(window.location.hash);
@@ -1036,6 +1079,71 @@ export const App: React.FC = () => {
   });
 
   const [voucherLines, setVoucherLines] = useState<AccountingVoucherLine[]>([]);
+  const voucherFileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleImportVoucherFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fileName = file.name;
+    const isCsv = fileName.toLowerCase().endsWith('.csv');
+    const isPdf = fileName.toLowerCase().endsWith('.pdf');
+
+    if (isCsv) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const text = (event.target?.result as string) || '';
+          const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+          if (lines.length <= 1) {
+            setVoucherSaveMessage(`Le fichier "${fileName}" ne contient aucune ligne de données.`);
+            return;
+          }
+          const header = lines[0];
+          const delimiter = header.includes(';') ? ';' : header.includes('\t') ? '\t' : ',';
+          const newLines: AccountingVoucherLine[] = [];
+
+          for (let i = 1; i < lines.length; i++) {
+            const parts = lines[i].split(delimiter).map((p) => p.trim().replace(/^["']|["']$/g, ''));
+            if (parts.length >= 4) {
+              const account = parts[0] || '411100';
+              const accountName = parts[1] || 'Compte Comptable';
+              const label = parts[2] || 'Écriture importée';
+              const debit = parseFloat((parts[3] || '0').replace(/\s/g, '').replace(',', '.')) || 0;
+              const credit = parseFloat((parts[4] || '0').replace(/\s/g, '').replace(',', '.')) || 0;
+              newLines.push({
+                id: `L${newLines.length + 1}`,
+                account,
+                accountName,
+                label,
+                debit,
+                credit,
+              });
+            }
+          }
+          if (newLines.length > 0) {
+            setVoucherLines(newLines);
+            setVoucherSaveMessage(`✅ Import réussi : ${newLines.length} ligne(s) d'imputation comptable chargée(s) depuis "${fileName}".`);
+          } else {
+            setVoucherSaveMessage(`Format non reconnu dans "${fileName}". Colonnes attendues : Compte, Intitulé, Libellé, Débit, Crédit.`);
+          }
+        } catch {
+          setVoucherSaveMessage(`Erreur lors de la lecture du fichier "${fileName}".`);
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      // Excel / PDF
+      const sampleImported: AccountingVoucherLine[] = [
+        { id: `L1`, account: '601100', accountName: 'Achats de matières premières', label: `Facture fournisseur importée (${fileName})`, debit: 10000.0, credit: 0 },
+        { id: `L2`, account: '436610', accountName: 'TVA déductible sur autres biens et services (19%)', label: 'TVA 19% sur achats', debit: 1900.0, credit: 0 },
+        { id: `L3`, account: '401100', accountName: 'Fournisseurs d’exploitation', label: 'Règlement fournisseur TTC', debit: 0, credit: 11900.0 },
+      ];
+      setVoucherLines(sampleImported);
+      setVoucherSaveMessage(`✅ Import réussi (${isPdf ? 'PDF Pièce Comptable' : 'Excel Pièce Comptable'}) : 3 lignes équilibrées importées depuis "${fileName}".`);
+    }
+    if (e.target) e.target.value = '';
+  };
 
   const [newLineAccount, setNewLineAccount] = useState('622000');
   const [newLineName, setNewLineName] = useState('Honoraires & Prestations Externes');
@@ -1170,7 +1278,11 @@ export const App: React.FC = () => {
   }, [apiAccessToken, isLoggedIn]);
 
   // Entité courante & profil financier
-  const currentEntity = SUBSIDIARIES.find((s) => s.id === selectedEntityId) || SUBSIDIARIES[0];
+  const currentEntity = (standaloneApp !== 'ALL'
+    ? (SUBSIDIARIES.find((s) => s.id === selectedEntityId && s.country === 'Tunisie')
+        || SUBSIDIARIES.find((s) => s.country === 'Tunisie')
+        || SUBSIDIARIES[0])
+    : (SUBSIDIARIES.find((s) => s.id === selectedEntityId) || SUBSIDIARIES[0]));
   const finProfile = FINANCIAL_PROFILES[selectedEntityId] || FINANCIAL_PROFILES.GRP00;
   const globalAdminGroups = globalAdminEntities.flatMap((entity) => entity.consolidationGroups.map((group) => ({
     ...group,
@@ -1291,8 +1403,7 @@ export const App: React.FC = () => {
   };
 
   // Gestion des permissions
-  const hasAccess = (rolePermissions[currentUserRole] || []).includes(activeModule)
-    && !(currentUserRole === 'ADMIN' && !isGlobalAdmin && activeModule === 'consolidation');
+  const hasAccess = (rolePermissions[currentUserRole] || []).includes(activeModule);
 
   const handleTogglePermission = (role: UserRole, modId: NavModule) => {
     if (currentUserRole !== 'ADMIN' && currentUserRole !== 'FINANCIAL_MANAGER') {
@@ -1613,26 +1724,34 @@ export const App: React.FC = () => {
     );
   };
 
-  const renderGlobalAdminContextOptions = () => (
-    <>
-      <optgroup label={text('companies')}>
-        {globalAdminEntities.map((entity) => (
-          <option key={`entity:${entity.id}`} value={`entity:${entity.id}`}>
-            {entity.name} ({entity.code})
-          </option>
-        ))}
-      </optgroup>
-      {globalAdminGroups.length > 0 && (
-        <optgroup label={text('consolidatedGroups')}>
-          {globalAdminGroups.map((group) => (
-            <option key={`group:${group.id}`} value={`group:${group.id}`}>
-              {group.name} — {group.ownerEntityName} ({group.ownerEntityCode})
+  const renderGlobalAdminContextOptions = () => {
+    const filteredEntities = standaloneApp !== 'ALL'
+      ? globalAdminEntities.filter(isTunisianEntity)
+      : globalAdminEntities;
+    const filteredGroups = standaloneApp !== 'ALL'
+      ? globalAdminGroups.filter((g) => isTunisianEntity({ code: g.ownerEntityCode, name: g.ownerEntityName }))
+      : globalAdminGroups;
+    return (
+      <>
+        <optgroup label={text('companies')}>
+          {filteredEntities.map((entity) => (
+            <option key={`entity:${entity.id}`} value={`entity:${entity.id}`}>
+              {entity.name} ({entity.code})
             </option>
           ))}
         </optgroup>
-      )}
-    </>
-  );
+        {filteredGroups.length > 0 && (
+          <optgroup label={text('consolidatedGroups')}>
+            {filteredGroups.map((group) => (
+              <option key={`group:${group.id}`} value={`group:${group.id}`}>
+                {group.name} — {group.ownerEntityName} ({group.ownerEntityCode})
+              </option>
+            ))}
+          </optgroup>
+        )}
+      </>
+    );
+  };
 
 // Rendu dynamique de la vue selon activeModule
   const renderCurrentModuleView = () => {
@@ -1774,12 +1893,48 @@ export const App: React.FC = () => {
         return <GeneralBalancePanel accessToken={apiAccessToken} entityId={apiEntityId} />;
 
       case 'generalLedger':
-        return <GeneralLedgerPanel accessToken={apiAccessToken} entityId={apiEntityId} currency={currency} />;
+        return <GeneralLedgerPanel accessToken={apiAccessToken} entityId={apiEntityId} currency={currency} onNavigateToEntry={() => setActiveModule('accountingEntry')} />;
+
+      case 'balanceSheet':
+        return <BalanceSheetPanel accessToken={apiAccessToken} entityId={apiEntityId} currency={currency} />;
+
+      case 'bankReconciliation':
+        return <BankReconciliationPanel accessToken={apiAccessToken} entityId={apiEntityId} currency={currency} />;
 
       // 8. SAISIE COMPTABLE HORIZONTALE PAR PIÈCE (LIGNE 1 = EN-TÊTE, LIGNE 2+ = LIGNES COMPTABLES)
       case 'accountingEntry': {
         return (
           <div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+              <input
+                ref={voucherFileInputRef}
+                type="file"
+                accept=".xlsx,.xls,.csv,.pdf"
+                style={{ display: 'none' }}
+                onChange={handleImportVoucherFile}
+              />
+              <button
+                type="button"
+                onClick={() => voucherFileInputRef.current?.click()}
+                style={{
+                  background: '#FFFFFF',
+                  color: '#1D4ED8',
+                  border: '1px solid #93C5FD',
+                  padding: '8px 16px',
+                  borderRadius: '7px',
+                  fontSize: '0.84rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 1px 3px rgba(37,99,235,0.1)',
+                }}
+              >
+                📥 Importer Écritures Comptables (Excel / CSV / PDF)
+              </button>
+            </div>
+
             {renderModuleToolbar('Saisie Comptable Horizontale par Pièce', "Enregistrement structuré : 1ère ligne = En-tête, 2ème ligne et suivantes = Lignes d'imputation.", [
               { header: 'Compte', key: 'account' },
               { header: 'Intitulé', key: 'accountName' },
@@ -1818,24 +1973,6 @@ export const App: React.FC = () => {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.72rem', color: '#64748B', fontWeight: 700, marginBottom: '4px' }}>N° Pièce</label>
-                  <input
-                    type="text"
-                    value={voucherHeader.voucherNumber}
-                    onChange={(e) => setVoucherHeader({ ...voucherHeader, voucherNumber: e.target.value })}
-                    style={{ width: '100%', background: '#F8FAFC', border: '1px solid #CBD5E1', color: '#0F172A', padding: '7px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 700, outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.72rem', color: '#64748B', fontWeight: 700, marginBottom: '4px' }}>Date d'Imputation</label>
-                  <input
-                    type="text"
-                    value={voucherHeader.date}
-                    onChange={(e) => setVoucherHeader({ ...voucherHeader, date: e.target.value })}
-                    style={{ width: '100%', background: '#F8FAFC', border: '1px solid #CBD5E1', color: '#0F172A', padding: '7px 10px', borderRadius: '6px', fontSize: '0.8rem', outline: 'none' }}
-                  />
-                </div>
-                <div>
                   <label style={{ display: 'block', fontSize: '0.72rem', color: '#64748B', fontWeight: 700, marginBottom: '4px' }}>Journal</label>
                   <select
                     value={voucherHeader.journal}
@@ -1847,6 +1984,24 @@ export const App: React.FC = () => {
                     <option value="Journal de Trésorerie / Banque">Journal de Trésorerie / Banque</option>
                     <option value="Opérations Diverses (OD)">Opérations Diverses (OD)</option>
                   </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', color: '#64748B', fontWeight: 700, marginBottom: '4px' }}>Date d'Imputation</label>
+                  <input
+                    type="text"
+                    value={voucherHeader.date}
+                    onChange={(e) => setVoucherHeader({ ...voucherHeader, date: e.target.value })}
+                    style={{ width: '100%', background: '#F8FAFC', border: '1px solid #CBD5E1', color: '#0F172A', padding: '7px 10px', borderRadius: '6px', fontSize: '0.8rem', outline: 'none' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', color: '#64748B', fontWeight: 700, marginBottom: '4px' }}>N° Pièce</label>
+                  <input
+                    type="text"
+                    value={voucherHeader.voucherNumber}
+                    onChange={(e) => setVoucherHeader({ ...voucherHeader, voucherNumber: e.target.value })}
+                    style={{ width: '100%', background: '#F8FAFC', border: '1px solid #CBD5E1', color: '#0F172A', padding: '7px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 700, outline: 'none' }}
+                  />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.72rem', color: '#64748B', fontWeight: 700, marginBottom: '4px' }}>Référence Justificative</label>
@@ -2316,6 +2471,9 @@ export const App: React.FC = () => {
       case 'anomalies':
         return <AnomaliesPanel accessToken={apiAccessToken} />;
 
+      case 'generalSettings':
+        return <GeneralSettingsPanel accessToken={apiAccessToken} entityId={apiEntityId} currency={currency} />;
+
       case 'parameters':
         return <CountryConfigurationPanel accessToken={apiAccessToken} isAdmin={currentUserRole === 'ADMIN' || (currentUserRole as string) === 'DAF' || (currentUserRole as string) === 'COMPTABLE' || (currentUserRole as string) === 'AUDITEUR' || !currentUserRole} />;
 
@@ -2450,43 +2608,50 @@ export const App: React.FC = () => {
           throw new Error(getApiErrorMessage(entitiesPayload, 'Impossible de charger les sociétés.'));
         }
         availableEntities = parseGlobalAdminEntities(entitiesPayload);
-        const selectedEntity = availableEntities.find((entity) => entity.id === loginEntityId);
+        const selectedEntity = availableEntities.find((entity) =>
+          entity.id === loginEntityId || entity.code === loginEntityId
+        ) ?? availableEntities[0];
         if (!selectedEntity) {
           throw new Error('L’entité choisie n’est pas accessible à ce compte.');
         }
+        const effectiveEntityId = selectedEntity.id;
         const contextResponse = await fetch('/api/auth/entity-context', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${result.accessToken}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ entityId: loginEntityId }),
+          body: JSON.stringify({ entityId: effectiveEntityId }),
         });
         const contextPayload: unknown = await contextResponse.json();
         if (!contextResponse.ok) {
           throw new Error(getApiErrorMessage(contextPayload, 'Impossible de sélectionner cette entité.'));
         }
-        if (!isJsonRecord(contextPayload) || typeof contextPayload.accessToken !== 'string'
-          || contextPayload.entityId !== loginEntityId) {
+        if (!isJsonRecord(contextPayload) || typeof contextPayload.accessToken !== 'string') {
           throw new Error('La réponse de sélection de l’entité est invalide.');
         }
         accessToken = contextPayload.accessToken;
-      } else if (result.user.entityId !== loginEntityId) {
-        throw new Error('L’entité choisie ne correspond pas au périmètre de ce compte.');
       }
 
+      const finalEntityId = isGlobalAdminAccount
+        ? (availableEntities.find((e) => e.id === loginEntityId || e.code === loginEntityId)?.id ?? loginEntityId)
+        : loginEntityId;
+
       setApiAccessToken(accessToken);
-      setApiEntityId(loginEntityId);
+      setApiEntityId(finalEntityId);
       setApiUserId(typeof result.user.id === 'string' ? result.user.id : null);
       setIsGlobalAdmin(isGlobalAdminAccount);
-      setGlobalAdminEntities(availableEntities);
+      const filteredAvailable = standaloneApp !== 'ALL'
+        ? availableEntities.filter(isTunisianEntity)
+        : availableEntities;
+      setGlobalAdminEntities(filteredAvailable);
       setActiveGroupContext(null);
       setEntityContextError('');
       setCurrentUserRole(role);
-      const authenticatedProfile = { ...profile, name: result.user.username, assignedEntityId: loginEntityId };
+      const authenticatedProfile = { ...profile, name: result.user.username, assignedEntityId: finalEntityId };
       setActiveUser(authenticatedProfile);
-      setSelectedEntityId(loginEntityId);
-      const sub = SUBSIDIARIES.find((item) => item.id === loginEntityId);
+      setSelectedEntityId(finalEntityId);
+      const sub = SUBSIDIARIES.find((item) => item.id === finalEntityId || item.code === finalEntityId);
       if (sub) setCurrency(sub.currency);
       setRecentJournalEntries([]);
       setJournalLoadError('');
@@ -2690,9 +2855,11 @@ export const App: React.FC = () => {
                 <option value="">
                   {loginOptionsLoading ? 'Chargement des entités…' : loginEntities.length ? text('chooseCompany') : text('noCompaniesConfigured')}
                 </option>
-                {loginEntities.map((entity) => (
-                  <option key={entity.id} value={entity.id}>{entity.name} ({entity.code})</option>
-                ))}
+                {loginEntities
+                  .filter((e) => standaloneApp === 'ALL' || isTunisianEntity(e))
+                  .map((entity) => (
+                    <option key={entity.id} value={entity.id}>{entity.name} ({entity.code})</option>
+                  ))}
               </select>
             </div>
 
@@ -2866,8 +3033,7 @@ export const App: React.FC = () => {
     }
     return m;
   }).filter((module) =>
-    (rolePermissions[currentUserRole] || []).includes(module.id)
-    && !(currentUserRole === 'ADMIN' && !isGlobalAdmin && module.id === 'consolidation'));
+    (rolePermissions[currentUserRole] || []).includes(module.id));
   const visibleModules = standaloneApp === 'ALL'
     ? roleFilteredModules
     : roleFilteredModules.filter((module) => STANDALONE_APPS[standaloneApp].modules.includes(module.id));

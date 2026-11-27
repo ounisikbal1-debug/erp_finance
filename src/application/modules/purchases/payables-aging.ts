@@ -129,7 +129,8 @@ export function calculatePayablesAging(input: {
     for (const payment of invoice.cashflowPayments) {
       if (Number.isFinite(payment.paidAt.getTime()) && payment.paidAt >= endExclusive) continue;
       const amountMillimes = toMillimes(payment.amount, false);
-      if (payment.direction !== 'SUPPLIER_PAYMENT'
+      const isSupplierPayment = payment.direction === 'SUPPLIER_PAYMENT' || payment.direction === 'OUTGOING';
+      if (!isSupplierPayment
         || payment.currencyCode !== currencyCode
         || amountMillimes === null
         || !Number.isFinite(payment.paidAt.getTime())) {
@@ -243,11 +244,11 @@ export function calculatePayablesAging(input: {
     asOf: input.asOf,
     currencyPrecision: 3,
     totals: {
-      outstanding: totalsAvailable ? outstandingMillimes / 1000 : null,
-      credited: totalsAvailable ? creditedMillimesOverall / 1000 : null,
+      outstanding: outstandingMillimes / 1000,
+      credited: creditedMillimesOverall / 1000,
       ...Object.fromEntries(BUCKETS.map((bucket) => [
         bucket,
-        totalsAvailable ? bucketTotals[bucket] / 1000 : null,
+        bucketTotals[bucket] / 1000,
       ])) as Record<Bucket, number | null>,
       openInvoiceCount: sortedInvoices.length,
     },

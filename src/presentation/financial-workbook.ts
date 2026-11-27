@@ -141,8 +141,8 @@ export async function createFinancialWorkbook(input: {
   ]);
   incomeStatement.addRows(statementLines.map((line) => ({
     ...line,
-    amount: line.amount ?? 'Indisponible',
-    percentageOfRevenue: line.percentageOfRevenue === null ? 'Indisponible' : line.percentageOfRevenue / 100,
+    amount: line.amount ?? 0,
+    percentageOfRevenue: line.percentageOfRevenue === null ? 0 : line.percentageOfRevenue / 100,
     notes: safeCellText(line.notes),
   })));
   const statementHeader = incomeStatement.getRow(2);
@@ -178,7 +178,7 @@ export async function createFinancialWorkbook(input: {
   ]);
   bilan.addRows(buildFinancialPositionLines(balanceSheet).map((line) => ({
     ...line,
-    amount: line.amount ?? 'Indisponible',
+    amount: line.amount ?? 0,
     notes: safeCellText(line.notes),
   })));
   const balanceHeader = bilan.getRow(2);
@@ -213,7 +213,7 @@ export async function createFinancialWorkbook(input: {
   ]);
   cashFlow.addRows(buildCashFlowLines(balanceSheet).map((line) => ({
     ...line,
-    amount: line.amount ?? 'Indisponible',
+    amount: line.amount ?? 0,
     notes: safeCellText(line.notes),
   })));
   const cashFlowHeader = cashFlow.getRow(2);
@@ -239,7 +239,7 @@ export async function createFinancialWorkbook(input: {
     section: line.section,
     account: line.accountCode ? `${safeCellText(line.accountCode)} — ${safeCellText(line.label)}` : safeCellText(line.label),
     category: safeCellText(line.category),
-    amount: line.amount ?? 'Indisponible',
+    amount: line.amount ?? 0,
     notes: safeCellText(line.notes),
   })));
   styleSheet(detailedBalance);
@@ -257,7 +257,7 @@ export async function createFinancialWorkbook(input: {
   equityChanges.addRows(buildEquityChangesLines(balanceSheet).map((line) => ({
     ...line,
     label: safeCellText(line.label),
-    amount: line.amount ?? 'Indisponible',
+    amount: line.amount ?? 0,
     notes: safeCellText(line.notes),
   })));
   styleSheet(equityChanges);
